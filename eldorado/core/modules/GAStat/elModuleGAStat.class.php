@@ -188,13 +188,13 @@ class elModuleGAStat extends elModule
 		foreach (array('db_keyword', 'db_country', 'db_pagepath') as $type)
 		{
 			if (false == ($data = $this->_analytics->get($this->_makeURL($type))))
-				return elThrow(E_USER_WARNING, 'GA failed: %s', $this->_analytics->error);
+				return elThrow(E_USER_WARNING, 'GA failed on %s: %s', array($type, $this->_analytics->error));
 			$blocks[$type] = $data;
 		}
 		
 		$type = 'dashboard';
 		if (false == ($dashboard = $this->_analytics->get($this->_makeURL($type))))
-			return elThrow(E_USER_WARNING, 'GA failed: %s', $this->_analytics->error);
+			return elThrow(E_USER_WARNING, 'GA failed on dashboard: %s', $this->_analytics->error);
 		$newData = $this->sumStructMetrics($dashboard, $type);
 		$siteUsage = array(
 			'visits'         => number_format($newData['ga:visits']),
@@ -210,7 +210,7 @@ class elModuleGAStat extends elModule
 
 		$type = 'medium';
 		if (false == ($medium = $this->_analytics->get($this->_makeURL($type))))
-			return elThrow(E_USER_WARNING, 'GA failed: %s', $this->_analytics->error);		
+			return elThrow(E_USER_WARNING, 'GA failed on medium: %s', $this->_analytics->error);		
 		$medium = $this->maxDimensionsData($medium, $type, 3);
 		$legend[$type] = $this->generateDataLegend($medium, $type);
 		
@@ -227,7 +227,7 @@ class elModuleGAStat extends elModule
 			elThrow(E_USER_WARNING, 'unknown report type', null, EL_URL);
 	
 		if (false == ($data = $this->_analytics->get($this->_makeURL($type))))
-			return elThrow(E_USER_WARNING, 'GA failed: %s', $this->_analytics->error, EL_URL);
+			return elThrow(E_USER_WARNING, 'GA failed on get: %s', $this->_analytics->error, EL_URL);
 	
 		if (!empty($this->_reportTypes[$type]['chart']))
 			$chart = $this->_reportTypes[$type]['chart'];
@@ -358,7 +358,7 @@ class elModuleGAStat extends elModule
 			elThrow(E_USER_WARNING, 'unknown report type', null, EL_URL);
 	
 		if (false == ($data = $this->_analytics->get($this->_makeURL($type))))
-			return elThrow(E_USER_WARNING, 'GA failed: %s', $this->_analytics->error, EL_URL);
+			return elThrow(E_USER_WARNING, 'GA failed on get: %s', $this->_analytics->error, EL_URL);
 		
 		if (($this->_reportTypes[$type]['chart'] == 'pie') && ($this->_reportTypes[$type]['max']))
 			$data = $this->maxDimensionsData($data, $type, $this->_reportTypes[$type]['max']);

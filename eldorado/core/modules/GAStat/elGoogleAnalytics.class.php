@@ -66,7 +66,6 @@ class elGoogleAnalytics {
 	{
 		if ($this->auth() === false)
 			return false;
-		
 			
 		$headers = array("Authorization: GoogleLogin auth=$this->auth");
 
@@ -80,6 +79,7 @@ class elGoogleAnalytics {
 
 		if ($info['http_code'] == 200)
 		{
+			// TODO check output not empty for just started GA stats
 			return $output;
 		}
 		else

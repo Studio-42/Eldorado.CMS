@@ -78,10 +78,7 @@ class elGoogleAnalytics {
 		curl_close($c);
 
 		if ($info['http_code'] == 200)
-		{
-			// TODO check output not empty for just started GA stats
 			return $output;
-		}
 		else
 		{
 			$this->error = $info['http_code'] . ' ' . strip_tags($output);	// Google error 
@@ -94,21 +91,19 @@ class elGoogleAnalytics {
 		if (!is_dir($this->_cachePath))
 			mkdir($this->_cachePath, 0777);
 			
-		// if (($dynamicCache == true) && (!preg_match('!dynamic/$!', $this->_cachePath)))
-		// {
-		// 	$this->_cachePath .= 'dynamic/';			
-		// 	if (!is_dir($this->_cachePath))
-		// 		mkdir($this->_cachePath, 0777);
-		// }
-		
 		$md5 = md5($url);
 		$cacheFile = $this->_cachePath . $md5;
 			
 		if (false == ($cache = file_get_contents($cacheFile)))
 		{	// data not found in cache
-			
 			$xml = $this->getFeed($url);
 			$data = $this->_parser->parseDataFeed($xml);
+			if (empty($data))	// Everything is ok, but no statistics in GA yet
+			{
+				$this->error = 'Statistics is empty';
+				return false;
+			}
+
 			if (($data != false) && ($this->_cache))	// cache data
 			{
 				$fh = fopen($cacheFile, 'w');

@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase  /develop/distr-3.8.4
+RewriteBase  /
 RewriteRule ^conf\/(.*)\.xml index.php [NS,F]
 RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]
 RewriteRule ^(core\/editor\/editor\/dialog\/fck_spellerpages\/spellerpages\/server-scripts\/spellchecker.php) $1 [L]

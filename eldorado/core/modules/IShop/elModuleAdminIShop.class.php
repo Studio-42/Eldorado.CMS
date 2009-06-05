@@ -32,6 +32,7 @@ class elModuleAdminIShop extends elModuleIShop
 		'conf_search'     => array('m'=>'configureSearch',     'ico'=>'icoSearchConf',    'l'=>'Configure advanced search'),
 		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
+		'import_comml'       => array('m' => 'importCommerceML', 'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
 	/**********    манипуляции с типами товаров   *******************/
@@ -401,6 +402,73 @@ class elModuleAdminIShop extends elModuleIShop
    }
 
    
+	function importCommerceML()
+	{
+		$this->_makeImportCMLForm();
+		
+		if (!$this->_form->isSubmitAndValid() )
+		{
+			$this->_initRenderer();
+			$this->_rnd->addToContent( $this->_form->toHtml() );
+			return;
+		}
+		
+		$data = $this->_form->getValue();
+		//elPrintR($data);
+		//echo file_get_contents($data['source']['tmp_name']);
+		
+		$cmlParser = & elSingleton::getObj('elCommerceMLv2');
+		$raw = $cmlParser->parse(file_get_contents($data['source']['tmp_name']));
+		
+		
+
+		$source = array();
+		for($i=0, $s=sizeof($raw); $i<$s; $i++)
+		{
+			
+			$source[$raw[$i]['Id']] = $raw[$i];
+		}
+		unset($raw);
+		//elPrintR($source);
+		$itemsIDs = array();
+		$db = & elSingleton::getObj('elDb');
+		$tb = $this->_factory->tb('tbi');
+		$tbi2c = $this->_factory->tb('tbi2c');
+		$sql = 'SELECT code_1c FROM '.$tb; echo $sql;
+		
+		$itemsIDs = $db->queryToArray('SELECT code_1c FROM '.$tb, null, 'code_1c');
+		//elPrintR($itemsIDs);
+		
+		$insert = array_diff(array_keys($source), $itemsIDs); 
+		$update = array_intersect($itemsIDs, array_keys($source)); 
+		//elPrintR($insert);
+		elPrintR($update);
+		$sql = 'INSERT INTO %s (code_1c, name, price) VALUES ("%s", "%s", "%s")';
+		foreach ($insert as $id)
+		{
+			$db->query( sprintf($sql, $tb, $id, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice']));
+			$itemID = $db->insertID();
+			$db->query('INSERT INTO '.$tbi2c.' (i_id, c_id) VALUES ('.$itemID.', 1)');
+		}
+		
+		$sql = 'UPDATE %s SET name="%s", price="%s" WHERE code_1c="%s"';
+		foreach ($update as $id)
+		{
+			$db->query( sprintf($sql, $tb, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice'], $id));
+		}
+		
+	}
+	
+	function _makeImportCMLForm()
+	{
+		$this->_form = & elSingleton::getObj('elForm');
+		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+		$this->_form->setLabel( m('Import Commerce ML') );
+		$this->_form->add( new elFileInput('source', m('CL file')) );
+		
+		$this->_form->setRequired('source');
+	}
+
   //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//

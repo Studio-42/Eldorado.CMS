@@ -2,7 +2,7 @@
 
 // TODO check for double+ price and return error
 
-class CommerceMLv2
+class elCommerceMLv2
 {
 	var $_t = array(
 		'CommerceInformation' => 'КоммерческаяИнформация',

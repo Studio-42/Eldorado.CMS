@@ -1,0 +1,157 @@
+<div class="mod-forum-prf-wrapper">
+	<div class="mod-forum-prf-border">
+		<table  class="mod-forum-profile">
+			<thead>
+				<tr>
+					<th colspan="2">{m('User profile')} {name}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="profile-avatar first">
+						<!-- BEGIN PROFILE_AVATAR -->
+						<img src="{BASE_URL}storage/avatars/{avatar}" />
+						<!-- END PROFILE_AVATAR -->
+						<!-- BEGIN PROFILE_ACTIONS -->
+						<p class="important rounded-5">
+							<!-- BEGIN PROFILE_EDIT -->
+							<a href="{URL}profile_edit/{uid}/" class="user-edit">{m('Edit profile')}</a>
+							<!-- END PROFILE_EDIT -->
+							<!-- BEGIN PASSWD -->
+							<a href="{URL}passwd/{uid}/" class="user-passwd">{m('Change password')}</a>
+							<!-- END PASSWD -->
+							<!-- BEGIN UPL_AVATAR -->
+							<a href="#" id="up-av-link">{m('Upload new avatar')}</a>
+							<!-- END UPL_AVATAR -->
+							<!-- BEGIN RM_AVATAR -->
+							<a href="{URL}avatar_rm/{uid}/" class="rm-confirm avatar-rm">{m('Delete avatar')}</a>
+							<!-- END RM_AVATAR -->
+							<!-- BEGIN SET_MODERATOR -->
+							<a href="{URL}moderator/{uid}/" class="moderator">{m('Moderator')}</a>
+							<!-- END SET_MODERATOR -->
+							<!-- BEGIN SEND_PM -->
+							<!-- <a href="{URL}pm/{uid}/" class="pm">{m('Private message')}</a> -->
+							<!-- END SEND_PM -->
+							<!-- BEGIN USER_RM -->
+							<a href="{URL}profile_rm/{uid}/" class="rm-confirm user-rm">{m('Delete user')}</a>
+							<!-- END USER_RM -->
+						</p>
+						<!-- END PROFILE_ACTIONS -->
+				
+						<div id="up-av-dialog" class="hide" title="{m('Upload new avatar')}">
+							<div id="up-av-result"><p></p><img class="center" /></div>
+							<div id="up-av-progress">{m('Tranfering data...')}</div>
+							<form action="{URL}avatar/{uid}/" method="POST" enctype="multipart/form-data">
+								<p class="important rounded-5">{avatar_type_msg}<br />{avatar_size_msg}<br />{avatar_dim_msg}</p>
+								<input type="file" name="avatar" />
+								<input type="hidden" name="au" value="1" />
+							</form>
+						</div>
+					</td>
+					<td class="profile last">
+				
+						<table>
+							<tr>
+								<td>{m('User name')}</td>
+								<td>{name}</td>
+							</tr>
+							<tr>
+								<td>{m('Status')}</td>
+								<td>
+									<span class="{cssStatusClass}">{status}</span>
+								</td>
+							</tr>
+							<tr>
+								<td>{m('Posts num')}</td>
+								<td>{posts}</td>
+							</tr>
+							<tr>
+								<td>{m('Registration date')}</td>
+								<td>{reg_date}</td>
+							</tr>
+							<!-- BEGIN PROFILE_MOD_DATE -->
+							<tr>
+								<td>{m('Profile modified date')}</td>
+								<td>{mod_date}</td>
+							</tr>
+							<!-- END PROFILE_MOD_DATE -->
+							<tr>
+								<td>{m('Last activity date')}</td>
+								<td>{lv_time}</td>
+							</tr>
+					
+							<tr>
+								<td>{m('Web site')}</td>
+								<td><a href="{web_site}" target="_blank">{web_site}</a></td>
+							</tr>
+							<tr>
+								<td>ICQ</td>
+								<td>{icq}</td>
+							</tr>
+							<!-- BEGIN MODERATOR_FORUMS -->
+							<tr>
+								<td>{m('Moderator in forums')}:</td>
+								<td>{forums}</td>
+							</tr>
+							<!-- END MODERATOR_FORUMS -->
+						</table>
+			
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<style type="text/css" media="screen">
+	#up-av-progress { height:30px; text-align:center; background:url({STYLE_URL}images/loading.gif) 50% 50% no-repeat;}
+</style>
+<!-- BEGIN UPLOAD_AVATAR_JS -->
+<script type="text/javascript" charset="utf-8">
+
+	$().ready( function() {
+		$().ready( function() { 
+			$('a.rm-confirm').click( function() { return confirm('{m('Do You really want to delete? This action cannot be undone!')}') } );
+			 });
+			
+		$('#up-av-dialog form').ajaxForm( { dataType:'json', beforeSubmit: showProgress, success: processJson} );
+		
+		$('#up-av-link').click( function() { showAvatarForm(); return false; });
+		
+		function showAvatarForm() {
+			$('#up-av-dialog').dialog()
+				.dialog('open')
+				.dialog('option', 'buttons', { "{m('Send')}" : function(){ $(this).children('form').trigger('submit'); } })
+				.children('div').hide()
+				.siblings('form').show();
+		}
+		
+		// pre-submit callback 
+		function showProgress(formData, jqForm, options) { 
+			$('#up-av-dialog').dialog('option', 'buttons', {})
+				.children('form').hide()
+				.siblings('#up-av-progress').show();
+		    return true; 
+		} 
+
+		function processJson(data) { 
+			var d = $('#up-av-dialog');
+			d.children('#up-av-progress').hide();
+			d.children('#up-av-result').children('p').removeClass('warning').removeClass('note');
+			if (data.err) {
+
+				var opts = {
+					"Ok"                : function() { $(this).dialog("close"); },
+					"{m('Try again')}"  : function () { showAvatarForm(); }
+				};
+				d.dialog('option', 'buttons', opts )
+					.children('#up-av-result').show().children('p').html(data.err).addClass('warning');
+			} else {
+				d.bind('dialogclose', function() { document.location.href=document.location.href;} )
+					.dialog('option', 'buttons', {"Ok": function() {  $(this).dialog("close"); }})
+					.children('#up-av-result').show().children('p').html(data.msg).addClass('note')
+					.siblings('img').attr('src', data.img);
+			}
+		}
+	});
+</script>
+<!-- END UPLOAD_AVATAR_JS -->

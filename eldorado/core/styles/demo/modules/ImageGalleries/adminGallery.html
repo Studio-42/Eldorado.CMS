@@ -1,0 +1,65 @@
+<div class="mod-ig-title">
+	<div class="mod-ig-imgsize">
+		<form method="POST">
+			{m('Images size')}:
+			<select name="ig_isize" onChange="this.form.submit();">
+				<optgroup label="{m('Images size')}">
+				<!-- BEGIN ISIZE -->
+				<option value="{ndx}"{sel}>{size}</option>
+				<!-- END ISIZE -->
+				</optgroup>
+			</select>
+		</form>	
+	</div>
+	<h3>{g_name}</h3>
+	<!-- BEGIN GAL_COMMENT -->
+	{g_comment}
+	<!-- END GAL_COMMENT -->
+</div>
+
+<div class="mod-ig-gallery">
+<!-- BEGIN GAL_ROW -->
+<table class="mod-ig-gallery-row {cssRowClass}">
+	<tr>
+		<!-- BEGIN TMB -->
+		<td width="{cellWidth}%"> 
+			<div class="mod-ig-img">
+			
+				<!-- BEGIN TMB_LB -->
+				<a href="{target}"  rel="fancy-tour" title="{i_name}"><img src="{src}"  width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
+				<!-- END TMB_LB -->
+				<!-- BEGIN TMB_POPUP -->
+				<a href="" onclick="return popUp('{POPUP_URL}img/{i_gal_id}/{i_id}/', {win_width}+20, {win_height}+50);" title="{m('View image in full size')}">
+					<img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
+				<!-- END TMB_POPUP -->
+					
+				<div class="mod-ig-img-info" style="width:{i_width_tmb}px">
+					<div>
+					<label>{i_name}</label>
+					<span class="admin-icons">
+						<a href="{URL}i_edit/{i_gal_id}/{i_id}/"><img src="{icoImgEdit}" class="icons" title="{m('Edit')}" /></a>
+						<a href="{URL}i_rm/{i_gal_id}/{i_id}/" onClick="return confirm('{m('Do You really want to delete image')}');"><img src="{icoDelete}" class="icons" title="{m('Delete')}" /></a>
+					</span>
+					<!-- BEGIN TMB_COMMENT --><em>{i_comment}</em><!-- END TMB_COMMENT -->	
+					<!-- BEGIN IMG_INFO -->
+					<!-- BEGIN FILE_NAME --><span>{i_file}</span><!-- END FILE_NAME -->		
+					<!-- BEGIN IMG_DATE -->	<span>{m('Date')}: {date}</span>	<!-- END IMG_DATE -->
+					<!-- BEGIN FILE_SIZE --><span>{m('Size')}: {i_file_size}Kb </span><!-- END FILE_SIZE -->	
+					<!-- BEGIN IMG_SIZE -->	<span>{m('Dimensions')}: {i_width_0}X{i_height_0}</span><!-- END IMG_SIZE -->
+					<!-- END IMG_INFO -->
+					</div>
+				</div>
+			</div>
+		</td>
+		<!-- END TMB -->
+	</tr>
+</table>
+<!-- END GAL_ROW -->
+</div>
+{PAGER}
+<!-- BEGIN GAL_SCRIPT -->
+<script type="text/javascript" charset="utf-8">
+	$().ready( 
+		function(){ $(".mod-ig-gallery a[rel='fancy-tour']").fancybox(); } );
+</script>
+<!-- END GAL_SCRIPT -->

@@ -1,0 +1,37 @@
+<div class="mod-forum-u-wrapper">
+	<div class="mod-forum-u-border">
+		<table  class="mod-forum-users">
+			<thead>
+				<tr>
+					<th style="width:50px"></th>
+					<th>{m('User name')}</th>
+					<th>{m('Status')}</th>
+					<th>{m('Web site')}</th>
+					<th>{m('Registration date')}</th>
+					<th>{m('Posts')}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- BEGIN FORUM_USER -->
+				<tr class="{cssRowClass}">
+					
+					<td class="mini-avatar first">
+					<!-- BEGIN U_AVATAR -->
+						<a href="{URL}profile/{uid}/"><img src="{BASE_URL}storage/avatars/mini-{avatar}" /></a>
+					<!-- END U_AVATAR -->
+					</td>
+					<td><a href="{URL}profile/{uid}/"><strong>{name}</strong></a></td>
+					<td class="user-status"><div class="{onlineCssClass}" title="{online}"></div></td>
+					<td class="user-site">
+						<!-- BEGIN USER_SITE -->
+						<a href="{web_site}" target="_blank"><img src="{STYLE_URL}images/forum/users/web-site.png" /></a>
+						<!-- END USER_SITE -->
+					</td>
+					<td class="reg-date">{reg_date}</td>
+					<td class="posts-num last">{posts}</td>
+				</tr>
+				<!-- END FORUM_USER -->
+			</tbody>
+		</table>
+	</div>
+</div>

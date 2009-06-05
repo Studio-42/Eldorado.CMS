@@ -1,0 +1,47 @@
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td colspan="2" class="formSubheader">
+    <!-- BEGIN MRC_USER_ADMIN -->
+    <div align="right" style="float:right">
+      <a href="{URL}user_edit/{uid}/"><img src="{icoEdit}" class="icons" /></a>
+      <a href="{URL}user_rm/{uid}/" onClick="return confirm('{m('Do You really want to delete ')}?');">
+	     	<img src="{icoDelete}" title="{m('Delete')}"  class="icons" /></a>
+    </div>
+    <!-- END MRC_USER_ADMIN -->
+      {m('User profile')}
+    </td>
+  </tr>
+  <!-- BEGIN MRC_USER_ROW -->
+  <tr>
+    <td>{label}</td>
+    <td>{value} &nbsp;</td>
+  </tr>
+  <!-- END MRC_USER_ROW -->
+  <tr>
+    <td colspan="2" class="formSubheader">
+    <!-- BEGIN MRC_HOSTING_ADMIN -->
+    <div align="right" style="float:right">
+      <a href="{URL}hosting_edit/{uid}/"><img src="{icoEdit}" class="icons" /></a>
+    </div>
+    <!-- END MRC_HOSTING_ADMIN -->
+    {m('Hosting info')}</td>
+  </tr>
+  <tr>
+    <td>{m('Domains quota')}</td>
+    <td>{quota_domain}</td>
+  </tr>
+  <tr>
+    <td>{m('Eldorado.CMS installations quota')}</td>
+    <td>{quota_el}</td>
+  </tr>
+  <!-- BEGIN MRC_PRICE -->
+  <tr>
+    <td>{m('Hosting price (per month)')}</td>
+    <td>{month_fee}</td>
+  </tr>
+  <tr>
+    <td>{m('Hosting paid till')}</td>
+    <td>{paid_till}</td>
+  </tr>
+  <!-- END MRC_PRICE -->
+</table>

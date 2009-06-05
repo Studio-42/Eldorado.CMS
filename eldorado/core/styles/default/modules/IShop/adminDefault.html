@@ -1,0 +1,180 @@
+<div class="mod-ishop">
+<!-- BEGIN CUR_CAT_DESCRIP -->
+<div class="current-cat-descrip clearfix"><h4>{curCatName}</h4>{curCatDescrip} </div>
+<!-- END CUR_CAT_DESCRIP -->
+
+<!-- BEGIN CATS_ONECOL -->
+<ul class="cats-onecol">
+	<!-- BEGIN O_CAT -->
+	<li style="padding-left:{! ({level}-1)*1.7 !}em;" class="clearfix {cssRowClass} ">
+		<div>
+			<div class="admin-icons">
+			    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+			    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+			    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+			    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+		    </div>
+			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+			<div class="cat-descrip">{descrip}</div>
+			<div class="ie-clear"></div>
+		</div>
+	</li>
+	<!-- END O_CAT -->
+</ul>
+<!-- END CATS_ONECOL -->
+
+<!-- BEGIN CATS_TWOCOL -->
+<div class="cats-twocol">
+	<!-- BEGIN ROW -->
+	<div class="grid {cssRowClass}">	
+		<!-- BEGIN T_CAT -->
+		<div class="col-50 {cssLastClass}">
+			<div class="col-content">
+				<ul class="clearfix">
+					<li class="clearfix">
+						<div class="admin-icons">
+						    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+						    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+						    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+						    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+					    </div>
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- BEGIN SUBCATS -->
+					<!-- BEGIN SUBCAT -->
+					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
+						<div class="admin-icons">
+						    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+						    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+						    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+						    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+					    </div>
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- END SUBCAT -->
+					<!-- END SUBCATS -->
+					<!-- BEGIN CDELIM --> <!-- END CDELIM -->
+				</ul>
+			</div>
+		</div>
+		<!-- END T_CAT -->
+	</div>			
+	<!-- END ROW -->
+</div>
+<!-- END CATS_TWOCOL -->
+
+<!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
+
+<!-- BEGIN ITEMS_ONECOL -->
+<ul class="items-onecol">
+	<!-- BEGIN O_ITEM -->
+	<li class="rounded-5 {cssRowClass} clearfix">
+		<div  class="admin-icons">
+			<a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"><img src="{icoGoodEdit}" title="{m('Edit')}" /></a>
+            <a href="{URL}item_img/{catID}/{id}/"><img src="{icoImgNew}" title="{m('Change item image')}" /></a>
+            <a href="{URL}rm_item/{catID}/{id}/" onclick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+		</div>
+		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+		<div class="item-announce clearfix">
+			<!-- BEGIN OI_IMG -->
+	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
+	        <!-- END OI_IMG -->
+			<!-- BEGIN OI_PRICE --> 
+				<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
+			<!-- END OI_PRICE -->
+			<!-- BEGIN OI_CODE --> 
+				<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
+			<!-- END OI_CODE -->
+			<!-- BEGIN OI_MNF_TM -->
+	        <div class="mod-ishop-mnf">
+	          	<!-- BEGIN OI_MNF --> <strong>{mnf}</strong> {country}<!-- END OI_MNF --> 
+				<!-- BEGIN OI_TM --> {tm} <!-- END OI_TM -->
+        	</div>
+        	<!-- END OI_MNF_TM -->
+		
+			{announce} 
+			<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Details')}</a></div>
+		</div>
+		<!-- BEGIN OC_ANN_PROPS -->
+		<div class="rounded-3 mod-ishop-fts">
+        	<table>
+          		<!-- BEGIN OC_ANN_PROP -->
+				<tr>
+					<td class="mod-ishop-ft-name">{name}:</td>
+					<td class="mod-ishop-ft-val">{value}</td>
+				</tr>
+          		<!-- END OC_ANN_PROP -->
+			</table>
+        </div>
+        <!-- END OC_ANN_PROPS -->
+	</li>
+	<!-- END O_ITEM -->
+</ul>
+<!-- END ITEMS_ONECOL -->
+
+
+<!-- BEGIN ITEMS_TWOCOL -->
+
+<div class="items-twocol">
+
+	<!-- BEGIN IROW -->
+	<div class="grid stretch {cssRowClass_} no-ie-padding">
+		
+	    <!-- BEGIN T_ITEM -->
+		<div class="col-49 rounded-5 {cssRowClass} {cssLastClass}">
+			<div class="col-content">
+				<div  class="admin-icons">
+					<a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"><img src="{icoGoodEdit}" title="{m('Edit')}" /></a>
+		            <a href="{URL}item_img/{catID}/{id}/"><img src="{icoImgNew}" title="{m('Change item image')}" /></a>
+		            <a href="{URL}rm_item/{catID}/{id}/" onclick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+				</div>
+				<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+				<div class="clearfix">
+					<!-- BEGIN TI_IMG -->
+			          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
+			        <!-- END TI_IMG -->
+					<!-- BEGIN TI_PRICE --> 
+						<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
+					<!-- END TI_PRICE -->
+					<!-- BEGIN TI_CODE --> 
+						<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
+					<!-- END TI_CODE -->
+					<!-- BEGIN TI_MNF_TM -->
+			        <div class="mod-ishop-mnf">
+			          	<!-- BEGIN TI_MNF --> <strong>{mnf}</strong> {country}<!-- END TI_MNF --> 
+						<!-- BEGIN TI_TM --> {tm} <!-- END TI_TM -->
+		        	</div>
+		        	<!-- END TI_MNF_TM -->
+				</div>
+				<div class="item-announce clearfix">
+					{announce}
+					<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Details')}</a></div>
+				</div>
+				<!-- BEGIN TC_ANN_PROPS -->
+				<div class="rounded-3 mod-ishop-fts">
+		        	<table>
+		          		<!-- BEGIN TC_ANN_PROP -->
+						<tr>
+							<td class="mod-ishop-ft-name">{name}:</td>
+							<td class="mod-ishop-ft-val">{value}</td>
+						</tr>
+		          		<!-- END TC_ANN_PROP -->
+					</table>
+		        </div>
+		        <!-- END TC_ANN_PROPS -->
+			</div>
+		</div>
+	    <!-- BEGIN IDELIM --> <div class="col-var" ></div> <!-- END IDELIM -->
+	  	<!-- END T_ITEM -->
+
+	</div>
+	<!-- END IROW -->
+
+</div>
+<!-- END ITEMS_TWOCOL -->
+
+
+</div>
+{PAGER}

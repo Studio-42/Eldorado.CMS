@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<ROOT>
+<GROUP name="common">
+<NODE name="siteName">Eldorado CMS - new site</NODE>
+<NODE name="owner">site owner</NODE>
+<NODE name="contacts">Contacts</NODE>
+<NODE name="phones">Contacts</NODE>
+<NODE name="cacheAllow">0</NODE>
+<NODE name="gzOutputAllow">1</NODE>
+<NODE name="debug">1</NODE>
+<NODE name="timer">1</NODE>
+<NODE name="locale">en_US.UTF-8</NODE>
+</GROUP>
+<GROUP name="db">
+<NODE name="host">localhost</NODE>
+<NODE name="db"></NODE>
+<NODE name="user"></NODE>
+<NODE name="pass"></NODE>
+</GROUP>
+<GROUP name="auth">
+<NODE name="sessionTimeOut">86400</NODE>
+<NODE name="registrAllow">0</NODE>
+<NODE name="defaultGID">2</NODE>
+<NODE name="disableUserRegisterNotify">1</NODE>
+<NODE name="disableUserPasswdNotify">1</NODE>
+<NODE name="disableAboutNewUserNotify">1</NODE>
+</GROUP>
+<GROUP name="layout">
+<NODE name="authFormPosition">l</NODE>
+<NODE name="userInfoPosition">l</NODE>
+<NODE name="userRegPosition">l</NODE>
+<NODE name="userFullName">0</NODE>
+<NODE name="searchFormPosition">t</NODE>
+<NODE name="navType">2</NODE>
+<NODE name="mainMenuPos">t</NODE>
+<NODE name="subMenuPos">l</NODE>
+<NODE name="mainMenuUseIcons">0</NODE>
+<NODE name="subMenuUseIcons">0</NODE>
+<NODE name="subMenuDisplParent">0</NODE>
+<NODE name="navPathInSTitle">0</NODE>
+<NODE name="pagePathInSTitle">0</NODE>
+<NODE name="navPathInPTitle">0</NODE>
+<NODE name="pagePathInPTitle">0</NODE>
+<NODE name="addMenuTop">2</NODE>
+<NODE name="addMenuBottom">1</NODE>
+<NODE name="servicesTpl">0</NODE>
+</GROUP>
+<GROUP name="mail">
+<NODE name="transport">PHP</NODE>
+<NODE name="smtpHost">localhost</NODE>
+<NODE name="smtpAuth">0</NODE>
+<NODE name="logSend">0</NODE>
+<NODE name="logFailed">1</NODE>
+</GROUP>
+<GROUP name="eshopOrder">
+<NODE name="rcptID">1</NODE>
+<NODE name="msgFormatHtml">1</NODE>
+<NODE name="allowOnlyRegUser">0</NODE>
+</GROUP>
+<GROUP name="currency">
+<NODE name="currency">RUR</NODE>
+</GROUP>
+<GROUP name="2">
+<NODE name="module">SimplePage</NODE>
+</GROUP>
+<GROUP name="3">
+<NODE name="module">Mailer</NODE>
+<NODE name="subjReq">1</NODE>
+<NODE name="selectRcpt">0</NODE>
+</GROUP>
+<GROUP name="5">
+<NODE name="module">Container</NODE>
+<NODE name="goFirstChild">0</NODE>
+<NODE name="cols">2</NODE>
+<NODE name="deep">1</NODE>
+<NODE name="showIcons">1</NODE>
+<NODE name="displayDescrip">1</NODE>
+</GROUP>
+<GROUP name="6">
+<NODE name="module">UsersControl</NODE>
+</GROUP>
+<GROUP name="7">
+<NODE name="module">NavigationControl</NODE>
+</GROUP>
+<GROUP name="8">
+<NODE name="module">SiteControl</NODE>
+</GROUP>
+<GROUP name="10">
+<NODE name="module">PluginsControl</NODE>
+</GROUP>
+<GROUP name="FileManager">
+<NODE name="uploadFilesNum">3</NODE>
+<NODE name="numInRow">7</NODE>
+<NODE name="numInRowPopup">5</NODE>
+<NODE name="tmbW">125</NODE>
+<NODE name="tmbH">125</NODE>
+</GROUP>
+<GROUP name="25">
+<NODE name="module">SitemapGenerator</NODE>
+<NODE name="numLinks">2</NODE>
+<NODE name="lmd">1244195989</NODE>
+</GROUP>
+<GROUP name="26">
+<NODE name="checkVerTs">0</NODE>
+<NODE name="module">UpdateClient</NODE>
+</GROUP>
+<GROUP name="updateClient">
+<NODE name="checkVerTs">0</NODE>
+</GROUP>
+<GROUP name="27">
+<NODE name="module">TemplatesEditor</NODE>
+</GROUP>
+</ROOT>

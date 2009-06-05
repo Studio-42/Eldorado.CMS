@@ -1,0 +1,5 @@
+table.ucTb                 { border:none; margin-top:12px; min-width:600px; width:auto; }
+table.ucTb td              { padding:9px; text-align:center; background:#fafafa; border:1px solid #eaeaea; }
+table.ucTb td.ucTbHead     { font-weight:bold; background:#eaeaea; }
+table.ucTb td.ucAction     { text-align:left;  }
+table.ucTb td.ucAction div { background:url(../../images/design/arrow.gif) no-repeat; padding:1 0 1 15px; white-space:nowrap }

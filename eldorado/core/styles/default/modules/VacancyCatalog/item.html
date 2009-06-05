@@ -1,0 +1,50 @@
+<div class="item mod-vcat-item">
+	<table class="nice full">
+		<thead>
+		<tr>
+			<th colspan="2" scope="col">{name}</th>
+		</tr>
+		</thead>
+		<tbody>
+	   <tr>
+	      <th scope="row">{m('Competitor requirements')}:</th>
+	      <td>{req}</td>
+	   </tr>
+	   <tr>
+	      <th scope="row">{m('Functions')}:</th>
+	      <td>{func}</td>
+	   </tr>
+	   <tr>
+	      <th scope="row">{m('Working conditions')}:</th>
+	      <td>{cond}</td>
+	   </tr>
+	   <tr>
+	      <th scope="row">{m('Salary')}:</th>
+	      <td>{salary}</td>
+	   </tr>
+		</tbody>
+	</table>
+	<a href="{URL}send/{catID}/{id}/" class="mail">{m('Send resume on this vacancy')}</a>
+	<!-- BEGIN LINKED_OBJS -->
+	<!-- BEGIN LOBJS_GROUP -->
+	<div class="rounded-top-5 crosslinks-group">
+		<div class="rounded-top-5 ">
+			<span href="#" class="el-collapsed">{name}</span>
+		</div>
+		<ul class="hide">
+			<!-- BEGIN LOBJ -->
+			<li><a href="{url}">{name}</a></li>
+			<!-- END LOBJ -->
+		</ul>
+	</div>
+	<!-- END LOBJS_GROUP -->
+	<!-- END LINKED_OBJS -->
+</div>
+<script type="text/javascript" charset="utf-8">
+$().ready( function() {
+	$('.crosslinks-group .el-collapsed').click( function() {
+		$(this).toggleClass('el-expanded');
+		$(this).parent().siblings('ul').slideToggle('slow');
+	});
+});
+</script>

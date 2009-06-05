@@ -1,0 +1,16 @@
+<div class="mod-news-one">
+	<!-- BEGIN NEWS_ADMIN -->
+	<div class="admin-icons">
+		<a href="{URL}edit/{curPageNum}/{id}/1/"><img src="{icoNewsEdit}" title="{m('Edit')}" /></a>
+		<a href="{URL}rm/{curPageNum}/{id}/" onClick="return confirm('{m('Do You really want to delete')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+	</div>
+	<!-- END NEWS_ADMIN -->
+	<!-- BEGIN NEWS_DATE -->
+	<div class="rounded-2 mod-news-date">{date}</div>
+	<!-- END NEWS_DATE -->
+	<h2>{title}</h2>
+
+	{content}
+	<br />
+	<a class="back" href="{URL}{curPageNum}/">{topicLinkText}</a>
+</div>

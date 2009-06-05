@@ -1,0 +1,76 @@
+@import url('base.css');
+@import url('styling.css');
+
+/***********************************************/
+/***         Общая разметка страницы         ***/
+/***********************************************/
+a { color:#182E7A; }
+
+#page { padding:15px 5px 70px 5px; }
+#navtop ul { margin: 9px; padding:0;  }
+/*** шапка ***/
+#header {  background:url("../images/design/line.gif"); }
+/*** контент в шапке (логотип и пр) ***/
+#head-l {  width:230px; padding: 0 0 0 15px; }
+#head-c {  width:auto;  margin-left:252px; }
+/** верхнее менюшко **/
+#navtop ul li      { background: url("../images/design/topnav.gif") 0 center  no-repeat;  padding: 0 12px 0 33px; }
+#navtop li.first   { background:#fff; padding-left:0; }
+#navtop ul li a    { font-size:90%; color: #1a5167; font-weight:bold; }
+.nav-top-current a { text-decoration:underline; }
+/*** низ ***/
+#footer-content   { background:#dee7ed url("../images/design/line.gif") 0 0 repeat-x; color:#555; margin:0 5px;}
+#footer-content a { color:#555; }
+/*** 3 колонки с контентом ***/
+#mc-content { text-align:justify; padding:0 15px;  }
+#lc, #rc    { font-size:95%; }
+
+
+/***********************************************/
+/***      Элементы в центральной колонке    ***/
+/***********************************************/
+/** заголовок страницы  **/
+.page-title { padding: 0.8em; margin-bottom:0.3em; background:#dee7ed url("../images/design/line.gif") 0 top repeat-x; }
+.page-title-pane { background:#dee7ed; padding: 5px; }
+
+/***********************************************/
+/***      Элементы в левой/правой колонках   ***/
+/***********************************************/
+
+/***  левое и правое меню сайта и каталогов ***/
+ul.nav-left li, ul.nav-right li, 
+ul.nav-cat-left li, ul.nav-cat-right li { border-top: 1px solid #bed0db; }
+ul.nav-left li, ul.nav-cat-left li      { background:#dee7ed url('../images/design/menu-arrow.gif') right center no-repeat; }
+ul.nav-right li, ul.nav-cat-right li    { background:#dee7ed url('../images/design/menu-arrow.gif') 9px center no-repeat; }
+ul.nav-left  li.nav-left-title, 
+ul.nav-right li.nav-right-title,
+ul.nav-cat-left  li.nav-cat-left-title, 
+ul.nav-cat-right li.nav-cat-right-title { background:#dee7ed; }
+
+/** Формы **/
+table.form-tb thead th { background: #dee7ed url('../images/design/line.gif') left top repeat-x; }
+table.form-tb tfoot td { background: #dee7ed url('../images/design/line.gif') left bottom repeat-x; }
+table.form-tb tfoot td input, .form-submit { 
+	padding:.2em;
+	margin:.1em;
+	background:#9fbaca; 
+	color:#fff; 
+	border:1px solid #649fc2; 
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+table.form-tb tfoot td input:hover,  
+.form-submit:hover    { background:#649fc2; color:#f9f9f9; }
+.form-tb-sub  { background: #f2f2f2; padding:.5em; }
+
+.strip-odd { background: #dee7ed;}
+.plugins-title { background: #dee7ed url('../images/design/line.gif') left top repeat-x;}
+
+
+
+
+
+
+
+

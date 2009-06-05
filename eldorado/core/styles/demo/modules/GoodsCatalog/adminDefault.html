@@ -1,0 +1,124 @@
+<div class="mod-gcat">
+<!-- BEGIN CUR_CAT_DESCRIP -->
+<div class="current-cat-descrip clearfix"><h4>{curCatName}</h4>{curCatDescrip} </div>
+<!-- END CUR_CAT_DESCRIP -->
+
+<!-- BEGIN CATS_ONECOL -->
+<ul class="cats-onecol">
+	<!-- BEGIN O_CAT -->
+	<li style="padding-left:{! ({level}-1)*1.7 !}em;" class="clearfix {cssRowClass} ">
+		<div>
+			<div class="admin-icons">
+			    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+			    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+			    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+			    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+		    </div>
+			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+			<div class="cat-descrip">{descrip}</div>
+			<div class="ie-clear"></div>
+		</div>
+	</li>
+	<!-- END O_CAT -->
+</ul>
+<!-- END CATS_ONECOL -->
+
+<!-- BEGIN CATS_TWOCOL -->
+<div class="cats-twocol">
+	<!-- BEGIN ROW -->
+	<div class="grid {cssRowClass}">	
+		<!-- BEGIN T_CAT -->
+		<div class="col-50 {cssLastClass}">
+			<div class="col-content">
+				<ul class="clearfix">
+					<li class="clearfix">
+						<div class="admin-icons">
+						    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+						    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+						    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+						    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+					    </div>
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- BEGIN SUBCATS -->
+					<!-- BEGIN SUBCAT -->
+					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
+						<div class="admin-icons">
+						    <a href="{URL}edit/{catID}/{id}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+						    <a href="{URL}up/{catID}/{id}/"><img src="{icoArrowUp}" title="{m('Move up')}" /></a>
+						    <a href="{URL}down/{catID}/{id}/"><img src="{icoArrowDown}" title="{m('Move down')}" /></a>
+						    <a href="{URL}rm/{catID}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+					    </div>
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- END SUBCAT -->
+					<!-- END SUBCATS -->
+					<!-- BEGIN CDELIM --> <!-- END CDELIM -->
+				</ul>
+			</div>
+		</div>
+		<!-- END T_CAT -->
+	</div>			
+	<!-- END ROW -->
+</div>
+<!-- END CATS_TWOCOL -->
+
+<!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
+
+<!-- BEGIN ITEMS_ONECOL -->
+<ul class="items-onecol">
+	<!-- BEGIN O_ITEM -->
+	<li class="{cssRowClass} clearfix">
+		<div  class="admin-icons">
+			<a href="{URL}edit_item/{catID}/{id}/{SID}"><img src="{icoGoodEdit}" title="{m('Edit')}" /></a>
+	        <a href="{URL}rm_item/{catID}/{id}/{SID}" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+		</div>
+		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+		<!-- BEGIN ITEM_ONECOL_PRICE -->
+      	<div class="mod-gcat-price ">{m('Price')}: <b>{price}</b> {currencySign}</div>
+      	<!-- END ITEM_ONECOL_PRICE -->
+		<div class="item-announce">
+			{announce} 
+			<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
+		</div>
+	</li>
+	<!-- END O_ITEM -->
+</ul>
+<!-- END ITEMS_ONECOL -->
+
+<!-- BEGIN ITEMS_TWOCOL -->
+
+<div class="items-twocol">
+
+	<!-- BEGIN IROW -->
+	<div class="grid stretch {cssRowClass} ">
+		
+	    <!-- BEGIN T_ITEM -->
+		<div class="col-50 {cssLastClass}">
+			<div class="col-content">
+				<div class="admin-icons">
+					<a href="{URL}edit_item/{catID}/{id}/{SID}"><img src="{icoGoodEdit}" title="{m('Edit')}" /></a>
+			        <a href="{URL}rm_item/{catID}/{id}/{SID}" onClick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+				</div>
+				<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+				<!-- BEGIN ITEM_TWOCOL_PRICE -->
+		      	<div class="mod-gcat-price ">{m('Price')}: <b>{price}</b> {currencySign}</div>
+		      	<!-- END ITEM_TWOCOL_PRICE -->
+				<div class="item-announce">
+					{announce}
+					<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
+				</div>
+			</div>
+		</div>
+	    <!-- BEGIN IDELIM -->  <!-- END IDELIM -->
+	  	<!-- END T_ITEM -->
+
+	</div>
+	<!-- END IROW -->
+
+</div>
+<!-- END ITEMS_TWOCOL -->
+</div>
+{PAGER}

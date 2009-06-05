@@ -1,0 +1,57 @@
+<!-- BEGIN FAQ_CAT -->
+<ul class="mod-faq">
+	<li>
+		<div class="clearfix">
+			<div class="admin-icons">
+				<a href="{URL}cat_edit/{cid}/"><img src="{icoCatEdit}" title="{m('Edit')}" /></a>
+				<a href="{URL}quest_sort/{cid}/"><img src="{icoSortNumeric}" title="{m('Edit')}" /></a>
+	    		<a href="{URL}cat_rm/{cid}/" onClick="return confirm('{m('Do You really want to delete ')}?' );"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+			</div>
+			<h4>{cNum}. {cname}</h4> 
+		</div>
+		<!-- BEGIN FAQ_CAT_QUEST_LIST -->
+		<ul>
+		<!-- BEGIN FAQ_QUESTION -->
+			<li>
+				<div class="clearfix">
+					<div class="admin-icons">
+						<a href="{URL}quest_edit/{id}/">
+						<img src="{icoEdit}" title="{m('Edit')}" /></a>
+				    	<a href="{URL}quest_rm/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?' );">
+				     	<img src="{icoDelete}" title="{m('Delete')}" /></a>
+					</div>
+				
+					<h5>
+						{cNum}.{qNum}
+						<a href="#" class="mod-faq-q">{question}</a>
+					</h5>
+					<!-- BEGIN FQ_NOTPUBL -->
+					[{m('Not published')}]
+					<!-- END FQ_NOTPUBL -->
+					<!-- BEGIN FQ_NOANSW -->
+					[{m('Not answered')}]
+					<!-- END FQ_NOANSW -->
+					<div class="mod-faq-answ hide"><p><em>{answer}</em></p></div>
+				</div>
+			</li>
+		<!-- END FAQ_QUESTION -->
+		</ul>
+	</li>
+	<!-- END FAQ_CAT_QUEST_LIST -->
+</ul>
+<!-- END FAQ_CAT -->
+	
+<div class="mod-faq-askaquestion">
+	<a href="#" class="mail" onclicks="$(this).siblings('div').toggleClass('hide'); return false;"><strong>{m('Ask a question')}</strong></a> 
+	<div class="hide">{questForm}</div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(
+		function() { 
+			$('a.mod-faq-q').click(	function () { $(this).parent().next('div.mod-faq-answ').slideToggle('slow'); return false; } );
+				
+			$('div.mod-faq-askaquestion > a').click( function() { $(this).siblings('div').slideToggle('slow');	return false; } );
+			}
+		 );
+</script>

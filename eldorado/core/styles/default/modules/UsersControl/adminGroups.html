@@ -1,0 +1,28 @@
+<table class="grid-tb tablesorter" id="groups-list">
+	<thead>
+		<tr>
+		  	<th style="width:40px">ID</th>
+    		<th>{m('Group name')}</th>
+		    <th>{m('Number of users')}</th>
+			<th>&nbsp;</th>
+  		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN GROUP -->
+  		<tr>
+  			<td>{gid}</td>
+    		<td>{name}</td>
+    		<td>{numUsers}</td>
+			<td class="admin">
+			    <a href="{SUBMOD_URL}{SMPath}edit/{gid}/"><img src="{icoUsersGroupEdit}" title="{m('Edit')}" /></a>
+			    <a href="{SUBMOD_URL}acl/{gid}/"><img src="{icoAccess}" title="{m('Permissions')}" /></a>
+			    <a href="{SUBMOD_URL}clean/{gid}/" onclick="return confirm('{m('Do you realy want to delete all users from group')} `{name}`?');"><img src="{icoClean}" title="{m('Exclude users from group')}" /></a>
+			    <a href="{SUBMOD_URL}rm/{gid}/"	onclick="return confirm('{m('Do you realy want to delete group')} `{name}`?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+			</td>
+  		</tr>
+		<!-- END GROUP -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() { $("#groups-list").tablesorter( {headers: { 3: {sorter:false}}} ); } );
+</script>

@@ -1,0 +1,31 @@
+<?php
+$elMsg['New category']                                               = 'Новая категория';
+$elMsg['Message']                                                    = 'Сообщение';
+$elMsg['New message']                                                = 'Новое сообщение';
+$elMsg['Not published messages']                                     = 'Неопубликованые сообщения';
+$elMsg['Messages']                                                   = 'Кол-во сообщений';
+$elMsg['Only authorized user may add messages!']                     = 'Только авторизованые пользователи могут оставлять сообщения';
+$elMsg['Add message to root category not allowed!']                  = 'Публикация объявлений в корневой категории запрещена!';
+$elMsg['Only author or administrator can edit this message']         = 'Только автор или администратор может редактировать объявление';
+$elMsg['Your message will be published after moderator allowed it']  = 'Ваше объявление будет опубликовано после одобрения адмистратором';
+$elMsg['Message "%s" was published']                                 = 'Сообщение %s опубликовано';
+$elMsg['Your phone number']                                          = 'Ваш номер телефона';
+$elMsg['Your E-mail']                                                = 'Ваш E-mail';
+$elMsg['Phone']                                                      = 'тел.';
+$elMsg['Please, enter Your phone number or E-mail']                  = 'Пожалуйста, укажите Ваш E-mail или номер телефона';
+$elMsg['Select all']                                                 = 'Выбрать все';
+$elMsg['Unselect all']                                               = 'Отменить выбор';
+$elMsg['Publish selected']                                           = 'Опубликоваь выбраное';
+$elMsg['Remove selected']                                            = 'Удалить выбраное';
+$elMsg['Selected messages was published']                            = 'Выбраные сообщения опубликованы';
+$elMsg['Selected messages was removed']                              = 'Выбраные сообщения удалены';
+$elMsg['Delete all messages']                                        = 'Удалить все сообщения';
+$elMsg['Do You really want to delete all items from this category?'] = 'Хотите удалить все сообщения из категории';
+$elMsg['Messages not selected']                                      = 'Сообщения не выбраны';
+$elMsg['Category "%s" does not contains any items to delete']        = 'В категории %s нет ни одного сообщения';
+$elMsg['Post messages to root category']                             = 'Разрешить публикацию сообщений в корневую категорию';
+$elMsg['Publish message']                                            = 'Публиковать сообщения';
+$elMsg['Immediately']                                                = 'немедленно';
+$elMsg['After administrator allowed']                                = 'после одобрения администратором';
+$elMsg['Number of messages per page']                                = 'Кол-во сообщений на страницу';
+?>

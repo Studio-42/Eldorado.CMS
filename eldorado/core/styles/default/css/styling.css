@@ -1,0 +1,389 @@
+body {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 72.00%;
+  color: #444;
+}
+
+/************  Заголовки  *******************/
+h1, h2, h3, h4, h5, h6 { font-family: "Times New Roman", Times, serif;	color:#111; }
+h1 { font-size:3em;   margin-bottom:0.5em;  line-height:1;}
+h2 { font-size:2em;   margin-bottom:0.75em; }
+h3 { font-size:1.5em; margin-bottom:1em;    line-height:1;}
+h4 { font-size:1.3em; margin-bottom:1.2em;  line-height:1.25;}
+h5 { font-size:1.1em; margin-bottom:1.3em;  font-weight:bold;}
+h6 { font-size:1em;   margin-bottom:0.5em;  font-weight:bold;}
+h1 img, h2 img, h3 img, h4 img, h5 img, h6 img { margin:0; }
+/************  Списки  **********************/
+ul, ol, dl { line-height: 1.5em; margin: 0 0 1em 1em; }
+ul li      { list-style-type: disc; }
+ul ul li   { list-style-type: circle; }
+ol li      { list-style-type: decimal; }
+ol ol li   { list-style-type: lower-latin; }
+li         { margin-left: 0.8em; line-height: 1.5em; }
+dt         { font-weight: bold; }
+dd         { margin: 0 0 1em 0.8em; }
+
+/************  текст  ***********************/
+
+p { line-height: 1.5em; margin: 0 0 .7em 0; }
+blockquote, cite, q { font-family: Georgia, "Times New Roman", Times, serif;  font-style:italic; }
+blockquote { margin: 0 0 1em 1.6em; color: #666; }
+strong,b { font-weight: bold; }
+em,i     { font-style: italic; }
+textarea, pre, code, kbd, samp, var, tt { font:1.15em 'monaco', 'andale mono', 'lucida console', monospace; line-height:1.35em; }
+pre, code, kbd, 
+tt, samp, var  { font-size: 100%; }
+pre, code      { color: #800; }
+pre            { line-height: 1.5em; margin: 0 0 .1em 0; }
+kbd, samp, var { color: #666; }
+var            { font-style: italic; }
+
+acronym, abbr {
+  border-bottom: 1px #aaa dotted;
+  font-variant: small-caps;
+  letter-spacing: .07em;
+  cursor: help;
+}
+
+sub, sup { font-size: 91.6667%; }
+
+hr {
+  color: #fff;
+  background:transparent;
+  margin:  0 0 0.5em 0;
+  padding: 0 0 0.5em 0;
+  border:0;
+  border-bottom: 1px #eee solid;
+}
+
+/***************  ссылки  ************************/
+
+a { background:transparent; text-decoration:none; }
+
+/******  Плавающие картинки и подписи к ним  *******/
+
+p.img-left  { float:left;  display:inline; margin: 0 1em 0.15em 0; }
+p.img-right { float:right; display:inline; margin: 0 0 0.15em 1em; }
+p.img-left img,
+p.img-right img { padding:0; border: 1px #888 solid; }
+p.img-left label,
+p.img-right label { 
+	display:block; 
+	overflow:hidden; 
+	margin-top: 2px; 
+	padding: 0.3em 0.5em; 
+	background: #eee; 
+	font-weight: normal; 
+	font: 92% Arial, sans-serif; 
+}
+
+/***********  Доп оформление  **************/
+
+.highlight { color: #f60; }
+.mute      { color: #888; }
+.info      { background: #f8f8f8; color: #666; padding: 10px; margin-bottom: 0.5em; font-size: 91.7%; }
+.note      { background: #efe; color: #040; border: 2px #484 solid; padding: 10px; margin-bottom: 1em; }
+.important { background: #ffe; color: #440; border: 2px #884 solid; padding: 10px; margin-bottom: 1em; }
+.warning   { background: #fee; color: #400; border: 2px #844 solid; padding: 10px; margin-bottom: 1em; }
+
+.float-left  { float: left;  display:inline; margin-right: 1em; margin-bottom: 0.15em; }
+.float-right { float: right; display:inline; margin-left:  1em; margin-bottom: 0.15em; }
+.center      { display:block; text-align:center; margin: 0.5em auto; }
+
+/************  Таблицы  *******************/
+table       { width: auto; border-collapse:collapse; margin-bottom: 0.5em; }
+table.full  { width: 100%; }
+table.fixed { table-layout:fixed; }
+th,td       { padding:0.3em 0.5em; vertical-align:middle; }
+th          { font-weight:bold; }
+
+table.nice          { border-top: 2px #888 solid; border-bottom: 2px #888 solid; }
+table.nice caption  { font-variant:small-caps; font-size:110%; }
+table.nice thead th { color: #000; border-bottom: 2px #fa5716 solid; }
+table.nice tbody th { color: #333; background: #eee; border-bottom: 1px solid #fff; }
+table.nice tbody th[scope="row"], th.sub { background: #f0f0f0; }
+table.nice tbody td { border-bottom: 1px solid #eee; }
+table.nice tbody tr:hover th[scope="row"],
+table.nice tbody tr:hover tbody th.sub,
+table.nice tbody tr:hover td { background: #f8f8f8; }
+
+/****************************************************/
+/***         Дефолтный стиль эльдорадо            ***/
+/****************************************************/
+/** Йа формочко **/
+table.form-tb           { width:100%; }
+table.form-tb thead th  { padding:0.7em; }
+table.form-tb thead th img { margin:0 .5em;}
+table.form-tb tfoot td  { text-align:center; }
+table.form-tb tfoot td input, 
+.form-submit            { /*padding:2px 3px; margin:0 .25em; border:none; font-weight:bold; font-size:95%;*/ zoom:1; }
+.form-errors            { padding-left:3em; line-height:2em; background: url('../icons/user/exclamation.png') .7em center no-repeat;}
+.form-tb-sub            { font-size:91.6667%; font-weight:bold; text-align:center; }
+.form-req, .form-errors { color:red; }
+table.form-tb label { margin: .3em; display:inline-block;}
+
+form.form-fset fieldset { 
+	padding: 1em 4em; 
+	margin: 0 0 1.5em 0; 
+	border: 1px solid #ccc; 
+}
+form.form-fset legend { 
+	padding: .1em 1.5em; 
+	font-weight: bold; 
+	font-size: 1.2em; 
+	border: 1px solid #ccc; 
+	background:#eee;
+	margin:1em 0 1em 3em;
+
+}
+form.form-fset label.label { float:left;  width:25%;  font-weight: bold; }
+form.form-fset div.row { border-bottom:1px solid #eee;  padding:.5em 0;}
+form.form-fset div.row div { display:inline-block; }
+form.form-fset div.row div label { display:block; margin:0 0 .5em; padding:0;}
+form.form-fset div.row div div   { display:block; }
+form.form-fset div.row input, 
+form.form-fset div.row textarea { width: 60%; }
+form.form-fset div.row div input, 
+form.form-fset div.row div textarea { width: auto; }
+form.form-fset p  { padding:.7em 0;}
+form.form-fset hr { border-bottom: 2px solid #eee; padding:0; }
+
+/*** ссылки  ***/
+a.readmore,  a.top, a.popup, a.cart, a.back, a.download, 
+a.mail, a.close, a.link-pdf, a.link-xls, a.link-doc { line-height:2em; }
+a.readmore, a.top, a.popup, a.cart,
+a.link-pdf, a.link-xls, a.link-doc { padding: 3px 17px 3px 0; }
+a.mail, a.close    	               { padding: 3px 23px 3px 0; }
+a.back, a.download                 { padding: 0 0 0 17px; }
+
+a.readmore { background: transparent url(../icons/arrows/arrow.gif) right no-repeat; }
+a.back     { background: transparent url(../icons/arrows/arrow-left.gif) left center no-repeat; }
+a.top      { background: transparent url(../icons/arrows/arrow-top.gif) left center no-repeat; }
+a.popup    { background: transparent url(../icons/links/external.gif) right no-repeat; }
+a.cart     { background: transparent url(../icons/links/cart.gif) right no-repeat; }
+a.download { background: transparent url(../icons/links/download.png) no-repeat; }
+a.mail     { background: transparent url(../icons/links/mail.png) right no-repeat; }
+a.close    { background: transparent url(../icons/user/close.png) right no-repeat; }
+a.link-pdf { background: transparent url(../icons/links/pdf.gif) right no-repeat; }
+a.link-xls { background: transparent url(../icons/linls/xls.gif) right no-repeat; }
+a.link-doc { background: transparent url(../icons/doc.gif) right no-repeat; }
+
+a[href $='.pdf'], a[href $='.doc'], a[href $='.xls'] {line-height:2em; padding: 3px 17px 3px 0;}
+a[href $='.pdf'] { background: transparent url(../icons/links/pdf.gif) right no-repeat;}
+a[href $='.doc'] { background: transparent url(../icons/links/doc.gif) right no-repeat;}
+a[href $='.xls'] { background: transparent url(../icons/links/xls.gif) right no-repeat;}
+
+.el-collapsed { background: transparent url(../icons/user/collapsed.gif) 0 center no-repeat; padding-left:19px; cursor:pointer; }
+.el-expanded  { background: transparent url(../icons/user/expanded.gif) 0 center no-repeat;  padding-left:19px; cursor:pointer;}
+
+/***  div's с закругленными углами - IE sucks!  ***/
+.rounded-2 { -moz-border-radius: 2px; -webkit-border-radius: 2px; border-radius: 2px; }
+.rounded-3 { -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; }
+.rounded-5 { -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
+.rounded-7 { -moz-border-radius: 7px; -webkit-border-radius: 7px; border-radius: 7px; }
+	
+.rounded-top-3 { -moz-border-radius-topleft: 3px; -moz-border-radius-topright: 3px; -webkit-border-top-left-radius: 3px;-webkit-border-top-right-radius: 3px; border-top-left-radius: 3px;border-top-right-radius: 3px;}	
+.rounded-top-5 { -moz-border-radius-topleft: 5px; -moz-border-radius-topright: 5px; -webkit-border-top-left-radius: 5px;-webkit-border-top-right-radius: 5px; border-top-left-radius: 5px;border-top-right-radius: 5px;}	
+
+/***  Сообщения, warning, debug  ***/
+.msg, .warn, .debug {
+	border:2px solid #9fbaca;
+	padding:20px 20px 20px 55px;
+	margin:5px 0; 
+	font-weight:bold;
+	background-position:0 center;
+	background-repeat:no-repeat;
+}
+
+.warn { border-color:red; color:red; }
+
+.debug { 
+	margin:5px 7px; 
+	background:#111; 
+	padding:7px 12px; 
+	line-height:1.5em; 
+	color:#999;
+}
+
+
+#navtop li.first, #navtop li.last, #navtop li.nav-top-current {} 
+/***  левое и правое меню сайта и каталогов ***/
+ul.nav-left, ul.nav-right, ul.nav-cat-left, ul.nav-cat-right { margin: 0 0 5px 0; }
+ul.nav-left li, ul.nav-right li, ul.nav-cat-left li, ul.nav-cat-right li {	
+	margin: 0  0 3px 0; 
+	padding: 7px 12px; 
+	list-style: none; 
+	zoom:1;
+}
+ul.nav-right li, ul.nav-cat-right li { text-align:right; }
+li.nav-left-title, li.nav-right-title,
+li.nav-cat-left-title, li.nav-cat-right-title { font-weight:bold; }
+/*** страницы в боковых меню. 1, 2 и выше уровень вложенности  ***/
+.nav1, .nav2, .nav3 {}
+/*** текщая страница в боковых меню. 1, 2 и выше уровень вложенности  ***/
+.navCur1, .navCur2, .navCur3 { text-decoration:underline; }
+/* нижнее доп меню */
+#navbottom ul li.first {  }
+#navbottom ul li.last { border:none; }
+/***  инфо о пользователе в верхнем доп меню  ***/
+.user-info-top, .user-auth-top     { font-weight:bold; }
+.auth-form-left { font-size:95%; }
+.user-info-top img, .user-auth-top img { margin:0 .3em; }
+.user-info-top a, .user-info-top:hover,
+.user-auth-top a, .user-auth-top:hover { text-decoration:none; }
+/***  инфо о пользователе в левой/правой колонках  ***/
+.user-info-left td { text-align:center; padding:.5em; font-weight:bold;} 
+.icart-left { font-size:95%;}
+/*** форма поиска сверху  ****/
+#search-form-top {
+	position:absolute;
+	right:20px;
+	top:20px;
+	z-index:100;
+	width:180px;
+    padding:9px 25px 9px 5px;
+	background:#fff;
+	border:1px solid #ccc;
+}
+div.searchProgress { 
+	background-image: url(../images/loading.gif);
+	background-position: right center;
+	background-repeat:no-repeat;
+}
+
+/***  Результаты поиска ***/
+#search-result  { border:1px solid #ccc; padding:.5em 1em; }
+#search-result .close {
+	display:inline;
+	float:right;
+	cursor:pointer;
+	background:url(../icons/user/close.png) 0 0 no-repeat;
+	width:16px;
+	height:16px;
+	zoom:1;
+}
+#search-result li { list-style:url(../images/arrow.gif); margin-bottom:.5em; }
+
+/* ссылки на следующие страницы в каталогах, новостях и тд */
+.pager a { border:1px solid #ccc; padding:.5em .7em; display:inline-block; font-weight:bold; margin:0 .25em; }
+.pager a.back, .pager a.readmore { border:none; }
+.pager a.current { background:#eee;}
+.pager a:hover { text-decoration:none;}
+
+#el-content { padding-bottom:1em;}
+/***************************************/
+/*** Дефолтное оформление каталогов  ***/
+/***************************************/
+
+/* Классы для раскрашивания рядов в зебру */
+.strip-ev {  }
+.strip-odd { background:#eee; }
+
+/* Уровни вложености категорий */
+.cat-level-1, .cat-level-1 strong { font-weight:bold; text-transform:uppercase; line-height:2.3em; }
+.cat-level-2, .cat-level-2 strong { font-weight:bold; }
+.cat-level-3, .cat-level-3 strong { font-weight:normal; }
+/* Категории в одну и в две колонки  */
+.cats-onecol, .cats-twocol ul       { margin:0; padding:0; }
+.cats-onecol li, .cats-twocol ul li { margin:0; list-style:none; padding:0; }
+/* контейнеры внутри li */
+.cats-onecol li div, 
+.cats-twocol  .col-content { padding:1em; line-height:1.5em; }
+/* Описание категории */
+.cats-onecol li div div, 
+.cats-twocol  .col-content div { padding:0; }
+.cat-descrip p, 
+.cats-twocol .col-content p { margin-bottom:.5em; line-height:1.5em; }
+/* Описание текущей категории */
+.current-cat-descrip { margin:0.5em 0 0 0; padding:0; clear:both; border-bottom:1px solid #eee; }
+/* Список документов в одну колонку  */
+.items-onecol    { margin:0; padding:0;}
+.items-onecol li { margin:0; padding:1em .5em; list-style:none; }
+/* Список документов в две колонки  */
+.items-twocol .col-content           { padding:1em 1em 1em .5em; }
+.items-twocol .col-last .col-content { padding:1em .5em 1em 1em; }
+/* анонс документа */
+.item-announce, .item-announce p { line-height:1.5em; text-align:justify; }
+/* плавающие картинки в описании категории и документа */
+.cat-descrip img[align], .item-announce img[align], .item img[align] { margin:.3em .5em; }
+/* Один документ  */
+.item, .item p { text-align:justify; }
+
+/* Список связанных объектов */
+.crosslinks-group       { margin:0.5em 0; border:1px solid #ccc; }
+.crosslinks-group div   { padding:0.7em; background-color:#eee; font-weight:bold; position:relative; }
+.crosslinks-group ul    { margin:1em; }
+.crosslinks-group ul li { line-height:2em; padding:.5em .5em .5em 17px; list-style:none;background:url('../icons/arrows/arrow.gif') left center no-repeat;}
+/** Общее классы плагинов **/
+.plugins 				{ font-size: 93%; margin: 0 0 .7em; position:relative; }
+.plugins .admin-icons   { position:absolute; top:1px; right:1px; }
+.plugins-title 			{ text-transform: uppercase; padding: .8em; zoom: 1; }
+.plugins-title h5		{ padding: 0; margin: 0; }
+.plugins-title a		{ text-decoration: none; }
+.plugins-topic-title 	{ font-size: 1.29em; }
+.plugins-content 		{}
+/*******************************************************/
+/****             Админская часть                   ****/
+/*******************************************************/
+/** Заголовок с табами (контрольный центр)  **/
+div.tab, div.title-tabs-path { position:relative; border:1px solid #ccc; zoom:1; }
+div.tab { 
+	margin:0 .1em 0 0;
+	padding:.5em 1.5em;
+	display:inline-block;
+	background:#ccc url(../images/tab.gif) top repeat-x; 
+	border-bottom:none; 
+	z-index:2;
+}
+div.tab-a {	background:#eee url(../images/tab-a.gif) top repeat-x; }
+div.tab a { font-weight:bold; color:#222; }
+div.tab a, div.tab a:hover { text-decoration:none; }
+div.tab:hover { background:#eee; }
+div.title-tabs-path {
+	background:#eee;
+	padding: 1em;
+	z-index:1;
+	margin:-1px 0 3px 0;
+}
+div.tabs-pane { margin-top:.3em; }
+/* админская табл */
+table.grid-tb { width:99%; border:1px solid #ccc; position:relative; margin:0.5em 0 .5em 2px; }
+table.grid-tb td, table.grid-tb th { border-bottom:1px solid #ccc; padding:.5em; }
+table.grid-tb thead th { background:#eee url(../images/grid-tb-head.png) top repeat-x;  }
+table.grid-tb tbody th { background:#eee;}
+table.grid-tb tbody tr:hover { background:#f5f5f5; }
+table.grid-tb thead td, table.grid-tb td.sub { background:#f5f5f5; font-size:90%; font-weight:bold; }
+table.grid-tb td.admin, table.grid-tb th.admin { text-align:right; white-space:nowrap;}
+/* fileManager */
+table.mod-fm { width:100%; }
+.mod-fm td, .mod-fm div { text-align:center;}
+.mod-fm div { font-size:90%;}
+.mod-fm strong { display:block; text-align:center;}
+/* таблица с сортировкой */
+table.tablesorter thead .header { 
+	background-image:url(../icons/admin/asc-desc.gif); 
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter thead .headerSortUp   { background-image:url(../icons/admin/asc.gif); }
+table.tablesorter thead .headerSortDown { background-image:url(../icons/admin/desc.gif); }
+table.tablesorter thead tr th           { background: #eee; }
+/* таблица-дерево (новигация) */
+.treeTable tr td .expander {
+  background-position: left center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  padding: 0;
+  zoom: 1; /* IE7 Hack */
+}
+.treeTable tr.collapsed td .expander {
+  background-image: url(../icons/user/collapsed.gif);
+}
+.treeTable tr.expanded td .expander {
+  background-image: url(../icons/user/expanded.gif);
+}
+.admin-icons { float: right; display:inline; border:none; margin-left:  1em; margin-bottom: 0.15em; text-align:right;}
+.title-popup { border:1px solid #ccc; padding:.7em; background:#eee; }
+.title-popup div { display:inline; }
+.popup-close { text-align:right; padding:.5em 1em; }

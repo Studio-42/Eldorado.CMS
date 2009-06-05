@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS el_ishop_{pageID}_cat;
+DROP TABLE IF EXISTS el_ishop_{pageID}_i2c;
+DROP TABLE IF EXISTS el_ishop_{pageID}_item;
+DROP TABLE IF EXISTS el_ishop_{pageID}_itype;
+DROP TABLE IF EXISTS el_ishop_{pageID}_prop;
+DROP TABLE IF EXISTS el_ishop_{pageID}_prop_value;
+DROP TABLE IF EXISTS el_ishop_{pageID}_prop_default_value;
+DROP TABLE IF EXISTS el_ishop_{pageID}_p2i;
+DROP TABLE IF EXISTS el_ishop_{pageID}_mnf;
+DROP TABLE IF EXISTS el_ishop_{pageID}_tm;
+DROP TABLE IF EXISTS el_ishop_{pageID}_prop_depend;
+DROP TABLE IF EXISTS el_ishop_{pageID}_search;
+DROP TABLE IF EXISTS el_ishop_{pageID}_st;
+DROP TABLE IF EXISTS el_ishop_{pageID}_se;
+DROP TABLE IF EXISTS el_ishop_{pageID}_sp;

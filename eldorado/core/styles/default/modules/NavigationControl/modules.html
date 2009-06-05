@@ -1,0 +1,27 @@
+<table class="grid-tb tablesorter" id="modules-list">
+    <thead>
+		<tr>
+        	<th>{m('Name')}</th>
+        	<th>{m('Used')}</th>
+        	<th></th>
+    	</tr>
+	</thead>
+	<tbody>
+    	<!-- BEGIN SYS_MODULE -->
+    	<tr>
+        	<td>{name}</td>
+        	<td>{usedMsg}</td>
+        	<td class="admin">
+            <!-- BEGIN MODRM -->
+            <a href="{SUBMODULE_URL}rm/{module}/" onclick="return confirm('{m('ATTENTION! Module')} `{name}` {m('will be removed from system!')} \n{m('You will not not be able to create pages using this module.')} \n{m('Continue')}?');">
+        		<img src="{icoDelete}" title="{m('Delete')}" />
+			</a>
+            <!-- END MODRM -->
+        </td>
+    </tr>
+    <!-- END SYS_MODULE -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() { $("#modules-list").tablesorter( {headers: { 2: {sorter:false}}} ); } );
+</script>

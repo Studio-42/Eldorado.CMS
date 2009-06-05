@@ -1,0 +1,20 @@
+<table>
+	<tbody>
+	
+		<tr>
+			<td>{GASTAT_CHART}</td>
+			<!-- BEGIN LEGEND_PIE -->
+			<td>{gastat_legend}</td>
+			<!-- END LEGEND_PIE -->
+		</tr>
+		<!-- BEGIN LEGEND_LINE -->
+		<tr>
+			<td>{gastat_legend}</td>
+		</tr>
+		<!-- END LEGEND_LINE -->
+</table>
+
+{REPORT}
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() { $("#ga-report").tablesorter(  ); } );
+</script>

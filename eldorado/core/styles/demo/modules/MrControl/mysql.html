@@ -1,0 +1,26 @@
+{srvHead}
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td class="formSubheader">{m('Databases')}</td>
+    <td class="formSubheader">{m('Users')}</td>
+    <td class="formSubheader">{m('Created')} / {m('Modified')}</td>
+    <td class="formSubheader">{m('Actions')}</td>
+  </tr>
+  <!-- BEGIN MRC_DB -->
+  <tr>
+    <td>{db_name}</td>
+    <td>{db_user}</td>
+    <td>{crtime} / {mtime}</td>
+    <td>
+      <a href="{URL}mysql_edit/{did}/{id}/"><img src="{icoPassword}" class="icons" title="{m('Change password')}" /></a>
+      <a href="{URL}mysql_rm/{did}/{id}/" onClick="return confirm('{m('Do You really want to delete ')}?');">
+	     	<img src="{icoDelete}" title="{m('Delete')}"  class="icons" title="{m('Delete')}" /></a>
+    </td>
+  </tr>
+  <!-- END MRC_DB -->
+  <!-- BEGIN MRC_NODB -->
+  <tr>
+    <td colspan="4"><div class="mrcMsg">{m('There are no one database was found')}</div></td>
+  </tr>
+  <!-- END MRC_NODB -->
+</table>

@@ -1,0 +1,39 @@
+<h4>{m('Manufacturers')}</h4>
+<ul class="rounded-7 mod-ishop-mnfs">
+<!-- BEGIN IS_MNF -->
+	<li class="clearfix">
+		<div class="admin-icons">
+			<a href="{URL}edit_mnf/{catID}/{id}/"><img src="{icoMnfEdit}" title="{m('Edit')}" /></a>
+			<a href="{URL}rm_mnf/{catID}/{id}/" onclick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+		</div>
+		<h5>{name}</h5> 
+		<div>{country}</div>
+	    <em>{content}</em>
+
+		<!-- BEGIN IS_MNF_TMS -->
+		
+		<a href="#" class="collapsed">{m('Trade marks')} ({mnf})</a>
+		
+		<ul class="hide">
+			<!-- BEGIN IS_MNF_TM -->
+			<li class="clearfix">
+				<div class="admin-icons">
+					<a href="{URL}edit_tm/{catID}/{id}/"><img src="{icoEdit}" title="{m('Edit')}" /></a>
+				  	<a href="{URL}rm_tm/{catID}/{id}/" onclick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+				</div>
+				<h6>{name}</h6>
+				{content}
+			</li>
+			<!-- END IS_MNF_TM -->
+  		</ul>
+		<!-- END IS_MNF_TMS -->
+	</li>
+<!-- END IS_MNF -->
+</ul>
+<script type="text/javascript" charset="utf-8">
+	$().ready( function() {
+		$('a.collapsed').click( function() {
+			$(this).next('ul').slideToggle('slow')
+		} )
+	});
+</script>

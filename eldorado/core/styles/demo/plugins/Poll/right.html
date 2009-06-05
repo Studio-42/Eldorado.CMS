@@ -1,0 +1,33 @@
+<div class="pl-poll plugins">
+	<!-- BEGIN PL_POLL_TITLE -->
+	<div class="pl-poll-title plugins-title"><a href="{url}"><h5>{title}</h5></a></div>
+		<!-- END PL_POLL_TITLE -->	
+		<!-- BEGIN PL_POLL -->
+		<div class="pl-poll-content plugins-content">
+			<div><em>{name}</em></div>
+			<div>{descrip}</div>
+			<!-- BEGIN PL_APOLL -->
+			<form method="POST" action="{url}vote/{id}/">
+				<!-- BEGIN PL_APOLL_VAR -->
+				<label fore="choice-{id}"><input type="radio" name="choice" value="{id}" /> {name}</label>
+				<!-- END PL_APOLL_VAR -->
+				<input type="submit" value="{m('Vote')}" class="form-submit" />
+			</form>
+			<!-- END PL_APOLL -->
+
+			<!-- BEGIN PL_VPOLL -->
+
+				<!-- BEGIN PL_VPOLL_VAR -->
+			<div>{name} {prc}% ({vote_num})</div>
+
+			<!-- BEGIN PL_VPOLL_BAR -->
+			<div class="rounded-3 pl-poll-prc">
+			<div class="rounded-2 pl-poll-prc-color" style="width:{prc}%;"></div>
+		</div>
+				<!-- END PL_VPOLL_BAR -->
+
+				<!-- END PL_VPOLL_VAR -->		
+			<!-- END PL_VPOLL -->
+	</div>
+	<!-- END PL_POLL -->
+</div>

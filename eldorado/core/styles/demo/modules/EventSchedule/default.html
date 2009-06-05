@@ -1,0 +1,37 @@
+<table class="full mod-es">
+   <thead>
+	<tr>
+    <th>{eventName}</th>
+    <!-- BEGIN EVENT_HEAD_PLACE -->
+    <th>{m('Place')}</th>
+    <!-- END EVENT_HEAD_PLACE -->
+     <th width="25%">{m('Date')}</th>
+	</tr>
+   </thead>
+<!-- BEGIN EVENT -->
+<tr>
+    <td class="{cssClass}">
+    <h4>{name}</h4>
+    <!-- BEGIN EV_ANNOUNCE -->
+    <div class="mod-es-announce">{announce}</div>
+    <!-- END EV_ANNOUNCE -->
+    <!-- BEGIN EV_DETAILS -->  
+       <a class="readmore" href="{URL}details/{ID}/">{m('Read more')}</a>
+    <!-- END EV_DETAILS -->
+    </td>
+    <!-- BEGIN EV_PLACE -->
+    <td class="{cssClass}" align="right" width="50">{place}</td>
+    <!-- END EV_PLACE -->
+    <td class="{cssClass}"> 
+    	<span class="mod-es-dates">{begin}</span> - <span class="mod-es-dates">{end}</span>
+    </td>
+</tr>
+<!-- END EVENT -->
+</table>
+
+<!-- BEGIN EVENT_COMING -->
+<a class="back" href="{URL}">{m('Coming events')}</a>
+<!-- END EVENT_COMING -->
+<!-- BEGIN EVENT_LAST -->
+<a class="readmore" href="{URL}last/">{m('Last events')}</a>
+<!-- END EVENT_LAST -->

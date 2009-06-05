@@ -1,0 +1,92 @@
+<div class="mod-forum-p-wrapper hide" id="forum-preview">
+	<div class="mod-forum-p-border">
+		<table class="mod-forum-posts">
+			<tbody>
+				<tr class="mod-forum-post-row-ev">
+					<td class="mod-forum-post-author first">
+						<a href="{URL}profile/{author_uid}/"><strong id="forum-preview-author">author_name</strong></a>
+						
+						<img id="forum-preview-avatar" class="hide" src="" />
+						
+						<div>{m('Registration')}: <span id="forum-preview-regdate">reg_date</span></div>
+						<div>{m('Posts num')}: <span id="forum-preview-posts">posts</span></div>
+					</td>
+					<td class="mod-forum-post-msg last">
+						<div class="mod-forum-post-title">
+							<a href="#" title="{m('Link to this post')}" class="mod-forum-post-subj"><strong id="forum-preview-subject">subject</strong></a> 
+							<span class="mod-forum-post-date" id="forum-preview-date">create_date</span>
+						</div>
+						<span id="forum-preview-message">message</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<div id="forum-preview-loading" class="hide">{m('Data transfering...')}</div>
+<div class="form-errors hide" id="forum-preview-error">
+	<strong>{m('Some errors was found while proccessing form! Please fix it and try again.')}</strong>
+	<div>errors</div>
+</div>
+{POST_FORM}
+<script type="text/javascript" charset="utf-8" src="{BASE_URL}core/js/jquery.dump.js"></script>
+<script type="text/javascript" charset="utf-8">
+	$().ready( function() {
+		$('form input[name="preview"]').click( function() {
+			var form = $(this).parents('form');
+			
+			form.ajaxSubmit( { url: form.attr('action')+'preview/', beforeSubmit: showProgress, success: showResponse, dataType: 'json' } );
+			return false;
+		});
+		
+		$('.mod-forum-posts div.spoiler a.el-collapsed').live("click", function() { 
+			$(this).toggleClass('el-expanded').next('div').slideToggle();
+			return false
+		});
+		
+		
+		//alert( $('form :submit#s1').attr('name'))
+		
+		$('form#mfelforumpost :submit#s1').click( function() {
+			
+			var f = $('form#mfelforumpost :file').val();
+			if (!f)
+			{
+				alert("{m('Attachment file not selected')}");
+				return false
+			}
+			 $('form').attr('action', "{URL}attach_upload/").attr('method', 'POST').attr('enctype', 'multipart/form-data');
+			alert(f)
+			return false; 
+		} );
+		
+	});
+	
+	function showProgress()	{
+		$('#forum-preview').hide()
+		$('#forum-preview-error').hide();
+		$('#forum-preview-loading').show();
+	}
+	
+	function showResponse(data, statusText)  { 
+		$('#forum-preview-loading').hide();
+		if ( data.error ) {
+			$('#forum-preview-error').show('slow').children('div').html(data.error)
+		} else {
+			$('#forum-preview-error').hide()
+			var prev = $('#forum-preview');
+			$('#forum-preview-subject', prev).text(data.subject)
+			$('#forum-preview-date', prev).text(data.create_date)
+			$('#forum-preview-message', prev).html(data.message)
+			$('#forum-preview-author', prev).html(data.author_name)
+			$('#forum-preview-regdate', prev).html(data.reg_date)
+			$('#forum-preview-posts', prev).html(data.posts)						
+			if ( data.avatar ) {
+				$('#forum-preview-avatar', prev).attr('src', data.avatar).show()
+			} else {
+				$('#forum-preview-avatar', prev).hide();
+			}
+			prev.show('slow');
+		}
+	}
+</script>

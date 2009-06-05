@@ -1,0 +1,157 @@
+@charset "UTF-8";
+
+@media all
+{
+
+  html { height: auto; margin-bottom:0; }
+
+  * html textarea { overflow:scroll; overflow-x: hidden; }
+  * html input { overflow: hidden; }
+
+  body { position:relative; }  /* Essential in IE7 for correct layout scaling ... */
+  * html body { position:static; }  /* ... but not for IE5.x and IE6 */
+  #main { position: relative; } /* helpful for several problems in older IE versions*/
+
+  .clearfix { display: inline-block; }  /* ... especial for IE7 */
+  .clearfix { display: block; }      /* ... für IE5,IE6,IE7 */
+  * html .clearfix { height: 1%; }   /* ... für IE5 + IE6/Win | hasLayout aktivieren */
+
+  /*.floatbox { width:100%; }*/
+
+  /*------------------------------------------------------------------------------------------------------*/
+
+  /**
+   * (en) Special class for oversized content element
+   * (de) Spezielle Klasse für übergroße Inhaltselemente
+   *
+   * @workaround
+   * @affected   IE 5.x/Win, IE6
+   * @css-for    IE 5.x/Win, IE6
+   * @valid      yes
+   */
+
+  .slidebox {
+    position:relative;
+    margin-right: -1000px;
+    height: 1%;
+  }
+
+  * html #lc,
+  * html #rc,
+  * html #mc { position:relative; }
+
+
+
+  body { height: 1%; }
+  #body, #page,  #header, #navtop, #main, #footer, #nabottom { zoom:1; }   /* IE6 & IE7    */
+  #body, #page,  { height: 1%; }                              /* IE 5.x       */
+  * html #header, * html #navtop, * html #main, * html #footer, * html #navbottom { width: 100%; }              /* IE 5.x & IE6 */
+  * html #header, * html #navtop, * html #main, * html #footer, * html #navbottom { wid\th: auto; }             /* IE 6         */
+
+  * html ul, * html ol, * html dl { position: relative; }
+
+  body ol li { display:list-item; }
+
+  fieldset, legend { position:relative; }
+  hr  { margin: -8px auto 11px; }
+  html .ie-clear {
+    position:static;
+    display:block;
+    \clear:both;
+    width: 100%;
+    font-size:0px;
+    margin: -2px 0 -1em 1px;
+  }
+
+  * html .ie-clear { margin: -2px 0 -1em 0; }
+  #mc-content {margin-bottom:-2px; }
+
+  html { margin-right: 1px; }
+  * html { margin-right: 0 }
+
+  #mc { position:relative; }
+
+  *+html #mc { z-index: -1; }
+  * html #lc, * html #rc { z-index: 1; }
+  * html #mc  { z-index:auto; }
+
+
+  * html body a, * html body a:hover { background-color: transparent; }
+
+}
+
+@media screen, projection
+{
+	#lc,  #rc { display:inline; }
+	.col-var, .col-1, .col-10, .col-25, .col-33, .col-38, .col-49, .col-50, .col-62, .col-66, .col-75, .col-90 { display:inline; }
+
+	* html .strectch, * html .stretch .grid { overflow:visible; display:block; }
+	.stretch, .stretch .grid { overflow:hidden; display:block; }
+
+	.stretch .col-var, .stretch .col-1,
+	.stretch .col-10, .stretch .col-25, .stretch .col-33, 
+	.stretch .col-38, .stretch .col-49, .stretch .col-50, 
+	.stretch .col-62, .stretch .col-66, .stretch .col-75, 
+	.stretch .col-90 {
+	    float: left; 
+		display:inline;
+	    padding-bottom: 32767px;
+	    margin-bottom: -32767px;
+	  }
+	
+	.stretch .col-last {
+		float: right; 
+		margin-left: -5px; 
+		display:inline;
+	    padding-bottom: 32767px;
+	    margin-bottom: -32767px;
+	}
+
+	.no-ie-padding .col-10, .no-ie-padding .col-25, .no-ie-padding .col-33,
+	.no-ie-padding .col-38, .no-ie-padding .col-49, .no-ie-padding .col-50, 
+	.no-ie-padding .col-62, .no-ie-padding .col-66, .no-ie-padding .col-75,
+	.no-ie-padding .col-90, .no-ie-padding .col-last {
+	    padding-bottom: 0;
+	    margin-bottom: 0;
+	  }
+
+
+  * html #lc-content,
+  * html #rc-content,
+  * html #mc-content { word-wrap: break-word; }
+
+  .col-content, .col-content-l, .col-content-r { height: 1%; }
+
+  * html .col-content,
+  * html .col-content-l,
+  * html .col-content-r { word-wrap: break-word; overflow:hidden;  }
+  * html #mc  { height: 1%; }
+  * html #lc  { margin-right: -3px;}
+  * html #rc  { margin-left: -3px;}
+  * html #mc_ { margin-left: 197px; margin-right: 197px; }
+
+  * html #body, * html #footer, * html #navbottom 
+	{
+    /* Fallback if JavaScript is disabled */
+   /* width: 80em;*/
+	width: expression( (document.documentElement && document.documentElement.clientHeight) ? ( (document.documentElement.clientWidth < 780) ? "780px" : "auto") : ((document.body.clientWidth < 780) ? "780px" : "auto"));
+
+    /* JS-Expression for min-/max-width simulation */
+  /*width: expression((document.documentElement && document.documentElement.clientHeight) ? ((document.documentElement.clientWidth < 740) ? "740px" : ((document.documentElement.clientWidth > (80 * 16 * (parseInt(this.parentNode.currentStyle.fontSize) / 100))) ? "80em" : "auto" )) : ((document.body.clientWidth < 740) ? "740px" : ((document.body.clientWidth > (80 * 16 * (parseInt(this.parentNode.currentStyle.fontSize) / 100))) ? "80em" : "auto" )));
+    */
+	}
+	
+	div.mod-ig-img { display:inline; }
+	.mod-ig-list-preview a { border:2px solid #ccc; }
+	.mod-tshop-fts { display:inline-block;}
+	.mod-ishop-fts { display:inline;}
+
+	div.tab, .a li, .a-menu li { display:inline; }
+	.a-menu { padding: 0 7px 0 1px ; }
+	
+}
+
+@media print
+{
+  #mc { height: 1%; }
+}

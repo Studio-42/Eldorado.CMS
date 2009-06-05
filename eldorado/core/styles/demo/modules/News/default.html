@@ -1,0 +1,51 @@
+<div class="mod-news">
+	<!-- BEGIN NEWS_OC -->
+	<ul>
+  		<!-- BEGIN NEWS -->
+		<li class="clearfix">
+			<!-- BEGIN NDATE --><div class="rounded-2 mod-news-date">{date}</div><!-- END NDATE -->
+      		<a href="{URL}read/{curPageNum}/{id}/"><h3>{title}</h3></a>
+      		{announce}
+	  		<!-- BEGIN NDETAIL -->
+        	<a class="readmore" href="{URL}read/{curPageNum}/{id}/">{detailLinkText}</a>
+      		<!-- END NDETAIL -->
+		</li>
+   		<!-- END NEWS -->
+	</ul>
+	<!-- END NEWS_OC -->
+
+
+	<!-- BEGIN NEWS_TC -->
+  	<!-- BEGIN NROW -->
+	<div class="grid">
+     	<!-- BEGIN TNEWS_LEFT -->
+		<div class="col-50">
+			<div class="col-content-l">
+            	<!-- BEGIN L_NDATE --><div class="rounded-2 mod-news-date">{date}</div><!-- END L_NDATE -->
+            	<a href="{URL}read/{curPageNum}/{id}/"><h3>{title}</h3></a>
+            	{announce}
+	            <!-- BEGIN L_NDETAIL -->
+	            <br />
+	            <a class="readmore" href="{URL}read/{curPageNum}/{id}/">{detailLinkText}</a>
+	            <!-- END L_NDETAIL -->
+			</div>
+		</div>
+    	<!-- END TNEWS_LEFT -->
+    	<!-- BEGIN TNEWS_RIGHT -->
+		<div class="col-50 col-last">
+			<div class="col-content-r">
+            	<!-- BEGIN R_NDATE --><div class="rounded-2 mod-news-date">{date}</div><!-- END R_NDATE -->
+            	<a href="{URL}read/{curPageNum}/{id}/"><h3>{title}</h3></a>
+	            {announce}
+	            <!-- BEGIN R_NDETAIL -->
+	            <br />
+	            <a class="readmore" href="{URL}read/{curPageNum}/{id}/">{detailLinkText}</a>
+	            <!-- END R_NDETAIL -->
+			</div>
+		</div>
+    	<!-- END TNEWS_RIGHT -->
+	</div>
+  	<!-- END NROW -->
+	<!-- END NEWS_TC -->
+</div>
+{PAGER}

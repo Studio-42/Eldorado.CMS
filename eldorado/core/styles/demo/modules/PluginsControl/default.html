@@ -1,0 +1,29 @@
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td class="tb_h2">{m('Plugins')}      </td>
+    <td class="tb_h2" width="65">{m('State')}        </td>
+    <td class="tb_h2" width="75">{m('Configuration')}</td>
+  </tr>
+<!-- BEGIN PLUGIN -->
+  <tr>
+    <td>{label}</td>
+    <td>
+      <!-- BEGIN PL_STATE_ON -->
+			<img src="{icoSwitchOn}" class="icons" />
+      <!-- END PL_STATE_ON -->
+      <!-- BEGIN PL_STATE_OFF -->
+			<img src="{icoSwitchOff}" class="icons" />
+      <!-- END PL_STATE_OFF -->
+      <!-- BEGIN PL_STATE_DISABLE -->
+      {m('Disable')}
+      <!-- END PL_STATE_DISABLE -->
+    </td>
+    <td>
+      <!-- BEGIN PL_CONF -->
+
+      <!-- END PL_CONF -->
+      &nbsp;
+    </td>
+  </tr>
+<!-- END PLUGIN -->
+</table>

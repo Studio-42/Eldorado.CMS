@@ -1,0 +1,20 @@
+ul.mod-container { margin:0 0 0.5em 1em; padding:0;	}
+ul.mod-container li {  
+	padding:0.7em 0;
+	margin:0;
+	list-style:none; 
+	zoom:1; /* stupid IE */
+}
+ul.mod-container li a { 
+	padding:0 0 0 1.5em; 
+	background:  url(../../images/arrow.gif) 0 center no-repeat; 
+	font-weight:bold;
+}
+.mod-container  blockquote { 
+	margin-bottom:0; 
+	padding:0 0 0 0.5em; 
+	font-size:90%; 
+	font-weight:normal;
+}
+table.mod-container td { font-weight:bold; }
+table.mod-container blockquote { margin:0; }

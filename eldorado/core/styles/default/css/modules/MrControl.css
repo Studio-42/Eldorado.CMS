@@ -1,0 +1,8 @@
+.gridTb td { vertical-align:top; }
+.gridTb td table td.formSubheader { border:none; }
+.mrcActLink { padding:3px 0 1px 17px; background:url(../images/arrow.jpg) left no-repeat; }
+.mrcActLink a { text-decoration:none; }
+td.mrcSrvStatus { border:none; }
+.mrcSrvStatus a { font-weight:bold; }
+.mrcAutoreply { font-size:90%; }
+.mrcMsg {font-weight:bold;text-align:center;padding:5px; }

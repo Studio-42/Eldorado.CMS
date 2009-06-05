@@ -1,0 +1,2043 @@
+<?
+ /*****************************************************************
+ * Класс экспорта отчетов WEB_Count
+ *
+ * Copyright (c) 2000-2006 PHPScript.ru
+ * Автор: Дмитрий Дементьев
+ * info@phpscript.ru
+ *
+ ****************************************************************/
+ class export {
+
+ function init() {
+
+	global $core, $begin, $end, $type, $type_gr;
+
+	//if (!$core->html_data) { die("<li><span style='color: #E74B4B;'>[Ошибка]</span> Ошибка получения отчета.\n"); }
+
+	switch ($this->what) {
+
+		case 'excel':
+
+			foreach ($this->type_array as $key => $val) {
+				$core->type = $val;
+				$core->init();
+				$content .= "<h5>".$core->header."</h5>\n\n";
+				$content .= $this->excel_get_report();
+			}
+			$content = iconv("UTF-8", "Windows-1251", $content);
+			header ("Content-Type: application/vnd.ms-excel; charset=windows-1251'");
+			header ('Content-Description: PHP Generated Data'); 
+			header ('Content-Disposition: inline; filename="statistics.xls"');
+			echo  "<html xmlns:o = 'urn:schemas-microsoft-com:office:office' xmlns:x = 'urn:schemas-microsoft-com:office:excel' xmlns = 'http://www.w3.org/TR/REC-html40'>\n<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>\n<html>\n<head>\n<meta http-equiv = 'Content-type' content = 'text/html;charset=windows-1251'/>\n<style id = 'Classeur1_16681_Styles'> </style>\n</head>\n<body>\n<div id = 'Classeur1_16681' x:publishsource = 'Excel'>\n\n";
+			echo $content;
+			echo "</div></body></html>";
+			break;
+
+		case 'word':
+
+			foreach ($this->type_array as $key => $val) {
+				$core->type = $val;
+				$core->init();
+				$content .= "<h5>".$core->header."</h5>\n\n";
+				$content .= $this->word_get_report();
+			}
+			$content = iconv("UTF-8", "Windows-1251", $content);
+			header ("Content-Type: application/msword; charset=windows-1251'");
+			header ('Content-Description: PHP Generated Data'); 
+			header ('Content-Disposition: inline; filename="statistics.doc"');
+			echo $content;
+			break;
+
+		case 'pdf':
+
+			$pdf=new PDF_HTML_Table();
+			$pdf->SetDisplayMode(75);
+			$pdf->AddFont('arial','','arial.php');
+			$pdf->AddFont('arial','B','arialbd.php');
+			$pdf->AddFont('arial','I','ariali.php');
+			$pdf->AddFont('arial','IB','arialbi.php');
+			$pdf->SetFont('arial','',10);
+
+			$i=1;
+			foreach ($this->type_array as $key => $val) {
+				$core->type = $val;
+				$core->init();
+				$content = "<h2>".$core->header."</h2>\n\n";
+				$content .= $this->pdf_get_report();
+				$pdf->AddPage();
+				$pdf->WriteHTML($content);
+
+				umask(000);
+				$png = implode('', file($core->gbl_config['url']."graph.php?begin=".$core->begin."&end=".$core->end."&type=".$core->type."&type_gr=".$core->type_gr));
+				if ($png) {
+					$handle = fopen("./includes/temp_pdf$i.png", "a");
+					fwrite($handle, $png);
+					fclose($handle);
+
+					$imgsize=getimagesize("./includes/temp_pdf$i.png"); 
+					$im_w = $imgsize[0] * 20.4/72;
+					$im_h = $imgsize[1] * 20.4/72;
+					$h = $pdf->GetY();
+					$pdf->Image("./includes/temp_pdf$i.png", 10, $h, $im_w, $im_h);
+					unlink("./includes/temp_pdf$i.png");
+					$i++;
+				}
+			}
+			$pdf->Output();
+			break;
+ 	}
+ }
+
+ function excel_get_report() {
+
+	global $core;
+
+	$content .= "<table x:str border = 0 cellpadding = 0 cellspacing = 0 width = 100% style = 'border-collapse: collapse'>";
+
+	foreach ($core->export_data as $key => $tr) {
+		$content .= "<tr>\n";
+		foreach ($tr as $k => $td) {
+			$content .= "<td class=xl2216681 nowrap>".$td."</td>\n";
+		}
+		$content .= "</tr>\n";
+	}
+	return $content."</table>\n\n";
+ }
+
+ function word_get_report() {
+
+	global $core;
+
+	$content .= "<table class='width100' cellspacing='1'>\n";
+
+	foreach ($core->export_data as $key => $tr) {
+		$content .= "<tr class='print-category'>\n";
+		foreach ($tr as $k => $td) {
+			$content .= "<td class='print'>".$td."</td>\n";
+		}
+		$content .= "</tr>\n";
+	}
+	return $content."</table>\n\n";
+ }
+
+ function pdf_get_report() {
+
+	global $core;
+
+	$content .= "<table border = 0>";
+
+	foreach ($core->export_data as $key => $tr) {
+		$content .= "<tr>\n";
+		foreach ($tr as $k => $td) {
+			$content .= "<td align>".$td."</td>\n";
+		}
+		$content .= "</tr>\n";
+	}
+	return $content."</table>\n\n";
+ }
+ }
+
+ define('FPDF_VERSION', '1.54');
+ define('FPDF_FONTPATH', './class/font/');
+
+ class FPDF {
+
+ function FPDF($orientation = 'P', $unit = 'mm', $format = 'A4') {
+
+	 $this->_dochecks();
+	 $this->page=0;
+	 $this->n=2;
+	 $this->buffer='';
+	 $this->pages=array();
+	 $this->OrientationChanges=array();
+	 $this->state=0;
+	 $this->fonts=array();
+	 $this->FontFiles=array();
+	 $this->diffs=array();
+	 $this->images=array();
+	 $this->links=array();
+	 $this->InFooter=false;
+	 $this->lasth=0;
+	 $this->FontFamily='';
+	 $this->FontStyle='';
+	 $this->FontSizePt=12;
+	 $this->underline=false;
+	 $this->DrawColor='0 G';
+	 $this->FillColor='0 g';
+	 $this->TextColor='0 g';
+	 $this->ColorFlag=false;
+	 $this->ws=0;
+	 $this->CoreFonts=array('courier' => 'Courier', 'courierB' => 'Courier-Bold', 'courierI' => 'Courier-Oblique', 'courierBI' => 'Courier-BoldOblique', 'helvetica' => 'Helvetica', 'helveticaB' => 'Helvetica-Bold', 'helveticaI' => 'Helvetica-Oblique', 'helveticaBI' => 'Helvetica-BoldOblique', 'times' => 'Times-Roman', 'timesB' => 'Times-Bold', 'timesI' => 'Times-Italic', 'timesBI' => 'Times-BoldItalic', 'symbol' => 'Symbol', 'zapfdingbats' => 'ZapfDingbats');
+
+	 if ($unit == 'pt') $this->k=1;
+	 elseif ($unit == 'mm')  $this->k=72 / 25.4;
+	 elseif ($unit == 'cm')  $this->k=72 / 2.54;
+	 elseif ($unit == 'in')  $this->k=72;
+	 else  $this->Error('Неизвестная размерность: ' . $unit);
+
+	 if (is_string($format)) {
+		 $format=strtolower($format);
+		 if ($format == 'a3') $format=array(841.89, 1190.55);
+		 elseif ($format == 'a4')  $format=array(595.28, 841.89);
+		 elseif ($format == 'a5')  $format=array(420.94, 595.28);
+		 elseif ($format == 'letter')  $format=array(612, 792);
+		 elseif ($format == 'legal')  $format=array(612, 1008);
+		 else  $this->Error('Неизвестный формат: ' . $format);
+
+		 $this->fwPt=$format[0];
+		 $this->fhPt=$format[1];
+	 } else {
+		 $this->fwPt=$format[0] * $this->k;
+		 $this->fhPt=$format[1] * $this->k;
+	 }
+
+	 $this->fw=$this->fwPt / $this->k;
+	 $this->fh=$this->fhPt / $this->k;
+
+	 $orientation=strtolower($orientation);
+
+	 if ($orientation == 'p' || $orientation == 'portrait') {
+		 $this->DefOrientation='P';
+		 $this->wPt=$this->fwPt;
+		 $this->hPt=$this->fhPt;
+	 } elseif ($orientation == 'l' || $orientation == 'landscape') {
+		 $this->DefOrientation='L';
+		 $this->wPt=$this->fhPt;
+		 $this->hPt=$this->fwPt;
+	 } else  $this->Error('Неизвестный формат страницы: ' . $orientation);
+
+	 $this->CurOrientation=$this->DefOrientation;
+	 $this->w=$this->wPt / $this->k;
+	 $this->h=$this->hPt / $this->k;
+
+	 $margin=28.35 / $this->k;
+	 $this->SetMargins($margin, $margin);
+	 $this->cMargin=$margin / 10;
+	 $this->LineWidth=.567 / $this->k;
+	 $this->SetAutoPageBreak(true, 2 * $margin);
+	 $this->SetDisplayMode('fullwidth');
+	 $this->SetCompression(true);
+	 $this->PDFVersion='1.3';
+ }
+
+ function SetMargins($left, $top, $right = -1) {
+
+	 $this->lMargin=$left;
+	 $this->tMargin=$top;
+
+	 if ($right == -1) $right=$left;
+
+	 $this->rMargin=$right;
+ }
+
+ function SetLeftMargin($margin) {
+
+	 $this->lMargin=$margin;
+
+	 if ($this->page > 0 && $this->x < $margin) $this->x=$margin;
+ }
+
+ function SetTopMargin($margin) {
+
+	 $this->tMargin=$margin; }
+
+ function SetRightMargin($margin) {
+
+	 $this->rMargin=$margin; }
+
+ function SetAutoPageBreak($auto, $margin = 0) {
+
+	 $this->AutoPageBreak=$auto;
+	 $this->bMargin=$margin;
+	 $this->PageBreakTrigger=$this->h - $margin;
+ }
+
+ function SetDisplayMode($zoom, $layout = 'continuous') {
+
+	 if ($zoom == 'fullpage' || $zoom == 'fullwidth' || $zoom == 'real' || $zoom == 'default' || !is_string($zoom)) $this->ZoomMode=$zoom;else  $this->Error('Неизвестное увеличение страницы: ' . $zoom);
+	 if ($layout == 'single' || $layout == 'continuous' || $layout == 'two' || $layout == 'default') $this->LayoutMode=$layout;else  $this->Error('Неизвестный формат страницы: ' . $layout);
+ }
+
+ function SetCompression($compress) {
+
+	 if (function_exists('gzcompress')) $this->compress=$compress;else  $this->compress=false;
+ }
+
+ function SetTitle($title) {
+
+	 $this->title=$title; }
+
+ function SetSubject($subject) {
+
+	 $this->subject=$subject; }
+
+ function SetAuthor($author) {
+
+	 $this->author=$author; }
+
+ function SetKeywords($keywords) {
+
+	 $this->keywords=$keywords; }
+
+ function SetCreator($creator) {
+
+	 $this->creator=$creator; }
+
+ function AliasNbPages($alias = '{nb}') {
+
+	 $this->AliasNbPages=$alias; }
+
+ function Error($msg) {
+
+	 die ('<li><span style="color: #E74B4B;">[Ошибка]</span> Ошибка PDF: '.$msg); }
+
+ function Open() {
+
+	 $this->state=1; }
+
+ function Close() {
+
+	 if ($this->state == 3) return;
+	 if ($this->page == 0) $this->AddPage();
+
+	 $this->InFooter=true;
+	 $this->Footer();
+	 $this->InFooter=false;
+	 $this->_endpage();
+	 $this->_enddoc();
+ }
+
+ function AddPage($orientation = '') {
+
+	 if ($this->state == 0) $this->Open();
+
+	 $family=$this->FontFamily;
+	 $style=$this->FontStyle . ($this->underline ? 'U' : '');
+	 $size=$this->FontSizePt;
+	 $lw=$this->LineWidth;
+	 $dc=$this->DrawColor;
+	 $fc=$this->FillColor;
+	 $tc=$this->TextColor;
+	 $cf=$this->ColorFlag;
+
+	 if ($this->page > 0) {
+
+		 $this->InFooter=true;
+		 $this->Footer();
+		 $this->InFooter=false;
+		 $this->_endpage();
+	 }
+
+	 $this->_beginpage($orientation);
+	 $this->_out('2 J');
+	 $this->LineWidth=$lw;
+	 $this->_out(sprintf('%.2f w', $lw * $this->k));
+
+	 if ($family) $this->SetFont($family, $style, $size);
+
+	 $this->DrawColor=$dc;
+
+	 if ($dc != '0 G') $this->_out($dc);
+
+	 $this->FillColor=$fc;
+
+	 if ($fc != '0 g') $this->_out($fc);
+
+	 $this->TextColor=$tc;
+	 $this->ColorFlag=$cf;
+	 $this->Header();
+
+	 if ($this->LineWidth != $lw) {
+		 $this->LineWidth=$lw;
+		 $this->_out(sprintf('%.2f w', $lw * $this->k));
+	 }
+
+	 if ($family) $this->SetFont($family, $style, $size);
+
+	 if ($this->DrawColor != $dc) {
+		 $this->DrawColor=$dc;
+		 $this->_out($dc);
+	 }
+
+	 if ($this->FillColor != $fc) {
+		 $this->FillColor=$fc;
+		 $this->_out($fc);
+	 }
+
+	 $this->TextColor=$tc;
+	 $this->ColorFlag=$cf;
+ }
+
+ function Header() { }
+
+ function Footer() { }
+
+ function PageNo() {
+ 
+	 return $this->page;
+ }
+
+ function SetDrawColor($r, $g = -1, $b = -1) {
+
+	 if (($r == 0 && $g == 0 && $b == 0) || $g == -1) $this->DrawColor=sprintf('%.3f G', $r / 255);else  $this->DrawColor=sprintf('%.3f %.3f %.3f RG', $r / 255, $g / 255, $b / 255);
+
+	 if ($this->page > 0) $this->_out($this->DrawColor);
+ }
+
+ function SetFillColor($r, $g = -1, $b = -1) {
+
+	 if (($r == 0 && $g == 0 && $b == 0) || $g == -1) $this->FillColor=sprintf('%.3f g', $r / 255);else  $this->FillColor=sprintf('%.3f %.3f %.3f rg', $r / 255, $g / 255, $b / 255);
+
+	 $this->ColorFlag=($this->FillColor != $this->TextColor);
+
+	 if ($this->page > 0) $this->_out($this->FillColor);
+ }
+
+ function SetTextColor($r, $g = -1, $b = -1) {
+
+	 if (($r == 0 && $g == 0 && $b == 0) || $g == -1) $this->TextColor=sprintf('%.3f g', $r / 255);else  $this->TextColor=sprintf('%.3f %.3f %.3f rg', $r / 255, $g / 255, $b / 255);
+
+	 $this->ColorFlag=($this->FillColor != $this->TextColor);
+ }
+
+ function GetStringWidth($s) {
+
+	 $s=(string)$s;
+	 $cw=&$this->CurrentFont['cw'];
+	 $w=0;
+	 $l=strlen($s);
+
+	 for ($i=0; $i < $l; $i++) $w+=$cw[$s{$i}];
+
+	 return $w * $this->FontSize / 1000;
+ }
+
+ function SetLineWidth($width) {
+
+	 $this->LineWidth=$width;
+
+	 if ($this->page > 0) $this->_out(sprintf('%.2f w', $width * $this->k));
+ }
+
+ function Line($x1, $y1, $x2, $y2) {
+
+	 $this->_out(sprintf('%.2f %.2f m %.2f %.2f l S', $x1 * $this->k, ($this->h - $y1) * $this->k, $x2 * $this->k, ($this->h - $y2) * $this->k)); }
+
+ function Rect($x, $y, $w, $h, $style = '') {
+
+	 if ($style == 'F') $op='f';
+	 elseif ($style == 'FD' || $style == 'DF')  $op='B';
+	 else  $op='S';
+
+	 $this->_out(sprintf('%.2f %.2f %.2f %.2f re %s', $x * $this->k, ($this->h - $y) * $this->k, $w * $this->k, -$h * $this->k, $op));
+ }
+
+ function AddFont($family, $style = '', $file = '') {
+
+	 $family=strtolower($family);
+
+	 if ($file == '') $file=str_replace(' ', '', $family). strtolower($style). '.php';
+	 if ($family == 'arial') $family='helvetica';
+
+	 $style=strtoupper($style);
+
+	 if ($style == 'IB') $style='BI';
+
+	 $fontkey=$family . $style;
+
+	 //if (isset($this->fonts[$fontkey])) $this->Error('Этот шрифт уже добавлен: ' . $family . ' ' . $style);
+	 if (isset($this->fonts[$fontkey])) return false;
+
+	 include ($this->_getfontpath(). $file);
+
+	 if (!isset($name)) $this->Error('Файл с этим шрифтом не найден');
+
+	 $i=count($this->fonts) + 1;
+	 $this->fonts[$fontkey]=array('i' => $i, 'type' => $type, 'name' => $name, 'desc' => $desc, 'up' => $up, 'ut' => $ut, 'cw' => $cw, 'enc' => $enc, 'file' => $file);
+
+	 if ($diff) {
+		 $d=0;
+		 $nb=count($this->diffs);
+
+		 for ($i=1; $i <= $nb; $i++) {
+			 if ($this->diffs[$i] == $diff) {
+				 $d=$i;
+				 break;
+			 }
+		 }
+
+		 if ($d == 0) {
+			 $d=$nb + 1;
+			 $this->diffs[$d]=$diff;
+		 }
+		 $this->fonts[$fontkey]['diff']=$d;
+	 }
+
+	 if ($file) {
+		 if ($type == 'TrueType') $this->FontFiles[$file]=array('length1' => $originalsize);else  $this->FontFiles[$file]=array('length1' => $size1, 'length2' => $size2);
+	 }
+ }
+
+ function SetFont($family, $style = '', $size = 0) {
+
+	 global $fpdf_charwidths;
+
+	 $family=strtolower($family);
+
+	 if ($family == '') $family=$this->FontFamily;
+
+	 if ($family == 'arial') $family='helvetica';
+	 elseif ($family == 'symbol' || $family == 'zapfdingbats')  $style='';
+
+	 $style=strtoupper($style);
+
+	 if (strpos($style, 'U') !== false) {
+		 $this->underline=true;
+		 $style=str_replace('U', '', $style);
+	 } else  $this->underline=false;
+
+	 if ($style == 'IB') $style='BI';
+
+	 if ($size == 0) $size=$this->FontSizePt;
+
+	 if ($this->FontFamily == $family && $this->FontStyle == $style && $this->FontSizePt == $size) return;
+
+	 $fontkey=$family . $style;
+
+	 if (!isset($this->fonts[$fontkey])) {
+		 if (isset($this->CoreFonts[$fontkey])) {
+			 if (!isset($fpdf_charwidths[$fontkey])) {
+
+				 $file=$family;
+
+				 if ($family == 'times' || $family == 'helvetica') $file.=strtolower($style);
+
+				 include ($this->_getfontpath(). $file . '.php');
+				 if (!isset($fpdf_charwidths[$fontkey])) $this->Error('Ошибка подключения файла шрифта');
+			 }
+
+			 $i=count($this->fonts) + 1;
+			 $this->fonts[$fontkey]=array('i' => $i, 'type' => 'core', 'name' => $this->CoreFonts[$fontkey], 'up' => -100, 'ut' => 50, 'cw' => $fpdf_charwidths[$fontkey]);
+		 } else  $this->Error('Неизвестный шрифт: ' . $family . ' ' . $style);
+	 }
+
+	 $this->FontFamily=$family;
+	 $this->FontStyle=$style;
+	 $this->FontSizePt=$size;
+	 $this->FontSize=$size / $this->k;
+	 $this->CurrentFont=&$this->fonts[$fontkey];
+
+	 if ($this->page > 0) $this->_out(sprintf('BT /F%d %.2f Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
+ }
+
+ function SetFontSize($size) {
+
+	 if ($this->FontSizePt == $size) return;
+
+	 $this->FontSizePt=$size;
+	 $this->FontSize=$size / $this->k;
+
+	 if ($this->page > 0) $this->_out(sprintf('BT /F%d %.2f Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
+ }
+
+ function AddLink() {
+
+	 $n=count($this->links) + 1;
+
+	 $this->links[$n]=array(0, 0);
+	 return $n;
+ }
+
+ function SetLink($link, $y = 0, $page = -1) {
+
+	 if ($y == -1) $y=$this->y;
+	 if ($page == -1) $page=$this->page;
+
+	 $this->links[$link]=array($page, $y);
+ }
+
+ function Link($x, $y, $w, $h, $link) {
+
+	 $this->PageLinks[$this->page][]=array($x * $this->k, $this->hPt - $y * $this->k, $w * $this->k, $h * $this->k, $link); }
+
+ function Text($x, $y, $txt) {
+
+	 $s=sprintf('BT %.2f %.2f Td (%s) Tj ET', $x * $this->k, ($this->h - $y) * $this->k, $this->_escape($txt));
+
+	 if ($this->underline && $txt != '') $s.=' ' . $this->_dounderline($x, $y, $txt);
+	 if ($this->ColorFlag) $s='q ' . $this->TextColor . ' ' . $s . ' Q';
+
+	 $this->_out($s);
+ }
+
+ function AcceptPageBreak() {
+
+	 return $this->AutoPageBreak; }
+
+ function Cell($w, $h = 0, $txt = '', $border = 0, $ln = 0, $align = '', $fill = 0, $link = '') {
+
+	 $k=$this->k;
+
+	 if ($this->y + $h > $this->PageBreakTrigger && !$this->InFooter && $this->AcceptPageBreak()) {
+
+		 $x=$this->x;
+		 $ws=$this->ws;
+
+		 if ($ws > 0) {
+			 $this->ws=0;
+			 $this->_out('0 Tw');
+		 }
+
+		 $this->AddPage($this->CurOrientation);
+		 $this->x=$x;
+		 if ($ws > 0) {
+			 $this->ws=$ws;
+			 $this->_out(sprintf('%.3f Tw', $ws * $k));
+		 }
+	 }
+
+	 if ($w == 0) $w=$this->w - $this->rMargin - $this->x;
+
+	 $s='';
+
+	 if ($fill == 1 || $border == 1) {
+		 if ($fill == 1) $op=($border == 1) ? 'B' : 'f';else  $op='S';
+		 $s=sprintf('%.2f %.2f %.2f %.2f re %s ', $this->x * $k, ($this->h - $this->y) * $k, $w * $k, -$h * $k, $op);
+	 }
+
+	 if (is_string($border)) {
+		 $x=$this->x;
+		 $y=$this->y;
+
+		 if (strpos($border, 'L') !== false) $s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - $y) * $k, $x * $k, ($this->h - ($y + $h)) * $k);
+		 if (strpos($border, 'T') !== false) $s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - $y) * $k, ($x + $w) * $k, ($this->h - $y) * $k);
+		 if (strpos($border, 'R') !== false) $s.=sprintf('%.2f %.2f m %.2f %.2f l S ', ($x + $w) * $k, ($this->h - $y) * $k, ($x + $w) * $k, ($this->h - ($y + $h)) * $k);
+		 if (strpos($border, 'B') !== false) $s.=sprintf('%.2f %.2f m %.2f %.2f l S ', $x * $k, ($this->h - ($y + $h)) * $k, ($x + $w) * $k, ($this->h - ($y + $h)) * $k);
+	 }
+
+	 if ($txt !== '') {
+		 if ($align == 'R') $dx=$w - $this->cMargin - $this->GetStringWidth($txt);
+		 elseif ($align == 'C')  $dx=($w - $this->GetStringWidth($txt)) / 2;
+		 else  $dx=$this->cMargin;
+
+		 if ($this->ColorFlag) $s.='q ' . $this->TextColor . ' ';
+
+		 $txt2=str_replace(')', '\\)', str_replace('(', '\\(', str_replace('\\', '\\\\', $txt)));
+		 $s.=sprintf('BT %.2f %.2f Td (%s) Tj ET', ($this->x + $dx) * $k, ($this->h - ($this->y + .5 * $h + .3 * $this->FontSize)) * $k, $txt2);
+
+		 if ($this->underline) $s.=' ' . $this->_dounderline($this->x + $dx, $this->y + .5 * $h + .3 * $this->FontSize, $txt);
+		 if ($this->ColorFlag) $s.=' Q';
+		 if ($link) $this->Link($this->x + $dx, $this->y + .5 * $h - .5 * $this->FontSize, $this->GetStringWidth($txt), $this->FontSize, $link);
+	 }
+
+	 if ($s) $this->_out($s);
+
+	 $this->lasth=$h;
+
+	 if ($ln > 0) {
+		 $this->y+=$h;
+		 if ($ln == 1) $this->x=$this->lMargin;
+	 } else  $this->x+=$w;
+ }
+
+ function MultiCell($w, $h, $txt, $border = 0, $align = 'J', $fill = 0) {
+
+	 $cw=&$this->CurrentFont['cw'];
+
+	 if ($w == 0) $w=$this->w - $this->rMargin - $this->x;
+
+	 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+	 $s=str_replace("\r", '', $txt);
+	 $nb=strlen($s);
+
+	 if ($nb > 0 && $s[$nb - 1] == "\n") $nb--;
+
+	 $b=0;
+
+	 if ($border) {
+		 if ($border == 1) {
+			 $border='LTRB';
+			 $b='LRT';
+			 $b2='LR';
+		 } else {
+			 $b2='';
+			 if (strpos($border, 'L') !== false) $b2.='L';
+			 if (strpos($border, 'R') !== false) $b2.='R';
+			 $b=(strpos($border, 'T') !== false) ? $b2 . 'T' : $b2;
+		 }
+	 }
+
+	 $sep=-1;
+	 $i=0;
+	 $j=0;
+	 $l=0;
+	 $ns=0;
+	 $nl=1;
+
+	 while ($i < $nb) {
+		 $c = $s{$i};
+
+		 if ($c == "\n") {
+			 if ($this->ws > 0) {
+				 $this->ws=0;
+				 $this->_out('0 Tw');
+			 }
+
+			 $this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+			 $i++;
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+			 $ns=0;
+			 $nl++;
+
+			 if ($border && $nl == 2) $b=$b2;
+			 continue;
+		 }
+
+		 if ($c == ' ') {
+			 $sep=$i;
+
+			 $ls=$l;
+			 $ns++;
+		 }
+
+		 $l+=$cw[$c];
+		 if ($l > $wmax) {
+			 if ($sep == -1) {
+				 if ($i == $j) $i++;
+
+				 if ($this->ws > 0) {
+					 $this->ws=0;
+					 $this->_out('0 Tw');
+				 }
+				 $this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+			 } else {
+				 if ($align == 'J') {
+					 $this->ws=($ns > 1) ? ($wmax - $ls) / 1000 * $this->FontSize / ($ns - 1) : 0;
+					 $this->_out(sprintf('%.3f Tw', $this->ws * $this->k));
+				 }
+
+				 $this->Cell($w, $h, substr($s, $j, $sep - $j), $b, 2, $align, $fill);
+				 $i=$sep + 1;
+			 }
+
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+			 $ns=0;
+			 $nl++;
+			 if ($border && $nl == 2) $b=$b2;
+		 } else  $i++;
+	 }
+
+	 if ($this->ws > 0) {
+		 $this->ws=0;
+		 $this->_out('0 Tw');
+	 }
+
+	 if ($border && strpos($border, 'B') !== false) $b.='B';
+
+	 $this->Cell($w, $h, substr($s, $j, $i - $j), $b, 2, $align, $fill);
+	 $this->x=$this->lMargin;
+ }
+
+ function Write($h, $txt, $link = '') {
+
+	 $cw=&$this->CurrentFont['cw'];
+	 $w=$this->w - $this->rMargin - $this->x;
+	 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+	 $s=str_replace("\r", '', $txt);
+	 $nb=strlen($s);
+	 $sep=-1;
+	 $i=0;
+	 $j=0;
+	 $l=0;
+	 $nl=1;
+
+	 while ($i < $nb) {
+		 $c = $s{$i};
+		 if ($c == "\n") {
+			 $this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', 0, $link);
+
+			 $i++;
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+
+			 if ($nl == 1) {
+				 $this->x=$this->lMargin;
+				 $w=$this->w - $this->rMargin - $this->x;
+				 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+			 }
+
+			 $nl++;
+			 continue;
+		 }
+
+		 if ($c == ' ') $sep=$i;
+
+		 $l+=$cw[$c];
+		 if ($l > $wmax) {
+			 if ($sep == -1) {
+				 if ($this->x > $this->lMargin) {
+					 $this->x=$this->lMargin;
+					 $this->y+=$h;
+					 $w=$this->w - $this->rMargin - $this->x;
+					 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+					 $i++;
+					 $nl++;
+					 continue;
+				 }
+
+				 if ($i == $j) $i++;
+				 $this->Cell($w, $h, substr($s, $j, $i - $j), 0, 2, '', 0, $link);
+			 } else {
+				 $this->Cell($w, $h, substr($s, $j, $sep - $j), 0, 2, '', 0, $link);
+				 $i=$sep + 1;
+			 }
+
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+
+			 if ($nl == 1) {
+				 $this->x=$this->lMargin;
+
+				 $w=$this->w - $this->rMargin - $this->x;
+				 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+			 }
+			 $nl++;
+		 } else  $i++;
+	 }
+
+	 if ($i != $j) $this->Cell($l / 1000 * $this->FontSize, $h, substr($s, $j), 0, 0, '', 0, $link);
+ }
+
+ function Image($file, $x, $y, $w = 0, $h = 0, $type = '', $link = '') {
+
+	 if (!isset($this->images[$file])) {
+		 if ($type == '') {
+			 $pos=strrpos($file, '.');
+			 if (!$pos) $this->Error('Изображение имеет неправильный тип: ' . $file);
+			 $type=substr($file, $pos + 1);
+		 }
+
+		 $type=strtolower($type);
+		 $mqr=get_magic_quotes_runtime();
+		 set_magic_quotes_runtime (0);
+
+		 if ($type == 'jpg' || $type == 'jpeg') $info=$this->_parsejpg($file);
+		 elseif ($type == 'png')  $info=$this->_parsepng($file);
+		 else {
+			 $mtd='_parse' . $type;
+			 if (!method_exists($this, $mtd)) $this->Error('Изображение имеет неправильный тип: ' . $type);
+			 $info=$this->$mtd($file);
+		 }
+
+		 set_magic_quotes_runtime ($mqr);
+		 $info['i']=count($this->images) + 1;
+		 $this->images[$file]=$info;
+	 } else  $info=$this->images[$file];
+
+	 if ($w == 0 && $h == 0) {
+		 $w=$info['w'] / $this->k;
+		 $h=$info['h'] / $this->k;
+	 }
+
+	 if ($w == 0) $w=$h * $info['w'] / $info['h'];
+	 if ($h == 0) $h=$w * $info['h'] / $info['w'];
+
+	 $this->_out(sprintf('q %.2f 0 0 %.2f %.2f %.2f cm /I%d Do Q', $w * $this->k, $h * $this->k, $x * $this->k, ($this->h - ($y + $h)) * $this->k, $info['i']));
+
+	 if ($link) $this->Link($x, $y, $w, $h, $link);
+ }
+
+ function Ln($h = '') {
+
+	 $this->x=$this->lMargin;
+
+	 if (is_string($h)) $this->y+=$this->lasth;else  $this->y+=$h;
+ }
+
+ function GetX() {
+
+	 return $this->x; }
+
+ function SetX($x) {
+
+	 if ($x >= 0) $this->x=$x;else  $this->x=$this->w + $x;
+ }
+
+ function GetY() {
+
+	 return $this->y; }
+
+ function SetY($y) {
+
+	 $this->x=$this->lMargin;
+
+	 if ($y >= 0) $this->y=$y;else  $this->y=$this->h + $y;
+ }
+
+ function SetXY($x, $y) {
+
+	 $this->SetY($y);
+	 $this->SetX($x);
+ }
+
+ function Output($name = '', $dest = '') {
+
+	 if ($this->state < 3) $this->Close();
+
+	 if (is_bool($dest)) $dest=$dest ? 'D' : 'F';
+
+	 $dest=strtoupper($dest);
+
+	 if ($dest == '') {
+		 if ($name == '') {
+			 $name='statistics.pdf';
+			 $dest='I';
+		 } else  $dest='F';
+	 }
+
+	 switch ($dest) {
+		 case 'I':
+			 if (ob_get_contents()) $this->Error('Данные в HEADER уже есть. Ошибка вывода PDF файла');
+			 if (php_sapi_name() != 'cli') {
+				 header ('Content-Type: application/pdf');
+				 if (headers_sent()) $this->Error('Данные в HEADER уже есть. Ошибка вывода PDF файла');
+				 header ('Content-Length: ' . strlen($this->buffer));
+				 header ('Content-disposition: inline; filename="' . $name . '"');
+			 }
+			 echo $this->buffer;
+			 break;
+		 case 'D':
+			 if (ob_get_contents()) $this->Error('Данные в HEADER уже есть. Ошибка вывода PDF файла');
+			 if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')) header ('Content-Type: application/force-download');else  header ('Content-Type: application/octet-stream');
+			 if (headers_sent()) $this->Error('Данные в HEADER уже есть. Ошибка вывода PDF файла');
+			 header ('Content-Length: ' . strlen($this->buffer));
+			 header ('Content-disposition: attachment; filename="' . $name . '"');
+			 echo $this->buffer;
+			 break;
+		 case 'F':
+			 $f=@fopen($name, 'wb');
+			 if (!$f) $this->Error('Ошибка создания файла: ' . $name);
+			 fwrite($f, $this->buffer, strlen($this->buffer));
+			 fclose ($f);
+			 break;
+		 case 'S':
+			 return $this->buffer;
+		 default:
+			 $this->Error('НЕверный тип вывода файла: ' . $dest);
+	 }
+
+	 return '';
+ }
+
+ function _dochecks() {
+
+	 if (1.1 == 1) $this->Error('Попытка изменеия альтера перед включением класса');
+	 if (sprintf('%.1f', 1.0) != '1.0') setlocale(LC_NUMERIC, 'C');
+ }
+
+ function _getfontpath() {
+
+	 if (!defined('FPDF_FONTPATH') && is_dir(dirname(__FILE__). '/font')) define('FPDF_FONTPATH', dirname(__FILE__). '/font/');
+
+	 return defined('FPDF_FONTPATH') ? FPDF_FONTPATH : '';
+ }
+
+ function _putpages() {
+
+	 $nb=$this->page;
+
+	 if (!empty($this->AliasNbPages)) {
+		 for ($n=1; $n <= $nb; $n++) $this->pages[$n]=str_replace($this->AliasNbPages, $nb, $this->pages[$n]);
+	 }
+
+	 if ($this->DefOrientation == 'P') {
+		 $wPt=$this->fwPt;
+		 $hPt=$this->fhPt;
+	 } else {
+		 $wPt=$this->fhPt;
+		 $hPt=$this->fwPt;
+	 }
+
+	 $filter=($this->compress) ? '/Filter /FlateDecode ' : '';
+
+	 for ($n=1; $n <= $nb; $n++) {
+		 $this->_newobj();
+
+		 $this->_out('<</Type /Page');
+		 $this->_out('/Parent 1 0 R');
+
+		 if (isset($this->OrientationChanges[$n])) $this->_out(sprintf('/MediaBox [0 0 %.2f %.2f]', $hPt, $wPt));
+
+		 $this->_out('/Resources 2 0 R');
+
+		 if (isset($this->PageLinks[$n])) {
+
+			 $annots='/Annots [';
+
+			 foreach ($this->PageLinks[$n] as $pl) {
+				 $rect = sprintf('%.2f %.2f %.2f %.2f', $pl[0], $pl[1], $pl[0] + $pl[2], $pl[1] - $pl[3]);
+
+				 $annots.='<</Type /Annot /Subtype /Link /Rect [' . $rect . '] /Border [0 0 0] ';
+				 if (is_string($pl[4])) $annots.='/A <</S /URI /URI ' . $this->_textstring($pl[4]). '>>>>';else {
+					 $l=$this->links[$pl[4]];
+
+					 $h=isset($this->OrientationChanges[$l[0]]) ? $wPt : $hPt;
+					 $annots.=sprintf('/Dest [%d 0 R /XYZ 0 %.2f null]>>', 1 + 2 * $l[0], $h - $l[1] * $this->k);
+				 }
+			 }
+			 $this->_out($annots . ']');
+		 }
+
+		 $this->_out('/Contents ' . ($this->n + 1) . ' 0 R>>');
+		 $this->_out('endobj');
+		 $p=($this->compress) ? gzcompress($this->pages[$n]) : $this->pages[$n];
+		 $this->_newobj();
+		 $this->_out('<<' . $filter . '/Length ' . strlen($p). '>>');
+		 $this->_putstream($p);
+		 $this->_out('endobj');
+	 }
+
+	 $this->offsets[1]=strlen($this->buffer);
+	 $this->_out('1 0 obj');
+	 $this->_out('<</Type /Pages');
+	 $kids='/Kids [';
+
+	 for ($i=0; $i < $nb; $i++) $kids.=(3 + 2 * $i) . ' 0 R ';
+
+	 $this->_out($kids . ']');
+	 $this->_out('/Count ' . $nb);
+	 $this->_out(sprintf('/MediaBox [0 0 %.2f %.2f]', $wPt, $hPt));
+	 $this->_out('>>');
+	 $this->_out('endobj');
+ }
+
+ function _putfonts() {
+
+	 $nf=$this->n;
+
+	 foreach ($this->diffs as $diff) {
+		 $this->_newobj();
+		 $this->_out('<</Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences [' . $diff . ']>>');
+		 $this->_out('endobj');
+	 }
+
+	 $mqr=get_magic_quotes_runtime();
+	 set_magic_quotes_runtime (0);
+
+	 foreach ($this->FontFiles as $file => $info) {
+
+		 $this->_newobj();
+		 $this->FontFiles[$file]['n']=$this->n;
+		 $font='';
+		 $f=@fopen($this->_getfontpath(). $file, 'rb', 1);
+
+		 if (!$f) $this->Error('Файл с шрифтом не найден');
+
+		 while (!feof($f)) $font.=fread($f, 8192);
+
+		 fclose ($f);
+		 $compressed=(substr($file, -2) == '.z');
+
+		 if (!$compressed && isset($info['length2'])) {
+			 $header=(ord($font{0}) == 128);
+
+			 if ($header) {
+				 $font=substr($font, 6);
+			 }
+			 if ($header && ord($font{$info['length1']}) == 128) {
+				 $font=substr($font, 0, $info['length1']). substr($font, $info['length1'] + 6);
+			 }
+		 }
+
+		 $this->_out('<</Length ' . strlen($font));
+
+		 if ($compressed) $this->_out('/Filter /FlateDecode');
+
+		 $this->_out('/Length1 ' . $info['length1']);
+
+		 if (isset($info['length2'])) $this->_out('/Length2 ' . $info['length2'] . ' /Length3 0');
+
+		 $this->_out('>>');
+		 $this->_putstream($font);
+		 $this->_out('endobj');
+	 }
+
+	 set_magic_quotes_runtime ($mqr);
+
+	 foreach ($this->fonts as $k => $font) {
+
+		 $this->fonts[$k]['n'] = $this->n + 1;
+
+		 $type=$font['type'];
+		 $name=$font['name'];
+		 if ($type == 'core') {
+
+			 $this->_newobj();
+			 $this->_out('<</Type /Font');
+			 $this->_out('/BaseFont /' . $name);
+			 $this->_out('/Subtype /Type1');
+
+			 if ($name != 'Symbol' && $name != 'ZapfDingbats') $this->_out('/Encoding /WinAnsiEncoding');
+
+			 $this->_out('>>');
+			 $this->_out('endobj');
+		 } elseif ($type == 'Type1' || $type == 'TrueType') {
+
+			 $this->_newobj();
+			 $this->_out('<</Type /Font');
+			 $this->_out('/BaseFont /' . $name);
+			 $this->_out('/Subtype /' . $type);
+			 $this->_out('/FirstChar 32 /LastChar 255');
+			 $this->_out('/Widths ' . ($this->n + 1) . ' 0 R');
+			 $this->_out('/FontDescriptor ' . ($this->n + 2) . ' 0 R');
+
+			 if ($font['enc']) {
+				 if (isset($font['diff'])) $this->_out('/Encoding ' . ($nf + $font['diff']) . ' 0 R');else  $this->_out('/Encoding /WinAnsiEncoding');
+			 }
+
+			 $this->_out('>>');
+			 $this->_out('endobj');
+			 $this->_newobj();
+			 $cw=&$font['cw'];
+			 $s='[';
+
+			 for ($i=32; $i <= 255; $i++) $s.=$cw[chr($i)] . ' ';
+
+			 $this->_out($s . ']');
+			 $this->_out('endobj');
+			 $this->_newobj();
+			 $s='<</Type /FontDescriptor /FontName /' . $name;
+
+			 foreach ($font['desc'] as $k => $v) $s.=' /' . $k . ' ' . $v;
+
+			 $file=$font['file'];
+
+			 if ($file) $s.=' /FontFile' . ($type == 'Type1' ? '' : '2') . ' ' . $this->FontFiles[$file]['n'] . ' 0 R';
+
+			 $this->_out($s . '>>');
+			 $this->_out('endobj');
+		 } else {
+
+			 $mtd='_put' . strtolower($type);
+
+			 if (!method_exists($this, $mtd)) $this->Error('Неизвестный тип шрифта: ' . $type);
+			 $this->$mtd($font);
+		 }
+	 }
+ }
+
+ function _putimages() {
+
+	 $filter=($this->compress) ? '/Filter /FlateDecode ' : '';
+
+	 reset ($this->images);
+
+	 while (list($file, $info)=each($this->images)) {
+		 $this->_newobj();
+		 $this->images[$file]['n']=$this->n;
+		 $this->_out('<</Type /XObject');
+		 $this->_out('/Subtype /Image');
+		 $this->_out('/Width ' . $info['w']);
+		 $this->_out('/Height ' . $info['h']);
+
+		 if ($info['cs'] == 'Indexed') $this->_out('/ColorSpace [/Indexed /DeviceRGB ' . (strlen($info['pal']) / 3 - 1) . ' ' . ($this->n + 1) . ' 0 R]');else {
+			 $this->_out('/ColorSpace /' . $info['cs']);
+			 if ($info['cs'] == 'DeviceCMYK') $this->_out('/Decode [1 0 1 0 1 0 1 0]');
+		 }
+
+		 $this->_out('/BitsPerComponent ' . $info['bpc']);
+
+		 if (isset($info['f'])) $this->_out('/Filter /' . $info['f']);
+		 if (isset($info['parms'])) $this->_out($info['parms']);
+		 if (isset($info['trns']) && is_array($info['trns'])) {
+			 $trns='';
+
+			 for ($i=0; $i < count($info['trns']); $i++) $trns.=$info['trns'][$i] . ' ' . $info['trns'][$i] . ' ';
+			 $this->_out('/Mask [' . $trns . ']');
+		 }
+
+		 $this->_out('/Length ' . strlen($info['data']). '>>');
+		 $this->_putstream($info['data']);
+		 unset ($this->images[$file]['data']);
+		 $this->_out('endobj');
+
+		 if ($info['cs'] == 'Indexed') {
+			 $this->_newobj();
+
+			 $pal=($this->compress) ? gzcompress($info['pal']) : $info['pal'];
+			 $this->_out('<<' . $filter . '/Length ' . strlen($pal). '>>');
+			 $this->_putstream($pal);
+			 $this->_out('endobj');
+		 }
+	 }
+ }
+
+ function _putxobjectdict() {
+
+	 foreach ($this->images as $image) $this->_out('/I' . $image['i'] . ' ' . $image['n'] . ' 0 R');
+ }
+
+ function _putresourcedict() {
+
+	 $this->_out('/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]');
+	 $this->_out('/Font <<');
+
+	 foreach ($this->fonts as $font) $this->_out('/F' . $font['i'] . ' ' . $font['n'] . ' 0 R');
+
+	 $this->_out('>>');
+	 $this->_out('/XObject <<');
+	 $this->_putxobjectdict();
+	 $this->_out('>>');
+ }
+
+ function _putresources() {
+
+	 $this->_putfonts();
+	 $this->_putimages();
+	 $this->offsets[2]=strlen($this->buffer);
+	 $this->_out('2 0 obj');
+	 $this->_out('<<');
+	 $this->_putresourcedict();
+	 $this->_out('>>');
+	 $this->_out('endobj');
+ }
+
+ function _putinfo() {
+
+	 $this->_out('/Producer ' . $this->_textstring('FPDF ' . FPDF_VERSION));
+
+	 if (!empty($this->title)) $this->_out('/Title ' . $this->_textstring($this->title));
+	 if (!empty($this->subject)) $this->_out('/Subject ' . $this->_textstring($this->subject));
+	 if (!empty($this->author)) $this->_out('/Author ' . $this->_textstring($this->author));
+	 if (!empty($this->keywords)) $this->_out('/Keywords ' . $this->_textstring($this->keywords));
+	 if (!empty($this->creator)) $this->_out('/Creator ' . $this->_textstring($this->creator));
+
+	 $this->_out('/CreationDate ' . $this->_textstring('D:' . date('YmdHis')));
+ }
+
+ function _putcatalog() {
+
+	 $this->_out('/Type /Catalog');
+	 $this->_out('/Pages 1 0 R');
+
+	 if ($this->ZoomMode == 'fullpage') $this->_out('/OpenAction [3 0 R /Fit]');
+	 elseif ($this->ZoomMode == 'fullwidth')  $this->_out('/OpenAction [3 0 R /FitH null]');
+	 elseif ($this->ZoomMode == 'real')  $this->_out('/OpenAction [3 0 R /XYZ null null 1]');
+	 elseif (!is_string($this->ZoomMode))  $this->_out('/OpenAction [3 0 R /XYZ null null ' . ($this->ZoomMode / 100) . ']');
+
+	 if ($this->LayoutMode == 'single') $this->_out('/PageLayout /SinglePage');
+	 elseif ($this->LayoutMode == 'continuous')  $this->_out('/PageLayout /OneColumn');
+	 elseif ($this->LayoutMode == 'two')  $this->_out('/PageLayout /TwoColumnLeft');
+ }
+
+ function _putheader() { $this->_out('%PDF-' . $this->PDFVersion); }
+
+ function _puttrailer() {
+
+	 $this->_out('/Size ' . ($this->n + 1));
+	 $this->_out('/Root ' . $this->n . ' 0 R');
+	 $this->_out('/Info ' . ($this->n - 1) . ' 0 R');
+ }
+
+ function _enddoc() {
+
+	 $this->_putheader();
+	 $this->_putpages();
+	 $this->_putresources();
+	 $this->_newobj();
+	 $this->_out('<<');
+	 $this->_putinfo();
+	 $this->_out('>>');
+	 $this->_out('endobj');
+	 $this->_newobj();
+	 $this->_out('<<');
+	 $this->_putcatalog();
+	 $this->_out('>>');
+	 $this->_out('endobj');
+	 $o=strlen($this->buffer);
+	 $this->_out('xref');
+	 $this->_out('0 ' . ($this->n + 1));
+	 $this->_out('0000000000 65535 f ');
+
+	 for ($i=1; $i <= $this->n; $i++) $this->_out(sprintf('%010d 00000 n ', $this->offsets[$i]));
+
+	 $this->_out('trailer');
+	 $this->_out('<<');
+	 $this->_puttrailer();
+	 $this->_out('>>');
+	 $this->_out('startxref');
+	 $this->_out($o);
+	 $this->_out('%%EOF');
+	 $this->state=3;
+ }
+
+ function _beginpage($orientation) {
+
+	 $this->page++;
+	 $this->pages[$this->page]='';
+	 $this->state=2;
+	 $this->x=$this->lMargin;
+	 $this->y=$this->tMargin;
+	 $this->FontFamily='';
+
+	 if (!$orientation) $orientation=$this->DefOrientation;else {
+		 $orientation=strtoupper($orientation{0});
+		 if ($orientation != $this->DefOrientation) $this->OrientationChanges[$this->page]=true;
+	 }
+
+	 if ($orientation != $this->CurOrientation) {
+
+		 if ($orientation == 'P') {
+			 $this->wPt=$this->fwPt;
+			 $this->hPt=$this->fhPt;
+			 $this->w=$this->fw;
+			 $this->h=$this->fh;
+		 } else {
+			 $this->wPt=$this->fhPt;
+			 $this->hPt=$this->fwPt;
+			 $this->w=$this->fh;
+			 $this->h=$this->fw;
+		 }
+
+		 $this->PageBreakTrigger=$this->h - $this->bMargin;
+		 $this->CurOrientation=$orientation;
+	 }
+ }
+
+ function _endpage() {
+
+	 $this->state=1; }
+
+ function _newobj() {
+
+	 $this->n++;
+	 $this->offsets[$this->n]=strlen($this->buffer);
+	 $this->_out($this->n . ' 0 obj');
+ }
+
+ function _dounderline($x, $y, $txt) {
+
+	 $up=$this->CurrentFont['up'];
+	 $ut=$this->CurrentFont['ut'];
+	 $w=$this->GetStringWidth($txt) + $this->ws * substr_count($txt, ' ');
+	 return sprintf('%.2f %.2f %.2f %.2f re f', $x * $this->k, ($this->h - ($y - $up / 1000 * $this->FontSize)) * $this->k, $w * $this->k, -$ut / 1000 * $this->FontSizePt);
+ }
+
+ function _parsejpg($file) {
+
+	 $a=GetImageSize($file);
+
+	 if (!$a) $this->Error('Изображение не найдено или испорчено: ' . $file);
+	 if ($a[2] != 2) $this->Error('Это не JPEG файл: ' . $file);
+	 if (!isset($a['channels']) || $a['channels'] == 3) $colspace='DeviceRGB';
+	 elseif ($a['channels'] == 4)  $colspace='DeviceCMYK';
+	 else  $colspace='DeviceGray';
+
+	 $bpc=isset($a['bits']) ? $a['bits'] : 8;
+	 $f=@fopen($file, 'rb');
+	 $data='';
+
+	 while (!feof($f)) $data.=fread($f, 4096);
+
+	 fclose ($f);
+	 return array('w' => $a[0], 'h' => $a[1], 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'DCTDecode', 'data' => $data);
+ }
+
+ function _parsepng($file) {
+
+	 $f=@fopen($file, 'rb');
+
+	 if (!$f) $this->Error('Ошибка открытия изображения: ' . $file);
+	 if (fread($f, 8) != chr(137). 'PNG' . chr(13). chr(10). chr(26). chr(10)) $this->Error('Это не PNG файл: ' . $file);
+
+	 fread($f, 4);
+
+	 if (fread($f, 4) != 'IHDR') $this->Error('Неверный PNG файл: ' . $file);
+
+	 $w=$this->_freadint($f);
+	 $h=$this->_freadint($f);
+	 $bpc=ord(fread($f, 1));
+
+	 if ($bpc > 8) $this->Error('16-битность не поддерживается: ' . $file);
+
+	 $ct=ord(fread($f, 1));
+
+	 if ($ct == 0) $colspace='DeviceGray';
+	 elseif ($ct == 2)  $colspace='DeviceRGB';
+	 elseif ($ct == 3)  $colspace='Indexed';
+	 else  $this->Error('Альфа-каналы не поддерживаются: ' . $file);
+
+	 if (ord(fread($f, 1)) != 0) $this->Error('Неизвестный метод сжатия: ' . $file);
+	 if (ord(fread($f, 1)) != 0) $this->Error('Неизвестный метод фильтрации: ' . $file);
+	 if (ord(fread($f, 1)) != 0) $this->Error('Чересстрочность не поддерживается: ' . $file);
+
+	 fread($f, 4);
+	 $parms='/DecodeParms <</Predictor 15 /Colors ' . ($ct == 2 ? 3 : 1) . ' /BitsPerComponent ' . $bpc . ' /Columns ' . $w . '>>';
+	 $pal='';
+	 $trns='';
+	 $data='';
+
+	 do {
+		 $n=$this->_freadint($f);
+		 $type=fread($f, 4);
+
+		 if ($type == 'PLTE') {
+			 $pal=fread($f, $n);
+			 fread($f, 4);
+		 } elseif ($type == 'tRNS') {
+			 $t=fread($f, $n);
+
+			 if ($ct == 0) $trns=array(ord(substr($t, 1, 1)));
+			 elseif ($ct == 2)  $trns=array(ord(substr($t, 1, 1)), ord(substr($t, 3, 1)), ord(substr($t, 5, 1)));
+			 else {
+				 $pos=strpos($t, chr(0));
+				 if ($pos !== false) $trns=array($pos);
+			 }
+			 fread($f, 4);
+		 } elseif ($type == 'IDAT') {
+			 $data.=fread($f, $n);
+			 fread($f, 4);
+		 }
+		 elseif ($type == 'IEND')  break;
+		 else  fread($f, $n + 4);
+	 } while ($n);
+
+	 if ($colspace == 'Indexed' && empty($pal)) $this->Error('Отсутствие палитры в ' . $file);
+
+	 fclose ($f);
+	 return array('w' => $w, 'h' => $h, 'cs' => $colspace, 'bpc' => $bpc, 'f' => 'FlateDecode', 'parms' => $parms, 'pal' => $pal, 'trns' => $trns, 'data' => $data);
+ }
+
+ function _freadint($f) {
+
+	 $a=unpack('Ni', fread($f, 4));
+
+	 return $a['i'];
+ }
+
+ function _textstring($s) {
+ 
+	 return '(' . $this->_escape($s). ')'; }
+
+ function _escape($s) {
+
+	 return str_replace(')', '\\)', str_replace('(', '\\(', str_replace('\\', '\\\\', $s))); }
+
+ function _putstream($s) {
+
+	 $this->_out('stream');
+	 $this->_out($s);
+	 $this->_out('endstream');
+ }
+
+ function _out($s) {
+
+	 if ($this->state == 2) $this->pages[$this->page].=$s . "\n";else  $this->buffer.=$s . "\n";
+ }
+ }
+
+
+ /*****************************************************************
+ * Класс создания PDF-TABLE
+ *
+ ****************************************************************/
+ class PDF_HTML_Table extends FPDF {
+
+	var $B;
+	var $I;
+	var $U;
+	var $HREF;
+
+ function PDF($orientation = 'P', $unit = 'mm', $format = 'A4') {
+
+	 $this->FPDF($orientation, $unit, $format);
+	 $this->B=0;
+	 $this->I=0;
+	 $this->U=0;
+	 $this->HREF='';
+ }
+
+ function WriteHTML2($html) {
+
+	 $html=str_replace("\n", ' ', $html);
+	 $a=preg_split('/<(.*)>/U', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+	 foreach ($a as $i => $e) {
+		 if ($i % 2 == 0) {
+			 if ($this->HREF) $this->PutLink($this->HREF, $e);else  $this->Write(5, $e);
+		 } else {
+			 if ($e{0}== '/') $this->CloseTag(strtoupper(substr($e, 1))); else {
+				 $a2=explode(' ', $e);
+				 $tag=strtoupper(array_shift($a2));
+				 $attr=array();
+
+				 foreach ($a2 as $v) if (ereg('^([^=]*)=["\']?([^"\']*)["\']?$', $v, $a3)) $attr[strtoupper($a3[1])]=$a3[2];
+				 $this->OpenTag($tag, $attr);
+			 }
+		 }
+	 }
+ }
+
+ function OpenTag($tag, $attr) {
+
+	 if ($tag == 'H2') $this->SetStyle($tag, true);
+	 if ($tag == 'B' or $tag == 'I' or $tag == 'U') $this->SetStyle($tag, true);
+	 if ($tag == 'A') $this->HREF=$attr['HREF'];
+	 if ($tag == 'BR') $this->Ln(5);
+	 if ($tag == 'P') $this->Ln(10);
+ }
+
+ function CloseTag($tag) {
+
+	 if ($tag == 'H2') $this->SetStyle($tag, false);
+	 if ($tag == 'B' or $tag == 'I' or $tag == 'U') $this->SetStyle($tag, false);
+	 if ($tag == 'A') $this->HREF='';
+	 if ($tag == 'P') $this->Ln(10);
+ }
+
+ function SetStyle($tag, $enable) {
+
+	 $this->$tag+=($enable ? 1 : -1);
+	 $style='';
+	 foreach (array('B', 'I', 'U')as $s) if ($this->$s > 0) $style.=$s;
+	 $this->SetFont('', $style);
+	 
+	 if ($tag =='H2') {
+	 	$this->SetFontSize(14);
+	 	$this->SetFont('', 'B');
+	 	$this->Ln(5);
+	 }
+ }
+
+ function PutLink($URL, $txt) {
+
+	 $this->SetTextColor(0, 0, 255);
+	 $this->SetStyle('U', true);
+	 $this->Write(5, $txt, $URL);
+	 $this->SetStyle('U', false);
+	 $this->SetTextColor(0);
+ }
+
+ function WriteTable($data, $w) {
+
+	 global $core;
+
+	 $this->SetLineWidth(.3);
+	 $this->SetFillColor(255, 255, 255);
+	 $this->SetTextColor(0);
+	 $this->SetFont('');
+
+	 foreach($data as $k => $v) {
+	 	foreach($v as $k1 => $v1) {
+	 		$data[$k][$k1] = trim($v1);
+	 	}
+	 }
+
+	 foreach ($data as $key => $row) {
+		 $nb = 0;
+
+		 for ($i=0; $i < count($row); $i++) $nb=max($nb, $this->NbLines($w[$i], trim($row[$i])));
+
+		 $h=5 * $nb;
+		 $this->CheckPageBreak($h);
+		 $this->SetFontSize(10);
+
+		 for ($i=0; $i < count($row); $i++) {
+			 $x = $this->GetX();
+			 $y=$this->GetY();
+			 $this->Rect($x, $y, $w[$i], $h);
+
+			 if ($key == 0) {
+			 	$this->SetFont('', 'B');
+			 	$this->MultiCell($w[$i], 5, trim($row[$i]), 0, 'C');
+			 } else {
+			 	$this->SetFont('', '');
+			 	$this->MultiCell($w[$i], 5, trim($row[$i]), 0, $core->table_align[$i]);
+			 }
+			 
+			 $this->SetXY($x + $w[$i], $y);
+		 }
+		 $this->Ln($h);
+	 }
+ }
+
+ function NbLines($w, $txt) {
+
+	 $cw=&$this->CurrentFont['cw'];
+
+	 if ($w == 0) $w=$this->w - $this->rMargin - $this->x;
+
+	 $wmax=($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
+	 $s=str_replace("\r", '', $txt);
+	 $nb=strlen($s);
+
+	 if ($nb > 0 and $s[$nb - 1] == "\n") $nb--;
+
+	 $sep=-1;
+	 $i=0;
+	 $j=0;
+	 $l=0;
+	 $nl=1;
+
+	 while ($i < $nb) {
+		 $c = $s[$i];
+
+		 if ($c == "\n") {
+			 $i++;
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+			 $nl++;
+			 continue;
+		 }
+
+		 if ($c == ' ') $sep=$i;
+
+		 $l+=$cw[$c];
+		 if ($l > $wmax) {
+			 if ($sep == -1) {
+				 if ($i == $j) $i++;
+			 } else  $i=$sep + 1;
+
+			 $sep=-1;
+			 $j=$i;
+			 $l=0;
+			 $nl++;
+		 } else  $i++;
+	 }
+
+	 return $nl;
+ }
+
+ function CheckPageBreak($h) {
+
+	 if ($this->GetY() + $h > $this->PageBreakTrigger) $this->AddPage($this->CurOrientation);
+ }
+
+ function ReplaceHTML($html) {
+
+	 $html=str_replace('<li>', "\n<br> - ", $html);
+	 $html=str_replace('<LI>', "\n - ", $html);
+	 $html=str_replace('</ul>', "\n\n", $html);
+	 $html=str_replace('<strong>', "<b>", $html);
+	 $html=str_replace('</strong>', "</b>", $html);
+	 $html=str_replace('&#160;', "\n", $html);
+	 $html=str_replace('&nbsp;', " ", $html);
+	 $html=str_replace('&#151;', "-", $html);
+	 $html=str_replace('&uarr;', "", $html);
+	 $html=str_replace('&darr;', "", $html);
+	 $html=str_replace('&quot;', "\"", $html);
+	 $html=str_replace('&#39;', "'", $html);
+	 return $html;
+ }
+
+ function ParseTable($Table) {
+
+	 $_var='';
+	 $htmlText=$Table;
+	 $parser=new HtmlParser($htmlText);
+
+	 while ($parser->parse()) {
+		 if (strtolower($parser->iNodeName) == 'table') {
+			 if ($parser->iNodeType == NODE_TYPE_ENDELEMENT) $_var.='/::'; else  $_var.='::';
+		 }
+		 if (strtolower($parser->iNodeName) == 'tr') {
+			 if ($parser->iNodeType == NODE_TYPE_ENDELEMENT) $_var.='!-:'; else  $_var.=':-!';
+		 }
+		 if (strtolower($parser->iNodeName) == 'th' && $parser->iNodeType == NODE_TYPE_ENDELEMENT) {
+			 $_var.='#,#';
+		 }
+		 if (strtolower($parser->iNodeName) == 'td' && $parser->iNodeType == NODE_TYPE_ENDELEMENT) {
+			 $_var.='#,#';
+		 }
+		 if ($parser->iNodeName == 'Text' && isset($parser->iNodeValue)) {
+			 $_var.=$parser->iNodeValue;
+		 }
+	 }
+
+	 $elems = split(':-!', str_replace('::', '', str_replace('!-:', '', $_var)));
+	 //$elems = split(':-!', str_replace('/', '', str_replace('::', '', str_replace('!-:', '', $_var))));
+
+	 foreach ($elems as $key => $value) {
+		 if (trim($value) != '') {
+			 $elems2=split('#,#', $value);
+			 array_pop($elems2);
+			 $data[]=$elems2;
+		 }
+	 }
+
+	 return $data;
+ }
+
+ function percent($percent, $total) {
+
+	$amount = $percent * $total / 100;
+	return $amount;
+ }
+
+ function WriteHTML($html) {
+
+	 global $core;
+
+	 $html=$this->ReplaceHTML($html);
+
+	 $start=strpos(strtolower($html), '<table');
+	 $end=strpos(strtolower($html), '</table');
+
+	 if ($start !== false && $end !== false) {
+		$this->WriteHTML2(substr($html, 0, $start). '<BR>');
+
+		$tableVar=substr($html, $start, $end - $start);
+		$tableData=$this->ParseTable($tableVar);
+
+		for ($i=1; $i <= count($tableData[0]); $i++) {
+			 if ($this->CurOrientation == 'L') {
+			 	$w[] = abs(120 / (count($tableData[0]) - 1)) + 24;
+			} else {
+				$w[]=abs(120 / (count($tableData[0]) - 1)) + 5;
+			}
+		}
+
+		$w_summ = array_sum($w);
+		foreach ($w as $k => $v) {
+			$w[$k] = $this->percent($core->table_percent[$k], $w_summ);
+		}
+
+		$this->WriteTable($tableData, $w);
+		$this->WriteHTML2(substr($html, $end + 8, strlen($html) - 1). '<BR>');
+	 } else {
+		$this->WriteHTML2($html);
+	 }
+
+	unset($html);
+ }
+ }
+
+ if (isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'contype') {
+	 header ('Content-Type: application/pdf');
+	 exit;
+ }
+
+ define("NODE_TYPE_START", 0);
+ define("NODE_TYPE_ELEMENT", 1);
+ define("NODE_TYPE_ENDELEMENT", 2);
+ define("NODE_TYPE_TEXT", 3);
+ define("NODE_TYPE_COMMENT", 4);
+ define("NODE_TYPE_DONE", 5);
+
+ class HtmlParser {
+
+	var $iHtmlTextIndex = 0;
+
+ function HtmlParser($aHtmlText) {
+
+	 $this->iHtmlText=$aHtmlText;
+	 $this->iHtmlTextLength=strlen($aHtmlText);
+	 $this->iNodeAttributes=array();
+	 $this->setTextIndex(0);
+	 $this->BOE_ARRAY=array(" ", "\t", "\r", "\n", "=");
+	 $this->B_ARRAY=array(" ", "\t", "\r", "\n");
+	 $this->BOS_ARRAY=array(" ", "\t", "\r", "\n", "/");
+ }
+
+ function parse() {
+
+	 $text=$this->skipToElement();
+
+	 if ($text != "") {
+		 $this->iNodeType=NODE_TYPE_TEXT;
+		 $this->iNodeName="Text";
+		 $this->iNodeValue=$text;
+		 return true;
+	 }
+
+	 return $this->readTag();
+ }
+
+ function clearAttributes() { $this->iNodeAttributes=array(); }
+
+ function readTag() {
+
+	 if ($this->iCurrentChar != "<") {
+		 $this->iNodeType=NODE_TYPE_DONE;
+		 return false;
+	 }
+
+	 $this->clearAttributes();
+	 $this->skipMaxInTag("<", 1);
+
+	 if ($this->iCurrentChar == '/') {
+		 $this->moveNext();
+
+		 $name=$this->skipToBlanksInTag();
+		 $this->iNodeType=NODE_TYPE_ENDELEMENT;
+		 $this->iNodeName=$name;
+		 $this->iNodeValue="";
+		 $this->skipEndOfTag();
+		 return true;
+	 }
+
+	 $name=$this->skipToBlanksOrSlashInTag();
+
+	 if (!$this->isValidTagIdentifier($name)) {
+		 $comment=false;
+
+		 if (strpos($name, "!--") === 0) {
+			 $ppos=strpos($name, "--", 3);
+			 if (strpos($name, "--", 3) === (strlen($name) - 2)) {
+				 $this->iNodeType=NODE_TYPE_COMMENT;
+				 $this->iNodeName="Comment";
+				 $this->iNodeValue="<" . $name . ">";
+				 $comment=true;
+			 } else {
+				 $rest=$this->skipToStringInTag("-->");
+				 if ($rest != "") {
+					 $this->iNodeType=NODE_TYPE_COMMENT;
+
+					 $this->iNodeName="Comment";
+					 $this->iNodeValue="<" . $name . $rest;
+					 $comment=true;
+
+					 return true;
+				 }
+			 }
+		 }
+		 if (!$comment) {
+			 $this->iNodeType=NODE_TYPE_TEXT;
+			 $this->iNodeName="Text";
+			 $this->iNodeValue="<" . $name;
+			 return true;
+		 }
+	 } else {
+		 $this->iNodeType=NODE_TYPE_ELEMENT;
+		 $this->iNodeValue="";
+		 $this->iNodeName=$name;
+		 while ($this->skipBlanksInTag()) {
+			 $attrName = $this->skipToBlanksOrEqualsInTag();
+			 if ($attrName != "" && $attrName != "/") {
+				 $this->skipBlanksInTag();
+				 if ($this->iCurrentChar == "=") {
+					 $this->skipEqualsInTag();
+					 $this->skipBlanksInTag();
+					 $value=$this->readValueInTag();
+					 $this->iNodeAttributes[strtolower($attrName)]=$value;
+				 } else {
+					 $this->iNodeAttributes[strtolower($attrName)]="";
+				 }
+			 }
+		 }
+	 }
+
+	 $this->skipEndOfTag();
+	 return true;
+ }
+
+ function isValidTagIdentifier($name) { return ereg("^[A-Za-z0-9_\\-]+$", $name); }
+
+ function skipBlanksInTag() { return "" != ($this->skipInTag($this->B_ARRAY)); }
+
+ function skipToBlanksOrEqualsInTag() { return $this->skipToInTag($this->BOE_ARRAY); }
+
+ function skipToBlanksInTag() { return $this->skipToInTag($this->B_ARRAY); }
+
+ function skipToBlanksOrSlashInTag() { return $this->skipToInTag($this->BOS_ARRAY); }
+
+ function skipEqualsInTag() { return $this->skipMaxInTag("=", 1); }
+
+ function readValueInTag() {
+
+	 $ch=$this->iCurrentChar;
+	 $value="";
+
+	 if ($ch == "\"") {
+		 $this->skipMaxInTag("\"", 1);
+		 $value=$this->skipToInTag("\"");
+		 $this->skipMaxInTag("\"", 1);
+	 } else if ($ch == "'") {
+		 $this->skipMaxInTag("'", 1);
+		 $value=$this->skipToInTag("'");
+		 $this->skipMaxInTag("'", 1);
+	 } else {
+		 $value=$this->skipToBlanksInTag();
+	 }
+
+	 return $value;
+ }
+
+ function setTextIndex($index) {
+
+	 $this->iHtmlTextIndex=$index;
+
+	 if ($index >= $this->iHtmlTextLength) {
+		 $this->iCurrentChar=-1;
+	 } else {
+		 $this->iCurrentChar=$this->iHtmlText{$index};
+	 }
+ }
+
+ function moveNext() {
+
+	 if ($this->iHtmlTextIndex < $this->iHtmlTextLength) {
+		 $this->setTextIndex($this->iHtmlTextIndex + 1);
+		 return true;
+	 } else {
+		 return false;
+	 }
+ }
+
+ function skipEndOfTag() {
+
+	 while (($ch=$this->iCurrentChar) !== -1) {
+		 if ($ch == ">") {
+			 $this->moveNext();
+			 return;
+		 }
+		 $this->moveNext();
+	 }
+ }
+
+ function skipInTag($chars) {
+
+	 $sb="";
+
+	 while (($ch=$this->iCurrentChar) !== -1) {
+		 if ($ch == ">") {
+			 return $sb;
+		 } else {
+			 $match=false;
+
+			 for ($idx=0; $idx < count($chars); $idx++) {
+				 if ($ch == $chars[$idx]) {
+					 $match=true;
+					 break;
+				 }
+			 }
+
+			 if (!$match) {
+				 return $sb;
+			 }
+
+			 $sb.=$ch;
+			 $this->moveNext();
+		 }
+	 }
+
+	 return $sb;
+ }
+
+ function skipMaxInTag($chars, $maxChars) {
+
+	 $sb="";
+	 $count=0;
+
+	 while (($ch=$this->iCurrentChar) !== -1 && $count++ < $maxChars) {
+		 if ($ch == ">") {
+			 return $sb;
+		 } else {
+			 $match=false;
+
+			 for ($idx=0; $idx < count($chars); $idx++) {
+				 if ($ch == $chars[$idx]) {
+					 $match=true;
+					 break;
+				 }
+			 }
+
+			 if (!$match) {
+				 return $sb;
+			 }
+
+			 $sb.=$ch;
+			 $this->moveNext();
+		 }
+	 }
+
+	 return $sb;
+ }
+
+ function skipToInTag($chars) {
+
+	 $sb="";
+
+	 while (($ch=$this->iCurrentChar) !== -1) {
+		 $match = $ch == ">";
+
+		 if (!$match) {
+			 for ($idx=0; $idx < count($chars); $idx++) {
+				 if ($ch == $chars[$idx]) {
+					 $match=true;
+					 break;
+				 }
+			 }
+		 }
+
+		 if ($match) {
+			 return $sb;
+		 }
+
+		 $sb.=$ch;
+		 $this->moveNext();
+	 }
+
+	 return $sb;
+ }
+
+ function skipToElement() {
+
+	 $sb="";
+
+	 while (($ch=$this->iCurrentChar) !== -1) {
+		 if ($ch == "<") {
+			 return $sb;
+		 }
+
+		 $sb.=$ch;
+		 $this->moveNext();
+	 }
+
+	 return $sb;
+ }
+
+ function skipToStringInTag($needle) {
+
+	 $pos=strpos($this->iHtmlText, $needle, $this->iHtmlTextIndex);
+
+	 if ($pos === false) {
+		 return "";
+	 }
+
+	 $top=$pos + strlen($needle);
+	 $retvalue=substr($this->iHtmlText, $this->iHtmlTextIndex, $top - $this->iHtmlTextIndex);
+	 $this->setTextIndex($top);
+	 return $retvalue;
+ }
+ }
+
+ function HtmlParser_ForFile($fileName) { return HtmlParser_ForURL($fileName); }
+
+ function HtmlParser_ForURL($url) {
+
+	 $fp=fopen($url, "r");
+
+	 $content="";
+
+	 while (true) {
+		 $data = fread($fp, 8192);
+
+		 if (strlen($data) == 0) {
+			 break;
+		 }
+		 $content.=$data;
+	 }
+
+	 fclose ($fp);
+	 return new HtmlParser($content);
+ }
+?>

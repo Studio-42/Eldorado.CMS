@@ -1,0 +1,64 @@
+<table class="grid-tb">
+	<thead>
+		<tr>
+    		<th>{m('Current version')}</th>
+    		<th>{m('Available version')}</th>
+    		<th>{m('Last check time')}</th>
+    		<th>{m('Actions')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+  		<tr>
+    		<td>{elVer}</td>
+    		<td>{availableVer}</td>
+    		<td>{lastCheck}</td>
+    		<td class="ucAction">
+      			<!-- BEGIN UC_CHECK_VER -->
+      				<a href="{URL}check/">{m('Check version')}</a>
+      			<!-- END UC_CHECK_VER -->
+      			<!-- BEGIN UC_ACT_UPDATE -->
+      				<a href="" onclick="return popUp('{POPUP_URL}log/', 500, 600)">{m('Read changelog')}</a>
+      				<a href="{URL}upgrade/">{m('Install update')}</a>
+      			<!-- END UC_ACT_UPDATE -->
+    		</td>
+  		</tr>
+	</tbody>
+</table>
+
+<table class="grid-tb">
+	<thead>
+		<tr>
+    		<th colspan="5" style="text-align:center;">{m('History')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+  		<tr>
+    		<th>{m('Date')}</th>
+    		<th>{m('Version')}</th>
+    		<th>{m('Modification type')}</th>
+    		<th>{m('Result')}</th>
+    		<th>{m('Actions')}</th>
+  		</tr>
+  		<!-- BEGIN UC_LOGREC -->
+  		<tr>
+    		<td>{date}</td>
+    		<td>{ver}</td>
+    		<td>{act}</td>
+    		<td>{result}</td>
+    		<td class="ucAction">
+      			<!-- BEGIN UC_INST_LOG -->
+      				<a href="" onclick="return popUp('{POPUP_URL}log/{id}/install/', 400, 500)">{m('View install log')}</a>
+      			<!-- END UC_INST_LOG -->
+      			<!-- BEGIN UC_VER_CHANGELOG -->
+      				<a href="" onclick="return popUp('{POPUP_URL}log/{id}/', 400, 500)">{m('View version chagelog')}</a>
+      			<!-- END UC_VER_CHANGELOG -->
+      			<!-- BEGIN UC_VER_DOWNGRADE -->
+      				<a href="{URL}downgrade/"
+        			onclick="return confirm('{m('Downgrade to previous version may crash You site!')} {m('Do You really do it')}?');">{m('Downgrade to previous version')}</a>
+      			<!-- END UC_VER_DOWNGRADE -->
+    		</td>
+  		</tr>
+  		<!-- END UC_LOGREC -->
+	</tbody>
+</table>
+

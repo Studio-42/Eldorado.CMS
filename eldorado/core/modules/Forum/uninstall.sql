@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS `el_forum_cat`;
+DROP TABLE IF EXISTS `el_forum_topic`;
+DROP TABLE IF EXISTS `el_forum_post`;
+DROP TABLE IF EXISTS `el_forum_moderator`;
+DROP TABLE IF EXISTS `el_forum_log_read_forum`;
+DROP TABLE IF EXISTS `el_forum_log_read_topic`;
+DROP TABLE IF EXISTS `el_forum_role`;
+DROP TABLE IF EXISTS `el_forum_role_action`;
+DROP TABLE IF EXISTS `el_forum_rbac`;
+DROP TABLE IF EXISTS `el_forum_floodcontrol`;

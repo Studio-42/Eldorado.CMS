@@ -1,0 +1,83 @@
+<table class="grid-tb">
+	<thead>
+		<tr>
+			<th style="width:26px"><img src="{icoMenuSelect}" /></th>
+			<th>{m('Top additional menu')} ({menuTopStat})</th>
+		</tr>
+	</thead>
+  	<tbody>
+  		<!-- BEGIN ADM_ADD_MENU_TOP_NOPAGE -->
+		<tr>
+	    	<td colspan="2">{m('There are no one page was added into this menu')}</td>
+		</tr>
+		<!-- END ADM_ADD_MENU_TOP_NOPAGE -->
+		<!-- BEGIN ADM_ADD_MENU_TOP_PAGE -->
+		<tr>
+			<th>
+				<img src="{ico}" />
+		    </th>
+		    <td>{name}</td>
+		</tr>
+		<!-- END ADM_ADD_MENU_TOP_PAGE -->
+  	</tbody>
+</table>
+
+
+<table class="grid-tb">
+	<thead>
+		<tr>
+			<th style="width:26px"><img src="{icoMenuSelect}" /></th>
+			<th>{m('Bottom additional menu')} ({menuBotStat})</th>
+		</tr>
+	</thead>
+  	<tbody>
+  		<!-- BEGIN ADM_ADD_MENU_BOT_NOPAGE -->
+		<tr>
+			<td colspan="2">{m('There are no one page was added into this menu')}</td>
+		</tr>
+		<!-- END ADM_ADD_MENU_BOT_NOPAGE -->
+		<!-- BEGIN ADM_ADD_MENU_BOT_PAGE -->
+		<tr>
+			<th>
+		    	<img src="{ico}" />
+			</th>
+		    <td>{name}</td>
+		  </tr>
+		  <!-- END ADM_ADD_MENU_BOT_PAGE -->
+  	</tbody>
+</table>
+
+<table class="grid-tb">
+	<thead>
+		<tr>
+			<th colspan="5">{m('Additional side menus')}</th>
+		</tr>
+		<tr>
+			<td>ID</td>
+			<td>{m('Name')}</td>
+			<td>{m('Position')}</td>
+			<td>{m('Pages, where menu displays')}</td>
+			<td>{m('Pages, included in menu')}</td>
+		  </tr>
+	</thead>
+  	<tbody>
+  		<!-- BEGIN ADD_SIDE_NOMENUS -->
+		<tr>
+		    <td colspan="5">{m('There are no one additional side menus was found')}</td>
+		</tr>
+		<!-- END ADD_SIDE_NOMENUS -->
+		<!-- BEGIN ADD_SIDE_MENUS -->
+		<!-- BEGIN ADD_SIDE_MENU -->
+		<tr>
+			<td>{id}</td>
+			<td>{name}</td>
+			<td>{pos}</td>
+			<td>{dest}</td>
+			<td>{source}</td>
+		</tr>
+		<!-- END ADD_SIDE_MENU -->
+		<!-- END ADD_SIDE_MENUS -->
+  	</tbody>
+
+</table>
+

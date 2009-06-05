@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ROOT>
+    <GROUP name="SitemapGenerator">
+        <NODE name="elVersion">3.8.0</NODE>
+        <NODE name="multi">0</NODE>
+        <NODE name="search">0</NODE>
+        <CONTAINER name="locales">
+            <NODE name="en_US.UTF-8">Site map in XML format generator</NODE>
+            <NODE name="ru_RU.UTF-8">Генератор XML карты сайта</NODE>
+        </CONTAINER>
+    </GROUP>
+</ROOT>

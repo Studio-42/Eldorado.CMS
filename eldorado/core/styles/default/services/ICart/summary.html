@@ -1,0 +1,53 @@
+<table class="nice full">
+    <caption>{m('Items list')}</caption>
+    <tr>
+        <th>{m('Item')}</th>
+        <th>{m('Qnt')}</th>
+        <th>{m('Price')}, {currencySign}</th>
+        <th>{m('Sum')}, {currencySign}</th>
+    </tr>
+    <!-- BEGIN ICART_ITEM -->
+    <tr id="row_{id}">
+        <td>
+            <div><strong>{name}</strong></div>
+            <!-- BEGIN IC_IPROPS -->
+            <!-- BEGIN IC_IPROP -->
+            <div class="mute">{name}: {value}</div>
+            <!-- END IC_IPROP -->
+            <!-- END IC_IPROPS -->
+        </td>
+        <td>{qnt}</td>
+        <td>{price}</td>
+        <td>{sum}</td>
+    </tr>
+    <!-- END ICART_ITEM -->
+	<tr>
+        <th colspan="3">{m('Order amount')}, {currencySign}:</th>
+        <th>{amount}</th>
+    </tr>
+</table>
+
+<!-- BEGIN ICART_DELIVERY -->
+<table width="100%" cellpadding="5" cellspacing="0" border="0">
+    <tr>
+        <td class="iCartSubheader"><div>{{m('Delivery')}</div></td>
+    </tr> 
+</table>
+<!-- END ICART_DELIVERY -->
+
+
+<table class="nice full">
+    <caption>{m('Customer information')}</caption>
+    <!-- BEGIN ICART_ADDR -->
+    <tr>
+        <th style="width:30%">{label}:</th>
+        <td>{value}</td>  
+    </tr>
+    <!-- END ICART_ADDR -->
+</table>
+<!-- BEGIN ICART_BUTTON -->
+<input type="submit" class="form-submit" value="{m('Continue')}" />
+<input type="hidden" name="icartSummary" value="1" />
+<!-- END ICART_BUTTON -->
+
+

@@ -1,0 +1,18 @@
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td class="formSubheader">{m('User')}</td>
+    <td class="formSubheader">E-mail</td>
+    <td class="formSubheader">{m('Company name')}</td>
+    <td class="formSubheader">{m('Created')}/{m('Modified')}</td>
+    <td class="formSubheader">{m('Domains')}</td>
+  </tr>
+<!-- BEGIN MR_USER -->
+  <tr>
+    <td style="font-weight:bold"><a href="{URL}user/{uid}/">{l_name} {f_name} {s_name} ({login})</a> </td>
+    <td>{email}</td>
+    <td>{company}</td>
+    <td>{crtime}/{mtime}</td>
+    <td style="font-weight:bold" align="center"><a href="{URL}domains/{uid}/">{domains}</a></td>
+  </tr>
+<!-- END MR_USER -->
+</table>

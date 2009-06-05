@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{LANG}" lang="{LANG}">
+<head>
+  	<title>{siteTitle}</title>
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  	<link rel="shortcut icon" href="{STYLE_URL}favicon.ico" />
+  	<!-- BEGIN META -->
+  	<meta name="{name}" content="{content}" />
+  	<!-- END META -->
+  	<link rel="stylesheet" href="{STYLE_URL}css/normal.css" type="text/css" media="screen" />
+  	<!-- BEGIN CSS_LINK -->
+  	<link rel="stylesheet" href="{STYLE_URL}css/{css}" type="text/css" media="screen" />
+  	<!-- END CSS_LINK -->
+	<!--[if lte IE 7]><link href="{STYLE_URL}css/ie.css" rel="stylesheet" type="text/css" /><![endif]-->
+	<link rel="stylesheet" href="{STYLE_URL}css/print.css" type="text/css" media="print" />
+  	<!-- BEGIN CSS -->
+  	<style>
+		{css}
+	</style>
+  	<!-- END CSS -->
+  	<!-- BEGIN JS -->
+  	<script type="text/javascript">
+  		{js}
+  	</script>
+  	<!-- END JS -->
+  	<!-- BEGIN JS_LINK -->
+  	<script type="text/javascript" src="{js}"></script>
+  	<!-- END JS_LINK -->
+	<!--[if lte IE 7]><script type="text/javascript" src="{BASE_URL}core/js/jquery.pngFix.pack.js_"></script><![endif]-->
+	<!-- BEGIN ONREADY -->
+  	<script type="text/javascript">
+  		$().ready( function() { {js} });
+  	</script>
+  	<!-- END ONREADY -->
+</head>
+
+<body class="{bodyCssClass}">
+
+	<div id="body">
+		<div id="page" class="clearfix">
+
+			<!-- begin: #main -->
+			<div id="header" >
+				<div id="head-l" class="clearfix"><a href="{BASE_URL}"><a href="{BASE_URL}"><img src="{STYLE_URL}images/design/logo.gif" /></a></div>
+				<div id="head-r" class="clearfix"><span class="print">{phones}</span></div>
+				<div id="head-c" class="clearfix"></div>
+				<div class="ie-clear">&nbsp;</div>
+				
+				<div id="addnavtop">
+					<!-- BEGIN ADD_MENU_TOP_POS -->{ADD_MENU_TOP} <!-- END ADD_MENU_TOP_POS -->
+					<!-- BEGIN USER_INFO_TOP --> {USER_INFO_TOP} <!-- END USER_INFO_TOP -->
+	                <!-- BEGIN AUTH_FORM_TOP --> {AUTH_FORM_TOP} <!-- END AUTH_FORM_TOP -->
+	                <!-- BEGIN ICART_TOP -->{ICART_TOP} <!-- END ICART_TOP -->
+	                <!-- BEGIN SEARCH_FORM_TOP --> {SEARCH_FORM_TOP}<!-- END SEARCH_FORM_TOP -->
+					<div><a href="#" onclick="window.print();return false;" title="{m('Printer friendly version')}"><img src="{icoPrint}" /></a></div>
+				</div>
+			</div>
+	    	<!-- end: #main -->
+
+			<div id="navtop">
+				<!-- BEGIN MAIN_MENU_POS_TOP -->{MAIN_MENU_TOP} <!-- END MAIN_MENU_POS_TOP -->
+				<!-- BEGIN SUB_MENU_POS_TOP --> {SUB_MENU_TOP}  <!-- END SUB_MENU_POS_TOP -->
+			</div>
+	   		<!-- begin: #main -->
+			<div id="main">
+				<!-- BEGIN LEFT_COLUMN -->
+				<div id="lc">
+					<div id="lc-content" class="clearfix">
+	          			{CAT_MENU_LEFT}
+						{MENU_LEFT}
+						{TS_MMENU_LEFT}
+						{ICART_LEFT}
+						{PLUGIN_NEWS_TOPICS_LEFT}
+						{PLUGIN_INFO_BLOCK_LEFT}
+						{PLUGIN_RAND_IMG_LEFT}
+						{PLUGIN_POLL_TOPICS_LEFT}
+						{PLUGIN_OUTPUT_LEFT}
+						{SEARCH_FORM_LEFT}
+						{AUTH_FORM_LEFT}
+						{USER_INFO_LEFT}
+	        		</div>
+	      		</div>
+				<!-- END LEFT_COLUMN -->
+				<!-- BEGIN RIGHT_COLUMN -->
+	      		<div id="rc">
+	        		<div id="rc-content" class="clearfix">
+	          			{SEARCH_FORM_RIGHT}
+						{CAT_MENU_RIGHT}
+						{MENU_RIGHT}
+						{TS_MMENU_RIGHT}
+						{ICART_RIGHT}
+						{PLUGIN_NEWS_TOPICS_RIGHT}
+						{PLUGIN_INFO_BLOCK_RIGHT}
+						{PLUGIN_RAND_IMG_RIGHT}
+			            {PLUGIN_POLL_TOPICS_RIGHT}
+						{PLUGIN_OUTPUT_RIGHT}
+						{AUTH_FORM_RIGHT}
+						{USER_INFO_RIGHT}
+	        		</div>
+	      		</div>
+				<!-- END RIGHT_COLUMN -->
+	      		<div id="mc">
+	        		<div id="mc-content" class="clearfix"> 
+			        	{PAGE_TITLE}
+			            {SYS_MESSAGES}
+		              	<!-- BEGIN TOP_COLUMN -->
+						<div id="tizer-top" class="clearfix">
+		              		{CAT_MENU_TOP}
+		              		{TS_MMENU_TOP}
+		              		{PLUGIN_NEWS_TOPICS_TOP}
+		              		{PLUGIN_INFO_BLOCK_TOP}
+		              		{PLUGIN_RAND_IMG_TOP}
+		              		{PLUGIN_POLL_TOPICS_TOP}
+		              		{PLUGIN_OUTPUT_TOP}
+		              	</div>
+						<!-- END TOP_COLUMN -->
+						<div id="el-content" class="clearfix"> 
+			              	{PAGE}
+						</div> 
+			            <!-- BEGIN BOTTOM_COLUMN -->
+						<div id="tizer-bot" class="clearfix">
+			              	{PLUGIN_NEWS_TOPICS_BOTTOM}
+			              	{PLUGIN_INFO_BLOCK_BOTTOM}
+			              	{PLUGIN_RAND_IMG_BOTTOM}
+			              	{PLUGIN_POLL_TOPICS_BOTTOM}
+			              	{PLUGIN_OUTPUT_BOTTOM}
+			              	{CAT_MENU_BOTTOM}
+			              	{TS_MMENU_BOOTOM}
+						</div>
+			            <!-- END BOTTOM_COLUMN -->
+					</div>
+	        		<div class="ie-clear">&nbsp;</div>
+	      		</div>
+			</div>
+	    	<!-- end: #main -->
+		</div>
+		<!-- end: #page -->
+	</div>
+	<!-- end: #body -->
+	
+	<div id="footer">
+		<div id="navbottom"><!-- BEGIN ADD_MENU_BOTTOM_POS --> {ADD_MENU_BOTTOM} <!-- END ADD_MENU_BOTTOM_POS --></div>
+		<div id="footer-content">
+			<div id="foot-l">{YEAR} &copy; {owner}</div>
+			<div id="foot-r"><a href="http://www.eldorado-cms.ru">Система управления сайтом: Eldorado {elVer} {elName}</a></div>
+			<div id="foot-c">{contacts} {phones}</div>
+		</div>
+	</div>
+
+	<!-- BEGIN COUNTERS -->{COUNTERS}<!-- END COUNTERS -->
+	<!-- BEGIN GASTAT_COUNTER -->
+	<script type="text/javascript">
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+	try {
+	var pageTracker = _gat._getTracker("{webID}");
+	pageTracker._trackPageview();
+	} catch(err) {}</script>
+	<!-- END GASTAT_COUNTER -->
+	<!-- BEGIN SYS_DEBUG -->
+	<div class="debug no-print">
+		<p><img src="{icoDebug}" /> &nbsp;<b>{m('Debug')}</b></p>
+	    <code>
+		{work_time}<br />
+		{msg}
+		</code>
+	</div>
+	<!-- END SYS_DEBUG -->
+	
+	<!-- BEGIN A_MENU -->
+	{amenu}
+	<script type="text/javascript">
+		$().ready( function() { $('.a-menu').elmenu() }	);
+	</script>
+	
+	<!-- END A_MENU -->	
+
+</body>
+</html>

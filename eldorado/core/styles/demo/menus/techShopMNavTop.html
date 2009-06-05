@@ -1,0 +1,20 @@
+<table class="tsMNav">
+  <tr>
+  <!-- BEGIN TS_MNAV_TITLE -->
+  <td class="tsMNavTitle"><a href="{tsMNavURL}mnfs/">{tsMNavTitle}</a></td>
+  <!-- END TS_MNAV_TITLE -->
+  <!-- BEGIN TS_MNAV_MNFS -->
+  <td class="tsMNavList">
+    <form method="get"> :
+    <select onChange="this.form.action='{tsMNavURL}'+this.value;this.form.submit();">
+      <option value="">{m('Select manufacturer')}</option>
+      <option value="mnfs/">{m('All manufacturers')}</option>
+      <!-- BEGIN TS_MNAV_MNF -->
+      <option value="mnf/{mnfID}/">{name}</option>
+      <!-- END TS_MNAV_MNF -->
+    </select>
+    </form>
+  </td>
+  <!-- END TS_MNAV_MNFS -->
+  </tr>
+</table>

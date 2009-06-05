@@ -1,0 +1,18 @@
+<table class="grid-tb">
+	<thead>
+		<tr>
+    		<th>{m('File')}</th>
+    		<th>{m('Number of links')}</th>
+    		<th>{m('File size')}</th>
+    		<th>{m('Last modified')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+  		<tr>
+    		<td><a href="{BASE_URL}{file}"  title="{m('Download')}">{BASE_URL}{file}</a></td>
+    		<td>{numLinks}</td>
+    		<td>{size} байт</td>
+    		<td>{date}</td>
+  		</tr>
+	</tbody>
+</table>

@@ -1,0 +1,30 @@
+#icart {
+	margin-bottom:.5em;	
+    padding:0;
+	border:1px solid #ccc;
+	background:#eee;
+}
+
+#icart-nav {
+	width:220px;
+	float: right; 
+	display:inline; 
+}
+
+#icart-nav ul { }
+#icart-nav ul li { list-style:none; padding:.5em; }
+
+#icart-content { 
+	margin-right:220px; 
+	padding:.5em 1em;
+	background:#fff;
+	-moz-border-top-left-radius: 5px; 
+	-moz-border-bottom-left-radius: 5px; 
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border:1px solid #fff;
+}
+#icart-content table.nice { margin-bottom:1em;}
+

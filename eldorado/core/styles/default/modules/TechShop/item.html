@@ -1,0 +1,137 @@
+<div class="item mod-tshop-item">
+
+	<h2>{code} {name}</h2>
+	<!-- BEGIN IS_ITEM_ORDER -->
+    <div class="mod-tshop-order"><a href="{URL}__icart__/add/{catID}/{id}/" class="cart" >{m('Buy now')}</a></div>
+	<!-- END IS_ITEM_ORDER -->
+	<!-- BEGIN ITEM_PRICE -->
+	<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
+	<!-- END ITEM_PRICE -->
+ 	
+
+	<!-- BEGIN ITEM_MNF -->
+	<div class="mod-tshop-price">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}/">{mnfName}</a> {mnfCountry}</div>
+	<!-- END ITEM_MNF -->
+
+	<div class="mod-tshop-item-descrip clearfix">{descrip}</div>
+
+	<!-- BEGIN ITEM_FTS -->
+
+	<table class="nice mod-tshop-fts-tb">
+	
+		<caption>{m('Features')}</caption>
+		<!-- BEGIN IFTS_GROUP -->
+		<tr><th colspan="2">{name}</th></tr>
+		<!-- BEGIN IFTS_FT -->
+		<tr>
+			<td>{name} {unit}</td>
+			<td>...&nbsp;{value}</td>
+
+		</tr>
+		<!-- END IFTS_FT -->
+		<!-- END IFTS_GROUP -->
+	</table>
+	<!-- END ITEM_FTS -->
+
+	<!-- BEGIN MODELS -->
+	<table class="nice mod-tshop-fts-tb">
+	<thead>
+		<!-- BEGIN M_IMG_ROW -->
+		<tr>
+			<th>&nbsp;</th>
+			<!-- BEGIN M_IMG_CELL -->
+			<th>
+				<!-- BEGIN M_IMG -->
+			 	<a href="#" onClick="return popUp('{POPUP_URL}mod_img/{m_id}/', 500, 500)"><img src="{BASE_URL}{path}/mini_{img}" title="{m('Full size image')}" /></a>
+			 	<!-- END M_IMG -->
+			</th>
+			<!-- END M_IMG_CELL -->
+		</tr>
+		<!-- END M_IMG_ROW -->
+		<tr>
+			<th>{m('Models')}</th>
+			<!-- BEGIN M_NAME -->
+			<th style="width:{cellWidth}%">
+		         <span>{code}</span> {name}
+			</th>
+			<!-- END M_NAME -->
+		</tr>
+		<!-- BEGIN M_DESCRIP_ROW -->
+		<tr>
+			<th>&nbsp;{m('Description')}</th>
+			<!-- BEGIN M_DESCRIP -->
+			<th style="font-weight:normal">{descrip}</th>
+			<!-- END M_DESCRIP -->
+		</tr>
+		<!-- END M_DESCRIP_ROW -->
+		<!-- BEGIN M_PRICE_ROW -->
+		<tr>
+	   		<th>{m('Price')} ({currencySign})</th>
+	   		<!-- BEGIN M_PRICE -->
+	   		<th>
+         		{price}
+         		<!-- BEGIN M_ORDER -->
+         		<br /><a href="{URL}__icart__/add/{catID}/{iID}/{ID}/" class="cart">{m('Buy now')}</a>
+         		<!-- END M_ORDER -->
+       		</th>
+	   		<!-- END M_PRICE -->
+		</tr>
+		<!-- END M_PRICE_ROW -->
+	</thead>
+
+	<!-- BEGIN M_FTS -->
+	<tbody>
+		<tr>
+			<th colspan="{colspan}">
+				<span class="el-collapsed">{m('Features')}</span>
+			</th>
+		</tr>
+	</tbody>
+	<tbody class="hide">
+		<!-- BEGIN M_FTG -->
+		<tr>
+			<th class="sub" colspan="{colspan}">{name}</th>
+		</tr>
+		<!-- BEGIN M_FT_ROW -->
+		<tr>
+			<td>{name} {unit}</td>
+			<!-- BEGIN M_FT -->
+			<td{attrs}>{value} &nbsp;</td>
+			<!-- END M_FT -->
+		</tr>
+		<!-- END M_FT_ROW -->
+		<!-- END M_FTG -->
+	</tbody>
+	<!-- END M_FTS -->
+</table>
+<!-- END MODELS -->
+<!-- BEGIN LINKED_OBJS -->
+<!-- BEGIN LOBJS_GROUP -->
+<div class="rounded-top-5 crosslinks-group">
+	<div class="rounded-top-5 ">
+		<span href="#" class="el-collapsed">{name}</span>
+	</div>
+	<ul class="hide">
+		<!-- BEGIN LOBJ -->
+		<li><a href="{url}">{name}</a></li>
+		<!-- END LOBJ -->
+	</ul>
+</div>
+<!-- END LOBJS_GROUP -->
+<!-- END LINKED_OBJS -->
+</div>
+<script type="text/javascript" charset="utf-8">
+$().ready( function() {
+	$('.mod-tshop-fts-tb .el-collapsed').click( function() {
+		$(this).toggleClass('el-expanded');
+		var b = $(this).parents('tbody').eq(0).siblings('tbody');
+		if (b.is(':hidden')) b.fadeIn('slow');
+		else b.fadeOut('slow');
+	});
+	
+	$('.crosslinks-group .el-collapsed').click( function() {
+		$(this).toggleClass('el-expanded');
+		$(this).parent().siblings('ul').slideToggle('slow');
+	});
+});
+</script>

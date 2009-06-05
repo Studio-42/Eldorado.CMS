@@ -1,0 +1,21 @@
+<table class="grid-tb tablesorter" id="groups-list">
+	<thead>
+		<tr>
+		  	<th style="width:30px">ID</th>
+    		<th>{m('Group name')}</th>
+		    <th>{m('Number of users')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN GROUP -->
+  		<tr>
+  			<td>{gid}</td>
+    		<td>{name}</td>
+    		<td>{numUsers}</td>
+  		</tr>
+		<!-- END GROUP -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() { $("#groups-list").tablesorter( ); } );
+</script>

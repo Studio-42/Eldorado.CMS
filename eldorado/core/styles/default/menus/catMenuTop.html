@@ -1,0 +1,21 @@
+<table cellspacing="0">
+	<tr>
+		<!-- BEGIN CAT_NAV_TITLE -->
+		<td class="modMenuTopTitle">{catNavTitle}: </td>
+		<!-- END CAT_NAV_TITLE -->
+		<td>
+			<form> <!-- "onChange"='window.location.href="{catURL}"+this.value+"/";' -->
+			<select name="catNav{catID}" onChange='window.location.href="{catURL}"+this.value+"/";'>
+			<!-- BEGIN CAT_NAV -->
+				<!-- BEGIN CAT_NAV_ITEM -->
+				<option value="{id}">{name}</option>
+				<!-- END CAT_NAV_ITEM -->
+				<!-- BEGIN CAT_NAV_ITEM_CUR -->
+				<option value="{id}" selected="on">{name}</option>
+				<!-- END CAT_NAV_ITEM_CUR -->
+			<!-- END CAT_NAV -->
+			</select>
+			</form>
+		</td>
+	</tr>
+</table>

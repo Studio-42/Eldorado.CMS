@@ -1,0 +1,36 @@
+<!-- BEGIN DU_WARNING -->
+<p class="form-errors">{m('You are is out of disk quote! New backups could not be created.')}</p>
+<!-- END DU_WARNING -->
+<table class="grid-tb">
+	<tr>
+		<th>{m('Backup quote size')}</th>
+		<th>{m('Backup files total size')}</th>
+	</tr>
+	<tr>
+		<td>{backupQuote} Mb</td>
+		<td>{backupDu} Mb</td>
+	</tr>
+</table>
+<table class="grid-tb">
+	<thead>
+		<tr>
+    		<th>{m('Backup file')}</th>
+    		<th>{m('File size')}</th>
+    		<th>{m('Create date')}</th>
+    		<th>&nbsp;</th>
+  		</tr>
+	</thead>
+	<tbody>
+<!-- BEGIN ROW -->
+  		<tr>
+    		<td><a href="{BASE_URL}backup/{file}"  title="{m('Download')}">{file}</a></td>
+			<td>{size} Mb</td>
+    		<td>{date}</td>
+    		<td>
+      			<a href="{URL}restore/{hash}/"><img src="{icoBackUpRestore}" title="{m('Restore site from backup')}" /></a>
+				<a href="{URL}rm/{hash}/" onClick="return confirm('{m('Do You really want to delete')}' +' {file}');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
+    		</td>
+  		</tr>
+<!-- END ROW -->
+	</tbody>
+</table>

@@ -1,0 +1,211 @@
+@charset "UTF-8";
+
+* { margin:0; padding: 0; }
+
+html, body, div, span,
+applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dd, dl, dt, li, ol, ul,
+fieldset, form, label, legend, 
+table, caption, tbody, tfoot, thead, tr, th, td {
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	text-align: left;
+	vertical-align: baseline;
+}
+html, body, div, span,
+applet, object, iframe,
+fieldset, form, label, legend {	border: 0 solid; }
+
+table { border-collapse: collapse;	border-spacing: 0; }
+
+/*  IE5 & IE6 likes it  */
+* html body *   { overflow:visible; }
+* html iframe, 
+* html frame    { overflow:auto; }
+* html frameset { overflow:hidden; }
+
+/*  Включаем вертикальный скролл в FF & Safari  */
+html { height: 100%; margin-bottom: 1px; }
+
+/** Default body  **/
+body {
+    font-size: 100.01%; /* Fix for font size in old Opera  */
+    color: #000;
+    background: #fff;
+    text-align: left; 
+  }
+/*  Исправляем слишком мелкий select  */
+option { padding-left: 0.4em; } 
+select { padding: 1px; }
+/*  No image borders  */
+img, a img, :link img, :visited img { border: 0; }
+a { outline: none; }
+blockquote { margin: 0 0 1em 0.8em; } 
+q:before, q:after,blockquote:before, blockquote:after { content: ""; }
+
+/*************  clearfix  **********************/
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  font-size:0;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.clearfix { display: block; }
+.floatbox { overflow:hidden; }
+.ie-clear { display: none; }
+
+/**************** Сетка *******************/
+/****   контейнер сетки  ****/
+.grid { width: 100%; overflow:hidden; }
+
+/*******  ячейки  *******/
+.col-var, .col-1, .col-10 .col-25, .col-33, .col-38, .col-49, .col-50, .col-62, .col-66, .col-75, .col-90 {float: left; }
+
+/******  последняя ячейка в ряду  *******/
+.col-last { float: right; margin-left: -5px; }
+
+.col-1  { width: 1%; }
+.col-10 { width: 10%; }
+.col-25 { width: 25%; }
+.col-33 { width: 33.333%; }
+.col-38 { width: 38.2%; }
+.col-49 { width: 49.1%; }
+.col-50 { width: 50%; }
+.col-62 { width: 61.8%; }
+.col-66 { width: 66.666%; }
+.col-75 { width: 75%; }
+.col-90 { width: 90%; }
+
+/********  контент в ячейках  **********/
+.col-content   { padding: 0 0.5em; }
+.col-content-l { padding: 0 1em 0 0; }
+.col-content-r { padding: 0 0 0 1em; }
+
+/********  сетка с ячейками выровняными по высоте  **********/
+.stretch, .stretch .grid { overflow:visible; display:table; table-layout:fixed; }
+.stretch .col-1, .stretch .col-var,
+.stretch .col-10, .stretch .col-25, .stretch .col-33,
+.stretch .col-38, .stretch .col-49, .stretch .col-50, 
+.stretch .col-62, .stretch .col-66, .stretch .col-75,  
+.stretch .col-90, .stretch .col-last {
+	display:table-cell; 
+	vertical-align:top;
+	float:none; 
+	margin:0; 
+	overflow:hidden;
+}
+
+/*************** Дефолтная разметка страницы *******************/
+ 
+body, html { height: 100% !important; padding: 0;}
+
+#header, #navtop, #main, #footer, #ddnavbottom { clear:both; }
+
+/** Общий контейнер во всю высоту окна **/
+#body {
+	position:relative !important;
+	min-height:100%; 
+	height: auto !important;
+	min-width: 780px; 
+	text-align:left;
+	margin: 0 auto;
+}
+  
+* html #body { height:100% !important; }
+
+/** Контейнер в #body (внизу оставляем место для #footer) **/
+#page { padding: 0 0 70px 0; }
+
+/** Шапка **/
+#header { position:relative; }
+
+/** Доп навигация в шапке **/
+#header #addnavtop { position:absolute; top: 15px; right: 15px; background: transparent; white-space:nowrap; }
+#addnavtop div { display:inline; margin:0 4px; font-size:91.6667%;}
+
+/** Верхнее меню **/
+#navtop ul { margin: 0; padding:0;  }
+#navtop li { display: inline;  }
+
+/**  Центральная часть с тремя колонками  **/
+#main { padding:0; }
+
+/** Левая колонка (200px) **/
+#lc { float: left; width: 200px }
+
+/** Правая колонка (200px) **/
+#rc { float:right; width: 200px }
+
+/**  Центральная колонка (вся свобoдная ширина) **/
+#mc { width:auto; margin: 0 200px; }
+
+/****  Добавляет отступы к центральной колонке при наличии боковых  ****/
+body.rm-left  #mc { margin-left:0; }
+body.rm-right #mc { margin-right:0; }
+body.rm-both  #mc { margin:0; }
+
+/**  Контент в колонках **/
+#lc-content, #rc-content, #mc-content { position:relative; }
+#mc-content, #mc-content #content { overflow:hidden; }
+
+/*****  Низ страницы  *****/
+#footer {
+    position:relative !important;
+    min-width: 740px;
+   /* max-width: 80em;*/
+    margin: -73px auto 0;
+    padding: 0;
+}
+
+/*****  Контент низа страницы  *****/
+#footer-content {
+    text-align: left;
+    padding: 31px 20px 12px 20px;
+    margin: 0 10px; 
+	font-size:90%;
+}
+#footer a { background:transparent; }
+
+/*****  Нижнее доп меню. вместе с #footer-content находится внутри #footer  *****/
+#navbottom {
+    min-width: 740px;
+   /* max-width: 80em;*/
+	font-size:99%;
+	height:20px;
+	text-align:center;
+}
+#navbottom ul    { text-align:center; margin:0;}
+#navbottom ul li { display:inline; border-right:1px solid #555; padding:0 12px; }
+
+/******  Разделяет шапку и низ страницы на 3 части  ******/
+#head-l, #foot-l { float:left; }
+#head-r, #foot-r { float:right;	text-align:right; }
+#head-l { width:200x; }
+#foot-l, #foot-r, #head-r { width:25%;}
+#head-r { padding:20px 20px 0 0;}
+#head-c { margin:0 25% 0 200px; }
+#foot-c { margin:0 25% 0 25%; text-align:center; }
+
+#popup-body { padding:1em; }
+#popup-body .close { float:right; display:inline; margin:.3em .5em; }
+
+.print, .hide { display:none; }
+
+.debug-one, .debug-rec { border:1px solid #000;}
+.debug-rec div { border:1px solid red; }
+.debug-rec div div { border:1px solid blue; }
+.debug-rec div div div { border:1px solid green; }
+.debug-rec div div * div { border:1px solid #ccc; }
+table.debug-one td { border:1px solid #ccc;}
+
+

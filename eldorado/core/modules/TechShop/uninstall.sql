@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `el_techshop_{pageID}_cat`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_item`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_model`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_manufact`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_i2c`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_ft_group`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_feature`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_ft2i`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_ft2m`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_supplier`;
+DROP TABLE IF EXISTS `el_techshop_{pageID}_sp2i`;

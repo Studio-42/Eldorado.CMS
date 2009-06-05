@@ -1,0 +1,10 @@
+#nav-list .navpage { padding-left:17px;}
+
+div.rootNode  { padding:9px 3px 5px 3px; }
+div.node      { padding:9px 0 5px 20px;  }
+div.chNode    { margin-top:7px; }
+div.expander  { padding:4px;  display:inline; text-align:center; background:url(../../icons/admin/expand.gif)  center no-repeat;  }
+div.collapser { padding:4px;  display:inline; text-align:center; background:url(../../icons/admin/collapse.gif)  center no-repeat; }
+div.dummy     { padding:4px;  display:inline; background:url(../../icons/admin/dummy.gif)  center no-repeat; }
+div.meta      { padding:4px;  display:inline; background:url(../../icons/admin/meta.gif)  center no-repeat; }
+

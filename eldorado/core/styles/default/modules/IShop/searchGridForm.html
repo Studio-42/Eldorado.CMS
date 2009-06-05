@@ -1,0 +1,49 @@
+<form {form_attrs}>{hiddens}
+<div id="sd">
+<table class="formTb" cellspacing="0" style="width:100%" id="ishopSearchForm">
+    <!-- BEGIN FORM_HEAD -->
+    <tr>
+        <td colspan="{cellNum}" class="formLabel">{form_label}</td>
+    </tr>
+    <!-- BEGIN ERRORS -->
+    <tr>
+        <td colspan="{cellNum}" class="formErrors">
+          {m('Some errors was found while proccessing form! Please fix it and try again.')}
+          <br /> {errors}
+        </td>
+    </tr>
+    <!-- END ERRORS -->
+    <!-- END FORM_HEAD -->
+
+    <!-- BEGIN FORM_BODY -->
+    <!-- BEGIN ELS_ROW -->
+    <tr>
+      <!-- BEGIN ELEMENT -->
+      <td{params} style="vertical-align:bottom">
+        <!-- BEGIN ERROR -->
+        <span class="formErrors">{error}</span><br />
+        <!-- END ERROR -->
+        {label} 
+        <div>{el}</div><!-- BEGIN RQ --> <div style="float:right" class="formReq">*</div> <!-- END RQ -->
+      </td>
+      <!-- END ELEMENT -->
+      <!-- BEGIN CDATA -->
+      <td class="formCdata">{cdata}</td>
+      <!-- END CDATA -->
+    </tr>
+    <!-- END ELS_ROW -->
+    <!-- END FORM_BODY -->
+
+    <!-- BEGIN FORM_FOOT -->
+    <tr>
+      <td colspan="{cellNum}" class="formFooter">
+        <!-- BEGIN BUTTON -->
+        {button}
+        <!-- END BUTTON -->
+
+      </td>
+    </tr>
+    <!-- END FORM_FOOT -->
+</table>
+</div>
+</form>

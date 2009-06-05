@@ -1,0 +1,24 @@
+
+<table class="ucTb" cellspacing="2">
+	<tr>
+	<td class="ucTbHead">ID</td>
+	 <td class="ucTbHead">{m('License key')}</td>
+	 <td class="ucTbHead">{m('Site URL')}</td>
+	 <td class="ucTbHead">{m('Expire date')}</td>
+	 <td class="ucTbHead">{m('Actions')}</td>
+  </tr>
+<!-- BEGIN US_LICENSE -->
+	<tr>
+		<td>{id}</td>
+		<td>{lkey}</td>
+		<td>{url}</td>
+		<td>{expire}</td>
+		<td class="ucAction">
+			<div><a href="{URL}prolong/{id}">{m('Prolong license')}</a></div>
+			<div><a href="{URL}edit/{id}">{m('Edit')}</a></div>
+			<div><a href="{URL}delete2/{id}" onClick="return confirm('{m('Do You really want to delete ')}?');">{m('Delete')}</a></div>
+		</td>
+	</tr>
+<!-- END US_LICENSE -->
+</table>
+

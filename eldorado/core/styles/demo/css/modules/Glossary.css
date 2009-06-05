@@ -1,0 +1,5 @@
+.mod-gloss dd       { padding-top:0.5em; line-height:1.2em;}
+.mod-gloss div      { margin-bottom:9px; border-bottom:1px solid #ccc; padding:0 0 .5em .5em; }
+.mod-gloss div a    { padding:0 3px; font-weight:bold;}
+.mod-gloss div span { padding:0 3px; font-weight:bold;}
+div.admin-icons     { border:none;}

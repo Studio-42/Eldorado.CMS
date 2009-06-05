@@ -1,0 +1,27 @@
+<table class="form-tb icart-left">
+	<thead>
+ 	<tr>
+		<th><a href="{URL}__icart__/">{m('Shopping cart')}</a></th>
+  	</tr>
+	</thead>
+	<tbody>
+		<tr>
+	  		<td>
+				<a href="{URL}__icart__/"><img src="{icoCart}" class="float-left" /></a>
+				<!-- BEGIN ICART_EMPTY -->
+				{m('Your shopping cart is empty')}
+				<!-- END ICART_EMPTY -->
+				<!-- BEGIN ICART_SUMMARY -->
+				<div>
+					{m('Items')}: {iCartQnt} <br />
+					{m('Amount')}: {iCartAmount} {currencySign}
+				</div>
+				<div style="padding-left:30px">
+					<a class="readmore" href="{URL}__icart__/">{m('Checkout order')}</a>
+				</div>
+				<!-- END ICART_SUMMARY -->
+	  		</td>
+  		</tr>
+	</tbody>
+</table>
+

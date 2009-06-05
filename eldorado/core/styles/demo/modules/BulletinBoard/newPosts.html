@@ -1,0 +1,54 @@
+<div id="mod-bb-panel">
+	<table>
+		<tr>
+			<td class="left">
+				<a href="#" id="mod-bb-publish-all">{m('Publish selected')}</a> |
+				<a href="#" id="mod-bb-rm-all">{m('Remove selected')}</a>
+			</td>
+			<td class="right">
+				<a href="#" id="mod-bb-select-all">{m('Select all')}</a> |
+				<a href="#" id="mod-bb-unselect-all">{m('Unselect all')}</a>
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="mod-bb-new">
+	<form method="POST" action="{URL}publish_all/">
+	<!-- BEGIN BB_CAT -->
+	<h3>{name}</h3>
+		<!-- BEGIN BB_ITEM -->
+		<div class="mod-bb-item">
+			<div class="float-right"><input type="checkbox" name="item_id[]" value="{id}" /></div>
+			<h4>{title}</h4>
+			<div class="author">{crtime} {author} {m('E-mail')}: {email} {m('Phone')}: {phone}</div>
+			<p>{content}</p>
+		</div>
+		<!-- END BB_ITEM -->
+	<!-- END BB_CAT -->
+	</form>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$().ready( function() {  
+		$('a#mod-bb-publish-all').click( function() {
+			var num = $('div#mod-bb-new').children('form').find(':checkbox[checked]').length;
+			if (!num) alert("{m('Messages not selected')}");
+			else $('div#mod-bb-new').children('form').attr('action', "{URL}publish_all/").submit();
+			return false;
+		});
+		$('a#mod-bb-rm-all').click( function() {
+			var num = $('div#mod-bb-new').children('form').find(':checkbox[checked]').length;
+			if (!num) alert("{m('Messages not selected')}");
+			else $('div#mod-bb-new').children('form').attr('action', "{URL}rm_all/").submit();
+			return false;
+		});
+		
+		$('a#mod-bb-select-all').click( function() {
+			$('div#mod-bb-new').children('form').find(':checkbox').attr('checked', 'on');
+			return false;
+		});
+		$('a#mod-bb-unselect-all').click( function() {
+			$('div#mod-bb-new').children('form').find(':checkbox').removeAttr('checked');
+			return false;
+		});
+	});
+</script>

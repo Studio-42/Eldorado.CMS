@@ -1,0 +1,134 @@
+<div class="mod-fa">
+<!-- BEGIN CUR_CAT_DESCRIP -->
+<div class="current-cat-descrip clearfix"><h4>{curCatName}</h4>{curCatDescrip} </div>
+<!-- END CUR_CAT_DESCRIP -->
+
+<!-- BEGIN CATS_ONECOL -->
+<ul class="cats-onecol">
+	<!-- BEGIN O_CAT -->
+	<li style="padding-left:{! ({level}-1)*1. !}em;" class="clearfix {cssRowClass} ">
+		<div>
+			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+			<div class="cat-descrip">{descrip}</div>
+			<div class="ie-clear"></div>
+		</div>
+	</li>
+	<!-- END O_CAT -->
+</ul>
+<!-- END CATS_ONECOL -->
+
+<!-- BEGIN CATS_TWOCOL -->
+<div class="cats-twocol">
+	<!-- BEGIN ROW -->
+	<div class="grid {cssRowClass}">	
+		<!-- BEGIN T_CAT -->
+		<div class="col-50 {cssLastClass}">
+			<div class="col-content">
+				<ul class="clearfix">
+					<li class="clearfix">
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- BEGIN SUBCATS -->
+					<!-- BEGIN SUBCAT -->
+					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
+						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+						<div class="cat-descrip">{descrip}</div>
+					</li>
+					<!-- END SUBCAT -->
+					<!-- END SUBCATS -->
+					<!-- BEGIN CDELIM --> <!-- END CDELIM -->
+				</ul>
+			</div>
+		</div>
+		<!-- END T_CAT -->
+	</div>			
+	<!-- END ROW -->
+</div>
+<!-- END CATS_TWOCOL -->
+
+<!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
+
+<!-- BEGIN ITEMS_ONECOL -->
+<ul class="items-onecol">
+	<!-- BEGIN O_ITEM -->
+	<li class="{cssRowClass} clearfix">
+		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+		<table>
+		  <tr>
+		    <td>{m('File name')}: </td>
+		    <td>{filename}</td>
+		  </tr>
+		  <tr>
+		    <td>{m('File size')}: </td>
+		    <td>{f_size} Kb</td>
+		  </tr>
+		<!-- BEGIN OI_LMD -->
+		  <tr>
+		    <td>{m('Last modified')}:</td>
+		    <td>{mtime}</td>
+		  </tr>
+		<!-- END OI_LMD -->
+		<!-- BEGIN OI_CNT -->
+		  <tr>
+		    <td>{m('Downloaded')}:</td>
+		    <td>{cnt}</td>
+		  </tr>
+		<!-- END OI_CNT -->
+		</table>
+		<div class="item-announce">{descrip}</div>
+		<div><a href="{URL}item/{catID}/{id}/" class="download" title="{m('Download')}">{m('Download')}</a></div>
+		
+	</li>
+	<!-- END O_ITEM -->
+</ul>
+<!-- END ITEMS_ONECOL -->
+
+<!-- BEGIN ITEMS_TWOCOL -->
+
+<div class="items-twocol">
+
+	<!-- BEGIN IROW -->
+	<div class="grid stretch {cssRowClass} ">
+		
+	    <!-- BEGIN T_ITEM -->
+		<div class="col-50 {cssLastClass}">
+			<div class="col-content">
+				<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+				<table>
+				  <tr>
+				    <td>{m('File name')}: </td>
+				    <td>{filename}</td>
+				  </tr>
+				  <tr>
+				    <td>{m('File size')}: </td>
+				    <td>{f_size} Kb</td>
+				  </tr>
+				<!-- BEGIN TI_LMD -->
+				  <tr>
+				    <td>{m('Last modified')}: </td>
+				    <td>{mtime}</td>
+				  </tr>
+				<!-- END TI_LMD -->
+				<!-- BEGIN TI_CNT -->
+				  <tr>
+				    <td>{m('Downloaded')}: </td>
+				    <td>{cnt}</td>
+				  </tr>
+				<!-- END TI_CNT -->
+				</table>
+				<div class="item-announce">{descrip}</div>
+				<div><a href="{URL}item/{catID}/{id}/" class="download" title="{m('Download')}">{m('Download')}</a></div>
+			</div>
+		</div>
+	    <!-- BEGIN IDELIM -->  <!-- END IDELIM -->
+	  	<!-- END T_ITEM -->
+
+	</div>
+	<!-- END IROW -->
+
+</div>
+<!-- END ITEMS_TWOCOL -->
+
+</div>
+{PAGER}

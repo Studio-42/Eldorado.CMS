@@ -1,0 +1,107 @@
+<div class="mod-forum-top rounded-5 clearfix_">
+	<table>
+		<tr>
+			<td>
+				<a href="{URL}rules">{m('Forum rules')}</a>
+				<!-- BEGIN USERS_LINK -->
+				<span style="color:#444">|</span> <a href="{URL}moderators/{forum_current_cat_id}/">{m('Moderators')}</a>
+				<span style="color:#444">|</span> <a href="{URL}users/">{m('Users')}</a>
+				<!-- END USERS_LINK -->
+			</td>
+			<td class="last">
+				<!-- BEGIN FORUM_LOGIN -->
+				<form action="{URL}__auth__/" method="POST" name="af">  
+					
+					<input type="hidden" name="_form_" value="elf" />
+					<input type="hidden" name="elAutoLogin" value="1" />
+					{m('Login')}: <input type="text" name="elLogin" size="12" />
+					{m('Password')}: <input type="password" name="elPass" size="12" />
+					<input type="submit" value="{m('Log in')}" class="form-submit" />
+					<span>|</span> <a href="{URL}__passwd__/">{m('Forgot Your password?')}</a>
+					<!-- BEGIN FORUM_REG -->
+					<span>|</span> <a href="{URL}reg/">{m('Registration')}</a>
+					<!-- END FORUM_REG -->
+				</form>
+				<!-- END FORUM_LOGIN -->
+				
+				<!-- BEGIN FORUM_CUR_USER -->
+				<table align="right">
+					<tr>
+						<td>
+							<a href="{URL}profile/{uid}/" class="user-name">{user_name}</a>
+							<a class="logout" href="{BASE_URL}__logout__/">{m('Log out')}</a> 
+						</td>
+						<td>
+							<!-- BEGIN MINI_AVATAR -->
+							<div class="rounded-5" style="width:{dim}px;height:{dim}px;background:url({BASE_URL}storage/avatars/mini-{avatar}) 50% 50% no-repeat;">
+								<a href="{URL}profile/{uid}/"><img src="{STYLE_URL}images/pixel.gif" width="{dim}" height="{dim}" /></a>
+							</div>
+							<!-- END MINI_AVATAR -->
+						</td>
+					</tr>
+				</table>
+				<!-- END FORUM_CUR_USER -->
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!-- BEGIN FORUM_HEAD -->
+<h4  class="mod-forum-head"><a href="{URL}{id}/">{name}</a></h4>
+<!-- END FORUM_HEAD -->
+
+<!-- BEGIN FORUM_TOP_PANEL -->
+<div class="mod-forum-pager rounded-5">
+	<table>
+		<tr>
+			<td>{PAGER}</td>
+			<td class="last">
+				<!-- BEGIN ULETTERS -->
+					<!-- BEGIN ULETTER -->
+					<a href="{URL}users_by_name/{letter}/"><strong>{letter}</strong></a>
+					<!-- END ULETTER -->
+				<!-- END ULETTERS -->
+				
+				<!-- BEGIN BUTTON_POST_REPLY -->
+				<div class="mod-forum-button mod-forum-button-post-reply"><a href="{URL}post/{cat_id}/{topic_id}/">{m('Reply')}</a></div>
+				<!-- END BUTTON_POST_REPLY -->
+				<!-- BEGIN BUTTON_POST_NEW -->
+				<div class="mod-forum-button mod-forum-button-post-new"><a href="{URL}post/{cat_id}/">{m('New topic')}</a></div>
+				<!-- END BUTTON_POST_NEW -->
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- END FORUM_TOP_PANEL -->
+
+{FORUM_CONTENT}
+{TOPICS_CONTENT}
+
+<!-- BEGIN FORUM_BOT_PANEL -->
+<div class="mod-forum-pager rounded-5">
+	<table>
+		<tr>
+			<td>{PAGER}</td>
+			<td class="last">
+				<!-- BEGIN ULETTERS -->
+					<!-- BEGIN ULETTER -->
+					<a href="{URL}users_by_name/{letter}/"><strong>{letter}</strong></a>
+					<!-- END ULETTER -->
+				<!-- END ULETTERS -->
+				
+				<!-- BEGIN BUTTON_POST_REPLY -->
+				<div class="mod-forum-button mod-forum-button-post-reply"><a href="{URL}post/{cat_id}/{topic_id}/">{m('Reply')}</a></div>
+				<!-- END BUTTON_POST_REPLY -->
+				<!-- BEGIN BUTTON_POST_NEW -->
+				<div class="mod-forum-button mod-forum-button-post-new"><a href="{URL}post/{cat_id}/">{m('New topic')}</a></div>
+				<!-- END BUTTON_POST_NEW -->
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- END FORUM_BOT_PANEL -->
+<script type="text/javascript" charset="utf-8">
+		$().ready( function() { 
+			$('a.rm-confirm').click( function() { return confirm('{m('Do You really want to delete? This action cannot be undone!')}') } );
+			 });
+</script>

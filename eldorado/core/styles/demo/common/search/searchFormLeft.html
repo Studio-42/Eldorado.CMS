@@ -1,0 +1,18 @@
+<form name="mf" action="{BASE_URL}__search__/" method="GET">
+	<input type="hidden" name="_form_" value="search" />
+	<table class="form-tb">
+		<thead>
+		<tr>
+	    	<th><img src="{icoFind}" /> {m('Find on site')}</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>
+				<input type="text" name="sstr" id="search-str" size="17" />
+				<a href="#" onclick="document.forms.mf.submit(); return false;"><img src="{icoFind}" title="{m('Find')}" /></a>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</form>

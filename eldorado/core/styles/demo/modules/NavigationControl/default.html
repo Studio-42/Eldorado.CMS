@@ -1,0 +1,34 @@
+<table class="grid-tb" id="nav-list">
+	<thead>	
+		<tr>
+			<th>&nbsp;</th>
+			<th>{m('Page')}</th>
+			<th>{m('Path')}</th>
+			<th>{m('Module')}</th>
+			<th>{m('Visible')}</th>
+			<th>{m('Access')}</th>
+		</tr>
+	</thead>  
+	<tbody>
+		<!-- BEGIN MPAGE -->
+	  	<tr id="node-{id}"{parent}>
+	    	<th style="text-align:center">
+	    		<a href="#" onclick="return popUp('{POPUP_URL}icons/{id}/', 400, 200);" title="{m('Upload new icons or set to default')}"><img src="{ico_main}" /></a>
+	    	</th>
+	    	<td class="navpage">
+	      		<a href="{url}">{name}</a>
+				<!-- BEGIN OUTER_URL -->
+				<div>{redirect_url}</div>
+				<!-- END OUTER_URL -->
+	    	</td>
+	    	<td>{dir}</td>
+	    	<td>{module} </td>
+	    	<td>{visible}</td>
+	    	<td>{perm}</td>
+	  	</tr>
+	  	<!-- END MPAGE -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() { $("#nav-list").treeTable( {indent:17} );	});
+</script>

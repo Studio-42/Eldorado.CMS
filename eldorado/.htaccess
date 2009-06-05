@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase  /develop/distr-3.8.4
+RewriteRule ^conf\/(.*)\.xml index.php [NS,F]
+RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]
+RewriteRule ^(core\/editor\/editor\/dialog\/fck_spellerpages\/spellerpages\/server-scripts\/spellchecker.php) $1 [L]
+RewriteRule (.*)\.(php|phtml) index.php [NC,F]
+RewriteRule ^storage(.*)  storage$1 [L]
+RewriteRule ^(.*)\.(jpg|gif|png|swf|ico|html|css|js|xml|gz)(.*) $1.$2$3 [L]
+RewriteRule (.*) index.php [L]

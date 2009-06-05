@@ -1,0 +1,27 @@
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td class="formSubheader">{m('Domain')}</td>
+    <td class="formSubheader">{m('User')}</td>
+    <td class="formSubheader">{m('Actions')}</td>
+    <td class="formSubheader">{m('Created')} / {m('Modified')}</td>
+    <td class="formSubheader">{m('State')}</td>
+    <td class="formSubheader">{m('Log')}</td>
+  </tr>
+  <!-- BEGIN MRC_TASK -->
+  <tr>
+    <td>{dname}</td>
+    <td>{login}</td>
+    <td>{act}</td>
+    <td>{crtime} / {mtime}</td>
+    <td>
+      {status}
+      <!-- BEGIN MRC_TASK_TO_QUEUE -->
+      <div class="mrcActLink"><a href="{URL}toqueue/{id}/">{m('Return task to queue')}</a></div>
+      <!-- END MRC_TASK_TO_QUEUE -->
+    </td>
+    <td><a href="{POPUP_URL}view_log/{id}/" target="_blank">{m('View log')}</a> </td>
+  </tr>
+  <!-- END MRC_TASK -->
+</table>
+<div class="mrcActLink"><a href="{URL}tasks_rm/c/">{m('Remove complited tasks')}</a></div>
+<div class="mrcActLink"><a href="{URL}tasks_rm/">{m('Remove all tasks')}</a></div>

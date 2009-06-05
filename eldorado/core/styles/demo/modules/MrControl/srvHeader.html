@@ -1,0 +1,28 @@
+<table class="gridTb" cellspacing="2">
+  <tr>
+    <td class="formSubheader">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="formSubheader">{srvName}</td>
+          <td  class="mrcSrvStatus" align="right">
+          {m('Service status')}:
+          [
+          <!-- BEGIN MRC_SRV_ALWAYS_ON -->
+           <b>{m('Always switched on')}</b>
+          <!-- END MRC_SRV_ALWAYS_ON -->
+          <!-- BEGIN MRC_SRV_ON -->
+           <a href="{URL}srv_state/{dID}/{objType}/1/" title="{m('Switch off')}">{m('Switched on')}</a>
+          <!-- END MRC_SRV_ON -->
+          <!-- BEGIN MRC_SRV_OFF -->
+          <a href="{URL}srv_state/{dID}/{objType}/1/" title="{m('Switch on')}">{m('Switched off')}</a>
+          <!-- END MRC_SRV_OFF -->
+           ]
+           <!-- BEGIN MRC_SRV_QUOTA -->
+          <div>{m('Used')}: <b>{used}</b> {m('from')} <b>{quota}</b></div>
+          <!-- END MRC_SRV_QUOTA -->
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

@@ -1,4 +1,5 @@
 <?php
+// ELdorDO
 session_name('ELSID');
 session_set_cookie_params( 60*60*24*30 );
 session_start();

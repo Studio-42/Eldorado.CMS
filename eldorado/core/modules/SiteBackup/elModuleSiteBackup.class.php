@@ -87,15 +87,14 @@ class elModuleSiteBackup extends elModule
     $dbFile     = EL_DIR_CONF.$db.'.sql';
     $backupFile = EL_DIR_BACKUP.'backup-'.time().'.tar.gz';
     $mysqldump = exec('which mysqldump');
-    /**
+
     if (empty($mysqldump) || '/' != $mysqldump{0})
     {
     	return $autoMode
     		? false
     		: elThrow(E_USER_WARNING, 'Could not find %s command. Creating backup skipped', 'mysqldump', EL_URL);
     }
-    */
-    $mysqldump = '/Applications/MAMP/Library/bin/mysqldump';
+    
     $cmd = $mysqldump.' --opt -h '.escapeshellarg($host)
           .' -u '.escapeshellarg($user)
           .' --password='.escapeshellarg($pass)

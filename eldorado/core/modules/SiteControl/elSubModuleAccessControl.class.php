@@ -9,7 +9,8 @@ class elSubModuleAccessControl extends elModule
                      'authDb'                    => array(),
                      'disableUserRegisterNotify' => 0,
                      'disableUserPasswdNotify'   => 0,
-                     'disableAboutNewUserNotify' => 0
+                     'disableAboutNewUserNotify' => 0,
+					'loginCaseSensitive'         => 1
                     );
                     
   var  $_timeOuts = array(
@@ -64,6 +65,8 @@ class elSubModuleAccessControl extends elModule
       $this->_params = array ( 
             array('label'=>m('Session timeout'),  
                   'val'=>$to ),
+			array('label' => m('Login case sensitive'), 
+					'val' => $GLOBALS['yn'][(int)$this->_conf('loginCaseSensitive')]),
             array('label'=>m('Allow new user registration'), 
                   'val'=>$GLOBALS['yn'][(int)$this->_ats->isRegistrationAllowed()] ),
             array('label'=>m('Default group for new users'), 
@@ -90,6 +93,8 @@ class elSubModuleAccessControl extends elModule
 
       $form->add( new elSelect('sessionTimeOut', m('Session timeout'),             
              (int)$this->_conf('sessionTimeOut'), $this->_timeOuts) );
+		$form->add( new elSelect('loginCaseSensitive', m('Login case sensitive'), 
+	             (int)$this->_conf('loginCaseSensitive'),   $GLOBALS['yn']) );
       $form->add( new elSelect('registrAllow', m('Allow new user registration'), 
              (int)$this->_conf('registrAllow'),   $GLOBALS['yn']) );
       $form->add( new elSelect('defaultGID',     m('Default group for new users'), 

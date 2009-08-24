@@ -28,6 +28,7 @@ class elATS
   var $_defGID       = 0;
   var $_defGroupName = '';
   var $_userFullName = false;
+  var $_loginCaseSens = true;
 
   function __construct()
   {
@@ -43,6 +44,7 @@ class elATS
     $this->_regAllow       = $conf->get('registrAllow',   'auth');
     $this->_defGID         = $conf->get('defaultGID',     'auth');
     $this->_userFullName   = $conf->get('userFullName',   'layout');
+	$this->_loginCaseSens  = $conf->get('loginCaseSensitive',   'auth');
   }
 
   function elATS()
@@ -485,14 +487,32 @@ class elATS
 			$pass  = mysql_real_escape_string($_POST['elPass']);
 			if ( !$this->_iGroups )
 			{
-			$sql = 'SELECT uid, login FROM el_user WHERE '
-    				.'login=\''.$login.'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\'';
+				if ($this->_loginCaseSens) {
+					$sql = 'SELECT uid, login FROM el_user WHERE '
+	    				.'login=\''.$login.'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\'';
+				} 
+				else
+				{
+					$sql = 'SELECT uid, login FROM el_user WHERE '
+	    				.'login=LOWER(\''.strtolower($login).'\') AND pass=MD5(\''.$pass.'\') AND pass<>\'\'';
+					
+				}
 			}
 			else
 			{
-			$sql = 'SELECT DISTINCT uid, login FROM el_user, el_user_in_group WHERE '
-    				.'login=\''.$login.'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\' AND '
-						.'user_id=uid AND group_id IN (\''.implode('\',\'', array_keys($this->_iGroups)).'\')';
+				if ($this->_loginCaseSens) {
+					$sql = 'SELECT DISTINCT uid, login FROM el_user, el_user_in_group WHERE '
+	    				.'login=\''.$login.'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\' AND '
+							.'user_id=uid AND group_id IN (\''.implode('\',\'', array_keys($this->_iGroups)).'\')';
+					
+				}
+				else 
+				{
+					$sql = 'SELECT DISTINCT uid, login FROM el_user, el_user_in_group WHERE '
+	    				.'login=LOWER(\''.strtolower($login).'\') AND pass=MD5(\''.$pass.'\') AND pass<>\'\' AND '
+							.'user_id=uid AND group_id IN (\''.implode('\',\'', array_keys($this->_iGroups)).'\')';
+					
+				}
 			}
     	$this->_dbAuth->query($sql);
 		}

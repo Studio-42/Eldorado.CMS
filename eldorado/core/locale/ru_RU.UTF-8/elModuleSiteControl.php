@@ -62,6 +62,8 @@ $elMsg['Display login form']                            = 'Показывать 
 $elMsg['Block user registration e-mail notify']         = 'Блокировать уведомления по e-mail о регистрации пользователя';
 $elMsg['Block changing password e-mail notify']         = 'Блокировать уведомления по e-mail о смене пароля';
 $elMsg['Block notify about new user to default e-mail'] = 'Блокировать уведомления о регистрации нового пользователя на адрес по умолчанию';
+$elMsg['Login case sensitive']                          = 'Имя пользователя чувствительно к регистру';
+
 
 $elMsg['Authorization type']                            = 'Тип авторизации';
 $elMsg['"Local" authorization (in this site database)'] = '"Локальная" (на базе данных этого сайта)';

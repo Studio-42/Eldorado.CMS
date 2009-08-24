@@ -340,9 +340,10 @@ class elRndForum extends elModuleRenderer
 	
 	function rndProfile($profile, $forums)
 	{
+		elLoadMessages('UserProfile');
 		$this->_setFile('profile', 'FORUM_CONTENT');
 		$this->_rndCommon('', 'profile'); 
-
+		$profile['gender'] = '' == $profile['gender'] ? m('Undefined') : m(ucfirst($profile['gender']));
 		$avatar = $profile['avatar'] ? $profile['avatar'] : (!empty($this->_conf['defaultAvatar']) ? $this->_conf['defaultAvatar'] : '');
 		if ( $avatar )
 		{
@@ -377,6 +378,7 @@ class elRndForum extends elModuleRenderer
 		{
 			$this->_te->assignBlockVars('PROFILE_ACTIONS.SEND_PM', array('uid'=>$profile['uid']), 2);
 		}
+		
 		if ( $profile['online'] )
 		{
 			$profile['status']         = m('Online');

@@ -17,6 +17,15 @@ $elMsg['Phone']                    = 'Телефон';
 $elMsg['Fax number']               = 'Факс';
 $elMsg['Address']                  = 'Адрес';
 $elMsg['Website URL']              = 'Адрес web-сайта';
+$elMsg['Gender']                   = 'Пол';
+$elMsg['Undefined']                = 'Не указано';
+$elMsg['Male']                     = 'Муж.';
+$elMsg['Female']                   = 'Жен.';
+$elMsg['Display email on forum']   = 'Показать email на форуме';
+$elMsg['Display online status on forum'] = 'Показать online-статус на форуме';
+$elMsg['Signature on forum']       = 'Подпись на форуме';
+$elMsg[''] = '';
+
 $elMsg['Select profile fields']    = 'Выберите необходимые поля для профайла пользователя';
 $elMsg['Required']                 = 'Обязательно для заполнения';
 $elMsg['New user registration']    = 'Регистрация нового пользователя';

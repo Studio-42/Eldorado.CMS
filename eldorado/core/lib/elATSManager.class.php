@@ -63,7 +63,12 @@ class elATSManager
     	$value = $profile->getAttr($k);
     	if ('select' == $v['type'])
     	{
-    		$this->form->add( new elSelect($k, $label, $value, $v['opts']) );
+			$opts = array();
+			foreach(explode(',', $v['opts']) as $opt) {
+				$tmp = explode(':', $opt);
+				$opts[$tmp[0]] = m($tmp[1]);
+			}
+    		$this->form->add( new elSelect($k, $label, $value, $opts) );
     	}
     	elseif ('textarea' == $v['type'])
     	{

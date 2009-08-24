@@ -303,7 +303,8 @@ class elModuleForum extends elModule
 			}
 			$resp = '{ ';
 			$resp .= 'subject: "'.addslashes($preview['subject']).'", ';
-			$resp .= 'message: "'.addslashes(str_replace("\n", '<br />', $bbcode->parse( $preview['message']))).'", ';
+			$msg = str_replace("\r", '', $bbcode->parse( $preview['message']));
+			$resp .= 'message: "'.addslashes(str_replace("\n", '<br />', $msg)).'", ';
 			$resp .= 'create_date: "'.addslashes($preview['create_date']).'", ';
 			
 			$profile = $this->_profile->brief();

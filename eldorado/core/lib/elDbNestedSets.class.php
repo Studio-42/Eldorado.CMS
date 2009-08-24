@@ -274,7 +274,7 @@ class elDbNestedSets
 		$parentID = $this->getParentID( $ID );
 
 		$db = &elSingleton::getObj('elDb');
-		$sql = 'SELECT ch.'.$this->id.', ch.name FROM '.$this->tb.' AS ch, '.$this->tb.' AS p '
+		$sql = 'SELECT ch.'.$this->id.' FROM '.$this->tb.' AS ch, '.$this->tb.' AS p '
 		.' WHERE p.'.$this->id.'=\''.$parentID.'\' '
 		.' AND ch.'.$this->left.' BETWEEN p.'.$this->left.' AND p.'.$this->right
 		.' AND ch.'.$this->level.'=p.'.$this->level.'+1 '

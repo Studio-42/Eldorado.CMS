@@ -93,14 +93,17 @@ class elGoogleAnalytics {
 			
 		$md5 = md5($url);
 		$cacheFile = $this->_cachePath . $md5;
+		
+		if (file_exists($cacheFile))
+			$cache = file_get_contents($cacheFile);
 			
-		if (false == ($cache = file_get_contents($cacheFile)))
+		if (empty($cache))
 		{	// data not found in cache
 			$xml = $this->getFeed($url);
 			$data = $this->_parser->parseDataFeed($xml);
 			if (empty($data))	// Everything is ok, but no statistics in GA yet
 			{
-				$this->error = 'Statistics is empty';
+				$this->error = m('Statistics is empty');
 				return false;
 			}
 
@@ -110,7 +113,7 @@ class elGoogleAnalytics {
 				fwrite($fh, serialize($data));
 				fclose($fh);
 			}
-	
+
 			// GC for cache
 			if ($dh = opendir($this->_cachePath))
 			{
@@ -122,7 +125,7 @@ class elGoogleAnalytics {
 				}
 				closedir($dh);
 			}
-	
+
 		}
 		else	// data got from cache successful
 			return unserialize($cache);
@@ -133,7 +136,10 @@ class elGoogleAnalytics {
 	function getAccounts()
 	{
 		if (false == ($xml = $this->getFeed('https://www.google.com/analytics/feeds/accounts/default')))
+		{
 			return false;
+		}
+			
 		$data = $this->_parser->parseDataFeed($xml);
 		return $data;
 	}

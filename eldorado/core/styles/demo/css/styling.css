@@ -91,7 +91,7 @@ p.img-right label {
 .center      { display:block; text-align:center; margin: 0.5em auto; }
 
 /************  Таблицы  *******************/
-table       { width: auto; border-collapse:collapse; margin-bottom: 0.5em; }
+table       { border-collapse:collapse; margin-bottom: 0.5em; }
 table.full  { width: 100%; }
 table.fixed { table-layout:fixed; }
 th,td       { padding:0.3em 0.5em; vertical-align:middle; }

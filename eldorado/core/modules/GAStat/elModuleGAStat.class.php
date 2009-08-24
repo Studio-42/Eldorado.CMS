@@ -502,7 +502,7 @@ class elModuleGAStat extends elModule
 			
 			if (false == ($data = $this->_analytics->getAccounts()))
 			{
-				return elThrow(E_USER_WARNING, 'parse failed');
+				return elThrow(E_USER_WARNING, 'Could not get profileId in GA');
 			}
 			foreach ($data as $v)
 			{
@@ -510,7 +510,7 @@ class elModuleGAStat extends elModule
 				{
 					$newConf = $this->_conf;
 					$newConf['profileId'] = $v['ga:profileId'];
-					$this->_updateConf( $newConf );
+					$this->_updateConf($newConf);
 					break;
 				}
 			}

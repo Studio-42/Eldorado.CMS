@@ -19,7 +19,7 @@ class elDateSelector extends elFormContainer
   {
     parent::__construct($name, $label, $attrs);
     $this->_dateTimeFormat = (bool)$dtFormat;
-    $this->setValue( 0<$value ? $value : time() );      
+    $this->setValue( is_numeric($value) ? $value : time() );
 
     $d = range(0, 31); unset($d[0]); $d = array_map('elFormatDateTimeArrays', $d);
     $m = range(0, 12); unset($m[0]); $m = array_map('elFormatDateTimeArrays', $m);

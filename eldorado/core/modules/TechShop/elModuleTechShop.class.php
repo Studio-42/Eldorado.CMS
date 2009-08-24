@@ -106,8 +106,8 @@ class elModuleTechShop extends elCatalogModule
               array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
       }
       
-      $clm = & elSingleton::getObj('elCatalogCrossLinksManager'); //elPrintR($clm);
-      $this->_initRenderer();
+      $clm = & $this->_getCrossLinksManager();
+      $this->_initRenderer(); 
       $this->_rnd->renderItem( $this->_item, $clm->getLinkedObjects($this->_item->ID) );
 
 	}

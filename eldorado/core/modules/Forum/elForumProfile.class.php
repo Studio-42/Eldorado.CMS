@@ -32,7 +32,11 @@ class elForumProfile extends elDataMapping
 	var $atime      = 0;
 	var $postsCount = 0;
 	var $avatar     = '';
+	var $gender     = '';
+	var $signature  = '';
 	var $defaultAvatar  = '';
+	var $showEmail = false;
+	var $showOnline = false;
 	
 	
 	/**
@@ -135,7 +139,8 @@ class elForumProfile extends elDataMapping
 		return array(
 			'uid'         => $this->UID,
 			'name'        => empty($this->fName) ? $this->login : $this->fName.' '.$this->sName.' '.$this->lName,
-			'email'       => $this->email,
+			'email'       => $this->showEmail ? $this->email : '',
+			'gender'      => $this->gender,
 			'icq'         => $this->ICQ,
 			'web_site'    => $this->webSite,
 			'reg_date'    => date(EL_DATE_FORMAT, $this->crtime),
@@ -143,7 +148,7 @@ class elForumProfile extends elDataMapping
 			'mod_date'    => date(EL_DATE_FORMAT, $this->mtime),
 			'posts'       => $this->postsCount,
 			'avatar'      => $this->avatar,
-			'online'      => (time()-$this->atime <= 15*60),
+			'online'      => $this->showOnline ? (time()-$this->atime <= 15*60) : false
 
 			);
 	}
@@ -206,6 +211,7 @@ class elForumProfile extends elDataMapping
 	{
 		if ( $this->UID )
 		{
+			
 			$db = & elSingleton::getObj('elDb');
 			$db->query( sprintf('UPDATE %s SET forum_posts_count=forum_posts_count+1 WHERE uid=%d LIMIT 1', $this->_tb, $this->UID) );
 		}
@@ -392,8 +398,26 @@ class elForumProfile extends elDataMapping
 
 		foreach ($skel as $k => $v) 
 		{
-			$class = $v['type'] == 'textarea' ? 'elTextArea' : 'elText';
-			$this->_form->add( new $class($k, m($v['label']), $this->attr($k)) );
+			switch ($v['type']) {
+				case 'textarea':
+					$this->_form->add( new elTextarea($k, m($v['label']), $this->attr($k)) );
+					break;
+					
+				case 'select':
+					$opts = array();
+					foreach (explode(',', $v['opts']) as $opt)
+					{
+						$tmp = explode(':', $opt);
+						$opts[$tmp[0]] = m($tmp[1]);
+					}
+					$this->_form->add( new elSelect($k, m($v['label']), $this->attr($k), $opts) );
+					break;
+					
+				default:
+					$this->_form->add( new elText($k, m($v['label']), $this->attr($k)) );
+			}
+			//$class = $v['type'] == 'textarea' ? 'elTextArea' : 'elText';
+			//$this->_form->add( new $class($k, m($v['label']), $this->attr($k)) );
 			if ( $v['is_func'] )
 	    	{
 	    		$this->_form->registerRule($v['rule'], 'func', $v['rule'], null);
@@ -441,7 +465,7 @@ class elForumProfile extends elDataMapping
 	function _skel()
 	{
 		$db  = &elSingleton::getObj('elDb');
-		$sql = 'SELECT p.field, p.label, p.type, p.rule, p.is_func, u.rq FROM '.$this->_tbp.' AS p, '.$this->_tbpu.' AS u WHERE u.rq!="0" AND p.field=u.field ORDER BY u.sort_ndx';
+		$sql = 'SELECT p.field, p.label, p.type, p.rule, p.opts, p.is_func, u.rq FROM '.$this->_tbp.' AS p, '.$this->_tbpu.' AS u WHERE u.rq!="0" AND p.field=u.field ORDER BY u.sort_ndx';
 		return $db->queryToArray($sql, 'field');
 	}
 	
@@ -551,7 +575,11 @@ class elForumProfile extends elDataMapping
 			'mtime'       => 'mtime',
 			'atime'       => 'atime',
 			'forum_posts_count' =>'postsCount',
-			'avatar'      => 'avatar'
+			'avatar'      => 'avatar',
+			'show_email'  => 'showEmail',
+			'show_online' => 'showOnline',
+			'gender'      => 'gender',
+			'signature'   => 'signature'
 			);
 		return $map;
 	}

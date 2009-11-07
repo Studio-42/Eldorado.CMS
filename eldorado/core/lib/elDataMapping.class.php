@@ -107,7 +107,7 @@ class elDataMapping
 	function clean()
 	{
 		$map = $this->_memberMapping();
-		foreach ( $mapping as $a=>$m )
+		foreach ( $map as $a=>$m )
 		{
 			$this->$m = '';
 		}

@@ -40,13 +40,14 @@ class elModuleUpdateClient extends elModule
   );
 
   var $_updateClient = null;
-  var $_confID       = 'updateClient';
+  // var $_confID       = 'updateClient';
   var $_conf = array(
-    'serverURL'    => '',
     'licenseKey'   => '',
     'availableVer' => '',
     'checkVerTs'   => 0
     );
+
+	var $_serverURL = 'http://control.terra-design.ru/update/';
 
   /**
    * Показывает текущую и доступную версии, историю обновлений,
@@ -290,7 +291,7 @@ class elModuleUpdateClient extends elModule
     }
 
     $this->_updateClient = & elSingleton::getObj('elUpdateClient');
-    $this->_updateClient->init( $this->_conf('serverURL'), $this->_conf('licenseKey') );
+    $this->_updateClient->init( $this->_serverURL, $this->_conf('licenseKey') );
 
     if ($this->_updateClient->errors)
     {//чегой-то не хватает
@@ -300,7 +301,7 @@ class elModuleUpdateClient extends elModule
     {// в настройках за версией не лазаем
       $this->_checkVer();
     }
-    if ( !$this->_conf('serverURL') || !$this->_conf('licenseKey') )
+    if ( !$this->_conf('licenseKey') )
     {//конфиг кривой
       $this->_removeMethods( array('upgrade', 'check', 'chlog') );
     }
@@ -343,11 +344,10 @@ class elModuleUpdateClient extends elModule
       if (!empty($this->_updateClient->errors[EL_UC_ERR_AUTHFAIL]))
       {// авторизация йок! трем ключ лицензии
         $conf->set('licenseKey',   '', $this->_confID);
-        $this->_updateClient->init( $this->_conf('serverURL'), '' );
+        $this->_updateClient->init( $this->_serverURL, '' );
       }
       elseif (!empty($this->_updateClient->errors[EL_UC_ERR_NET_INVALID_URL]))
-      {// Урла неправильная! трем урл
-        $conf->set('serverURL',   '', $this->_confID);
+      {// Урла неправильная! 
         $this->_updateClient->init( '', $this->_conf('licenseKey') );
       }
       $conf->set('availableVer', '', $this->_confID);
@@ -452,9 +452,9 @@ class elModuleUpdateClient extends elModule
     $form = &parent::_makeConfForm();
     $conf = & elSingleton::getObj('elXmlConf');
 
-    $form->add( new elText('serverURL',  m('Update server URL'), $this->_conf('serverURL') ));
+    //$form->add( new elText('serverURL',  m('Update server URL'), $this->_conf('serverURL') ));
     $form->add( new elText('licenseKey', m('License key'),       $this->_conf('licenseKey')));
-    $form->setElementRule('serverURL', 'regexp', 'http_url');
+    //$form->setElementRule('serverURL', 'regexp', 'http_url');
     $form->setRequired('licenseKey');
     return $form;
   }

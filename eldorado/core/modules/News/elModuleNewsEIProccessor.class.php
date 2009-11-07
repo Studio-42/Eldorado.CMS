@@ -13,11 +13,11 @@ class elModuleNewsEIProccessor extends elModuleEIProccessor
 	function export($param)
 	{
 		$newsObj = & $this->_module->_getNews();
-		$coll = $newsObj->getCollectionToArray(null, $this->_paramToSQL($param), 'published');
+		$coll = $newsObj->collection(false, true, $this->_paramToSQL($param), 'published');
 		
 		$ret  = "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"yes\" ?>\n";
 		$ret .= "<exportData>\n";
-		
+		$ret .= "<baseURL><![CDATA[".EL_BASE_URL."]]></baseURL>\n";
 		foreach ($coll as $one)
 		{
 			$ret .= "<news>\n";
@@ -30,14 +30,13 @@ class elModuleNewsEIProccessor extends elModuleEIProccessor
 			$ret .= "</news>\n";
 		}
 		$ret .= "</exportData>\n";
-		//echo nl2br(htmlspecialchars($ret));
 		return $ret;
 	}
 	
 	
 	function import(  )
 	{
-		$URL  = $this->_getImportURL(); //echo $URL;
+		$URL  = $this->_getImportURL(); 
 		$vals = $index = array();
 		if (!$this->_parseIntoStruct($URL, $vals, $index))
 		{
@@ -46,19 +45,17 @@ class elModuleNewsEIProccessor extends elModuleEIProccessor
 		$newsObj = & $this->_module->_getNews();
 		$newsObj->deleteAll();
 		
-//		echo 'VALS<br>'; elPrintR($vals);
-//		echo 'INDEX<br>'; elPrintR($index);
-		
 		for ($i=0, $s=sizeof($index['ID']); $i<$s; $i++)
 		{
-			//$id =   $vals[$index['ID'][$i]]['value']; echo $id;
-			$newsObj->setUniqAttr(0);
-			$newsObj->setAttr('title', $vals[$index['TITLE'][$i]]['value']);
-			$newsObj->setAttr('announce', $vals[$index['ANNOUNCE'][$i]]['value']);
-			$newsObj->setAttr('content', $vals[$index['CONTENT'][$i]]['value']);
-			$newsObj->setAttr('published', $vals[$index['PUBLISHED'][$i]]['value']);
-			$newsObj->setAttr('export_param', $vals[$index['EXPORT_PARAM'][$i]]['value']);
+			$newsObj->idAttr(0);
+			$newsObj->attr('title', $vals[$index['TITLE'][$i]]['value']);
+			$newsObj->attr('announce', $vals[$index['ANNOUNCE'][$i]]['value']);
+			$newsObj->attr('content', $vals[$index['CONTENT'][$i]]['value']);
+			$newsObj->attr('published', $vals[$index['PUBLISHED'][$i]]['value']);
+			$newsObj->attr('export_param', $vals[$index['EXPORT_PARAM'][$i]]['value']);
 			$newsObj->save();
+			$this->_searchForFiles($vals[$index['ANNOUNCE'][$i]]['value']);
+			$this->_searchForFiles($vals[$index['CONTENT'][$i]]['value']);
 		}
 		return true;
 	}

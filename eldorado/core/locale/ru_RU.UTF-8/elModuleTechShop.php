@@ -11,7 +11,7 @@ $elMsg['Display models list']         = 'Показать список моде�
 $elMsg['Hide models list']            = 'Скрыть список моделей';
 $elMsg['Show/hide models list']       = 'Показать/скрыть список моделей';
 $elMsg['Select for compare']          = 'Выбрать для сравнения';
-$elMsg['Compare selected']            = 'Сравнить выбраное';
+$elMsg['Compare selected']            = 'Сравнить выбранное';
 $elMsg['All this manufacturer items'] = 'Вся продукция производителя';
 $elMsg['All equipments by']           = 'Список оборудования производимого';
 $elMsg['Equipment']                   = 'Оборудование';
@@ -25,5 +25,6 @@ $elMsg['Supplied equipment']          = 'Поставляемое оборудо
 $elMsg['Retail price']                = 'Цена';
 $elMsg['Download price list']         = 'Скачать прайс-лист';
 $elMsg['Description']                 = 'Описание';
+$elMsg['There are no one item was selected for compare'] = 'Нет выбранных объектов для сравнения';
 
 ?>

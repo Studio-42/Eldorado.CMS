@@ -1,6 +1,6 @@
 <?php
 
-class elNews extends elMemberAttribute
+class elNews extends elDataMapping
 {
   var $ID        = 0;
   var $title     = '';
@@ -33,15 +33,15 @@ class elNews extends elMemberAttribute
     return !empty($this->content) ? $this->content : $this->announce;
   }
 
-  function makeForm()
+  function _makeForm()
   {
-    parent::makeForm();
-    $this->form->add( new elDateSelector('published', m('Date'), $this->publishTs, null, 1, 0, true) );
-    $this->form->add( new elText(  'title',        m('Title'),    $this->title,    array('style'=>'width:100%')) );
-    $this->form->add( new elEditor('announce',     m('Announce'), $this->announce, array('rows'=>22), false, array('tbl'=>0)) );
-    $this->form->add( new elEditor('content',      m('Content'),  $this->content) );
-    $this->form->add( new elText(  'export_param', m('Export parameter'), $this->expParam, array('style'=>'width:100%')) );
-    $this->form->setRequired('announce');
+    parent::_makeForm();
+    $this->_form->add( new elDateSelector('published', m('Date'), $this->publishTs, null, 1, 0, true) );
+    $this->_form->add( new elText(  'title',        m('Title'),    $this->title,    array('style'=>'width:100%')) );
+    $this->_form->add( new elEditor('announce',     m('Announce'), $this->announce, array('class' =>'small')) );
+    $this->_form->add( new elEditor('content',      m('Content'),  $this->content) );
+    $this->_form->add( new elText(  'export_param', m('Export parameter'), $this->expParam, array('style'=>'width:100%')) );
+    $this->_form->setRequired('announce');
   }
 
   //**************************************************************************************//

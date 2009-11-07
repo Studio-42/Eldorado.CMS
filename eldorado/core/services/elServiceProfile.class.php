@@ -10,8 +10,8 @@ class elServiceProfile extends elService
 	var $_tplFile   = 'defaultTable.html';
 	var $_pageTitle = 'User profile';
 	var $_mMap      = array(
-							'edit'   => array( 'ico'=>'icoEdit',     'm'=>'editProfile', 'l'=>'Edit', 'g'=>'Actions'),
-							'passwd' => array( 'ico'=>'icoLock', 'm'=>'passwd',      'l'=>'Change password', 'g'=>'Actions'),
+							'edit'   => array( 'm'=>'editProfile'),
+							'passwd' => array( 'm'=>'passwd'),
 							);
 
 
@@ -30,7 +30,12 @@ class elServiceProfile extends elService
 	{
 		$this->_initRenderer();
 		$this->_rnd->_setFile();
-		$this->_rnd->_te->assignVars('dtLabel', m('User profile'));
+
+		$label = '<ul class="adm-icons">
+			<li><a href="'.EL_URL.'__profile__/edit/" class="icons user-edit" title="'.m('Edit').'"></a></li>
+			<li><a href="'.EL_URL.'__profile__/passwd/" class="icons passwd" title="'.m('Change password').'"></a></li>
+			</ul>';
+		$this->_rnd->_te->assignVars('dtLabel', $label.m('User profile'));
 		$this->_rnd->render( $this->_ats->user->toArray(), null, 'DT_ROW' );
 	}
 

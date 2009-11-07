@@ -1,0 +1,123 @@
+Файл normal.html - основной шаблон сайта
+
+Общие переменные:
+- {BASE_URL}  - базовый урл сайта
+- {URL}       - url текущей страницы
+- {STYLE_URL} - url папки стилей
+- {YEAR}      - текщий год
+- {owner}     - владелец сайта (Контрольный центр / Настройки сайта)
+- {contacts}  - контактная инф (Контрольный центр / Настройки сайта)
+- {phones}    - телефон (Контрольный центр / Настройки сайта)
+
+Переменные и блоки файла
+
+- {siteTitle} - заголовок сайта (title) 
+
++ Блок META - мета - теги
+	- {name}    - имя тега
+	- {content} - содержание
+	
++ Блок CSS_COMBO -  подключение css файлов в один запрос
+	- {css} - список css файлов для подключение 
+
++ Блок CSS - инлайн стили
+	- {css} - код
+	
++ Блок JS - инлайн js- скрипты
+	- {js} - код
+	
++ Блок JS_LINK - внешние js-файлы
+	- {js} - код
+	
++ Блок ONREADY - js-код, исполняемый по формированию DOM
+	- {js} - код
+	
+- {bodyCssClass} - Css класс добавляемый к body в зав-ти от кол-ва колонок в основной разметке
+
+
++ Блок ADD_MENU_TOP_POS - верхнее доп меню
+	- {ADD_MENU_TOP}
+	
++ Блок USER_INFO_TOP - инф об авторизованном пользователе сверху
+	- {USER_INFO_TOP}
+
++ Блок AUTH_FORM_TOP - форма авторизации сверху
+	- {AUTH_FORM_TOP}
+
++ Блок ICART_TOP - корзина заказа сверху
+	- {ICART_TOP}
+
++ Блок SEARCH_FORM_TOP - форма поиска сверху
+	- {SEARCH_FORM_TOP}
+
++ Блок MAIN_MENU_POS_TOP - Основное меню сверху
+	- {MAIN_MENU_TOP}
+
++ Блок SUB_MENU_POS_TOP - 2-ой уровень меню сверху
+	- {SUB_MENU_TOP}
+
++ Блок LEFT_COLUMN  - левая колонка
+	- {CAT_MENU_LEFT}           - меню каталогов слева
+	- {MENU_LEFT}               - меню слева
+	- {TS_MMENU_LEFT}           - меню производителей тех магазина слева
+	- {ICART_LEFT}              - корзина слева
+	- {PLUGIN_NEWS_TOPICS_LEFT} - новости слева
+	- {PLUGIN_INFO_BLOCK_LEFT}  - инфоблоки слева
+	- {PLUGIN_RAND_IMG_LEFT}    - случайная картинка слева
+	- {PLUGIN_POLL_TOPICS_LEFT} - голосования слева
+	- {PLUGIN_OUTPUT_LEFT}      - дефолтная позиция для доп модулей слева
+	- {SEARCH_FORM_LEFT}        - поиск слева
+	- {AUTH_FORM_LEFT}          - авторизация слева
+	- {USER_INFO_LEFT}          - инф о пользователе
+
++ Блок RIGHT_COLUMN  - правая колонка
+	- {SEARCH_FORM_RIGHT}        - поиск 
+	- {CAT_MENU_RIGHT}           - меню каталогов
+	- {MENU_RIGHT}               - меню
+	- {TS_MMENU_RIGHT}           - меню производителей тех магазина
+	- {ICART_RIGHT}              - корзина
+	- {PLUGIN_NEWS_TOPICS_RIGHT} - новости
+	- {PLUGIN_INFO_BLOCK_RIGHT}  - инфоблоки
+	- {PLUGIN_RAND_IMG_RIGHT}    - случайная картинка
+	- {PLUGIN_POLL_TOPICS_RIGHT} - голосования
+	- {PLUGIN_OUTPUT_RIGHT}      - дефолтная позиция для доп модулей
+	- {AUTH_FORM_RIGHT}          - авторизация
+	- {USER_INFO_RIGHT}          - инф о пользователе
+
+- {PAGE_TITLE} - Заголовок страницы ("хлебные крошки")
+- {SYS_MESSAGES} - Системные сообщения и сообщения об ошибках
+
++ Блок TOP_COLUMN  - верхний блок над основным контентом
+	- {CAT_MENU_TOP}           - меню каталогов сверху
+	- {TS_MMENU_TOP}           - меню техмагазина сверху
+	- {PLUGIN_NEWS_TOPICS_TOP} - новости
+	- {PLUGIN_INFO_BLOCK_TOP}  - инфо-блоки
+	- {PLUGIN_RAND_IMG_TOP}    - случайная картинка
+	- {PLUGIN_POLL_TOPICS_TOP} - голосования
+	- {PLUGIN_OUTPUT_TOP}      - дефолтная позиция для доп модулей
+	
++ Блок BOTTOM_COLUMN - нижний блок под основным контентом
+	- {PLUGIN_NEWS_TOPICS_BOTTOM} - новости
+	- {PLUGIN_INFO_BLOCK_BOTTOM}  - инфо-блоки
+	- {PLUGIN_RAND_IMG_BOTTOM}    - случайная картинка
+	- {PLUGIN_POLL_TOPICS_BOTTOM} - голосования
+	- {PLUGIN_OUTPUT_BOTTOM}      - дефолтная позиция для доп модулей
+	- {CAT_MENU_BOTTOM}           - меню каталогов 
+	- {TS_MMENU_BOOTOM}           - меню техмагазина
+	
++ Блок ADD_MENU_BOTTOM_POS	- Доп меню внизу
+	- {ADD_MENU_BOTTOM}
+	
++ Блок COUNTERS - код счетчиков
+	- {COUNTERS}
+	
++ Блок GASTAT_COUNTER - счетчик Google Analitics
+	- {webID}
+
++ Блок SYS_DEBUG - отладочные сообщения для админа
+	- {work_time}
+	- {msg}
+	
++ Блок A_MENU - плавающая панель администратора
+	- {amenu}
+	

@@ -1,14 +1,17 @@
 <?php
 
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFS.class.php';
+
 class elFileInput extends elFormInput
 {
   var $type    = 'file';
   var $value   = array();
   var $maxSize = 0;
   var $fileExt = array();
-  var $events  = array( 'addToForm' => 'onAddToForm', 
-                        'submit'    => 'onSubmit', 
-                        'validate'  => 'selfValidate');
+  var $events  = array( 
+	'addToForm' => 'onAddToForm', 
+    'submit'    => 'onSubmit', 
+    'validate'  => 'selfValidate');
 
   function onAddToForm( &$form )
   {
@@ -43,24 +46,25 @@ class elFileInput extends elFormInput
     return false;
   }
 
-  function moveUploaded($name=null, $dir='./', $perm=0666)
+  function moveUploaded($name=null, $dir='.', $perm=0666)
   {
     if ( !$this->isUploaded() )
     {
       return false;
     }
+
     $name = $name ? $name : $this->value['name'];
-    if ($dir)
-    {
-      $name = ('/' != substr($dir, -1) ? $dir.'/' : $dir) . $name;
-    }
-    
-    if ( !move_uploaded_file($this->value['tmp_name'], $name) )
+	if (!is_dir($dir) && !elFS::mkdir($dir))
+	{
+		return false;
+	}
+	$dir = realpath($dir).DIRECTORY_SEPARATOR;
+    if ( !move_uploaded_file($this->value['tmp_name'], $dir.$name) )
     {
       return false;
     }
     $save = umask(0);
-    chmod($name, $perm);
+    chmod($dir.$name, $perm);
     umask($save);
 
     return $name;
@@ -94,10 +98,7 @@ class elFileInput extends elFormInput
     {
       $val = isset( $_FILES[$name] ) ? $_FILES[$name] : array(); 
     }
-    else
-    {
-      //echo 'elFileInput class. Whats happened here?';
-    }
+    
     $this->value = isset($val['error']) && 0 == $val['error'] ? $val : null;
   }
 
@@ -122,7 +123,7 @@ class elFileInput extends elFormInput
     {
       $errors[$this->getID()] = m('File uploaded partialy');
     }
-    elseif ( $value['size'] > $maxSize ) //$value['error'] > 0 && $value['size'] > $maxSize )
+    elseif ( $value['size'] > $maxSize ) 
     {
       $errors[$this->getID()] = sprintf(m('Maximum file size %s Kb'), ceil($maxSize/1024));
     }
@@ -160,10 +161,10 @@ class elImageUploader extends elFileInput
   var $fileExt      = array('gif', 'jpg', 'jpeg', 'png');
   var $_replaceMode = false;
   var $_imgTypes    = array( 
-		  											IMAGETYPE_GIF  => 'gif',
-														IMAGETYPE_JPEG => 'jpg',
-														IMAGETYPE_PNG  => 'png'
-														);
+		IMAGETYPE_GIF  => 'gif',
+		IMAGETYPE_JPEG => 'jpg',
+		IMAGETYPE_PNG  => 'png'
+		);
 
   function __construct($name=null, $label=null, $imgSrc=null, $attrs=null)
   {
@@ -226,6 +227,7 @@ class elImageUploader extends elFileInput
       }
       $html .= "</fieldset>\n";
       $html .= '<img src="'.$this->imgSrc.'" />';
+
     }
     return $html;
   }

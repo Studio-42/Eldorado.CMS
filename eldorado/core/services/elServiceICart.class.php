@@ -38,7 +38,7 @@ class elServiceICart extends elService
         $this->_user      = & $ats->getUser();
         $this->_uProfile  = & $this->_user->getProfile();
         $this->_uProfSkel = $this->_uProfile->getSkel();
-        unset( $this->_uProfSkel['login']); //elPrintR($this->_uProfSkel);
+        unset( $this->_uProfSkel['login']); 
         $this->_uProfSkel['comments'] = array('field'=>'comments', 'rq'=>1, 'label'=>'Comments', 'type'=>'textarea', 'sort_ndx'=>100, 'is_func'=>'', 'rule'=>'');
         $this->_loadAddrNfo();
         elLoadMessages('UserProfile');
@@ -52,14 +52,13 @@ class elServiceICart extends elService
         {
             elThrow(E_USER_WARNING, 'Please, complite all required steps', null, EL_URL.'__icart__/');
         }
-        elDebug('step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
+        //elDebug('step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
         if ( $this->_isStepExcluded($this->_curStID) )
         {
-            //echo 'go next'; return;
             $this->_goNext();
         }
         
-        $m = $this->_steps[$stepID][0]; //echo $m;
+        $m = $this->_steps[$stepID][0]; 
         if ( !method_exists($this, $m) )
         {
             elThrow(E_USER_ERROR, 'Unexpected error!', null, EL_URL.'__icart__/');
@@ -67,7 +66,7 @@ class elServiceICart extends elService
 
         $this->$m();
         $conf = &elSingleton::getObj('elXmlConf');
-        $conf->set('navPathInPTitle', 3, 'layout');//elPrintR($this->_page);
+        $conf->set('navPathInPTitle', 3, 'layout');
 
         elAppendToPagePath( array( 'url'=>'__icart__/', 'name'=>m('Shopping cart'))  );
     }
@@ -78,7 +77,14 @@ class elServiceICart extends elService
         if ( !empty($_POST['qnt']) && is_array($_POST['qnt']) )
         {
             $this->_iCart->updateQnt( $_POST['qnt'] );
-            $this->_goNext();
+			if (empty($_POST['recalc'])) 
+			{
+				$this->_goNext();
+			}
+			else
+			{
+				elLocation(EL_URL.'__icart__');
+			}
         }
         else
         {
@@ -95,8 +101,9 @@ class elServiceICart extends elService
                 }
             }
             $this->_initRenderer(); 
-            $this->_rnd->rndICart( $this->_iCart->getItems() );
+	        $this->_rnd->rndICart( $this->_iCart->getItems() );
         }
+		
     }
     
     function stepDelivery()

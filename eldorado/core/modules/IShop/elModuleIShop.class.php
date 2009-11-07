@@ -217,6 +217,7 @@ class elModuleIShop extends elModule
 		{
 		  if (1 <> $catID)
 		  {
+			header('HTTP/1.x 404 Not Found'); 
 		    elLocation(EL_URL);
 		  }
 

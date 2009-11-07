@@ -6,25 +6,31 @@
   	<!-- BEGIN META -->
   	<meta name="{name}" content="{content}" />
   	<!-- END META -->
-	<link rel="stylesheet" href="{STYLE_URL}css/normal.css" type="text/css" media="screen" />
+	<!-- BEGIN JS -->
+  	<script type="text/javascript">
+  		{js}
+  	</script>
+  	<!-- END JS -->
+	<!-- BEGIN JS_COMBO -->
+  	<script type="text/javascript" src="{BASE_URL}combo.php?type=js{args}"></script>
+  	<!-- END JS_COMBO -->
+  	<!-- BEGIN JS_LINK -->
+  	<script type="text/javascript" src="{js}"></script>
+  	<!-- END JS_LINK -->
 	<!-- BEGIN CSS_LINK -->
-	<link rel="stylesheet" href="{STYLE_URL}css/{css}" type="text/css" media="screen" />
-	<!-- END CSS_LINK -->
+  	<link rel="stylesheet" href="{STYLE_URL}css/{css}" type="text/css" media="screen" />
+  	<!-- END CSS_LINK -->
+	<!-- BEGIN CSS_COMBO -->
+	<link rel="stylesheet" href="{BASE_URL}combo.php?type=css{args}" type="text/css" media="screen" />
+	<!-- END CSS_COMBO -->
+
 	<!--[if lte IE 7]><link href="{STYLE_URL}css/ie.css" rel="stylesheet" type="text/css" /><![endif]-->
 	<link rel="stylesheet" href="{STYLE_URL}css/print.css" type="text/css" media="print" />
   	<!-- BEGIN CSS -->
   	<style>
 		{css}
 	</style>
-  	<!-- END CSS -->
-  	<!-- BEGIN JS -->
-  	<script type="text/javascript">
-  		{js}
-  	</script>
-  	<!-- END JS -->
-  	<!-- BEGIN JS_LINK -->
-  	<script type="text/javascript" src="{js}"></script>
-  	<!-- END JS_LINK -->
+	<!-- END CSS -->
 	<!--[if lte IE 7]><script type="text/javascript" src="{BASE_URL}core/js/jquery.pngFix.pack.js"></script><![endif]-->
 	<!-- BEGIN ONREADY -->
   	<script type="text/javascript">
@@ -35,7 +41,7 @@
 
 <body  {bodyOnLoad}>
 	<div id="popup-body" class="clearfix">
-		<a href="#" class="close" onclick="window.close();">{m('Close window')}</a>
+		<a href="#" class="link-close float-right" onclick="window.close();">{m('Close window')}</a>
   		{PAGE_TITLE}
   		{SYS_MESSAGES}
   		{PAGE}

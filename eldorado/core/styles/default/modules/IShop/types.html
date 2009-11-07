@@ -1,0 +1,50 @@
+<h4>{m('Items types')}</h4>
+<ul class="mod-ishop-types">
+	<!-- BEGIN IS_TYPE -->
+	<li class='rounded-5'>
+		<ul class="adm-icons">
+			<li style="border:none"><a href="{URL}edit_type/{catID}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+			<li style="border:none"><a href="{URL}edit_prop/{catID}/{id}/"  class="icons create" title="{m('New attribute')}"></a></li>
+			<li style="border:none"><a href="{URL}rm_type/{catID}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<h4 class="rounded-top-5">{name}</h4>
+		<a href="#" class="el-collapsed">{m('Properties')}</a>
+		<div class="hide">
+			<!-- BEGIN IS_TYPE_PROP -->
+			<div>
+				<ul class="adm-icons">
+					<li style="border:none"><a href="{URL}edit_prop/{catID}/{t_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+					<li style="border:none"><a href="{URL}rm_prop/{catID}/{t_id}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				</ul>
+				<div class="mod-ishop-fts" style="width:75%">
+					<table style="width:100%">
+		            	<!-- BEGIN IS_TYPE_P -->
+		            	<tr>
+		              		<td class="mod-ishop-ft-name">{l}</td>
+		              		<td class="mod-ishop-ft-val">{v}</td>
+		            	</tr>
+		            	<!-- END IS_TYPE_P -->
+		            	<!-- BEGIN PROP_DEPEND -->
+		            	<tr>
+		              		<td class="mod-ishop-ft-name">{m('Depend on')}:</td>
+							<td class="mod-ishop-ft-val"> {dependName} <a href="{URL}edit_pdep/{catID}/{t_id}/{id}/">{m('Edit/remove dependance')}</a> </td>
+		            	</tr>
+		            	<!-- END PROP_DEPEND -->
+		          	</table>
+				</div>
+			</div>
+			<!-- END IS_TYPE_PROP -->
+		</div>
+	</li>
+	<!-- END IS_TYPE -->
+</ul>
+<script type="text/javascript" charset="utf-8">
+	$().ready( function() {
+		$('.mod-ishop-types a.el-collapsed' ).click( function(e) {
+			e.preventDefault();
+			$(this).toggleClass('el-expanded').next('div').slideToggle('slow');
+		});
+	});
+</script>
+
+

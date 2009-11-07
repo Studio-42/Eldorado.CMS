@@ -62,18 +62,6 @@ class elSubModuleLayoutControl extends elModule
 				continue;
 			}
 			$f = basename($file);
-			/**
-			$prew = '';
-			if ( file_exists(EL_DIR.'style/alternative/preview/'.$f.'.png') )
-			{
-				$prew = EL_BASE_URL.'/style/alternative/preview/'.$f.'.png';
-			}
-			elseif ( file_exists(EL_DIR.'style/alternative/preview/'.$f.'.jpg') )
-			{
-				$prew = EL_BASE_URL.'/style/alternative/preview/'.$f.'.jpg';
-			}
-			$tpl = empty($prew) ? $f : '<img src="'.$prew.'" />'.$f;
-			**/
 			$ret[$f] = $f;
 			
 		}
@@ -87,7 +75,7 @@ class elSubModuleLayoutControl extends elModule
 	function _onInit()
 	{
 		$conf = & elSingleton::getObj('elXmlConf');
-		$this->_tpls = $this->_getAltTplsList(); //elPrintR($this->_tpls);
+		$this->_tpls = $this->_getAltTplsList(); 
 		if ( empty($this->_tpls) )
 		{
 			unset($this->_opts['servicesTpl']);

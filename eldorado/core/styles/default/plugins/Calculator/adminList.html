@@ -1,0 +1,51 @@
+<table class="grid-tb pl-calc">
+	<thead>
+	<tr>
+		<th>{m('Name')}</th>
+		<th>{m('Position')}</th>
+		<th>{m('Pages')}</th>
+		<th class="admin">
+			<ul class="adm-icons">
+				<li><a href="{URL}pl_conf/Calculator/" data='{json}' class="icons edit" title="{m('Create')}"></a></li>
+			</ul>
+		</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- BEGIN CALC -->
+	<tr>
+		<td><a href="{URL}pl_conf/Calculator/{id}/"  title="{m('Configure')}"><strong>{name}</strong></a></td>
+		<td>{position}</td>
+		<td title="{ptitle}">{pages}</td>
+		<td class="admin">
+			<ul class="adm-icons">
+				<li><a href="{URL}pl_conf/Calculator/" data='{edit_json}' class="icons edit" title="{m('Edit')}" ></a></li>
+				<li><a href="{URL}pl_conf/Calculator/" data='{rm_json}' class="icons delete"  title="{m('Delete')}" onclick="return confirm('{m('Do You really want to delete ')}?');"></a></li>
+			</ul>
+			<!-- <a href="{URL}pl_conf/Calculator/" data='{edit_json}' title="{m('Edit')}"><img src="{icoEdit}" class="icons" /></a>
+			<a href="{URL}pl_conf/Calculator/" data='{rm_json}'><img src="{icoDelete}" title="{m('Delete')}" alt="{m('Delete')}" class="icons" /></a> -->
+		</td>
+	</tr>
+	<!-- END CALC -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+
+		$.metadata.setType("attr", "data");
+		$('.pl-calc .admin a').click(function(e) {
+			e.preventDefault();
+			
+			if ($(this).metadata().action !== 'rm' || confirm('{m('Do You really want to delete ')}')) {
+				$('<form />')
+					.attr({method : 'post', 'action' : $(this).attr('href')})
+					.append($('<input type="hidden" />').attr('name', 'action').val($(this).metadata().action))
+					.append($('<input type="hidden" />').attr('name', 'cid').val($(this).metadata().cid))
+					.appendTo(document.body)
+					.submit();
+			}
+		});
+	});
+	
+</script>
+

@@ -1,25 +1,36 @@
 /* общий стиль списка товаров в одну и 2 колонки */
+.mod-ishop .nicegrid-50, .mod-ishop .nicegrid-51 { border: 1px solid #ccc; }
+.mod-ishop  h4 a, .mod-ishop-item  h2  {  }
+.mod-ishop a.forward { display:none;}
 .mod-ishop .items-onecol li,
 .mod-ishop .items-twocol .col-49,
 .mod-ishop-fts, .mod-ishop-item,
-.mod-ishop-search {	border:1px solid #ccc; }
+.mod-ishop-search {	border:1px solid #d0e2f0; }
 /* форма поиска */
 .mod-ishop-search { padding:1em; margin-bottom:1em; }
-.mod-ishop-search input.form-submit { float:right; display:inline-block;}
+.mod-ishop-search input.form-submit {display:inline-block; margin-top:.5em;}
 /* плавающие превьюшки товаров */
-.mod-ishop-iimg-left   { float:left;  display:inline; margin:0 .7em .5em 0; }
-.mod-ishop-iimg-right  { float:right; display:inline; margin:0 0 .5em .7em; }
-.mod-ishop-iimg-center { text-align:center; margin:0.5em; }
+img.mod-ishop-iimg-left   { float:left;  display:inline; margin:0 .7em .5em 0; border:1px solid #ccc;}
+img.mod-ishop-iimg-right  { float:right;  margin:0 0 .5em .7em; border:1px solid #ccc;}
+img.mod-ishop-iimg-center { text-align:center; margin:0.5em; border:1px solid #ccc;}
 /* цена производитель и артикул */
-.mod-ishop-price, .mod-ishop-mnf, .mod-ishop-code { padding:0 0 .5em 0; }
+.mod-ishop-price, .mod-ishop-mnf, .mod-ishop-code { padding:0 0 .3em 0; color:#00467f}
+.mod-ishop-price { float:right; }
+.mod-ishop-mnf, .mod-ishop-code { font-size:10px; }
+.mod-ishop-mnf {margin-bottom:.5em;}
 /* таблица теххарактеристик */
-.mod-ishop-fts { padding:.5em; margin-top:.5em;	display:inline-block; }
-.mod-ishop-fts table td { border-bottom:1px solid #eee;}
+.mod-ishop-fts { border:1px solid #ccc; padding:.5em; margin-top:1.5em; width:300px; }
+.mod-ishop-fts table { width:100%;}
+.mod-ishop-fts table td { border-bottom:1px solid #ccc;}
 /* одна теххарактеристика */
+.mod-ishop-ft-name { color:#999;}
 .mod-ishop-ft-name, .mod-ishop-ft-val { font-size:92%; }
 .mod-ishop-ft-val { text-align:right;}
 /* товары в одну колонку */
 .mod-ishop .items-onecol li { margin-bottom:.7em; padding:.7em 1em; }
+ul.items-onecol li h4 {border-bottom:1px solid #ccc; padding-bottom:5px;}
+ul.items-onecol li h4 a {font-weight:bold;}
+
 /* товары в две колонки */
 .mod-ishop .grid { margin-bottom:1em; }
 .mod-ishop .items-twocol .col-49 { border:1px solid #ccc; }
@@ -27,10 +38,13 @@
 /* колонка-разделитель */
 .mod-ishop .items-twocol .col-var { width:1em; }
 /* Карточка товара */
-.mod-ishop-item { padding:1em; }
-.mod-ishop-item .mod-ishop-price strong { color:red; }
+.mod-ishop-item { padding:1em; border:none;}
+.mod-ishop-item-content { margin-bottom:1em;}
+
+.mod-ishop-item .mod-ishop-price { color:#00467f; font-size:16px; }
 /* заказать */
 .mod-ishop-cart {
+	background:#fff;
 	border:1px solid #d0e2f0;
 	display:inline-block;
 	float:right;
@@ -50,12 +64,13 @@ ul.mod-ishop-types li {
 	zoom: 1;
 }
 ul.mod-ishop-types li h4 { 
-	background:#eee url('../images/grid-tb-head.png') bottom repeat-x; 
+	background:#eee url('style/images/grid-tb-head.png') bottom repeat-x; 
 	line-height: 2em; 
 	margin-bottom: .5em; 
 	padding: 0 .5em;
 }
 .mod-ishop-types .hide { padding: .5em 1em;}
+
 /* список производителей */
 .mod-ishop-mnfs { margin:0; padding:1em; border:1px solid #ccc; zoom:1; }
 .mod-ishop-mnfs li { list-style:none; border-bottom:1px solid #eee; padding:0.5em 0; }

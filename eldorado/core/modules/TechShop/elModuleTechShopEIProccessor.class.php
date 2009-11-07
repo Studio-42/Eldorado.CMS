@@ -33,7 +33,7 @@ class elModuleTechShopEIProccessor extends elModuleEIProccessor
     $param = trim($param);
     if (!empty($param))
     {
-      $mnfIDs = explode(',', $param); //elPrintR($mnfIDs); exit();
+      $mnfIDs = explode(',', $param); 
       for ($i=0, $s=sizeof($mnfIDs); $i<$s; $i++ )
       {
         if (0>= $mnfIDs[$i])

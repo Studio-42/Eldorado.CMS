@@ -83,38 +83,6 @@
 @media screen, projection
 {
 	#lc,  #rc { display:inline; }
-	.col-var, .col-1, .col-10, .col-25, .col-33, .col-38, .col-49, .col-50, .col-62, .col-66, .col-75, .col-90 { display:inline; }
-
-	* html .strectch, * html .stretch .grid { overflow:visible; display:block; }
-	.stretch, .stretch .grid { overflow:hidden; display:block; }
-
-	.stretch .col-var, .stretch .col-1,
-	.stretch .col-10, .stretch .col-25, .stretch .col-33, 
-	.stretch .col-38, .stretch .col-49, .stretch .col-50, 
-	.stretch .col-62, .stretch .col-66, .stretch .col-75, 
-	.stretch .col-90 {
-	    float: left; 
-		display:inline;
-	    padding-bottom: 32767px;
-	    margin-bottom: -32767px;
-	  }
-	
-	.stretch .col-last {
-		float: right; 
-		margin-left: -5px; 
-		display:inline;
-	    padding-bottom: 32767px;
-	    margin-bottom: -32767px;
-	}
-
-	.no-ie-padding .col-10, .no-ie-padding .col-25, .no-ie-padding .col-33,
-	.no-ie-padding .col-38, .no-ie-padding .col-49, .no-ie-padding .col-50, 
-	.no-ie-padding .col-62, .no-ie-padding .col-66, .no-ie-padding .col-75,
-	.no-ie-padding .col-90, .no-ie-padding .col-last {
-	    padding-bottom: 0;
-	    margin-bottom: 0;
-	  }
-
 
   * html #lc-content,
   * html #rc-content,
@@ -148,6 +116,8 @@
 
 	div.tab, .a li, .a-menu li { display:inline; }
 	.a-menu { padding: 0 7px 0 1px ; }
+	
+.mod-forum-button, div.bb-group { display:inline;}
 	
 }
 

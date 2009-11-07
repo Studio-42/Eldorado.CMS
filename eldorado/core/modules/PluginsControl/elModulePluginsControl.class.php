@@ -19,7 +19,7 @@ class elModulePluginsControl extends elModule
 
 	function switchOn()
 	{
-		$pl = & $this->_getPlugin();
+		$pl =  $this->_getPlugin();
 		if ( $this->_isPluginDisable($pl->name) )
 		{
 			elThrow(E_USER_ERROR, 'Plugin "%s" is disabled! Operation terminated!', $pl->name, EL_URL);
@@ -30,7 +30,7 @@ class elModulePluginsControl extends elModule
 
 	function switchOff()
 	{
-		$pl = & $this->_getPlugin();
+		$pl = & $this->_getPlugin(); 
 		if ( $this->_isPluginDisable($pl->name) )
 		{
 			elThrow(E_USER_ERROR, 'Plugin "%s" is disabled! Operation terminated!', $pl->name, EL_URL);
@@ -63,8 +63,7 @@ class elModulePluginsControl extends elModule
 
 	function &_getPlugin()
 	{
-		$plName = $this->_arg();
-
+		$plName = $this->_args[0];
 		if ( !$plName || empty($this->_plugins[$plName]) )
 		{
 			elThrow(E_USER_WARNING, 'Plugin "%s" does not exists or not loaded', array($plName), EL_URL );
@@ -75,19 +74,19 @@ class elModulePluginsControl extends elModule
 
 	function _onInit()
 	{
-		$db = &elSingleton::getObj('elDb');
+		$db = elSingleton::getObj('elDb');
 		$sql = 'SELECT name, IF(label<>"", label, name) AS label, status FROM el_plugin ORDER BY name';
 		$db->query($sql);
 		if (!$db->numRows())
 		{
 			return;
 		}
-		$conf = & elSingleton::getObj('elXmlConf');
+		$conf =  elSingleton::getObj('elXmlConf');
 		while ($r = $db->nextRecord() )
 		{
 
-			if ( null == ($pl = &elSingleton::getPlugin($r['name']))
-			&& ( null == ($pl = &elSingleton::createPlugin($r['name'], $this->pageID, $conf->getGroup('plugin'.$r['name']))) ))
+			if ( null == ($pl = elSingleton::getPlugin($r['name']))
+			&& ( null == ($pl = elSingleton::createPlugin($r['name'], $this->pageID, $conf->getGroup('plugin'.$r['name']))) ))
 			{
 
 				continue;
@@ -97,7 +96,7 @@ class elModulePluginsControl extends elModule
 				$pl->setStatus('disable');
 				$r['state'] = 'disable';
 			}
-			$this->_plugins[$r['name']]      = & $pl;
+			$this->_plugins[$r['name']]      = $pl;
 			$r['hasConf']                   = method_exists($pl, 'conf');
 			$this->_pluginsList[$r['name']] = $r;
 		}

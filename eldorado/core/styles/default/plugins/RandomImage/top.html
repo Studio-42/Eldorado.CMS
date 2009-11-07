@@ -1,35 +1,34 @@
-<div class="pl-rndimg-top plugins">
+<div class="pl-rndimg pl-rndimg-horiz plugins">
 	<!-- BEGIN PL_RI_TITLE -->
-	<div class="pl-rndimg-title"><h5>{title}</h5></div>
+	<div class="pl-rndimg-title plugins-title rounded-right-20"><h5>{title}</h5></div>
 	<!-- END PL_RI_TITLE -->
-
+	<ul>
 	<!-- BEGIN PL_RI -->
-	<table>
-		<tr>
-			<!-- BEGIN PL_RI_POPUP -->
-			<td>
-				<!-- BEGIN PL_RI_POPUP_NAME -->
-				<div>{i_name}</div>
-				<!-- END PL_RI_POPUP_NAME -->				
-				<a href="" onclick="return popUp('{STORAGE_URL}galleries/{srcID}/{i_file}', {i_width_0}, {i_height_0});" title="{i_name}">
-					<img src="{STORAGE_URL}galleries/{srcID}/tmb/{i_file}" width="{i_width_tmb}" height="{i_height_tmb}" class="ig_tmb" />
-				</a>
-			</td>
-			<!-- END PL_RI_POPUP -->
-	
-			<!-- BEGIN PL_RI_LB -->
-			<td>
-				<!-- BEGIN PL_RI_LB_NAME -->
-				<div>{i_name}</div>
-				<!-- END PL_RI_LB_NAME -->			
-				<a href="{STORAGE_URL}galleries/{srcID}/640x480/{i_file}"  rel="fancy-tour" title="{i_name}">
-					<img src="{STORAGE_URL}galleries/{srcID}/tmb/{i_file}" width="{i_width_tmb}" height="{i_height_tmb}" class="ig_tmb" />
-				</a>
-			</td>
-			<!-- END PL_RI_LB -->
-		</tr>
-	</table>
+		<!-- BEGIN PL_RI_POPUP -->
+		<li>
+			<!-- BEGIN PL_RI_POPUP_NAME -->
+			<div>{i_name}</div>
+			<!-- END PL_RI_POPUP_NAME -->
+			<a href="" onclick="return popUp('{STORAGE_URL}galleries/{srcID}/{i_file}', {i_width_0}, {i_height_0});" alt="{i_name}">
+				<img src="{STORAGE_URL}galleries/{srcID}/tmb/{i_file}" width="{i_width_tmb}" height="{i_height_tmb}" />
+			</a>
+		</li>	
+		<!-- END PL_RI_POPUP -->
+
+		<!-- BEGIN PL_RI_LB -->
+		<li>
+			<!-- BEGIN PL_RI_LB_NAME -->
+			<div>{i_name}</div>
+			<!-- END PL_RI_LB_NAME -->
+			<a href="{STORAGE_URL}galleries/{srcID}/640x480/{i_file}"  rel="fancy-tour" title="{i_name}">
+				<img src="{STORAGE_URL}galleries/{srcID}/tmb/{i_file}" width="{i_width_tmb}" height="{i_height_tmb}" />
+			</a>
+		</li>
+		<!-- END PL_RI_LB -->
+
 	<!-- END PL_RI -->
+	</ul>
+
 	<!-- BEGIN PL_RI_LINK -->
 	<div class="pl-rndimg-link"><a href="{url}" class="readmore">{link}</a></div>
 	<!-- END PL_RI_LINK -->

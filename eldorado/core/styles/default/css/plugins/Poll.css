@@ -1,6 +1,8 @@
 .pl-poll-content      { padding:.5em 1em; }
-.pl-poll  div         { margin:.3em;}
+.pl-poll  div         { }
 .pl-poll  label       { display:block; padding:0.3em 0; }
 .pl-poll  label input { border:none; }
 .pl-poll  div.pl-poll-prc { height: 7px; border: 1px solid #ccc; padding: 0; margin: 0; }
 .pl-poll  div.pl-poll-prc-color { margin: 0; height: 7px; background: #fa5716; padding:0; margin:0;}
+.pl-poll-title {background:#dee7ed url("style/images/design/line.gif") 0 top repeat-x;}
+.pl-poll-title h5 {text-align:center;}

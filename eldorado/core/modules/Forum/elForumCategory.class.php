@@ -80,13 +80,13 @@ class elForumCategory extends elDataMapping
 	      	}
 			elseif ($this->ID == 1)
 			{
-				return $this->_save();
+				return $this->save();
 			}
 	      	else
 	      	{
 				return ( $parentID <> $this->parentID && $this->ID<>1 && !$this->tree->move($this->ID, $parentID) ) //move node to another parent
 					? false
-					: $this->_save();
+					: $this->save();
 	      	}
 	    }
 	    return false;

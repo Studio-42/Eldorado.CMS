@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS el_ig_{pageID}_gallery ;
 CREATE TABLE el_ig_{pageID}_gallery (
 g_id        tinyint(3) NOT NULL auto_increment,
-g_name      varchar(150) NOT NULL,
-g_comment   varchar(255) NOT NULL,
+g_name      varchar(255) NOT NULL,
+g_comment   mediumtext NOT NULL,
 g_sort_ndx  tinyint(3) NOT NULL DEFAULT 0,
 g_crtime    int(11) NOT NULL,
 g_mtime     int(11) NOT NULL,
@@ -15,9 +15,9 @@ DROP TABLE IF EXISTS el_ig_{pageID}_image ;
 CREATE TABLE el_ig_{pageID}_image (
 i_id         int(3) NOT NULL auto_increment,
 i_gal_id     tinyint(3) NOT NULL,
-i_file       varchar(150) NOT NULL,
+i_file       varchar(255) NOT NULL,
 i_file_size  int(7) NOT NULL,
-i_name       varchar(150) NOT NULL,
+i_name       varchar(255) NOT NULL,
 i_comment    varchar(255) NOT NULL,
 i_width_0      int(4) NOT NULL DEFAULT 800,
 i_height_0     int(4) NOT NULL DEFAULT 600,

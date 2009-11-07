@@ -56,8 +56,15 @@ $elMsg['Watermark']                            = 'Водяной знак';
 $elMsg['Could not use watermark because of GD2 library does not installed!'] = 'Невозможно использовать водяной знак. Отсутствует библиотека GD2';
 $elMsg['Watermark image']                      = 'Файл с водяным знаком';
 $elMsg['Watermark position']                   = 'Расположение водяного знака';
+$elMsg['Top left']                             = 'Сверху слева';
+$elMsg['Top right']                            = 'Сверху справа';
+$elMsg['Center']                               = 'По центру';
+$elMsg['Bottom left']                          = 'Снизу слева';
+$elMsg['Bottom right']                         = 'Снизу справа';
 
 $elMsg['Records in DB with unexisted files was found and deleted: %d'] = 'Обнаружено и удалено %d записей в БД указывающих на несуществующие файлы';
 $elMsg['New files was found and added to gallery named "%s": %d']      = 'Найдено и добавлено в галерею "%s" %d новых файлов';
 $elMsg['Errors was found and fixed: %d']                               = 'Найдено и исправлено ошибок %d';
+$elMsg['There are no one image manipulation libraries available! We need access to GD, Imagick or mogrify.']
+	= 'Нет доступа к библиотекам для работы с изображжениями! Необходимы GD или Imagick или mogrify';
 ?>

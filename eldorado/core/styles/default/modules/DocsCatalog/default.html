@@ -5,45 +5,62 @@
 
 <!-- BEGIN CATS_ONECOL -->
 <ul class="cats-onecol">
-	<!-- BEGIN O_CAT -->
+	<!-- BEGIN CAT -->
 	<li style="padding-left:{! ({level})*1.7 !}em;" class="clearfix {cssRowClass} ">
-		<div>
-			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-			<div class="cat-descrip">{descrip}</div>
-			<div class="ie-clear"></div>
-		</div>
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+			<li><a href="{URL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
+			<li><a href="{URL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+			<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+		{descrip}
+		<div class="ie-clear"></div>
 	</li>
-	<!-- END O_CAT -->
+	<!-- END CAT -->
 </ul>
 <!-- END CATS_ONECOL -->
 
 <!-- BEGIN CATS_TWOCOL -->
-<div class="cats-twocol">
-	<!-- BEGIN ROW -->
-	<div class="grid {cssRowClass}">	
-		<!-- BEGIN T_CAT -->
-		<div class="col-50 {cssLastClass}">
-			<div class="col-content">
-				<ul class="clearfix">
-					<li class="clearfix">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
-						<div class="cat-descrip">{descrip}</div>
-					</li>
-					<!-- BEGIN SUBCATS -->
-					<!-- BEGIN SUBCAT -->
-					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-						<div class="cat-descrip">{descrip}</div>
-					</li>
-					<!-- END SUBCAT -->
-					<!-- END SUBCATS -->
-					<!-- BEGIN CDELIM --> <!-- END CDELIM -->
-				</ul>
-			</div>
+<div class="nicegrid-50 rounded-7 {cssRowClass} cats-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN CAT -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+				<li><a href="{URL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
+				<li><a href="{URL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+				<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete)}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<!-- END ADMIN -->
+			<a href="{URL}{id}/" class="cat-title">{name}</a>
+			{descrip}
+			<!-- BEGIN SUB_CATS -->
+			<ul>
+				<!-- BEGIN SUB_CAT -->
+				<li style="clear:right">
+					<!-- BEGIN ADMIN2 -->
+					<ul class="adm-icons">
+						<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+						<li><a href="{URL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
+						<li><a href="{URL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+						<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete)}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END ADMIN2 -->
+					<a href="{URL}{id}/" class="cat-title">{name}</a> 
+					{descrip}
+				</li>
+				<!-- END SUB_CAT -->
+			</ul>
+			<!-- END SUB_CATS -->
 		</div>
-		<!-- END T_CAT -->
-	</div>			
-	<!-- END ROW -->
+		<!-- END CAT -->
+		<div class="clear"></div>
+	</div>
 </div>
 <!-- END CATS_TWOCOL -->
 
@@ -51,41 +68,40 @@
 
 <!-- BEGIN ITEMS_ONECOL -->
 <ul class="items-onecol">
-	<!-- BEGIN O_ITEM -->
+	<!-- BEGIN ITEM -->
 	<li class="{cssRowClass} clearfix">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit_item/{catID}/{id}/" class="icons edit"    title="{m('Edit')}"></a></li>
+			<li><a href="{URL}rm_item/{catID}/{id}/"   class="icons delete"  title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
 		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
-		<div class="item-announce">
-			{announce} 
-			<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
-		</div>
+		<table><tr><td>{announce}</td></tr></table>
+		<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
 	</li>
-	<!-- END O_ITEM -->
+	<!-- END ITEM -->
 </ul>
 <!-- END ITEMS_ONECOL -->
 
 <!-- BEGIN ITEMS_TWOCOL -->
-
-<div class="items-twocol">
-
-	<!-- BEGIN IROW -->
-	<div class="grid stretch {cssRowClass} ">
-		
-	    <!-- BEGIN T_ITEM -->
-		<div class="col-50 {cssLastClass}">
-			<div class="col-content">
-				<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
-				<div class="item-announce">
-					{announce}
-					<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
-				</div>
-			</div>
+<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN ITEM -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit_item/{catID}/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+				<li><a href="{URL}rm_item/{catID}/{id}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+			<table><tr><td>{announce}</td></tr></table>
+			<a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a>
 		</div>
-	    <!-- BEGIN IDELIM -->  <!-- END IDELIM -->
-	  	<!-- END T_ITEM -->
-
+	<!-- END ITEM -->
+	<div class="clear"></div>
 	</div>
-	<!-- END IROW -->
-
 </div>
 <!-- END ITEMS_TWOCOL -->
 

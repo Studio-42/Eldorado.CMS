@@ -40,7 +40,7 @@ class elGlossary extends elMemberAttribute
 
 	function firstLetter() {
 		$db = & elSingleton::getObj('elDb');
-		$sql = 'select min(substr(word, 1, 1)) letter from ' . $this->tb;
+		$sql = 'select min(substr(UPPER(word), 1, 1)) letter from ' . $this->tb;
 		$letter = $db->queryToArray($sql, 'letter', 'letter');
 		return array_pop($letter);
 	}

@@ -34,7 +34,7 @@ class elModuleNews extends elModule
     $totalPages = ceil($this->_total/$this->_newsOnPage);
 
     $news = & $this->_getNews();
-    $coll = $news->getCollection(null, 'published DESC', $offset, $this->_newsOnPage);
+    $coll = $news->collection(true, false, null, 'published DESC', $offset, $this->_newsOnPage);
 
     $this->_initRenderer();
     $this->_rnd->render( $coll, $totalPages );
@@ -74,7 +74,6 @@ class elModuleNews extends elModule
       $this->_newsOnPage = $n;
     }
     $this->_curPageNum();
-	elCheckAltTitleField($this->_tb);
   }
 
   function _curPageNum()
@@ -96,8 +95,8 @@ class elModuleNews extends elModule
   function &_getNews()
   {
     $news = & elSingleton::getObj('elNews');
-    $news->tb = $this->_tb;
-    $news->setUniqAttr( (int)$this->_arg(1) );
+    $news->tb($this->_tb);
+    $news->idAttr( (int)$this->_arg(1) );
     return $news;
   }
 

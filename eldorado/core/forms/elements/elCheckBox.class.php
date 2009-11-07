@@ -146,13 +146,13 @@ class elMultiSelectList extends elCheckBoxesGroup
 	'footer'  => '</div>',
 	'element' => "<input%s%s name=\"%s\" id=\"%s\" value=\"%s\" /><label for='%s'>%s</label><br />\n",
 	'hidden'  => '<input type="hidden" name="%s" id="%s" value="%s" />',
-	'switch'  => '<div style="border:1px solid gray;width:14px;font-size:12px;font-weight:bold;color:gray;cursor:default"
-	 							align="center" onClick="return mslControl(\'%s\', %d);" title="%s">%s</div>',
+	'switch'  => '<div style="border:1px solid #555;padding:1px 7px;font-size:16px;font-weight:bold;color:#444;cursor:default;text-align:center"
+	 							onClick="return mslControl(\'%s\', %d);" title="%s">%s</div>',
   'res' => '<table width="100%%" border="0" id="%sResultView" style="border:none">
-            <tr><td width="14" valign="top" style="border:none">%s</td>
+            <tr><td width="14" style="border:none;vertical-align:top">%s</td>
             <td style="border:none" id="%sResult">%s</td></tr></table>',
   'sel' => '<table width="100%%" border="0" id="%sSelect" style="display:none">
-            <tr><td width="14" valign="top" style="border:none">%s</td>
+            <tr><td width="14" style="border:none;vertical-align:top">%s</td>
             <td style="border:none">%s</td></tr></table>',
   'val' => 'div'
            	);

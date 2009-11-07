@@ -2,10 +2,10 @@
 
 class elICart
 {
-    var $_tb              = 'el_icart';
+    var $_tb          = 'el_icart';
 	var $_tbo         = 'el_order';
-	var $_tboi    = 'el_order_item';
-	var $_tboc = 'el_order_customer';
+	var $_tboi        = 'el_order_item';
+	var $_tboc        = 'el_order_customer';
     var $_db          = null;
     var $_SID         = '';
     var $_UID         = 0;
@@ -16,12 +16,12 @@ class elICart
     var $_rnd         = null;
     var $_conf        = null;
     var $currInfo     = array(
-                            'currency'     => 'USD',
-                            'currencySign' => '$',
-                            'currencyName' => 'US dollars',
-                            'decPoint'     => '.',
-                            'thousandsSep' => ','  
-                            );
+		'currency'     => 'USD',
+		'currencySign' => '$',
+		'currencyName' => 'US dollars',
+		'decPoint'     => '.',
+		'thousandsSep' => ','  
+		);
     
     function elICart()
     {

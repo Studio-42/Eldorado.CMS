@@ -15,7 +15,7 @@ $elMsg['Visitor']                   = 'Посетитель';
 $elMsg['Working time: %s sec']      = 'Время формирования страницы: %s сек.';
 $elMsg['Date']                      = 'Дата';
 $elMsg['Pages']                     = 'Страницы';
-$elMsg['Read more']                 = 'Читать дальше';
+$elMsg['Read more']                 = 'Подробнее';
 $elMsg['Go to']                     = 'Перейти к ';
 $elMsg['Yes']                       = 'Да';
 $elMsg['No']                        = 'Нет';
@@ -33,6 +33,8 @@ $elMsg['Do You really want to delete? This action cannot be undone!']
 $elMsg['Access denied']             = 'Доступ запрещен';
 $elMsg['Home']                      = 'К началу';
 $elMsg['Download']                  = 'Скачать';
+$elMsg['Sending data']              = 'Передаю данные';
+$elMsg['Reciving data']             = 'Получаю данные';
 //login form / user info
 $elMsg['User']                      = 'Пользователь';
 $elMsg['Log out']                   = 'Выход';
@@ -58,7 +60,6 @@ $elMsg['There is nothing was found'] = 'Ничего не найдено';
 $elMsg['Search results for']         = 'Результаты поиска ';
 $elMsg['Searching for "%s"']         = 'Ищем "%s"';
 
-$elMsg['Loading menu. Please, waiting.....'] = 'Загружается меню.......';
 //ICart
 $elMsg['Buy now']                     = 'Купить';
 $elMsg['Buy']                         = 'Купить';
@@ -69,19 +70,12 @@ $elMsg['Sum']                         = 'Сумма';
 $elMsg['Items']                       = 'Товары';
 $elMsg['Amount']                      = 'Итого';
 $elMsg['Checkout order']              = 'Оформить заказ';
-$elMsg['Your shopping cart is empty'] = 'В вашем заказе нет ни одного товара';
+$elMsg['Your shopping cart is empty'] = 'Ваша корзина пуста';
 //plugin news
 $elMsg['News'] = 'Новости';
 //plugin infoBlocks
 $elMsg['Create info block'] = 'Создать новый инфо блок';
 // plugin Polls
 $elMsg['Vote']  = 'Голосовать';
-//Sitemap Generator
-$elMsg['Last modified']               = 'Последние изменения';
-$elMsg['Could not write file']       = 'Не могу записать файл!';
-$elMsg['File robots.txt created']     = 'Создан файл robots.txt';
-$elMsg['Could not open robots.txt. Check permissions.'] = 'Не могу открыть robots.txt! Проверьте права.';
-$elMsg['Could not write robots.txt']    = 'Не могу записать robots.txt.';
-$elMsg['robots.txt updated']    = 'Файл robots.txt обновлен.';
-$elMsg['Could not create robots.txt. Check permissions.'] = 'Не могу создать robots.txt. Проверьте права.';
+$elMsg['Data was saved'] = 'Данные сохранены';
 ?>

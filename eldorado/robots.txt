@@ -1,4 +1,0 @@
-User-Agent: *
-Disallow: /__search__/
-Disallow: /*_print_
-Sitemap: http://127.0.0.1/develop/distr-3.8.4/sitemap.xml

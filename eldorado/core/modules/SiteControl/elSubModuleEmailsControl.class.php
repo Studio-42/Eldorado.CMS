@@ -10,7 +10,7 @@
 class elSubModuleEmailsControl extends elModule
 {
 
-  var $_mMapAdmin = array('edit' => array('m'=>'editEmail', 'ico'=>'icoMailNew', 'l'=>'Create email', 'g' => 'Actions'),
+  var $_mMapAdmin = array('edit' => array('m'=>'editEmail', 'ico'=>'icoNew', 'l'=>'Create email', 'g' => 'Actions'),
                           'del'  => array('m'=>'rmEmail') );
   var $_prnt      = false;
   var $_confID    = 'mail';
@@ -41,7 +41,7 @@ class elSubModuleEmailsControl extends elModule
       }
     }
     $this->_initRenderer();
-    $this->_rnd->render( $eList, EL_READ < $this->_aMode ? 'emails' : null, 'ROW' );
+	$this->_rnd->renderEmailsConf($eList);
   }
 
   /**
@@ -84,14 +84,15 @@ class elSubModuleEmailsControl extends elModule
   function &_makeConfForm()
   {
     $form = parent::_makeConfForm();
-    $form->addJsSrc( 'checkMailForm();', EL_JS_SRC_ONLOAD );
+    $form->addJsSrc( '$("#transport").trigger("change");', EL_JS_SRC_ONLOAD );
 
     $form->add( new elSelect('logSend',   m('Write sended emails to log file'),        $this->_conf('logSend'), $GLOBALS['yn'] ) );
     $form->add( new elSelect('logFailed', m('Write failed sended emails to log file'), $this->_conf('logFailed'), $GLOBALS['yn'] ) );
 
     $tr = array('PHP'=>m('Using PHP buildin mail function'), 'SMTP'=>m('Directly via SMTP server'));
     $attr = array('onChange'=>'checkMailForm();');
-    $form->add( new elSelect('transport', m('Send mail from site'), $this->_conf('transport'),  $tr, $attr) );
+    $form->add( new elSelect('transport', m('Send mail from site'), $this->_conf('transport'),  $tr, 
+		array('onchange'=>"if (this.value=='SMTP') { $(this).parents('tr').eq(0).nextAll('tr').show(); } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); }")) );
 
     $form->add( new elText('smtpHost', m('SMTP server'), $this->_conf('smtpHost') ) );
     $form->add( new elText('smtpPort', m('SMTP port'),   $this->_conf('smtpPort') ) );

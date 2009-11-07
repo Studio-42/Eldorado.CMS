@@ -14,8 +14,10 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 	  	'mnfs_list'   => array('m'=>'mnfList',           'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
 	  	'edit_mnf'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
+		'rm_mnf'      => array('m'=>'rmMnf'),
 	  	'edit_tm'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
-      	'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
+      	'rm_tm'       => array('m'=>'rmTm'),
+		'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
 	  	'rm_group'    => array('m'=>'rmItems',           'g'=>'Actions', 'ico'=>'icoDocGroupRm',    'l'=>'Delete group of documents',),
 		'cross_links' => array('m'=>'editCrossLinks',    'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
       	'rm_type'     => array('m'=>'rmItemsType'),
@@ -274,6 +276,46 @@ class elModuleAdminIShop extends elModuleIShop
     elLocation(EL_URL.$this->_cat->ID);
   }
 
+
+	function moveUp()
+  {
+
+  	$cat = $this->_getCategory();
+  	if ( !$cat->ID )
+  	{
+  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
+  			array($cat->getObjName(), $cat->ID),
+  			EL_URL.$this->_cat->ID);
+  	}
+  	if ( !$cat->move() )
+  	{
+  		elThrow(E_USER_NOTICE, 'Can not move object "%s" "%s" up',
+  			array($cat->getObjName(), $cat->name),
+  			EL_URL.$this->_cat->ID );
+  	}
+  	elMsgBox::put( m('Data saved') );
+  	elLocation(EL_URL.$this->_cat->ID);
+  }
+
+  function moveDown()
+  {
+
+  	$cat = $this->_getCategory();
+  	if ( !$cat->ID )
+  	{
+  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
+  			array($cat->getObjName(), $cat->ID),
+  			EL_URL.$this->_cat->ID);
+  	}
+  	if ( !$cat->move(false) )
+  	{
+  		elThrow(E_USER_WARNING, 'Can not move object "%s" "%s" up',
+  			array($cat->getObjName(), $cat->name),
+  			EL_URL.$this->_cat->ID );
+  	}
+  	elMsgBox::put( m('Data saved') );
+  	elLocation(EL_URL.$this->_cat->ID);
+  }
   /**
    * Перемещение категории вверх/вниз в пределах родительского узла
    * если 2-ой аргумент в URL непустой - перемещаем вверх
@@ -293,6 +335,7 @@ class elModuleAdminIShop extends elModuleIShop
   		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	EL_URL.$this->_cat->ID );
   	}
   	elMsgBox::put( m('Data saved') );
+
   	elLocation(EL_URL.$this->_cat->ID);
   }
 
@@ -304,7 +347,7 @@ class elModuleAdminIShop extends elModuleIShop
 
   function editMnf()
   {
-    $mnf = $this->_factory->getMnf( (int)$this->_arg(1) ); //elPrintR($mnf);
+    $mnf = $this->_factory->getMnf( (int)$this->_arg(1) ); 
     if ( !$mnf->editAndSave() )
     {
       $this->_initRenderer();
@@ -313,6 +356,18 @@ class elModuleAdminIShop extends elModuleIShop
     elMsgBox::put( m('Data saved') );
     elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
   }
+
+	function rmMnf()
+	{
+		$mnf = $this->_factory->getMnf( (int)$this->_arg(1) ); 
+		if (!$mnf->ID)
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($mnf->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);	
+		}
+		$mnf->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $mnf->getObjName(), $mnf->name) );
+	    elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
+	}
 
   function editTm()
   {
@@ -331,7 +386,17 @@ class elModuleAdminIShop extends elModuleIShop
     elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
   }
 
-
+	function rmTm()
+	{
+		$tm = $this->_factory->getTm( (int)$this->_arg(1) );
+		if (!$tm->ID)
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($tm->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);	
+		}
+		$tm->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $tm->getObjName(), $tm->name) );
+	    elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
+	}
 
   function editCrossLinks()
 	{
@@ -497,7 +562,7 @@ class elModuleAdminIShop extends elModuleIShop
     $nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
     $form->add( new elSelect('itemsPerPage', m('Number of documents per page'),
     							$this->_conf('itemsPerPage'), $nums ) );
-    $form->add( new elSelect('displayCatDescrip', m('Display current category description'),
+    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'),
     						$this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
 
     $form->add( new elSelect('displayCode', m('Display item code/articul'), (int)$this->_conf('displayCode'), $GLOBALS['yn']) );
@@ -547,17 +612,19 @@ class elModuleAdminIShop extends elModuleIShop
   	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
   	$form->setLabel( m('Configure navigation for catalog') );
-  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],
-  														$GLOBALS['posNLRTB'], array('onChange'=>'checkNavForm();')) );
+	$js = "if (this.value != '0') {
+		$(this).parents('tr').eq(0).nextAll('tr').show();
+	} else {
+		$(this).parents('tr').eq(0).nextAll('tr').hide();
+	}";
+  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'], $GLOBALS['posNLRTB'], array('onChange'=>$js)) );
   	$form->add( new elText('title', m('Navigation title'), $c['title']) );
-  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'],
-  														array( m('All levels'), 1, 2, 3, 4 )) );
-  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],
-  														$GLOBALS['yn'], array('onChange'=>'checkNavForm();')) );
+  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+	$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
+  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'], $GLOBALS['yn'], array('onChange'=>$js)) );
   	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
   	$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-  	elAddJs( 'CatalogsAdminCommon.lib.js', EL_JS_CSS_FILE);
-  	elAddJs( 'checkNavForm();', EL_JS_SRC_ONLOAD);
+	elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
   	return $form;
   }
 
@@ -575,7 +642,6 @@ class elModuleAdminIShop extends elModuleIShop
     {
       $this->_mMap['edit'.$id] = array('m'=>'editItem',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
     }
-    //elPrintR($this->_conf);
     if ( !$this->_conf('search') )
     {
       $this->_removeMethods('conf_search');
@@ -584,27 +650,27 @@ class elModuleAdminIShop extends elModuleIShop
 
   function _onInit()
   {
-    parent::_onInit();
+    	parent::_onInit();
 
-    $hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
-    foreach ( $hndls as $k )
+    	$hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
+    	foreach ( $hndls as $k )
 		{
 		  $this->_mMap[$k]['apUrl'] = $this->_cat->ID;
 		}
 
 		if (! $this->_cat->countItems())
-    {
-    	unset($this->_mMap['sort'], $this->_mMap['rm_group']);
-    }
+    	{
+    		unset($this->_mMap['sort'], $this->_mMap['rm_group']);
+    	}
 
 		if ('item' != $this->_mh && 'cross_links' != $this->_mh )
-    {
-      $this->_removeMethods('cross_links');
-    }
-    else
-    {
-      $this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
-    }
+    	{
+      		$this->_removeMethods('cross_links');
+    	}
+    	else
+    	{
+      		$this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
+    	}
   }
 
 

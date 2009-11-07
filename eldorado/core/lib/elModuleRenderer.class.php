@@ -8,9 +8,7 @@ class elModuleRenderer
   var $_mName     = '';
   var $_dir       = '.';
   var $_defTpl    = 'default.html';
-  var $_defAdmTpl = 'adminDefault.html';
   var $_tpls      = array();
-  var $_admTpls   = array();
   var $_paneCont  = array();
   var $_te        = null;
 
@@ -85,6 +83,7 @@ class elModuleRenderer
 
   function renderComplite( $mMap )
   {
+	// $this->_rndCompliteNormal( $mMap );
     if ( EL_WM == EL_WM_NORMAL )
     {
       $this->_rndCompliteNormal( $mMap );
@@ -116,24 +115,7 @@ class elModuleRenderer
 
   function _setFile($h='', $t='', $whiteSpace=false)
   {
-    if ( !$this->_admin )
-    {
-      $tpl = $h && isset($this->_tpls[$h]) ? $this->_tpls[$h] : $this->_defTpl;
-    }
-    elseif ( $h && isset($this->_admTpls[$h]) )
-    {
-      $tpl = $this->_admTpls[$h];
-    }
-    elseif ($h && isset($this->_tpls[$h]) )
-    {
-      $tpl = $this->_tpls[$h];
-    }
-    else
-    {
-      $tpl = $this->_defAdmTpl && file_exists($this->_te->dir.'/'.$this->_dir.$this->_defAdmTpl)
-        ? $this->_defAdmTpl
-        : $this->_defTpl;
-    }
+	$tpl = isset($this->_tpls[$h]) ? $this->_tpls[$h] : $this->_defTpl;
     $this->_te->setFile($t ? $t : 'PAGE', $this->_dir.$tpl, $whiteSpace );
   }
 
@@ -157,6 +139,7 @@ class elModuleRenderer
 
   function _rndCompliteNormal( $acts )
   {
+
     if ( !$this->_tabs )
     {
       $this->_te->setFile('PAGE_TITLE', 'common/pageTitle.html');
@@ -186,89 +169,48 @@ class elModuleRenderer
 
 	function _rndActionsMenu($acts, $isPopUp=false)
 	{ 
-		if (!$this->_te->isBlockExists('A_MENU'))
+
+		if ( $isPopUp ) 
 		{
-			return $this->_rndActionsMenuOLD($acts, $isPopUp);
-		}
-		if ( $isPopUp && !empty($acts['Plugins']) ) 
-		{
+			return;
 			unset($acts['Plugins']);
 		}
-		elAddCss('admin-menu.css',  EL_JS_CSS_FILE);
-		elAddJs('jquery-ui.js',     EL_JS_CSS_FILE);
-		elAddJs('jquery.elmenu.js', EL_JS_CSS_FILE);
+		// elPrintR($acts);
+		// elLoadJQueryUI();
+		// elAddCss('el-menu-float.css',     EL_JS_CSS_FILE);
+		// elAddJs('jquery.cookie.js',       EL_JS_CSS_FILE);
+		// elAddJs('ellib/jquery.elmenu.js', EL_JS_CSS_FILE);
 
-		$html  = '<ul class="rounded-5 a-menu no-print'.($isPopUp ? 'a-menu-popup' : '').'">'; 
-		$html .= '<li class="drag-handle"><img src="{icoDrag}" width="16" /> <img src="{STYLE_URL}icons/admin/delim.gif" width="2" /></li>';
+		$html  = "<ul class='el-menu-float'>\n"; 
+		$html .= '<li class="toplevel drag-helper"><a href="#" onclick="return false" class="drag-helper">&nbsp;</a></li>';
 		foreach ( $acts as $name=>$group )
 		{
 			if ( sizeof($group) ==1 )
 			{
-				$text    = m($group[0]['label']);
-				$onclick = !empty($act['onClick']) ? 'onclick="'.$act['onClick'].'"' : '';
-				if ( empty($group[0]['ico']) )
-				{
-					$css = ' class="a-menu-txt"';
-				}
-				else
-				{
-					$css = '';
-					$text = '<img src="{'.$group[0]['ico'].'}" width="16" title="'.$text.'" />';
-				}
-				$html .= '<li'.$css.'><a href="'.$group[0]['url'].'"'.$onclick.'>'.$text.'</a></li>';
+				$onclick = !empty($act['onClick']) ? ' onclick="'.$act['onClick'].'";return false;' : '';
+				$html .= '<li class="toplevel"><a href="'.$group[0]['url'].'"'.$onclick.' class="'.$group[0]['ico'].'" title="'.m($group[0]['label']).'">&nbsp;</a></li>';
 			}
 			elseif ( sizeof($group) > 1 )
 			{
-				$text = m($name); 
-				
-				$html .= !empty($GLOBALS['elIcons']['Group'.$name])
-					? '<li><img src="{icoGroup'.$name.'}" width="16" title="'.$text.'" />' 
-					: '<li class="a-menu-txt">'.$text.'';
+				$html .= '<li class="toplevel"><a href="#" class="'.str_replace(' ', '_', $name).'"  onclick="return false;">&nbsp;</a>';
+
 				$html .= '<ul>';
-				foreach ( $group as $act )
-				{ //elPrintR($act);
-					$html .= '<li>'; 
-					$html .= '<a href="'.$act['url'].'"'.(!empty($act['onClick']) ? 'onclick="'.$act['onClick'].'"' : '').'>';
-					$html .= !empty($act['ico']) ? '<img src="{'.$act['ico'].'}" /> ' : '';
-					$html .= m($act['label']);
-					$html .= '</a></li>';
+				foreach ($group as $act) 
+				{
+					// elPrintR($act);
+					$onclick = !empty($act['onClick']) ? 'onclick="'.$act['onClick'].'; return false"' : '';
+					$html .= '<li><a href="'.$act['url'].'" class="'.$act['ico'].'" '.$onclick.'>'.m($act['label']).'</a></li>';
 				}
-				$html .= '</li></ul>';
+				$html .= '</ul>';
+				$html .= '</li>';
 			}
-			
-			
 		}
 		$html .= '</ul>';
 		$this->_te->assignBlockVars('A_MENU', array('amenu'=>$html));
 	}
 		
 
-  function _rndActionsMenuOLD($acts, $isPopUp=false)
-  {
-  	elAddJs('gMenu.js', EL_JS_CSS_FILE);
-  	elAddCss('gMenu.css');
-  	$js = '';
-  	$this->_te->setFile('ACTIONS_MENU', 'common/actionsMenu.html');
-  	foreach ($acts as $gName=>$g)
-  	{
-        $actName = 'act'.str_replace(' ', '_', $gName);
-  		$js .= "var ".$actName." = [";
-  		foreach ($g as $a)
-  		{
-  			if ($isPopUp)
-  			{
 
-  				$a['url'] = str_replace(EL_URL, EL_URL.EL_URL_POPUP.'/', $a['url']);
-  			}
-  			$js .= '["'.(m($a['label']).'", "'.$a['url']).'", null,'.(!empty($a['onClick'])?'"'.$a['onClick'].'"':'null').'], ';
-  		}
-  		$js = substr($js, 0, -2);
-  		$js .= "];";
-  		$vars = array('groupID'=>$gName, 'arName'=>$actName, 'groupName'=>m($gName)); //elPrintR($vars);
-  		$this->_te->assignBlockVars('AGROUP', $vars);
-  	}
-  	elAddJs($js);
-  }
 
   function _rndPane()
   {

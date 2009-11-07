@@ -1,5 +1,7 @@
 <?php
 
+
+
 define ('EL_IS_CAT',      1);
 define ('EL_IS_ITEM',     2);
 define ('EL_IS_ITYPE',    3);
@@ -12,6 +14,26 @@ define ('EL_IS_PROP_STR',   1);
 define ('EL_IS_PROP_TXT',   2);
 define ('EL_IS_PROP_LIST',  3);
 define ('EL_IS_PROP_MLIST', 4);
+
+if (!defined('EL_IS_USE_MNF'))
+{
+	define('EL_IS_USE_MNF',    1);
+	define('EL_IS_USE_TM',     2);
+	define('EL_IS_USE_MNF_TM', 3);
+
+	define('EL_IS_SORT_NAME',  1);
+	define('EL_IS_SORT_CODE',  2);
+	define('EL_IS_SORT_PRICE', 3);
+	define('EL_IS_SORT_TIME',  4);
+	
+}
+
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItem.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopManufacturer.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemType.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 
 class elIShopFactory
 {
@@ -191,16 +213,15 @@ class elIShopFactory
           return null;
         }
 
-        if ( empty($this->_objs[$hndl]) )
-        {
-          $this->_objs[$hndl] = elSingleton::getObj($this->_classes[$hndl]['name']);
+			$c = $this->_classes[$hndl]['name'];
+			$this->_objs[$hndl] = new $c();
           $tbs = $this->_classes[$hndl]['tbs'];
           for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
           {
             $member = ($i==0) ? 'tb' : $tbs[$i];
             $this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
           }
-        }
+
         $obj = $this->_objs[$hndl];
         $obj->setUniqAttr((int)$ID);
 

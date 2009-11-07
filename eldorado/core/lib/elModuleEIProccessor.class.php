@@ -264,6 +264,7 @@ class elModuleEIProccessor
       {
          return true;
       }
+
       if (false == ($raw = $this->_getRemoteFile($this->_sourceBaseURL.$file)) )
       {
          return false;

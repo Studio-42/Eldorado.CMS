@@ -6,7 +6,6 @@ class elNavPage extends elMemberAttribute
 	var $tree          = null;
 	var $ID            = 0;
 	var $parentID      = 1;
-	var $level         = 1;
 	var $name          = '';
 	var $descrip       = '';
 	var $dir           = '';

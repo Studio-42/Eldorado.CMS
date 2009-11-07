@@ -160,7 +160,7 @@ class elForumPost extends elDataMapping
 	
 	function _attrsForSave()
 	{
-		$attrs = $this->attr();
+		$attrs = $this->attr(); 
 		$attrs['subject'] = strip_tags($attrs['subject']);
 		$attrs['message'] = strip_tags($attrs['message']);	
 		// проверяем картинки

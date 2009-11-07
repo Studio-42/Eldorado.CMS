@@ -1,0 +1,65 @@
+<!-- BEGIN BB_PANEL -->
+	<div id="mod-bb-panel">
+		<table>
+			<tr>
+				<td class="left">
+					<!-- BEGIN BB_NOT_PUBLISHED --><div><a href="{URL}new/">{m('Not published messages')}: {num}</a></div><!-- END BB_NOT_PUBLISHED -->
+				</td>
+				<td class="right" align="right">
+					<!-- BEGIN BB_AUTH_FORM -->
+					<form action="{URL}__auth__/" method="POST" name="af">  
+						<input type="hidden" name="_form_" value="elf" />
+						<input type="hidden" name="elAutoLogin" value="1" />
+						{m('Login')}: <input type="text" name="elLogin" size="12" />
+						{m('Password')}: <input type="password" name="elPass" size="12" />
+						<input type="submit" value="{m('Log in')}" class="form-submit" />
+						<span>|</span> <a href="{URL}__passwd__/">{m('Forgot Your password?')}</a>
+						<!-- BEGIN BB_REG -->
+						<span>|</span> <a href="{URL}reg/">{m('Registration')}</a>
+						<!-- END BB_REG -->
+					</form>
+					<!-- END BB_AUTH_FORM -->
+					<!-- BEGIN BB_POST_BUTTON --><div class="mod-bb-post-button"><a href="{URL}msg/{cat_id}/">{m('New message')}</a></div><!-- END BB_POST_BUTTON -->	
+				</td>
+			</tr>
+		</table>
+	</div>
+<!-- END BB_PANEL -->
+
+
+
+<!-- BEGIN BB_CAT -->
+<div class="mod-bb-cat">
+	<!-- BEGIN BB_CAT_ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}cat_edit/{id}/"   class="icons edit" title="{m('Edit')}"></a></li>
+		<li><a href="{URL}cat_clean/{id}/" class="icons clean" title="{m('Delete all messages')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		<li><a href="{URL}cat_rm/{id}/" class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>		
+	</ul>
+	<!-- END BB_CAT_ADMIN -->
+	<a href="{URL}{id}"><h3>{name}</h3></a> 
+	<div class="num">{m('Messages')}: {items_num}</div>
+	<blockquote>{descrip}</blockquote>
+</div>
+<!-- END BB_CAT -->
+{PAGER}
+<!-- BEGIN BB_ITEM -->
+<div class="mod-bb-item {cssClass}">
+	<!-- BEGIN BB_ITEM_ADMIN -->
+	<ul class="adm-icons">
+		<!-- BEGIN BBI_PUBLISH -->
+		<li><a href="{URL}publish/{id}/"   class="icons ok" title="{m('Publish')}"></a></li>
+
+		<!-- END BBI_PUBLISH -->
+		<li><a href="{URL}msg/{cat_id}/{id}/"   class="icons edit" title="{m('Edit')}"></a></li>
+		<li><a href="{URL}msg_rm/{cat_id}/{id}/" class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>				
+	</ul>
+	<!-- END BB_ITEM_ADMIN -->	
+	<h3>{title}</h3>
+	<div class="author">{crtime} {author} {email} {phone}</div>
+	<p>{content}</p>
+	
+</div>
+<!-- END BB_ITEM -->
+</div>
+{PAGER}

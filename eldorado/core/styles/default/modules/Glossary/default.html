@@ -15,6 +15,12 @@
 <dl>
 <!-- BEGIN GLOSS_ENTRY -->
 	<dt>
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit/{id}/" class="icons edit"  title="{m('Edit')}"></a></li>
+			<li><a href="{URL}rm/{id}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
   <!-- BEGIN GLOSS_WORD -->
   	{word}
   <!-- END GLOSS_WORD -->

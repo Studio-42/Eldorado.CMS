@@ -1,5 +1,6 @@
 <?php
 $elMsg['Manufacturer']       = 'Производитель';
+$elMsg['Trade marks']        = 'Торговые марки';
 $elMsg['Country']            = 'Страна';
 $elMsg['Code/Articul']       = 'Артикул';
 $elMsg['Features']           = 'Характеристики';
@@ -15,5 +16,6 @@ $elMsg['All trade marks']    = 'Все торговые марки';
 $elMsg['Items type']         = 'Тип товара';
 $elMsg['Buy now']            = 'Купить';
 $elMsg['Details']            = 'Подробнее';
+
 
 ?>

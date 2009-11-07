@@ -4,37 +4,49 @@ include_once EL_DIR_CORE.'lib/elCatalogRenderer.class.php';
 class elRndVacancyCatalog extends elCatalogRenderer 
 { 
 
+	/**
+	 * Рисует список документов в одну колонк
+	 *
+	 * @param  array  $items  массив документов
+	 * @return void
+	 **/
 	function _rndItemsOneColumn($items)
 	{
 		for ($i=0,$s=sizeof($items); $i<$s; $i++)
 		{
-			$vars = $items[$i]->toArray();
-			
-			$vars['cssClass'] = $i%2 ? 'dcILight' : 'dcIDark';
-			$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM', $vars, 1);
+			$data = $items[$i]->toArray();
+			$data['cssRowClass'] = $i%2 ? 'strip-odd' : 'strip-ev';
+			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
+			}
 		}
 	}
 
+	/**
+	 * Рисует список документов в две колонки
+	 *
+	 * @param  array  $items  массив документов
+	 * @return void
+	 **/
 	function _rndItemsTwoColumns($items)
 	{
-		$j=0;
+		$rowCnt = 0;
 		for ($i=0, $s = sizeof($items); $i<$s; $i++ )
 		{
-			if ( ($i+1)%2 )
+			$data = $items[$i]->toArray();
+			$data['cssLastClass'] = 'col-last';
+			if (!($i%2))
 			{
-				$l = 1;
-				$j++;
+				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s-1 ? 'invisible' : '');
+				$this->_te->assignBlockVars('ITEMS_TWOCOL', $var);
+				$data['cssLastClass'] = '';
 			}
-			else
+			$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM', $data, 1 );
+			if ($this->_admin)
 			{
-				$l = 2;
-			}
-			$vars = $items[$i]->toArray();
-			$vars['cssClass'] = ($j%2) ? 'dcILight' : 'dcIDark';
-			$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM', $vars, $l );
-			if ( 1 == $l )
-			{
-				$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM.IDELIM', null, 3 );
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
 			}
 		}
 	}

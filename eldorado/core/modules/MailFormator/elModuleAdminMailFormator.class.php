@@ -61,10 +61,15 @@ class elModuleAdminMailFormator extends elModuleMailFormator
 			$this->_form->add( new elSelect('rcpt',  m('Select recipient'), null, $this->_rcptList));
 			$this->_form->add( new elCData('dummy', '') );
 		}
-		$tpl = "<div class=\"admin-icons\"><a href=\"".EL_URL."edit/%d/\">"
-			   ."<img src=\"{icoEdit}\" title=\"".m('Edit')."\" /></a>"
-			   ."<a href=\"".EL_URL."rm/%d/\" onClick=\"return confirm('".m('Do You really want to delete ')."?');\">"
-			   ."<img src=\"{icoDelete}\" title=\"".m('Delete')."\" /></a></div>";
+		$tpl = "<ul class=\"adm-icons\">"
+			   ."<li><a href=\"".EL_URL."edit/%d/\" class=\"icons edit\" title=\"".m('Edit')."\"></a></li>"
+			   ."<li><a href=\"".EL_URL."rm/%d/\" class=\"icons delete\"  title=\"".m('Delete')."\" onClick=\"return confirm('".m('Do You really want to delete ')."?');\"></a></li>"
+			   ."</ul>";
+
+		$tpl = '<table cellpadding="0" cellspacing="0"><tr>
+			<td style="padding:0 1px"><a href="'.EL_URL.'edit/%d/" class="icons edit"  title="'.m('Edit').'"></a></td>
+			<td style="padding:0 1px"><a href="'.EL_URL.'rm/%d/"   class="icons delete" title="'.m('Delete').'" onClick="return confirm(\''.m('Do You really want to delete ').'?\');"></a></td>
+		</table>';
 
 		foreach ($this->_fList as $el)
 		{ 
@@ -98,8 +103,7 @@ class elModuleAdminMailFormator extends elModuleMailFormator
 		$form->add( new elText('replyMsg',          m('Confirmation text'),        $this->_conf('replyMsg')) );
 		$form->add( new elText('subject',           m('Subject'),                  $this->_conf('subject')) );
 		$form->add( new elSelect('selectRcpt',      m('Allow select recipient'),   $this->_conf('selectRcpt'), $GLOBALS['yn']));
-		$form->add( new elCheckBoxesGroup('rcptIDs',m('Recipients'),               array_keys($this->_rcptList),
-																			$this->_ec->getLabels()) );
+		$form->add( new elCheckBoxesGroup('rcptIDs',m('Recipients'),               array_keys($this->_rcptList), 																$this->_ec->getLabels()) );
 		$form->setRequired('rcptIDs[]');
 		return $form;
 	}

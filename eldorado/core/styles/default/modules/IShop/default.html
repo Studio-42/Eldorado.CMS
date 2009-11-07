@@ -5,45 +5,62 @@
 
 <!-- BEGIN CATS_ONECOL -->
 <ul class="cats-onecol">
-	<!-- BEGIN O_CAT -->
-	<li style="padding-left:{! ({level}-1)*1.7 !}em;" class="clearfix {cssRowClass} ">
-		<div>
-			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-			<div class="cat-descrip">{descrip}</div>
-			<div class="ie-clear"></div>
-		</div>
+	<!-- BEGIN CAT -->
+	<li style="padding-left:{! ({level})*1.7 !}em;" class="clearfix {cssRowClass} ">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+			<li><a href="{URL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
+			<li><a href="{URL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+			<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+		{descrip}
+		<div class="ie-clear"></div>
 	</li>
-	<!-- END O_CAT -->
+	<!-- END CAT -->
 </ul>
 <!-- END CATS_ONECOL -->
 
 <!-- BEGIN CATS_TWOCOL -->
-<div class="cats-twocol">
-	<!-- BEGIN ROW -->
-	<div class="grid {cssRowClass}">	
-		<!-- BEGIN T_CAT -->
-		<div class="col-50 {cssLastClass}">
-			<div class="col-content">
-				<ul class="clearfix">
-					<li class="clearfix">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
-						<div class="cat-descrip">{descrip}</div>
-					</li>
-					<!-- BEGIN SUBCATS -->
-					<!-- BEGIN SUBCAT -->
-					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-						<div class="cat-descrip">{descrip}</div>
-					</li>
-					<!-- END SUBCAT -->
-					<!-- END SUBCATS -->
-					<!-- BEGIN CDELIM --> <!-- END CDELIM -->
-				</ul>
-			</div>
+<div class="nicegrid-50 rounded-7 {cssRowClass} cats-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN CAT -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+				<li><a href="{URL}move/{catID}/{id}/1/"   class="icons up"       title="{m('Move up')}"></a></li>
+				<li><a href="{URL}move/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+				<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<!-- END ADMIN -->
+			<a href="{URL}{id}/" class="cat-title">{name}</a>
+			{descrip}
+			<!-- BEGIN SUB_CATS -->
+			<ul>
+				<!-- BEGIN SUB_CAT -->
+				<li style="clear:right">
+					<!-- BEGIN ADMIN2 -->
+					<ul class="adm-icons">
+						<li><a href="{URL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
+						<li><a href="{URL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
+						<li><a href="{URL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+						<li><a href="{URL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END ADMIN2 -->
+					<a href="{URL}{id}/" class="cat-title">{name}</a> 
+					{descrip}
+				</li>
+				<!-- END SUB_CAT -->
+			</ul>
+			<!-- END SUB_CATS -->
 		</div>
-		<!-- END T_CAT -->
-	</div>			
-	<!-- END ROW -->
+		<!-- END CAT -->
+		<div class="clear"></div>
+	</div>
 </div>
 <!-- END CATS_TWOCOL -->
 
@@ -51,102 +68,104 @@
 
 <!-- BEGIN ITEMS_ONECOL -->
 <ul class="items-onecol">
-	<!-- BEGIN O_ITEM -->
-	<li class="rounded-5 {cssRowClass} clearfix">
+	<!-- BEGIN ITEM -->
+	<li class="{cssRowClass} clearfix">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li style="border:none;padding:0"><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+			<li style="border:none;padding:0"><a href="{URL}item_img/{catID}/{id}/"                 class="icons image" title="{m('Change item image')}"></a></li>
+			<li style="border:none;padding:0"><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
 		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
-		<div class="item-announce clearfix">
-			<!-- BEGIN OI_IMG -->
-	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
-	        <!-- END OI_IMG -->
-			<!-- BEGIN OI_PRICE --> 
-				<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
-			<!-- END OI_PRICE -->
-			<!-- BEGIN OI_CODE --> 
-				<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
-			<!-- END OI_CODE -->
-			<!-- BEGIN OI_MNF_TM -->
-	        <div class="mod-ishop-mnf">
-	          	<!-- BEGIN OI_MNF --> <strong>{mnf}</strong> {country}<!-- END OI_MNF --> 
-				<!-- BEGIN OI_TM --> {tm} <!-- END OI_TM -->
-        	</div>
-        	<!-- END OI_MNF_TM -->
-		
-			{announce} 
-			<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Details')}</a></div>
-		</div>
-		<!-- BEGIN OC_ANN_PROPS -->
+		<!-- BEGIN IMG -->
+          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
+        <!-- END IMG -->
+		<!-- BEGIN PRICE --> 
+			<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
+		<!-- END PRICE -->
+		<!-- BEGIN CODE --> 
+			<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
+		<!-- END CODE -->
+		<!-- BEGIN MNF_TM -->
+        <div class="mod-ishop-mnf">
+        <!-- BEGIN MNF --> <strong>{mnf}</strong> {country}<!-- END MNF --> 
+		<!-- BEGIN TM --> {tm} <!-- END TM -->
+    	</div>
+    	<!-- END MNF_TM -->
+		{announce}
+		<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
+		<!-- BEGIN ANN_PROPS -->
 		<div class="rounded-3 mod-ishop-fts">
         	<table>
-          		<!-- BEGIN OC_ANN_PROP -->
+          		<!-- BEGIN ANN_PROP -->
 				<tr>
 					<td class="mod-ishop-ft-name">{name}:</td>
 					<td class="mod-ishop-ft-val">{value}</td>
 				</tr>
-          		<!-- END OC_ANN_PROP -->
+          		<!-- END ANN_PROP -->
 			</table>
         </div>
-        <!-- END OC_ANN_PROPS -->
+        <!-- END ANN_PROPS -->
 	</li>
-	<!-- END O_ITEM -->
+	<!-- END ITEM -->
 </ul>
 <!-- END ITEMS_ONECOL -->
 
-
 <!-- BEGIN ITEMS_TWOCOL -->
+<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN ITEM -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+				<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image" title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+			
+			<!-- BEGIN PRICE --> 
+				<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
+			<!-- END PRICE -->
+			<!-- BEGIN CODE --> 
+				<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
+			<!-- END CODE -->
+			<!-- BEGIN MNF_TM -->
+	        <div class="mod-ishop-mnf">
+	        <!-- BEGIN MNF --> <strong>{mnf}</strong> {country}<!-- END MNF --> 
+			<!-- BEGIN TM --> {tm} <!-- END TM -->
+	    	</div>
+	    	<!-- END MNF_TM -->
+			<table class="full">
+				<tr><td>
+			<!-- BEGIN IMG -->
+	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
 
-<div class="items-twocol">
-
-	<!-- BEGIN IROW -->
-	<div class="grid stretch {cssRowClass_} no-ie-padding">
-		
-	    <!-- BEGIN T_ITEM -->
-		<div class="col-49 rounded-5 {cssRowClass} {cssLastClass}">
-			<div class="col-content">
-				<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
-				<div class="clearfix">
-					<!-- BEGIN TI_IMG -->
-			          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
-			        <!-- END TI_IMG -->
-					<!-- BEGIN TI_PRICE --> 
-						<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
-					<!-- END TI_PRICE -->
-					<!-- BEGIN TI_CODE --> 
-						<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
-					<!-- END TI_CODE -->
-					<!-- BEGIN TI_MNF_TM -->
-			        <div class="mod-ishop-mnf">
-			          	<!-- BEGIN TI_MNF --> <strong>{mnf}</strong> {country}<!-- END TI_MNF --> 
-						<!-- BEGIN TI_TM --> {tm} <!-- END TI_TM -->
-		        	</div>
-		        	<!-- END TI_MNF_TM -->
-				</div>
-				<div class="item-announce clearfix">
-					{announce}
-					<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Details')}</a></div>
-				</div>
-				<!-- BEGIN TC_ANN_PROPS -->
-				<div class="rounded-3 mod-ishop-fts">
-		        	<table>
-		          		<!-- BEGIN TC_ANN_PROP -->
-						<tr>
-							<td class="mod-ishop-ft-name">{name}:</td>
-							<td class="mod-ishop-ft-val">{value}</td>
-						</tr>
-		          		<!-- END TC_ANN_PROP -->
-					</table>
-		        </div>
-		        <!-- END TC_ANN_PROPS -->
-			</div>
+			<!-- END IMG -->
+			{announce}
+			</td></tr>
+			</table>
+			<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
+			<!-- BEGIN ANN_PROPS -->
+			<div class="rounded-3 mod-ishop-fts" >
+	        	<table>
+	          		<!-- BEGIN ANN_PROP -->
+					<tr>
+						<td class="mod-ishop-ft-name">{name}:</td>
+						<td class="mod-ishop-ft-val">{value}</td>
+					</tr>
+	          		<!-- END ANN_PROP -->
+				</table>
+	        </div>
+			<!-- END ANN_PROPS -->
 		</div>
-	    <!-- BEGIN IDELIM --> <div class="col-var" ></div> <!-- END IDELIM -->
-	  	<!-- END T_ITEM -->
-
+	<!-- END ITEM -->
+	<div class="clear"></div>
 	</div>
-	<!-- END IROW -->
-
 </div>
 <!-- END ITEMS_TWOCOL -->
-
 
 </div>
 {PAGER}

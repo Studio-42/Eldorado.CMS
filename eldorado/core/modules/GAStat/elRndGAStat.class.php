@@ -145,7 +145,6 @@ class elRndGAStat extends elModuleRenderer
 		}
 	}
 	
-	
 }
 
 ?>

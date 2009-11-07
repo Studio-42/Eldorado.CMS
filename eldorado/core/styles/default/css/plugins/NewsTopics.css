@@ -1,6 +1,8 @@
-.pl-news ul      { margin:0; padding:0; }
+.pl-news ul      { margin:0; padding:0 0 0 10px; }
 .pl-news ul li   { margin:0; padding:1em 0 .7em 0; list-style:none; border-bottom:1px solid #ccc; }
 .pl-news ul li p { line-height:1.1em;}
 .pl-news-topic   { margin-bottom:.5em; }
 .pl-news-date    { display:inline-block; padding: .3em; background:#eee; border:1px solid #ccc; margin-bottom:.5em; }
 .pl-news-top table td { vertical-align: top;}
+.pl-news-title { background:#dee7ed url("style/images/design/line.gif") 0 top repeat-x; }
+.pl-news-title  h5 {text-align:center;}

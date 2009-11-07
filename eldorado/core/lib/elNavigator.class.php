@@ -190,6 +190,21 @@ class elNavigator
 		return isset($this->menus[$ID]) ? $this->menus[$ID]['name'] : null;
 	}
 
+	function getPageFullTitle($ID)
+	{
+		$ret = '';
+		if (!empty($this->menus[$ID]))
+		{
+			$db = &elSingleton::getObj('elDb');
+			$sql = 'SELECT IF(m.content IS NULL, p.name, m.content) AS name FROM el_menu AS c, '
+				.'el_menu AS p LEFT JOIN el_metatag AS m ON m.page_id=p.id AND c_id=0 AND i_id=0 AND m.name="title" '
+				.'WHERE c.id='.$ID.' AND c._left BETWEEN p._left AND p._right AND p.level>0 '
+				.'ORDER BY p._left';
+			$ret = implode(' &raquo; ', $db->queryToArray($sql, null, 'name'));
+		}
+		return $ret;
+	}
+
 	/**
    * возвращает массив - текущую страницу
    */
@@ -223,8 +238,22 @@ class elNavigator
 		return null;
 	}
 
+	function findByModule($module)
+	{
+		$ret = array();
+		foreach ( $this->menus as $page )
+		{
+			if ( $module == $page['module'] )
+			{
+				$ret[] = $page['id'];
+			}
+		}
+		return $ret;
+	}
+
 	function getPageID( $dir )
 	{
+		
 		foreach ( $this->menus as $ID=>$page )
 		{
 			if ( $dir == $page['dir'] )
@@ -296,6 +325,7 @@ class elNavigator
                         $this->aMenus[EL_ADD_MENU_SIDE][$r['m_id']]['pages'][] = array('id'    => $r['p_id'],
                                                                                        'name'  => $this->menus[$r['p_id']]['name'],
                                                                                        'url'   => $this->menus[$r['p_id']]['url'],
+																					'ico_main' =>$this->menus[$r['p_id']]['ico_main'],
                                                                                        'level' => 1//$this->menus[$r['p_id']]['level']
                                                                                        );
                     }

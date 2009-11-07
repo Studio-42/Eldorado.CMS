@@ -13,9 +13,9 @@
         	<td>{usedMsg}</td>
         	<td class="admin">
             <!-- BEGIN MODRM -->
-            <a href="{SUBMODULE_URL}rm/{module}/" onclick="return confirm('{m('ATTENTION! Module')} `{name}` {m('will be removed from system!')} \n{m('You will not not be able to create pages using this module.')} \n{m('Continue')}?');">
-        		<img src="{icoDelete}" title="{m('Delete')}" />
-			</a>
+			<ul class="adm-icons">
+				<li><a href="{SUBMODULE_URL}rm/{module}/" class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('ATTENTION! Module')} `{name}` {m('will be removed from system!')} \n{m('You will not not be able to create pages using this module.')} \n{m('Continue')}?');"></a></li>
+			</ul>
             <!-- END MODRM -->
         </td>
     </tr>

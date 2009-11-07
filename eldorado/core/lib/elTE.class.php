@@ -61,7 +61,6 @@ class elTE
 		$argsStr  = implode('/', $GLOBALS['core']->args);
 		$argsStr  = strlen($argsStr) > 1 ? '/'.$argsStr.'/' : '/';
 		$argsStr .= !empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : '';
-		$this->assignVars('PRINT_URL', EL_URL.EL_URL_PRNT.$argsStr);
 		$this->assignVars('POPUP_URL', EL_URL.EL_URL_POPUP.'/');
 		$this->assignVars('LANG',      defined('EL_LANG') ? EL_LANG : 'en');
 

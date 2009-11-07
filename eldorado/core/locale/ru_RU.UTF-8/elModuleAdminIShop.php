@@ -11,7 +11,7 @@ $elMsg['Good']                               = 'Товар';
 $elMsg['Item']                               = 'Товар';
 $elMsg['Manufacturer']                       = 'Производитель';
 $elMsg['Good type']                          = 'Тип товара';
-$elMsg['Type name']                          = 'Название типа';
+$elMsg['Type']                          = 'Название типа';
 $elMsg['Property type']                      = 'Тип свойства';
 $elMsg['String']                             = 'Строка';
 $elMsg['Text']                               = 'Текст';
@@ -38,7 +38,7 @@ $elMsg['Features']                           = 'Характеристики';
 
 $elMsg['Configure advanced search']          = 'Настройки расширенного поиска';
 $elMsg['Display item code/articul']          = 'Показывать код / артикул товара';
-$elMsg['Manufacturers/Trade marks']          = 'Информация о производителе / торговой марке';
+$elMsg['Manufacturers / Trade marks']          = 'Информация о производителе / торговой марке';
 $elMsg['Do not use']                         = 'Не использовать';
 $elMsg['Use only manufacturers info']        = 'Только производитель';
 $elMsg['Use only trade marks info']          = 'Только торговая маркв';
@@ -90,4 +90,18 @@ $elMsg['Undefined group for new search element']   = 'Не определена 
 $elMsg['An error occured']                         = 'Произошла ошибка!';
 $elMsg['Element was removed']                      = 'Элемент удален';
 $elMsg['There are no one search groups to be sorted'] = 'Не существует ни одной группы элементов поиска';
+$elMsg['Select or upload image file']              = 'Выбрать или загрузить файл изображения';
+$elMsg['Preview']   						       = 'Предпросмотр';
+$elMsg['Item code must be unique'] 			       = 'Товар с таким артикулом уже существует';
+$elMsg['Import Commerce ML'] 			           = 'Импорт из 1С Commerce ML';
+$elMsg['Import from 1C'] 			               = 'Импорт из 1С';
+$elMsg['CL file'] 			           			   = 'CL файл';
+$elMsg['Change item image'] 			           = 'Выбрать изображения для товара';
+$elMsg['Depend on'] = 'Зависит от';
+$elMsg['Edit/remove dependance'] = 'Изменить/удалить зависимость';
+
+
+
+
+
 ?>

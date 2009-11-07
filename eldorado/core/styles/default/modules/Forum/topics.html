@@ -1,0 +1,60 @@
+<div class="mod-forum-tl-wrapper">
+	<div class="mod-forum-tl-border">
+		<table class="mod-forum-tl">
+			<thead>
+				<tr>
+					<th colspan="2"></th>
+					<th>{m('Topics')}</th>
+					<th>{m('Replies')}</th>
+					<th>{m('Views')}</th>
+					<th>{m('Author')}</th>
+					<th>{m('Last replies')}</th>
+					<!-- BEGIN TA_HEAD -->
+					<th><img src="{STYLE_URL}images/pixel.gif" width="33" height="1" /></th>
+					<!-- END TA_HEAD -->
+				</tr>
+			</thead>
+			<tbody>
+				<!-- BEGIN TOPIC -->
+				<tr>
+					<td class="mod-forum-tl-ico first"><img src="{ico}" /></td>
+					<td class="mod-forum-tl-ico">
+						<!-- BEGIN STICKED --><img src="{STYLE_URL}images/forum/topics/sticky.png" title="{m('Important topic')}" /><!-- END STICKED -->
+						<!-- BEGIN LOCKED --><img src="{STYLE_URL}images/forum/topics/locked.png" title="{m('Topic closed')}" /><!-- END LOCKED -->
+						<!-- BEGIN ICO --><img src="{STYLE_URL}images/forum/posts/{ico}"  /><!-- END ICO -->
+					</td>
+					<td class="mod-forum-tl-name"><a href="{URL}topic/{cat_id}/{id}/"><strong>{subject}</strong></a></td>
+					<td class="mod-forum-tl-num">{num_replies}</td>
+					<td class="mod-forum-tl-view">{num_views}</td>
+					<td class="mod-forum-tl-author">
+						<a href="{URL}profile/{author_uid}" class="link link-user">{author}</a><br />
+						<span>{first_post_date}</span>
+					</td>
+					<td class="last">
+						<a href="{URL}topic/{cat_id}/{id}/last/#{last_post_id}" class="link forward">{last_post_date}</a><br />
+						<a href="{URL}profile/{last_post_uid}/" class="link link-user">{last_post_author}</a>
+					</td>
+					<!-- BEGIN T_ADMIN -->
+					<td class="mod-forum-tl-admin last">
+						<ul class="adm-icons">
+						<!-- BEGIN TOPIC_STICKY -->
+						<li><a href="{URL}sticky/{cat_id}/{id}/{forum_current_page}" class="icons stick" title="{m('Stiky/unsticky topic')}"></a></li>
+						<!-- END TOPIC_STICKY -->
+						<!-- BEGIN TOPIC_LOCK -->
+						<li><a href="{URL}lock/{cat_id}/{id}/{forum_current_page}" class="icons lock" title="{m('Lock/unlock topic')}"></a></li>						
+						<!-- END TOPIC_LOCK -->
+						<!-- BEGIN TOPIC_MOVE -->
+						<li><a href="{URL}topic_move/{cat_id}/{id}/{forum_current_page}" class="icons move-to" title="{m('Move topic to another forum')}"></a></li>						
+						<!-- END TOPIC_MOVE -->
+						<!-- BEGIN TOPIC_RM -->
+						<li><a href="{URL}topic_rm/{cat_id}/{id}/"   class="icons delete"   title="{m('Delete)}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+						<!-- END TOPIC_RM -->
+						</ul>
+					</td>
+					<!-- END T_ADMIN -->
+				</tr>
+				<!-- END TOPIC -->
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -16,6 +16,7 @@ class elRndFAQ extends elModuleRenderer
 			$qNum         = 1;
 
 			$this->_te->assignBlockVars('FAQ_CAT', $data);
+			$this->_te->assignBlockVars('FAQ_CAT.CAT_ADMIN', array('cid' => $data['cid']), 1);
 			$cssDisplay = EL_WM == EL_WM_PRNT ? 'block' : 'none';
 			foreach ( $cat->quests as $q )
 			{
@@ -29,6 +30,7 @@ class elRndFAQ extends elModuleRenderer
 				$this->_te->assignBlockVars('FAQ_CAT.FAQ_CAT_QUEST_LIST.FAQ_QUESTION', $data, 2);
 				if ( $this->_admin )
 				{
+					$this->_te->assignBlockVars('FAQ_CAT.FAQ_CAT_QUEST_LIST.FAQ_QUESTION.ADMIN', array('id' => $data['id']), 3);
 					if ( !$data['status'] )
 					{
 						$this->_te->assignBlockVars('FAQ_CAT.FAQ_CAT_QUEST_LIST.FAQ_QUESTION.FQ_NOTPUBL', null, 3);

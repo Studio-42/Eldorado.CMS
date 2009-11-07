@@ -1,4 +1,5 @@
 <?php
+include_once EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elFileInfo.class.php';
 
 define('EL_ARCTYPE_GZIP', 1);
 define('EL_ARCTYPE_BZIP', 2);
@@ -42,6 +43,8 @@ class elArk
 
 	var $_overwrite = false;
 
+
+
 	/**
 	 * Конструктор
 	 * Проверяет наличие системных архиваторов
@@ -49,26 +52,42 @@ class elArk
 	 */
   function elArk()
 	{
-		if ( false == ($test = exec('which bzip2')) || '/' <> $test[0] )
+		exec('tar --version', $o, $c);
+		if ($c == 0)
 		{
-		  unset($this->_handles[EL_ARCTYPE_BZIP][1]);
-		  unset($this->_handles[EL_ARCTYPE_BZIP][2]);
+			exec('gzip --version', $o, $c);
+			if ($c>0)
+			{
+				unset($this->_handles[EL_ARCTYPE_GZIP][1]);
+				unset($this->_handles[EL_ARCTYPE_GZIP][2]);
+			}
+			exec('bzip2 --version', $o, $c);
+			if ($c>0)
+			{
+				unset($this->_handles[EL_ARCTYPE_BZIP][1]);
+				unset($this->_handles[EL_ARCTYPE_BZIP][2]);
+			}
 		}
-		if ( false == ( $test = exec('which zip')) || '/' <> $test[0])
+		else
 		{
-		  unset($this->_handles[EL_ARCTYPE_ZIP][1]);
+			unset($this->_handles[EL_ARCTYPE_BZIP][1]);
+			unset($this->_handles[EL_ARCTYPE_BZIP][2]);
+			unset($this->_handles[EL_ARCTYPE_GZIP][1]);
+			unset($this->_handles[EL_ARCTYPE_GZIP][2]);
 		}
-		if ( false == ( $test = exec('which unzip')) || '/' <> $test[0])
+		exec('unzip --version', $o, $c);
+		if ($c>0)
 		{
-		  unset($this->_handles[EL_ARCTYPE_ZIP][2]);
+			unset($this->_handles[EL_ARCTYPE_ZIP][2]);
 		}
-		if ( false == ( $test = exec('which rar')) || '/' <> $test[0])
+		exec('rar --version', $o, $c);
+		if ($c>0)
 		{
-		  unset($this->_handles[EL_ARCTYPE_RAR][1]);
-		  unset($this->_handles[EL_ARCTYPE_RAR][2]);
+			unset($this->_handles[EL_ARCTYPE_RAR][1]);
+			unset($this->_handles[EL_ARCTYPE_RAR][2]);
 		}
-		if ( empty($this->_handles[EL_ARCTYPE_RAR][2])
-		&&   false != ( $test = exec('which unrar')) && '/' == $test[0])
+		exec('unrar --version', $o, $c);
+		if ($c == 0)
 		{
 			$this->_handles[EL_ARCTYPE_RAR][2] = '_extractUnRar';
 		}
@@ -339,11 +358,7 @@ class elArk
 	    return $this->_setExitCode(1, 'Directory %s is not writable', $tDir);
 	  }
 
-		//if ( !function_exists('mime_content_type') || '' == ($mime = mime_content_type($sFile) ) )
-		//{
-			//$mime = exec( 'file -b '.escapeshellarg($sFile) );
-		//}
-		$mime = elMimeContentType($sFile);
+		$mime = elFileInfo::mimetype($sFile);
 
 		if ( false == ($m = $this->canExtract($mime, true)) )
 		{

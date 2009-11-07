@@ -1,0 +1,5 @@
+.el-borderselect {}
+.el-borderselect .el-select {  }
+.el-borderselect table {  margin:0; }
+.el-borderselect table td { padding : 0 2px 0 0; vertical-align:middle; }
+.el-borderselect input { margin:0;  border:1px solid #ccc; }

@@ -25,6 +25,37 @@ class elFAFile extends elCatalogItem
 	{
 		parent::makeForm($parents);
 
+		
+		elLoadJQueryUI();
+
+		elAddCss('contextmenu.css',  EL_JS_CSS_FILE);
+		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
+		elAddCss('elrtee.css',       EL_JS_CSS_FILE);
+		elAddCss('elfinder.css',     EL_JS_CSS_FILE);
+		
+		elAddJs('jquery.metadata.js',       EL_JS_CSS_FILE);
+		elAddJs('jquery.cookie.js',         EL_JS_CSS_FILE);
+		elAddJs('jquery.form.js',           EL_JS_CSS_FILE);
+		elAddJs('ellib/eli18n.js',          EL_JS_CSS_FILE);
+		elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
+		elAddJs('elfinder/elfinder.js',     EL_JS_CSS_FILE);
+		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
+		{
+			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
+		}
+		
+		$this->form->add(new elCData('img',  "<a href='#' class='link download' id='ishop-sel-file'>".m('Select or upload file')."</a>"));
+		$js = "
+		$('#ishop-sel-file').click(function(e) {
+			e.preventDefault();
+			$('<div />').elfinder({
+				url  : '".EL_URL."__finder__/', 
+				lang : '".EL_LANG."', 
+				editorCallback : function(url) { $('#f_url').val(url);}, 
+				dialog : { width : 750, modal : true}});
+		});
+		";
+		elAddJs($js, EL_JS_SRC_ONREADY);
 		if ($this->fURL)
 		{
 			$fURL =  !strstr($this->fURL, EL_BASE_URL )  ? EL_BASE_URL.'/'.$this->fURL : $this->fURL;
@@ -33,12 +64,8 @@ class elFAFile extends elCatalogItem
 		{
 			$fURL = '';
 		}
-		elAddJs('function SetUrl(URL) { document.getElementById("f_url").value = URL; }');
-		$this->form->add( new elText('f_url',   m('URL'), $fURL) );
-		$this->form->add( new elSubmit('om', m('Select file'), m('Open file manager'),
-		array('onClick'=>'return popUp("'.EL_BASE_URL.'/'.EL_URL_POPUP.'/__fm__/", 400, 500);'))  );
-		$this->form->add( new elEditor('descrip', m('Description'), $this->descrip) );
-
+		$this->form->add( new elText('f_url',  m('URL'), $fURL) );
+		$this->form->add( new elEditor('descrip', m('Description'), $this->descrip, array('class' => 'small')) );
 		$this->form->setRequired('f_url');
 	}
 

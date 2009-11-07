@@ -3,7 +3,15 @@
     	<!-- BEGIN ROW -->
     	<tr>
         	<td>{label}</td>
-        	<td>{val}&nbsp;</td>
+        	<td>
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{SUBMOD_URL}edit/{id}/" class="icons edit" title="{m('Edit')}" ></a></li>
+					<li><a href="{SUBMOD_URL}del/{id}/"      class="icons delete" onClick="return confirm('{m('Do You really want to delete')}' +' {file}');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+				{val}&nbsp;
+			</td>
     	</tr>
     	<!-- END ROW -->
 	</tbody>

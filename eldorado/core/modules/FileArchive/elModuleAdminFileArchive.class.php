@@ -1,4 +1,5 @@
 <?php
+elLoadMessages('ModuleAdminDocsCatalog');
 
 class elModuleAdminFileArchive extends elModuleFileArchive
 {
@@ -242,7 +243,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
 		$nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
     $form->add( new elSelect('itemsPerPage', m('Number of documents per page'),
     												$this->_conf('itemsPerPage'), $nums ) );
-    $form->add( new elSelect('displayCatDescrip', m('Display current category description'),
+    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'),
     						$this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
     $form->add( new elSelect('displayLmd', m('Display file last modify date'),
     						$this->_conf('displayLmd'), $GLOBALS['yn']) );
@@ -266,17 +267,19 @@ class elModuleAdminFileArchive extends elModuleFileArchive
   	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
   	$form->setLabel( m('Configure navigation for catalog') );
-  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],
-  														$GLOBALS['posNLRTB'], array('onChange'=>'checkNavForm();')) );
+	$js = "if (this.value != '0') {
+		$(this).parents('tr').eq(0).nextAll('tr').show();
+	} else {
+		$(this).parents('tr').eq(0).nextAll('tr').hide();
+	}";
+  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],	$GLOBALS['posNLRTB'], array('onChange'=>$js)) );
   	$form->add( new elText('title', m('Navigation title'), $c['title']) );
-  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'],
-  														array( m('All levels'), 1, 2, 3, 4 )) );
-  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],
-  														$GLOBALS['yn'], array('onChange'=>'checkNavForm();')) );
+  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+	$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
+  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'], $GLOBALS['yn'], array('onChange'=>$js)) );
   	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
   	$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-  	elAddJs( 'CatalogsAdminCommon.lib.js', EL_JS_CSS_FILE);
-  	elAddJs('checkNavForm();', EL_JS_SRC_ONLOAD);
+	elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
   	return $form;
   }
 

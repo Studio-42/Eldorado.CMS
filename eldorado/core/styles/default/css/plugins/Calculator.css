@@ -1,0 +1,36 @@
+.pl-calc h5 { margin-left:.5em; margin-right:.5em}
+.pl-calc-variable {
+	padding:5px;
+	clear:both;
+/*	border:1px solid #ccc;*/
+/*	text-align:center;*/
+}
+/*.pl-calc-variable */
+.error { color: #ff0000; display:block;}
+.pl-calc-variable input, .pl-calc-variable select { width: 100px; float:right; vertical-align:top;}
+
+.pl-calc-variable label { 
+/*	display:block; */
+/*	text-align:center;*/
+}
+.pl-calc-submit { 
+	text-align:center; 
+	padding:5px 0; 
+	margin:7px auto; 
+	border-top:1px solid #ccc; 
+	width:90%;
+}
+
+.calc-result-place {
+	margin:3px auto;
+	padding:7px; 
+	border-bottom:1px solid #ccc; 
+	width:90%;
+}
+
+.calc-inline, .calc-dialog {
+	border:1px solid #ccc;
+	padding:.5em;
+	margin:3px 0;
+}
+a.pl-calc-dialog { font-weight:bold;}

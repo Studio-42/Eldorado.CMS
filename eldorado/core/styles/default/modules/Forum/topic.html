@@ -1,0 +1,201 @@
+<div class="mod-forum-p-wrapper">
+	<div class="mod-forum-p-border">
+		<table class="mod-forum-posts">
+			<thead>
+				<tr>
+					<th>{m('Author')}</th>
+					<th>{m('Message')}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- BEGIN POST -->
+				<tr class="{cssRowClass}">
+					<td class="mod-forum-post-author first">
+						<a href="{URL}profile/{author_uid}/"><strong>{author_name}</strong></a>
+						<!-- BEGIN AUTHOR_AVATAR -->
+						<img src="{BASE_URL}storage/avatars/{avatar}" />
+						<!-- END AUTHOR_AVATAR -->
+						<div>{m('Registration')}: {author_reg_date}</div>
+						<div>{m('Posts num')}: {author_posts}</div>
+					</td>
+					<td class="mod-forum-post-msg last">
+						<a name="{id}">{anchor}</a>
+						<div class="mod-forum-post-title">
+							<!-- BEGIN AUTHOR_IP --><div class="float-right"><code>{m('IP address')}: {ip}</code></div><!-- END AUTHOR_IP -->
+							<img src="{STYLE_URL}images/forum/posts/{ico}" />
+							<a href="{URL}topic/{cat_id}/{topic_id}/{forum_current_page}/#{id}" title="{m('Link to this post')}" class="mod-forum-post-subj"><strong>{subject}</strong></a> 
+							<span class="mod-forum-post-date">{create_date}</span> 
+						</div>
+						{message} 
+						
+						<!-- BEGIN POST_ATTACHMENTS -->
+						<div class="mod-forum-attach">
+							<!-- BEGIN POST_ATTACH -->
+							<div class="rounded-5">
+								<!-- BEGIN POST_FILE -->
+								<a href="{URL}view_attach/{cat_id}/{post_id}/{id}/" class="link download">{filename}</a> 
+								<br /><span>{size}Kb {m('Downloads')}: {downloads} </span>
+								<!-- END POST_FILE -->
+								<!-- BEGIN POST_IMG -->
+									<a href="#" target="_blank" onclick="return popUp('{POPUP_URL}view_attach/{cat_id}/{post_id}/{id}/', {img_w}+40, {img_h}+60)"><img src="{BASE_URL}storage/attachments/mini-{filename}" /></a><br />
+									 <span>{img_w}X{img_h}px {size}Kb</span>
+								<!-- END POST_IMG -->
+								<!-- BEGIN ATTACH_RM -->
+								<a class="link link-close attach-rm" href="{URL}attach_rm/{cat_id}/{topic_id}/{id}/{attach_id}/" meta="{URL}topic/{cat_id}/{topic_id}/{forum_current_page}/#{id}"></a>
+								<!-- END ATTACH_RM -->
+							</div>
+							<!-- END POST_ATTACH -->
+						</div>
+						<!-- END POST_ATTACHMENTS -->
+						
+						<!-- BEGIN POST_MODIFIED -->
+						<div class="mod-forum-post-modilied">{m('Last modified by')}: <a href="{URL}profile/{uid}" class="link-user">{name}</a> {date}</div>
+						<!-- END POST_MODIFIED -->
+						<div class="post-actions">
+							<!-- BEGIN POST_QUOTE -->
+							<div class="mod-forum-button mod-forum-button-post-new"><a href="{URL}post/{cat_id}/{topic_id}/0/{forum_current_page}/{id}/">{m('Quote')}</a></div>
+							<!-- END POST_QUOTE -->
+							<!-- BEGIN POST_ATTACH_FILE -->
+							<div class="mod-forum-button mod-forum-button-post-attach"><a href="{URL}attach_upload/{cat_id}/{topic_id}/{id}/" meta="{URL}topic/{cat_id}/{topic_id}/{forum_current_page}/#{id}">{m('File')}</a></div>
+							<!-- END POST_ATTACH_FILE -->
+							<!-- BEGIN POST_RM -->
+							<div class="mod-forum-button mod-forum-button-post-rm"><a href="{URL}post_rm/{cat_id}/{topic_id}/{id}/{forum_current_page}/" class="rm-confirm">{m('Delete')}</a></div>
+							<!-- END POST_RM -->
+							<!-- BEGIN POST_MODIFY -->
+							<div class="mod-forum-button mod-forum-button-post-edit"><a href="{URL}post/{cat_id}/{topic_id}/{id}/{forum_current_page}/">{m('Modify')}</a></div>
+							<!-- END POST_MODIFY -->
+							<!-- BEGIN TOPIC_LOCK -->
+							<div class="mod-forum-button mod-forum-button-post-lock"><a href="{URL}lock/{cat_id}/{topic_id}/1/topic/">{m('Lock topic')}</a></div>
+							<!-- END TOPIC_LOCK -->
+							<!-- BEGIN TOPIC_UNLOCK -->
+							<div class="mod-forum-button mod-forum-button-post-lock"><a href="{URL}lock/{cat_id}/{topic_id}/1/topic/">{m('Unlock topic')}</a></div>
+							<!-- END TOPIC_UNLOCK -->
+							<!-- BEGIN TOPIC_STICK -->
+							<div class="mod-forum-button mod-forum-button-post-stick"><a href="{URL}sticky/{cat_id}/{topic_id}/1/topic/">{m('Stick topic')}</a></div>
+							<!-- END TOPIC_STICK -->
+							<!-- BEGIN TOPIC_UNSTICK -->
+							<div class="mod-forum-button mod-forum-button-post-stick"><a href="{URL}sticky/{cat_id}/{topic_id}/1/topic/">{m('Unstick topic')}</a></div>
+							<!-- END TOPIC_UNSTICK -->
+						</div>
+					</td>
+				</tr>
+				<!-- END POST -->
+			</tbody>
+		</table>
+	</div>
+</div>
+<!-- BEGIN POST_ATTACH_JS -->
+<div id="attach-dialog" class="hide" title="{m('Attach file')}">
+	<div id="attach-progress">{m('Tranfering data...')}</div>
+	<div id="attach-result"><p class="rounded-3"></p></div>
+	<form action="" method="POST" enctype="multipart/form-data">
+		<input type="file" name="attach" />
+	</form>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$().ready( function() {
+		el.utils.langDomain('forum');
+		// ajax form
+		$('div#attach-dialog form')
+			.ajaxForm( { dataType:'json', beforeSubmit: attachProgress, success: attachResult} )
+			.children(':file').change( function() {	$(this).parent('form').siblings('#attach-result').hide(); }	);
+		
+		// attach file
+		$('div.mod-forum-button-post-attach a').click( function() {
+			$('#attach-dialog').data('url', $(this).attr('meta')); 
+			attachDialog(el.utils.translate('Attach file'), '', '', 'send', $(this).attr('href'))
+			return false;
+		});	
+		// remove attachment
+		$('a.attach-rm').click( function() {
+			$('#attach-dialog').data('url', $(this).attr('meta'));
+			attachDialog(el.utils.translate('Delete attachment'), el.utils.translate('Do You realy want to delete file?'), '', 'yesno', $(this).attr('href'));
+			return false;
+		} );
+		
+		function attachResult(data) {
+
+			$('#attach-progress').hide();
+			if (data.error)
+			{
+				attachDialog('', '', data.error, 'send', $('#attach-dialog').children('form').attr('action') );
+			} else {
+				attachDialog('', data.result, '', 'ok');
+			}
+		}
+
+		function attachDialog(title, resultMsg, errMsg, buttonsType, acturl) {
+			
+			if (title) $('#attach-dialog').attr('title', title);
+			$('#attach-dialog').dialog().dialog('open').dialog('option', 'buttons', {})
+				.children('#attach-result').hide()
+					.children('p').removeClass('warning').removeClass('important')
+				.parent()
+				.siblings('#attach-progress').hide()
+				.siblings('form').hide()
+				
+			if (errMsg) $('#attach-result').show().children('p').addClass('warning').text(errMsg); 
+			else if (resultMsg) $('#attach-result').show().children('p').addClass('important').text(resultMsg);
+			
+			if (buttonsType == 'yesno') {
+				$('#attach-dialog').dialog('option', 'buttons', 
+					{ 
+						"{m('Yes')}": function() {  
+							attachProgress();
+							$.ajax(
+								{
+									type     : "GET",
+									url      : acturl,
+									dataType : "json",
+									success  : function(data) { attachDialog('', data.result, data.error, 'ok') },
+									error    : function()     { attachDialog('', '', el.utils.translate('Data transfer error'), 'ok') }
+								}
+							);
+						},
+						"{m('No')}"  : function() { $(this).dialog('close')} 
+					});
+			} else if (buttonsType == 'ok') {
+				$('#attach-dialog').dialog('option', 'buttons', {"OK" : function() { $('#attach-dialog').dialog('close'); }} )
+					.bind('dialogclose', function() { document.location.reload(); });
+			} else if (buttonsType == 'send') {
+				$('#attach-dialog')
+					.dialog('option', 'buttons', { "{m('Send')}" : function(){ $(this).children('form').trigger('submit'); } })
+					.children('form').show().attr('action', acturl )
+			}
+			
+		}
+		
+		function attachProgress(formData, jqForm) { 
+			
+			if (jqForm && !$(jqForm[0]).children(':file').val())
+			{
+				$('#attach-result').show().children('p').addClass('warning').text(el.utils.translate('Please, select file to attach to post'));
+				return false
+			}
+			attachDialog(); 
+			$('#attach-progress').show();	
+			return true;
+		}
+		
+		
+	});
+</script>
+<!-- END POST_ATTACH_JS -->
+<script type="text/javascript" charset="utf-8">
+	$().ready(
+		function() {
+			$('.mod-forum-posts div.spoiler a.el-collapsed').click( function() { 
+				$(this).toggleClass('el-expanded').next('div').slideToggle();
+				return false;
+			});
+		
+			$('td.mod-forum-post-msg img').each( function() {
+				
+				if ( $(this).attr('width')>{maxPostImgSize} ) {
+					$(this).attr('width', {maxPostImgSize})
+				}
+			});
+		});
+</script>
+
+

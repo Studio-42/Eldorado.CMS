@@ -1,61 +1,76 @@
-<div class="mod-ig-title">
-	<div class="mod-ig-imgsize">
-		<form method="POST">
-			{m('Images size')}:
-			<select name="ig_isize" onChange="this.form.submit();">
-				<optgroup label="{m('Images size')}">
-				<!-- BEGIN ISIZE -->
-				<option value="{ndx}"{sel}>{size}</option>
-				<!-- END ISIZE -->
-				</optgroup>
+<div class="mod-ig-gallery">
+	<div class="gal-head">
+
+		<form method="POST" class="float-right">
+			<select name="ig_isize" onchange="this.form.submit();">
+				<optgroup label="{m('Images size')}"><!-- BEGIN ISIZE --><option value="{ndx}"{sel}>{size}</option><!-- END ISIZE --></optgroup>
 			</select>
 		</form>	
+
+		<!-- BEGIN GAL_ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit/{g_id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{URL}clean/{g_id}/" class="icons clean"  title="{m('Delete all images from gallery')}" onClick="return confirm('{m('Do You really want to delete all images from gallery')}?');"></a></li>
+			<li><a href="{URL}rm/{g_id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete gallery')}?');"></a></li>
+		</ul>
+		<!-- END GAL_ADMIN -->
+		<div class="float-right mute gal-info">
+			<!-- BEGIN GAL_DATE --><div>{m('Published')}: {date}</div><!-- END GAL_DATE -->
+			<!-- BEGIN GAL_IMG_NUM --><div>{m('Images in gallery')}: <strong>{num}</strong></div><!-- END GAL_IMG_NUM -->
+		</div>
+		<h3>{g_name}</h3>
+	
+		<!-- BEGIN GAL_COMMENT -->
+		<em>{g_comment}</em>
+		<!-- END GAL_COMMENT -->
 	</div>
-	<h3>{g_name}</h3>
-	<!-- BEGIN GAL_COMMENT -->
-	{g_comment}
-	<!-- END GAL_COMMENT -->
+	
+	<ul>
+		<!-- BEGIN GAL_IMG -->
+		<li class="img rounded-5">
+			<!-- BEGIN LB -->
+			<a href="{target}"  rel="fancy-tour" title="{i_name}"><img src="{src}"  width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
+			<!-- END LB -->
+			<!-- BEGIN POPUP -->
+			<a href="" onclick="return popUp('{POPUP_URL}img/{i_gal_id}/{i_id}/', {win_width}, {win_height});" title="{m('View image in full size')}">
+				<img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}"  /></a>
+			<!-- END POPUP -->
+			<div>
+				<p>
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}i_edit/{i_gal_id}/{i_id}/" class="icons edit" title="{m('Edit')}"></a></li>
+					<li><a href="{URL}i_rm/{i_gal_id}/{i_id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete image')}?');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+				
+				<label>{i_name}</label>
+				
+				<!-- BEGIN FILE --><span>{i_file}</span><!-- END FILE -->		
+				<!-- BEGIN DATE -->	<span>{m('Date')}: {date}</span>	<!-- END DATE -->
+				<!-- BEGIN FSIZE --><span>{m('Size')}: {i_file_size}Kb </span><!-- END FSIZE -->	
+				<!-- BEGIN SIZE -->	<span>{m('Dimensions')}: {i_width_0} x {i_height_0} px</span><!-- END SIZE -->
+				<!-- BEGIN COMMENT --><em>{i_comment}</em><!-- END COMMENT -->	
+				</p>
+			</div>
+		</li>
+		<!-- END GAL_IMG -->
+	</ul>
 </div>
 
-<div class="mod-ig-gallery">
-<!-- BEGIN GAL_ROW -->
-<table class="mod-ig-gallery-row {cssRowClass}">
-	<tr>
-		<!-- BEGIN TMB -->
-		<td width="{cellWidth}%"> 
-			<div class="mod-ig-img">
-			
-				<!-- BEGIN TMB_LB -->
-				<a href="{target}"  rel="fancy-tour" title="{i_name}"><img src="{src}"  width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
-				<!-- END TMB_LB -->
-				<!-- BEGIN TMB_POPUP -->
-				<a href="" onclick="return popUp('{POPUP_URL}img/{i_gal_id}/{i_id}/', {win_width}+20, {win_height}+50);" title="{m('View image in full size')}">
-					<img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
-				<!-- END TMB_POPUP -->
-					
-				<div class="mod-ig-img-info" style="width:{i_width_tmb}px">
-					<div>
-					<label>{i_name}</label>
-					<!-- BEGIN TMB_COMMENT --><em>{i_comment}</em><!-- END TMB_COMMENT -->	
-					<!-- BEGIN IMG_INFO -->
-					<!-- BEGIN FILE_NAME --><span>{i_file}</span><!-- END FILE_NAME -->		
-					<!-- BEGIN IMG_DATE -->	<span>{m('Date')}: {date}</span>	<!-- END IMG_DATE -->
-					<!-- BEGIN FILE_SIZE --><span>{m('Size')}: {i_file_size}Kb </span><!-- END FILE_SIZE -->	
-					<!-- BEGIN IMG_SIZE -->	<span>{m('Dimensions')}: {i_width_0}X{i_height_0}</span><!-- END IMG_SIZE -->
-					<!-- END IMG_INFO -->
-					</div>
-				</div>
-			</div>
-		</td>
-		<!-- END TMB -->
-	</tr>
-</table>
-<!-- END GAL_ROW -->
+
 </div>
 {PAGER}
-<!-- BEGIN GAL_SCRIPT -->
 <script type="text/javascript" charset="utf-8">
-	$().ready( function(){ 
-		$(".mod-ig-gallery a").fancybox(); } );
+	$().ready( function(){
+		var h = 0;
+		$('li.img').each(function() {
+			var _h = $(this).height();
+			h = h < _h ? _h : h;
+		}).each(function() { $(this).height(h) });
+		
+		if ($.fn.fancybox) {
+			$("li.img a:has(img)").fancybox(); 
+		}
+	})
 </script>
-<!-- END GAL_SCRIPT -->

@@ -1,0 +1,28 @@
+<div class='{info}'>
+<table class="view-list">
+	<thead>
+		<tr>
+			<th>{m('Name')}</th>
+			<th width="85">{m('Access')}</th>
+			<th width="135">{m('Date modified')}</th>
+			<th class="size" width="60">{m('Size')}</th>
+			<th width="155">{m('Kind')}</th>
+		</tr>
+	</thead>
+	<!-- BEGIN FILE -->
+	<tbody>
+	<tr class="item {type} {rowClass}" key="{hash}" read="{read}" write="{write}">
+		<td>
+			<div class="icon icon-{icon_class}"> </div>
+			<div class="basename" title="{basename}">{basename}</div>
+		</td>
+		<td>{access}</td>
+		<td>{mdate}</td>
+		<td class="size">{hsize}</td>
+		<td>{kind}</td>
+	</tr>
+	<!-- END FILE -->
+	</tbody>
+</table>
+</div>
+<!-- BEGIN ACCESS_DENIED --><h1 style="color:red;text-align:center">{m('Access denied')}</h1><!-- END ACCESS_DENIED -->

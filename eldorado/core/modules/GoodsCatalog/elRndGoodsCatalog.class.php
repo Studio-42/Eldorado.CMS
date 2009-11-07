@@ -19,17 +19,22 @@ class elRndGoodsCatalog extends elCatalogRenderer
     $this->_pricePrec = $p;
   }
 
-	function renderItem( $item )
+	function renderItem( $item, $linkedObjs=null )
 	{
 		$this->_setFile( 'item' );
         
 		$vars = $item->toArray();
 		if ( 0 < $vars['price'] )
 		{
-				$vars['price'] = $this->_formatPrice($vars['price']);	
-				$this->_te->assignBlockVars('ITEM_PRICE', array('id'=>$vars['id'], 'price'=>$vars['price']));
+			$vars['price'] = $this->_formatPrice($vars['price']);	
+			$this->_te->assignBlockVars('ITEM_PRICE', array('id'=>$vars['id'], 'price'=>$vars['price']));
+		}
+		if ($this->_admin)
+		{
+			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$vars['id']));
 		}
 		$this->_te->assignVars( $vars );
+		$this->_rndLinkedObjs($linkedObjs);
 	}
 
 	//************************************************//
@@ -53,13 +58,17 @@ class elRndGoodsCatalog extends elCatalogRenderer
 	{
 		for ($i=0,$s=sizeof($items); $i<$s; $i++)
 		{
-			$vars = $items[$i]->toArray();
-			$vars['cssRowClass'] = $i%2 ? 'strip-odd' : 'strip-ev';
-			$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM', $vars, 1);
-			if ( 0 < $vars['price'] )
+			$data = $items[$i]->toArray();
+			$data['cssRowClass'] = $i%2 ? 'strip-odd' : 'strip-ev';
+			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
+			if ( 0 < $data['price'] )
 			{
-				$vars['price']    = $this->_formatPrice($vars['price']);	
-				$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM.ITEM_ONECOL_PRICE', array('id'=>$vars['id'], 'price'=>$vars['price']), 2);
+				$price = $this->_formatPrice($data['price']);	
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.PRICE', array('id'=>$data['id'], 'price'=>$price), 2);
+			}
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
 			}
 		}
 	}
@@ -73,21 +82,25 @@ class elRndGoodsCatalog extends elCatalogRenderer
 	function _rndItemsTwoColumns($items)
 	{
 		$rowCnt = 0;
-		for ($i=1, $s = sizeof($items); $i<=$s; $i++ )
+		for ($i=0, $s = sizeof($items); $i<$s; $i++ )
 		{
-			if ( $i%2  )
+			$data = $items[$i]->toArray();
+			$data['cssLastClass'] = 'col-last';
+			if (!($i%2))
 			{
-				$cssRowClass = ++$rowCnt%2 ? 'strip-ev' : 'strip-odd';
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW', array('cssRowClass'=>$cssRowClass), 1);
+				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s-1 ? 'invisible' : '');
+				$this->_te->assignBlockVars('ITEMS_TWOCOL', $var);
+				$data['cssLastClass'] = '';
 			}
-			$vars = $items[$i-1]->toArray();
-			$vars['cssRowClass']  = $cssRowClass;
-			$vars['cssLastClass'] = $i%2 ? '' : 'col-last';
-			$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM', $vars, 2 );
-			if ( 0 < $vars['price'] )
+			$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM', $data, 1 );
+			if ( 0 < $data['price'] )
 			{
-				$vars['price'] = $this->_formatPrice($vars['price']);	
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW.T_ITEM.ITEM_TWOCOL_PRICE', array('id'=>$vars['id'], 'price'=>$vars['price']), 3);
+				$price = $this->_formatPrice($data['price']);	
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.PRICE', array('id'=>$data['id'], 'price'=>$price), 2);
+			}
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
 			}
 		}
 	}

@@ -22,7 +22,7 @@ class elCatalogItem extends elMemberAttribute
   /**
    * Returns items from category
    */
-  function getByCategory( $catID, $sortID=0, $offset=0, $limit=10 )
+  function getByCategory( $catID, $sortID=0, $offset=0, $limit=0 )
   {
     $items = array();
     $db = & $this->_getDb();
@@ -30,8 +30,12 @@ class elCatalogItem extends elMemberAttribute
     $sql = 'SELECT '.implode(',', $this->listAttrs())
           .' FROM '.$this->tb.','.$this->tbi2c
           .' WHERE c_id=\''.$catID.'\' AND id=i_id '
-          .' ORDER BY '.$this->_getOrderBy($sortID).' LIMIT '.$offset.', '.$limit;
+          .' ORDER BY '.$this->_getOrderBy($sortID);
 
+	if ($limit>0)
+	{
+		$sql .= ' LIMIT '.$offset.', '.$limit;
+	}
     $db->query( $sql );
     while( $row = $db->nextRecord() )
     {
@@ -123,7 +127,7 @@ class elCatalogItem extends elMemberAttribute
    */
   function makeForm( $parents )
   {
-    parent::makeForm(); //elPrintR($parents); elPrintR($this->_getParents());
+    parent::makeForm(); 
     if (empty($parents))
     {
         $parents = array(1);
@@ -136,6 +140,13 @@ class elCatalogItem extends elMemberAttribute
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
+
+	function _initMapping()
+	  {
+	    return array( 'id'       => 'ID',
+	                  'name'     => 'name'
+	                );
+	  }
 
   function _getOrderBy($sortID)
   {

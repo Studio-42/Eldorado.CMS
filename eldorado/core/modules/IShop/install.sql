@@ -31,7 +31,7 @@ CREATE TABLE el_ishop_{pageID}_item (
 	img      varchar(255) NOT NULL,
 	announce text         NOT NULL,
 	content  mediumtext   NOT NULL,
-	price    double(9,2)  NOT NULL,
+	price    double(12,2)  NOT NULL,
     crtime   int(11)      unsigned NOT NULL default '0',
     mtime    int(11)      unsigned NOT NULL default '0',
 	primary KEY(id),

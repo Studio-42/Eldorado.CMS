@@ -21,14 +21,17 @@
         <td><input type="text" size="5" name="qnt[{id}]" id="iqnt_{id}" value="{qnt}" maxlength="12" /></td>
         <td><div id="iprice_{id}">{price}</div></td>
         <td><div id="isum_{id}">{sum}</div></td>
-        <td><a href="{URL}__icart__/0/?rmID={id}" title="{m('Remove item')}"><img src="{icoDelete}" border="0" /></a></td>
+        <td ><a href="{URL}__icart__/0/?rmID={id}" class="icons delete" style="margin:0 auto" title="{m('Remove item')}"></a></td>
     </tr>    
     <!-- END ICART_ITEM -->
     <tr>
-       <th colspan="3">{m('Amount')}, {currencySign} :</th>
+       <th>{m('Amount')}, {currencySign} :</th>
+		<th><a href="#" class="icons reload" title="{m('Recalculate')}" onclick="$(this).parents('form').find('#icart-recalc').val(1).end().submit()"></a></th>
+		<th></th>
        <th colspan="2"><div id="amount">{amount}</div></th>
     </tr>
     <tr>
         <td colspan="5"><input type="submit" class="form-submit" value="{m('Continue')}" /></td>
     </tr>    
 </table>
+<input type="hidden" name="recalc" vaue="0" id="icart-recalc" />

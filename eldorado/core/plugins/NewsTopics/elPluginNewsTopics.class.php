@@ -104,8 +104,7 @@ class elPluginNewsTopics extends elPlugin
 	 */
 	function conf()
 	{
-		$conf = & elSingleton::getObj('elXmlConf'); //echo 'here';
-		$srcs = $conf->findGroup('module', 'News', true);
+		$srcs = $this->findSources('News');
 		if (!$srcs)
 		{
 			elThrow(E_USER_ERROR, 'There are no one data source of required type was found!', null, EL_URL);
@@ -136,6 +135,7 @@ class elPluginNewsTopics extends elPlugin
 					//elPrintR($params);
 				}
 			}
+			$conf = & elSingleton::getObj('elXmlConf');
 			$conf->dropGroup('plugin'.$this->name);
 			$conf->makeGroup('plugin'.$this->name, $params);
 			$conf->save();

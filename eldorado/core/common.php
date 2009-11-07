@@ -36,10 +36,10 @@ define ('EL_DEBUGQ', 3);
  * Window modes and url suffixes
  */
 define ('EL_WM_NORMAL', 1);
-define ('EL_WM_PRNT',   2);
+//define ('EL_WM_PRNT',   2);
 define ('EL_WM_POPUP',  3);
 define ('EL_WM_XML',    4);
-define ('EL_URL_PRNT',  '_print_');
+//define ('EL_URL_PRNT',  '_print_');
 define ('EL_URL_POPUP', '_popup_');
 define ('EL_URL_XML',   '_xml_');
 
@@ -75,10 +75,11 @@ define ('EL_POS_BOTTOM', 'b');
 
 /*********  global variables - storages  **************/
 
-$GLOBALS['parseColumns'] = array( EL_POS_LEFT   => 0,
-																	EL_POS_RIGHT  => 0,
-																	EL_POS_TOP    => 0,
-																	EL_POS_BOTTOM => 0);
+$GLOBALS['parseColumns'] = array( 
+	EL_POS_LEFT   => 0,
+	EL_POS_RIGHT  => 0,
+	EL_POS_TOP    => 0,
+	EL_POS_BOTTOM => 0);
 
 /**
  * Object storage.
@@ -112,11 +113,23 @@ $GLOBALS['pagePath'] = array();
 
 include_once EL_DIR_CORE.'lib/elCore.class.php';
 include_once EL_DIR_CORE.'lib/elCore.lib.php';
-include_once EL_DIR_CORE.'lib/elSingleton.class.php';
+// include_once EL_DIR_CORE.'lib/elSingleton.class.php';
 include_once EL_DIR_CORE.'lib/elMsgBox.class.php';
 include_once EL_DIR_CORE.'lib/elModule.class.php';
 include_once EL_DIR_CORE.'lib/elModuleRenderer.class.php';
-include_once EL_DIR_CORE.'lib/elMemberAttribute.class.php';
+if (substr(PHP_VERSION, 0, 1) > 4) 
+{
+	include_once EL_DIR_CORE.'lib/elSingleton5.class.php';
+	include_once EL_DIR_CORE.'lib/elMemberAttribute5.class.php';
+	include_once EL_DIR_CORE.'lib/elDataMapping5.class.php';
+}
+else 
+{
+	include_once EL_DIR_CORE.'lib/elSingleton.class.php';
+	include_once EL_DIR_CORE.'lib/elMemberAttribute.class.php';
+	include_once EL_DIR_CORE.'lib/elDataMapping.class.php';
+}
+
 include_once EL_DIR_CORE.'lib/elUser.class.php';
 include_once EL_DIR_CORE.'lib/elUserProfile.class.php';
 
@@ -132,5 +145,5 @@ if ( ini_get('magic_quotes_gpc') )
 }
 
 elLoadMessages('Common');
-elLoadIconsConf();
+//elLoadIconsConf();
 ?>

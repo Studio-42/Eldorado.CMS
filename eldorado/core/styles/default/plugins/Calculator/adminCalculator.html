@@ -1,0 +1,282 @@
+<div class="pl-calc">
+	<ul class="adm-icons admin"> 
+		<li><a href="{URL}pl_conf/Calculator/" data='{calc_edit_json}' class="icons edit" title="{m('Edit')}"></a></li>
+		<li><a href="{URL}pl_conf/Calculator/" data='{calc_rm_json}' class="icons delete" title="{m('Delete')}"></a></li>
+	</ul>
+	<h5>{name}</h5>
+	<table>
+		<tr>
+			<td>{m('Result data type')}:</td><td>{dtype}</td><td></td>
+		</tr>
+		<tr>
+			<td>{m('Unit')}:</td><td>{unit}</td><td></td>
+		</tr>
+		<tr>
+			<td>{m('Formula')}:</td><td>{formula}</td>
+			<td class="admin">
+				<ul class="adm-icons">
+					<li><a href="{URL}pl_conf/Calculator/" class="icons create" data='{formula_edit_json}' title="{m('Create')}"></a></li>
+				</ul>
+			</td>
+		</tr>
+		
+	</table>
+	<table class="grid-tb pl-calc">
+		<caption style="font-weight:bold;text-align:center">{m('Variables')}</caption>
+		<thead>
+			<tr>
+				<th>{m('Name')}</th>
+				<th>{m('Variable name')}</th>
+				<th>{m('Input type')}</th>
+				<th>{m('Data type')}</th>			
+				<th>{m('Unit')}</th>						
+				<th class="admin">
+					<ul class="adm-icons">
+						<li><a href="{URL}pl_conf/Calculator/" class="icons edit" data='{var_edit_json}' title="{m('Create')}"></a></li>
+					</ul>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- BEGIN PL_CALC_VAR -->
+			<tr>
+				<td>{title}</td>
+				<td>{name}</td>
+				<td>{type} {variants}</td>
+				<td>{dtype}</td>
+				<td>{unit}</td>
+				<td class="admin">
+					<ul class="adm-icons">
+					<li><a href="{URL}pl_conf/Calculator/" data='{edit_json}'  class="icons edit" title="{m('Create')}"></a></li>
+					<li><a href="{URL}pl_conf/Calculator/" data='{rm_json}' class="icons delete" title="{m('Delete')}"></a></li>
+					</ul>
+				</td>
+			</tr>
+			<!-- END PL_CALC_VAR -->
+		</tbody>
+	</table>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+
+	function editVar(id, cid) {
+		var self = this;
+		
+		$.ajax({
+			type: "POST",
+			url: "{URL}pl_conf/Calculator/",
+			dataType : 'json',
+			data : {action: 'var_data', vid : id||0, cid : cid},
+			success : function(data) {self.makeForm(data)},
+			error : function(r, e) { self.dialog.showError("{m('Data transfer error')}: "+e); }
+			
+		});
+		
+		this.dialog = new elDialogForm({
+			width : 'auto',
+			submit   : null,
+			validate : {
+				submitHandler : function(form) {
+					self.dialog.showSpinner("{m('Loading...')}");
+					$(form).ajaxSubmit({
+						dataType : 'json',
+						success : function(data) { 
+							if (data.error) {
+								self.dialog.hideSpinner().showError(data.error);
+							} else {
+								self.dialog.close();
+								window.location.reload();
+							}
+						},
+						error : function(r, e) {
+							self.dialog.hideSpinner().showError("{m('Data transfer error')}");
+						}
+					});
+				},
+				errorPlacement : function(error, element) { error.insertBefore(element); }
+			},
+			dialog : {
+				title    : "{m('Variable')}",
+				width    : 390
+			}
+		});
+		this.dialog.showSpinner("{m('Loading')}").open();
+		
+		this.makeForm = function(data) {
+			if (data.error) {
+				this.dialog.showError(data.error);
+				return;
+			}
+			this.dialog.hideSpinner().option('buttons',  {Cancel : function() {self.dialog.close(); }, Ok : function() { self.dialog.form.submit(); }  });
+			var id     = $('<input type="hidden" />').attr('name', 'id').val(data.id||0);
+			var cid    = $('<input type="hidden" />').attr('name', 'cid').val(data.cid||0);
+			var action = $('<input type="hidden" />').attr('name', 'action').val('var_edit');
+			var name   = $('<input type="text" size="39" />').attr({'name': 'name'}).val(data.name||'')//.css('width', '100%')
+				.addClass('required alfanum');
+			var title  = $('<input type="text" />').attr('name', 'title').val(data.title||'').css('width', '100%')
+				.addClass('required');
+			var dtype  = $('<select />').attr('name', 'dtype').css('width', '100%')
+				.append($('<option />').val('int').text("{m('Integer')}"))
+				.append($('<option />').val('double').text("{m('Double')}"))
+				.val(data.dtype||'int');
+			var unit   = $('<input type="text" />').attr('name', 'unit').val(data.unit||'').css('width', '100%');	
+			var type   = $('<select />').attr('name', 'type').css('width', '100%')
+				.append($('<option />').val('input').text("{m('Text field')}"))
+				.append($('<option />').val('select').text("{m('Select in list')}"))
+				.change(function() {
+						var r  = $(variants).parents('tr').eq(0); 
+						var r2 = $(minval).parents('tr').eq(0);
+						var r3 = $(maxval).parents('tr').eq(0);
+						if ($(this).val() == 'input') {
+							r.hide();
+							r2.show();
+							r3.show();
+						} else {
+							r.show();
+							r2.hide();
+							r3.hide()
+						}
+					}).val(data.type||'input');	
+			var variants = $('<textarea />').attr({name : 'variants', rows : 3, cols : 12})
+				.css({'width' : '100%', 'border' : '1px solid #ccc'}).val(data.variants||'')
+			var minval  = $('<input type="text" />').attr('name', 'minval').val(data.minval||'').css('width', '100%');
+			var maxval  = $('<input type="text" />').attr('name', 'maxval').val(data.maxval||'').css('width', '100%');
+			
+			
+			this.dialog.append([id, cid, action])
+				.append(["{m('Variable name')} *", name], false, true)
+				.append(["{m('Title')} *", title], false, true)
+				.append(["{m('Data type')}", dtype], false, true)
+				.append(["{m('Unit')}", unit], false, true)
+				.append(["{m('Input type')}", type], false, true)
+				.append(["{m('Select variants')}", variants], false, true)
+				.append(["{m('Mininum value')}", minval], false, true)
+				.append(["{m('Maximum value')}", maxval], false, true)
+			if (!$.browser.msie) {
+				name.css('width', '100%');
+			}
+				
+			type.change();
+		}
+		
+	}
+
+	
+	function editFormula(cid) {
+		var self = this;
+		
+		this.dialog = new elDialogForm({
+			submit : null,
+			ajaxForm : {
+				dataType : 'json',
+				success : function(data) { 
+					if (data.error) {
+						self.dialog.hideSpinner().showError(data.error);
+					} else {
+						self.dialog.close();
+						window.location.reload();
+					}
+				},
+				error : function(r, e) {
+					self.dialog.hideSpinner().showError("{m('Data transfer error')}");
+				}
+			},
+			dialog : {
+				width : 400,
+				title : "{m('Formula')}"
+			}
+		});
+		this.dialog.showSpinner("{m('Loading')}").open();
+		
+		$.ajax({
+			type     : "POST",
+			url      : "{URL}pl_conf/Calculator/",
+			dataType : 'json',
+			data     : {action: 'formula_data', cid : cid},
+			success  : function(data) {self.makeForm(data)},
+			error    : function(r, e) { self.dialog.showError("{m('Data transfer error')}: "+e); }
+			
+		});
+		
+		this.makeForm = function(data) {
+			this.dialog.hideSpinner().option('buttons',  {Cancel : function() {self.dialog.close(); }, Ok : function() { self.dialog.form.submit(); }  });;
+			if (data.error) {
+				return this.dialog.showError(data.error);
+			}
+
+			var act = $('<input type="hidden" />').attr('name', 'action').val('formula_edit');
+			var cid = $('<input type="hidden" />').attr('name', 'cid').val(data.cid);
+			var ta = $('<textarea />').attr({name : 'formula', rows : 9}).css('width', '253px').val(data.formula||'');
+			var sel = $('<select />').attr('size', 9).css('width', '100px');
+			var b = $('<button />').html('&lt;').click(function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				var v = sel.val();
+				if (v) {
+					ta.focus();
+					
+					if (window.getSelection) {
+						var _ta = ta.get(0);
+						if (typeof(_ta.selectionStart) != "undefined") {
+							var start = _ta.selectionStart; 
+							var head = _ta.value.substr(0, _ta.selectionStart); 
+							var tail = _ta.value.substr(_ta.selectionEnd);
+							var scroll = _ta.scrollTop;
+							_ta.value = head+'$'+v+tail;
+							_ta.scrollTop = scroll;
+							var p = start+v.length+1;
+							_ta.setSelectionRange(p, p);
+						} else {
+							_ta.value +='$'+v;
+						}
+					} else if (document.all) {
+						var r = document.selection.createRange().duplicate();
+						r.text = '$'+v;
+						
+					} else {
+						_ta.value +='$'+v;
+					}
+				}
+			})
+			
+			for (var i in data.vars) {
+				sel.append($('<option />').val(i).text(data.vars[i]))
+			}
+			this.dialog.append([act, cid])
+				.append([ta, b, sel], false, true)
+			
+		}
+		
+	}
+	
+
+	$().ready(function() {
+		
+		$.metadata.setType("attr", "data");
+		
+		$('.pl-calc .admin a').click(function(e) {
+			e.preventDefault();
+			if ($(this).metadata().action == 'var_edit') {
+				new editVar($(this).metadata().vid, $(this).metadata().cid);
+				return
+			} else if ($(this).metadata().action == 'formula_edit') {
+				return new editFormula($(this).metadata().cid);
+				return
+			}
+		
+			if ($(this).metadata().action.indexOf('rm') == -1 || confirm('{m('Do You really want to delete')}?')) {
+				$('<form />')
+					.attr({method : 'post', 'action' : $(this).attr('href')})
+					.append($('<input type="text" />').attr('name', 'action').val($(this).metadata().action))
+					.append($('<input type="hidden" />').attr('name', 'cid').val($(this).metadata().cid))
+					.append($('<input type="hidden" />').attr('name', 'vid').val($(this).metadata().vid))
+					.appendTo(document.body)
+					.submit();
+			}
+		});
+		
+
+	});
+	
+</script>

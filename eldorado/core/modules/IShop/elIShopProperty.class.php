@@ -261,6 +261,7 @@ class elIShopProperty extends elMemberAttribute
 
     $attrs = array('rowAttrs'=>'style="display:none"');
     $opts = array();
+
     foreach ( $GLOBALS['elIShopPropTypes'] as $type=>$v )
     {
       $opts[$type] = $v[0];
@@ -286,7 +287,7 @@ class elIShopProperty extends elMemberAttribute
 
     $this->form->setRequired('name');
 
-    elAddJs('checkISPropFormAdmin()', EL_JS_SRC_ONLOAD);
+    elAddJs('checkISPropFormAdmin()', EL_JS_SRC_ONREADY);
 
   }
 

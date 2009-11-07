@@ -3,7 +3,7 @@
 		<tr>
 		  	<th style="width:30px">ID</th>
     		<th>{m('Group name')}</th>
-		    <th>{m('Number of users')}</th>
+		    <th colspan="2">{m('Number of users')}</th>
   		</tr>
 	</thead>
 	<tbody>
@@ -12,6 +12,16 @@
   			<td>{gid}</td>
     		<td>{name}</td>
     		<td>{numUsers}</td>
+			<td>
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{SUBMOD_URL}{SMPath}edit/{gid}/" class="icons user-group-edit" title="{m('Edit')}"></a></li>
+					<li><a href="{SUBMOD_URL}acl/{gid}/"   class="icons access"       title="{m('Permissions')}"></a></li>
+					<li><a href="{SUBMOD_URL}clean/{gid}/" class="icons clean"     title="{m('Exclude users from group')}" onclick="return confirm('{m('Do you realy want to delete all users from group')} `{name}`?');"></a></li>
+					<li><a href="{SUBMOD_URL}rm/{gid}/"   class="icons delete"   title="{m('Delete)}" onClick="return confirm('{m('Do you realy want to delete group')} `{login}`?');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+			</td>
   		</tr>
 		<!-- END GROUP -->
 	</tbody>

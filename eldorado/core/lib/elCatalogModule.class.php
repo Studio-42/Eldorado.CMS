@@ -1,5 +1,5 @@
 <?php
-
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 class elCatalogModule extends elModule
 {
   var $tbc        = '';
@@ -71,7 +71,7 @@ class elCatalogModule extends elModule
   function _getPagerInfo($qnt)
   {
     $cur    = 0 < $this->_arg(1) ? (int)$this->_arg(1) : 1;
-    $i      = 0 < $this->_conf('itemsPerPage') ? (int)$this->_conf('itemsPerPage') : 10;
+    $i      = (int)$this->_conf('itemsPerPage');
     $total  = ceil($qnt/$i);
     $offset = $i*($cur-1);
     return array($total, $cur <= $total ? $cur : 1, $offset, $i);
@@ -85,7 +85,8 @@ class elCatalogModule extends elModule
 
   function _getCategory()
   {
-    $cat = elSingleton::getObj( 'elCatalogCategory' );
+	$cat = new elCatalogCategory();
+    // $cat = elSingleton::getObj( 'elCatalogCategory' );
     $cat->tb = $this->tbc;
     $cat->tbi2c = $this->tbi2c;
     $cat->setUniqAttr( (int)$this->_arg(1) );
@@ -140,7 +141,7 @@ class elCatalogModule extends elModule
     $this->tbc   = sprintf($this->tbc,   $this->pageID);
     $this->tbi   = sprintf($this->tbi,   $this->pageID);
     $this->tbi2c = sprintf($this->tbi2c, $this->pageID);
-	elCheckAltTitleField($this->tbi);
+
     $ID = (int)$this->_arg();
     if (!$ID)
     {
@@ -152,16 +153,14 @@ class elCatalogModule extends elModule
 		{
 			if (1 <> $ID)
 			{
-				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-								array($this->_cat->getObjName(), $ID), EL_URL);
+				header('HTTP/1.x 404 Not Found');
+				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $ID), EL_URL);
 			}
 			$nav = &elSingleton::getObj('elNavigator');
-			// $this->_cat->makeRootNode( $nav->getPageName($this->pageID) );
-			// 			$this->_cat->setUniqAttr( 1 );
 			if ( !$this->_cat->makeRootNode( $nav->getPageName($this->pageID) ) )
 			{
-				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-								array($this->_cat->getObjName(), 1), EL_BASE_URL);
+				header('HTTP/1.x 404 Not Found');
+				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), 1), EL_BASE_URL);
 			}
 		}
 		$GLOBALS['categoryID'] = $this->_cat->ID;
@@ -173,7 +172,19 @@ class elCatalogModule extends elModule
 				$this->_mMap[$k]['apUrl'] = $this->_cat->ID;
 			}
 		}
-		//elPrintR($this->_mMap);
+		if (! $this->_cat->countItems())
+    	{
+    		unset($this->_mMap['sort'], $this->_mMap['rm_group']);
+    	}
+
+		if ('item' != $this->_mh && 'cross_links' != $this->_mh )
+    	{
+      		$this->_removeMethods('cross_links');
+    	}
+    	else
+    	{
+      		$this->_mMap['cross_links']['apUrl'] .= '/'.((int)$this->_arg(1)).'/';
+    	}
   }
 
 }

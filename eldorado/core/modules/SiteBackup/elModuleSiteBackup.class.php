@@ -4,7 +4,7 @@
 * Create and restore site from backup
 * Backup includes Data base dump, config file (/conf/main.conf.xml) and user uploaded files directory (/storage)
 */
-
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFS.class.php';
 class elModuleSiteBackup extends elModule
 {
   /**
@@ -49,17 +49,8 @@ class elModuleSiteBackup extends elModule
 	 */
 	var $_confID = 'backup';
 
-  /**
-  * Create printable page?
-  */
-  var $_prnt = false;
-
   function defaultMethod()
   {
-    //echo (int)elRmdir('./storage2/', true, '/((ftp(\/){0,1}.*))|(\.ht.*)/i');
-    
-    
-    
     $this->_initRenderer();
     if ( !$this->_dirOK )
     {
@@ -79,6 +70,8 @@ class elModuleSiteBackup extends elModule
     		? false
     		: elThrow(E_USER_WARNING, 'Disk quote is exceeded! Remove older backup files or increase quote size.', null, EL_URL);
   	}
+
+	$dump       = & elSingleton::getObj('elDbDump');
     $conf       = & elSingleton::getObj('elXmlConf');
     $host       = $conf->get('host', 'db');
     $db         = $conf->get('db',   'db');
@@ -86,36 +79,16 @@ class elModuleSiteBackup extends elModule
     $pass       = $conf->get('pass', 'db');
     $dbFile     = EL_DIR_CONF.$db.'.sql';
     $backupFile = EL_DIR_BACKUP.'backup-'.time().'.tar.gz';
-    $mysqldump = exec('which mysqldump');
-
-    if (empty($mysqldump) || '/' != $mysqldump{0})
-    {
-    	return $autoMode
-    		? false
-    		: elThrow(E_USER_WARNING, 'Could not find %s command. Creating backup skipped', 'mysqldump', EL_URL);
-    }
     
-    $cmd = $mysqldump.' --opt -h '.escapeshellarg($host)
-          .' -u '.escapeshellarg($user)
-          .' --password='.escapeshellarg($pass)
-          .' '.escapeshellarg($db)
-          .' > '.escapeshellarg($dbFile);
-
-    exec( $cmd, $out, $code );
-    if ( 0 < $code )
-    {
-    	return $autoMode
-    		? false
-    		: elThrow(E_USER_WARNING, 'Could not create data base dump! %s', implode('', $out), EL_URL);
-    }
+	$dump->writeDump($dbFile);
 
     $cmd = 'tar czfp '
             .escapeshellarg($backupFile).' '
-	    .'--exclude "./storage/.htaccess" '
+	    	.'--exclude "./storage/.htaccess" '
             .escapeshellarg(EL_DIR_CONF.'main.conf.xml').' '
-	    .escapeshellarg($dbFile).' '
+	    	.escapeshellarg($dbFile).' '
             .escapeshellarg(EL_DIR_STORAGE);
-//echo $cmd;
+
     exec( $cmd, $out, $code );
     if ( 0 < $code)
     {
@@ -167,9 +140,10 @@ class elModuleSiteBackup extends elModule
   */
   function cleanAll()
   {
-    if ( elRmdir(EL_DIR_BACKUP, true) )
+    if ( elFS::rmdir(EL_DIR_BACKUP, true) )
     {
-      elMsgBox::put('All backup files was deleted');
+		elFS::mkdir(EL_DIR_BACKUP);
+      	elMsgBox::put('All backup files was deleted');
     }
     elLocation(EL_URL);
   }
@@ -195,74 +169,89 @@ class elModuleSiteBackup extends elModule
   /**
   * restore site from backup
   */
-  function restore()
-  {
-    $hash = $this->_arg();
-    if ( empty($this->_backups[$hash]) )
-    {
-      elThrow(E_USER_WARNING, 'File does not exists', null, EL_URL);
-    }
-    $tar = exec('which tar');
-    if (empty($tar) || '/' != $tar{0})
-    {
-    	elThrow(E_USER_WARNING, 'Could not find %s command. Restore from backup skipped', 'tar', EL_URL);
-    }
-    $mysql = exec('which mysql');
-    $mysql = '/Applications/MAMP/Library/bin/mysql';
-    if (empty($mysql) || '/' != $mysql{0})
-    {
-    	elThrow(E_USER_WARNING, 'Could not find %s command. Restore from backup skipped', mysql, EL_URL);
-    }
+  	function restore()
+  	{
+    	$hash = $this->_arg();
+    	if ( empty($this->_backups[$hash]) )
+	    {
+		    elThrow(E_USER_WARNING, 'File does not exists');
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+	    }
 
-    $ark = &elSingleton::getObj('elArk'); 
-    $tmpDir = './tmp/b'; 
-    if ( is_dir($tmpDir) )
-    {
-      elRmdir($tmpDir);  
-    }
-    if ( !mkdir($tmpDir, 0777) )
-    {
-      return elThrow(E_USER_WARNING, m('Could not create directory %s'), $tmpDir );
-    }
-    if ( !$ark->extract('./backup/'.$this->_backups[$hash]['file'], $tmpDir) )
-    {
-      return elThrow(E_USER_ERROR, $ark->getError() );
-    }
-    
-    if ( !is_dir($tmpDir.'/conf') || !is_dir($tmpDir.'/storage'))
-    {
-      return elThrow(E_USER_ERROR, 'Expanding backup file failed! Could not restore from backup! %s Have a nice day :-)', $this->_backups[$hash]['file'].'-1');
-    }
-    elRmdir(EL_DIR_STORAGE, true, '/((ftp(\/){0,1}.*))|(\.ht.*)/i', true);
-    elRmdir(EL_DIR_CONF);
-    if ( !elCopyTree($tmpDir.'/conf', EL_DIR_CONF) || !elCopyTree($tmpDir.'/storage', EL_DIR_STORAGE) )
-    {
-      return elThrow(E_USER_ERROR, 'Expanding backup file failed! Could not restore from backup! %s Have a nice day :-)' , $this->_backups[$hash]['file'].'-2');
-    }
+		$ark = &elSingleton::getObj('elArk'); 
+	    $tmpDir = './tmp/b';
+		
+		include_once EL_DIR_CORE.'lib/elFS.class.php';
+		if (!is_dir($tmpDir) && !elFS::mkdir($tmpDir, 0777)) 
+		{
+			elThrow(E_USER_WARNING, m('Could not create directory %s'), $tmpDir);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		if (!is_writable($tmpDir))
+		{
+			elThrow(E_USER_WARNING, m('Directory %s is not writable'), $tmpDir);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		if ( !$ark->extract('./backup/'.$this->_backups[$hash]['file'], $tmpDir) )
+	    {
+		    elThrow(E_USER_WARNING, $ark->getError(), null);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+	    }
+	
+		if ( !is_dir($tmpDir.'/conf') || !is_dir($tmpDir.'/storage'))
+	    {
+			elFS::rmdir($tmpDir);
+	     	elThrow(E_USER_WARNING, 'Invalid backup file %s', $this->_backups[$hash]['file']);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+	    }
+	
+		$rm = elFS::find($tmpDir, '/^((ftp)|(\.ht.+)|(\.DS_Store)|(\.git.*))/i');
+		foreach ($rm as $one)
+		{
+			if (is_dir($one))
+			{
+				elFS::rmdir($one);
+			}
+			else
+			{
+				@unlink($one);
+			}
+		}
 
-
-    $conf       = & elSingleton::getObj('elXmlConf');
-    $host       = $conf->get('host', 'db');
-    $db         = $conf->get('db',   'db');
-    $user       = $conf->get('user', 'db');
-    $pass       = $conf->get('pass', 'db');
-    $dbFile     = EL_DIR_CONF.$db.'.sql';
-    $cmd        = $mysql.' -h '.escapeshellarg($host)
-                 .' -u '.escapeshellarg($user)
-                 .' --password='.escapeshellarg($pass)
-                .' '.escapeshellarg($db)
-                .' < '.escapeshellarg($dbFile);
-
-    exec( $cmd, $out, $code );
-    if ( 0 < $code )
-    {
-      elThrow(E_USER_ERROR, 'Could not restore data base from dump! %s', implode('', $out), EL_URL);
-    }
-    $msg = sprintf( m('Site was restored from file %s by date %s'),
-    								$this->_backups[$hash]['file'], $this->_backups[$hash]['date'] ) ;
-    elMsgBox::put( $msg );
-    elLocation(EL_URL);
-
+		if (!elFS::move($tmpDir.DIRECTORY_SEPARATOR.'storage', EL_DIR))
+		{
+			elThrow(E_USER_WARNING, 'Could not copy %s to %s!', array($tmpDir.DIRECTORY_SEPARATOR.'storage', EL_DIR_STORAGE));
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		if (!elFS::move($tmpDir.DIRECTORY_SEPARATOR.'conf', EL_DIR))
+		{
+			elThrow(E_USER_WARNING, 'Could not copy %s to %s!', array($tmpDir.DIRECTORY_SEPARATOR.'conf', EL_DIR_CONF));
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		elFS::rmdir($tmpDir);
+		
+		$dump   = & elSingleton::getObj('elDbDump');
+		$conf   = & elSingleton::getObj('elXmlConf');
+	    $host   = $conf->get('host', 'db');
+	    $db     = $conf->get('db',   'db');
+	    $user   = $conf->get('user', 'db');
+	    $pass   = $conf->get('pass', 'db');
+	    $dbFile = EL_DIR_CONF.$db.'.sql';
+		if (!is_file($dbFile) || !is_readable($dbFile))
+		{
+			elThrow(E_USER_WARNING, 'File %s does not exists', $dbFile);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		
+		if (!$dump->restore($dbFile))
+		{
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+			elThrow(E_USER_WARNING, 'Unable to complite restore from backup', EL_URL);
+		}
+		
+		$msg = sprintf( m('Site was restored from file %s by date %s'),	$this->_backups[$hash]['file'], $this->_backups[$hash]['date'] ) ;
+	    elMsgBox::put( $msg );
+	    elLocation(EL_URL);
   }
 
   /**

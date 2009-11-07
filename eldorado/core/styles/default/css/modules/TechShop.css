@@ -3,7 +3,7 @@ a.cat-level-1 { }
 
 /* Заголовок итемов в одну колонку */
 .items-onecol h4,
-.items-twocol h4 { background:#dee7ed; padding:.8em; margin:0; border-top:3px solid red; }
+.items-twocol h4 { padding-top:.3em; }
 .items-onecol li { padding:0 0 1em 0; }
 /* ссылка на прайслист */
 .mod-tshop-pricelist { text-align:right; }
@@ -53,8 +53,8 @@ a.cat-level-1 { }
 .mod-tshop-mnfs {}
 
 /* один проиводитель в списке */
-.mod-tshop-mnf { margin-bottom:1em;}
-.mod-tshop-mnf h4 { background:#eee; padding:.8em; margin:0; border-top:3px solid red; }
+.mod-tshop-mnf { margin-bottom:1em; border-bottom:1px solid #ccc;}
+.mod-tshop-mnf h4 {  margin:0; }
 
 /* краткое описание производителя в списке и полное на странице производителя */
 .mod-tshop-mnf-announce, 

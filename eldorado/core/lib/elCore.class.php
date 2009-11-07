@@ -3,8 +3,8 @@
 /**
  * Core version and name
  */
-define ('EL_VER',  '3.8.2');
-define ('EL_NAME', 'Origami');
+define ('EL_VER',  '3.9.0');
+define ('EL_NAME', 'Kioto');
 
 class elCore
 {
@@ -19,10 +19,9 @@ class elCore
 	var $_srvMap = array(
 				'__profile__'     => 'Profile',
 				'__reg__'         => 'Registration',
-				'__fm__'          => 'FM',
+				'__finder__'      => 'Finder',
 				'__ver__'         => 'Version',
 				'__search__'      => 'Sherlock',
-				'__stat__'        => 'Stat',
 				'__icart__'       => 'ICart',
 				'__pl__'          => '',
 				'__auth__'        => '',
@@ -47,15 +46,9 @@ class elCore
 		$this->ats     = & elSingleton::getObj('elATS');
 		$this->ats->init($this->pageID);
 
-		define ('EL_URL', $nav->getURL() ); //echo EL_URL;
+		define ('EL_URL', $nav->getURL() ); 
 
-		if ( !empty($this->args[0]) &&  EL_URL_PRNT == $this->args[0] )
-		{
-			array_shift($this->args);
-			define('EL_WM',     EL_WM_PRNT);
-			define('EL_WM_URL', EL_URL.EL_URL_PRNT.'/');
-		}
-		elseif ( !empty($this->args[0]) && EL_URL_POPUP == $this->args[0] )
+		if ( !empty($this->args[0]) && EL_URL_POPUP == $this->args[0] )
 		{
 			array_shift($this->args);
 			$append = !empty($this->args[0]) && 0 === strpos($this->args[0], '__') ? '/'.$this->args[0].'/' : '/';
@@ -76,13 +69,14 @@ class elCore
 		elAddJs('jquery.js',     EL_JS_CSS_FILE);
 		elAddJs('common.lib.js', EL_JS_CSS_FILE);
 		elAddJs('el.lib.js',     EL_JS_CSS_FILE);
-		elAddJs('var elBaseURL="'.EL_BASE_URL.'/"; var elURL="'.EL_URL.'";');
+		elAddJs('var elBaseURL="'.EL_BASE_URL.'/"; var elURL="'.EL_URL.'";'); 
 	}
 
 
 
 	function run()
 	{
+		
 		$conf = & elSingleton::getObj('elXmlConf');
 		$isCart = 'EShop' == $this->mName && !empty($this->ars[0]) && 'order' == $this->args[0];
 		if ( !( $conf->get('cacheAllow', 'common') && !$this->ats->allow(EL_WRITE) && empty($_POST) ) || $isCart )
@@ -165,6 +159,13 @@ class elCore
 				elThrow(E_USER_WARNING, 'Error 403: Acces to page "%s" denied.', EL_URL, EL_BASE_URL);
 			}
 		}
+		if ($this->ats->allow(EL_WRITE))
+		{
+			elLoadJQueryUI();
+			elAddCss('el-menu-float.css',     EL_JS_CSS_FILE);
+			elAddJs('jquery.cookie.js',       EL_JS_CSS_FILE);
+			elAddJs('ellib/jquery.elmenu.js', EL_JS_CSS_FILE);
+		}
 
 		$class = 'elModule'.$this->mName;
 		$dir   = 'modules/'.$this->mName.'/';
@@ -236,11 +237,6 @@ class elCore
 		{
 			if ($sherlock)
 			{
-				$js  = "var searchProgress = '".m('Searching for "%s"')."';\n";
-				$js .= "var resTitle = '".m('Search results for')."';\n";
-				$js .= "var noResMsg = '".m('There is nothing was found')."';";
-				elAddJs( $js );
-				
 				elAddJs('ServiceSherlock.lib.js', EL_JS_CSS_FILE);
 			}
 			if ( EL_WM_NORMAL == EL_WM )
@@ -289,11 +285,12 @@ class elCore
 		switch ( $service )
 		{
 			case "__pl__":
-				if (false == ($name = array_shift($this->args)) || null  == ($plugin = &elSingleton::getPlugin($name)) )
+			
+				if (false == ($name = array_shift($this->args)) || null  == ($plugin = elSingleton::getPlugin($name)) )
 				{
 					elLocation(EL_BASE_URL);
 				}
-				//elprintR($plugin);
+				// elprintR($plugin);
 				$plugin->call($this->args);
 				break;
 

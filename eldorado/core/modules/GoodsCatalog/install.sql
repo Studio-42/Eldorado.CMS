@@ -16,7 +16,7 @@ CREATE TABLE el_gcat_{pageID}_item (
   id int(3) NOT NULL auto_increment,
   name varchar(250) NOT NULL,
   altername varchar(350) NOT NULL,
-  price double(9,2) NOT NULL,
+  price double(12,2) NOT NULL,
   announce mediumtext not null,
   content text not null,
   crtime int(11) unsigned NOT NULL default '0',

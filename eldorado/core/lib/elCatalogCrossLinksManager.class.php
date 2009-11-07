@@ -46,7 +46,7 @@ class elCatalogCrossLinksManager
    */
   var $_typesMap = array(
     'DocsCatalog'    => array('elDCatalogItem',     'el_dcat_'),
-    'Eshop'          => array('elEshopItem',    'el_eshop_'),
+    'IShop'          => array('elIShopItem',    'el_ishop_'),
     'FileArchive'    => array('elFAFile',       'el_fa_'),
     'GoodsCatalog'   => array('elGCatalogItem', 'el_gcat_'),
     'VacancyCatalog' => array('elVacancy',      'el_vaccat_'),
@@ -88,6 +88,7 @@ class elCatalogCrossLinksManager
    */
   function getLinkedObjects($mid)
   {
+	
     $tmp = $ret = array();
     // список страниц-каталогов в которых есть связанные объекты
     $sql = 'SELECT l.spid, l.sid, m.module, m.name '
@@ -110,29 +111,24 @@ class elCatalogCrossLinksManager
     }
 
     // формируем массив имен и URL'ов объектов
+	
     foreach ( $tmp as $pageID=>$v )
-    { //v[module, objName, tbi, tbc, tbi2c, iIDs, pageName]
-      if ( include_once EL_DIR_CORE.'modules/'.$v[0].'/'.$v[1].'.class.php' )
-      {
+    { 
         $URL = $this->_nav->getPageURL($pageID);
-        $obj = elSingleton::getObj($v[1]);
-        $sql = 'SELECT i2c.c_id, i.'.implode(',i.', $obj->listAttrs())
-              .' FROM '.$v[2].' AS i, '.$v[4].' AS i2c, '.$v[3].' AS c '
-              .'WHERE i.id IN ('.implode(',', $v[5]).') AND i2c.i_id=i.id AND c.id=i2c.c_id '
-			.'GROUP BY i.id '
-              .'ORDER BY c._left,  IF(i2c.sort_ndx>0, LPAD(i2c.sort_ndx, 4, "0"), "9999"), i.name';
-        //echo $sql.'<br><br>';
+        $sql = 'SELECT i2c.c_id, i.id, i.name '
+              	.' FROM '.$v[2].' AS i, '.$v[4].' AS i2c, '.$v[3].' AS c '
+              	.'WHERE i.id IN ('.implode(',', $v[5]).') AND i2c.i_id=i.id AND c.id=i2c.c_id '
+				.'GROUP BY i.id '
+              	.'ORDER BY c._left,  IF(i2c.sort_ndx>0, LPAD(i2c.sort_ndx, 4, "0"), "9999"), i.name';
         $this->_db->query($sql);
         while ($r = $this->_db->nextRecord())
         {
-          $obj->setAttrs($r);
           if ( empty($ret[$pageID]) )
           {
             $ret[$pageID] = array('name'=>$v[6], 'items'=>array());
           }
-          $ret[$pageID]['items'][] = array('url'=>$URL.'item/'.$r['c_id'].'/'.$r['id'].'/', 'name'=>$obj->getName());
+          $ret[$pageID]['items'][] = array('url'=>$URL.'item/'.$r['c_id'].'/'.$r['id'].'/', 'name'=>$r['name']);
         }
-      }
     }
     return $ret;
   }
@@ -144,13 +140,16 @@ class elCatalogCrossLinksManager
    */
   function confCrossLinks()
   {
-    $this->_makeConfForm();
+	$conf = & elSingleton::getObj('elXmlConf');
+	$view = $conf->get('crossLinksView', $this->pageID);
+    $this->_makeConfForm($view);
     if ($this->_form->isSubmitAndValid() )
     {
-      $data = $this->_form->getValue(); //elPrintR($data);
-      $conf = & elSingleton::getObj('elXmlConf');
+      $data = $this->_form->getValue(); 
+      
       $conf->drop('crossLinksGroups', $this->pageID);
       $conf->set('crossLinksGroups', $data['alias'], $this->pageID);
+		$conf->set('crossLinksView', (int)$data['crossLinksView'], $this->pageID);
       $conf->save();
       return true;
     }
@@ -165,6 +164,7 @@ class elCatalogCrossLinksManager
    */
   function editCrossLinks(&$masterItem)
   {
+	include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elCatalogItem.class.php';
     // извлекаем ID связаных объектов
     $vals = array();
     $sql = 'SELECT spid, scatid, sid FROM '.$this->_tb.' WHERE mpid=\''.$this->pageID.'\' AND mid=\''.$masterItem->ID.'\'';
@@ -174,25 +174,23 @@ class elCatalogCrossLinksManager
       $vals[$r['spid']][$r['scatid']][$r['sid']] = 1;
     }
 
-    // массив деревьев категорий и айтемов из кталогов для загрузки в форму
-    $pages = $this->_nav->getPagesByModules( array_keys($this->_typesMap) ); //elPrintR($pages);
+    // массив деревьев категорий и айтемов из кaталогов для загрузки в форму
+    $pages = $this->_nav->getPagesByModules( array_keys($this->_typesMap) ); 
     $tree  = array();
+	$obj = & new elCatalogItem();
+
     foreach ($pages as $ID=>$page)
     {
       if ( false == (list($module, $objName, $tbi, $tbc, $tbi2c) = $this->_getPageNfo($ID, $page['module'])) )
       {
-        //echo 'Nai - '.$page['module'];
         continue;
       }
       $sql       = 'SELECT id, _left, _right, level, name FROM '.$tbc.' ORDER BY _left';
       $tree[$ID] = $this->_db->queryToArray($sql, 'id');
-      include_once EL_DIR_CORE.'modules/'.$module.'/'.$objName.'.class.php';
-      $obj = &elSingleton::getObj($objName);
-      $sortID = 0;
       $sql = 'SELECT c_id, '.implode(',', $obj->listAttrs())
           .' FROM '.$tbi.','.$tbi2c
           .' WHERE id=i_id '
-          .' ORDER BY '.$obj->_getOrderBy($sortID);
+          .' ORDER BY name';
       $this->_db->query( $sql );
       while ($r = $this->_db->nextRecord())
       {
@@ -209,14 +207,13 @@ class elCatalogCrossLinksManager
         }
       }
     }
-    unset($obj, $item);
-    //elPrintR($tree);
+    unset( $item);
     $this->_makeForm( $masterItem->getName(), $tree);
     if (!$this->_form->isSubmitAndValid())
     {
       return false;
     }
-    $data = $this->_form->getValue(); //elPrintR($data);
+    $data = $this->_form->getValue(); 
     $sql = 'DELETE FROM '.$this->_tb.' WHERE mpid=\''.$this->pageID.'\' AND mid=\''.$masterItem->ID.'\'';
     $this->_db->query($sql);
     $this->_db->optimizeTable($this->_tb);
@@ -265,19 +262,25 @@ class elCatalogCrossLinksManager
    * Создает форму для настройки имен групп
    *
    */
-  function _makeConfForm()
+  function _makeConfForm($view)
   {
-    $this->_form = & elSingleton::getObj('elForm');
-    $this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-    $this->_form->setLabel( m('Linked objects groups configuration') );
-    $this->_form->add( new elCData('c1', m('You may set linked objects groups names')) );
-    $pages = $this->_nav->getPagesByModules( array_keys($this->_typesMap) );
-    foreach ( $pages as $ID=>$page )
-    {
-      $name = !empty($this->_conf[$ID]) ? $this->_conf[$ID] : $page['name'];
-      $label = sprintf( m('Objects from page "%s"'), $page['name']);
-      $this->_form->add( new elText('alias['.$ID.']', $label, $name) );
-    }
+	$this->_form = & elSingleton::getObj('elForm');
+	$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+	$this->_form->setLabel( m('Linked objects groups configuration') );
+	$this->_form->add( new elCData('c1', m('You may set linked objects groups names')) );
+	$pages = $this->_nav->getPagesByModules( array_keys($this->_typesMap) );
+	foreach ( $pages as $ID=>$page )
+	{
+		$name = !empty($this->_conf[$ID]) ? $this->_conf[$ID] : $page['name'];
+		$label = sprintf( m('Objects from page "%s"'), $page['name']);
+		$this->_form->add( new elText('alias['.$ID.']', $label, $name) );
+	}
+	$views = array(
+		m('All groups collapsed'),
+		m('First group expanded'),
+		m('All groups expanded')
+		);
+	$this->_form->add( new elSelect('crossLinksView', m('Linked objects groups view'), $view, $views));
   }
 
   /**
@@ -295,7 +298,7 @@ class elCatalogCrossLinksManager
     {
       $root = current($one);
       $c = & new elFormTreeContainer('catalog_'.$ID, $root['name'], $one, 'items_'.$ID);
-      $this->_form->add( $c, array('nolabel'=>1) ); //elPrintR($c);
+      $this->_form->add( $c, array('nolabel'=>1) ); 
     }
   }
 

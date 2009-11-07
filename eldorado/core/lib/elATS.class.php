@@ -128,7 +128,7 @@ class elATS
     elLoadMessages('Auth');
     $this->form = & elSingleton::getObj('elForm');
     $this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-    $this->form->setLabel( '<img src="{icoUser}" /> '.m('Authorization required') );
+    $this->form->setLabel(m('Authorization required'));
     $this->form->setAttr('action', EL_URL.'__auth__/');
     $this->form->add( new elText('elLogin', m('Login')) );
     $this->form->add( new elPassword('elPass', m('Password')) );
@@ -494,7 +494,7 @@ class elATS
 				else
 				{
 					$sql = 'SELECT uid, login FROM el_user WHERE '
-	    				.'login=LOWER(\''.strtolower($login).'\') AND pass=MD5(\''.$pass.'\') AND pass<>\'\'';
+	    				.'LOWER(login)=\''.strtolower($login).'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\'';
 					
 				}
 			}
@@ -509,7 +509,7 @@ class elATS
 				else 
 				{
 					$sql = 'SELECT DISTINCT uid, login FROM el_user, el_user_in_group WHERE '
-	    				.'login=LOWER(\''.strtolower($login).'\') AND pass=MD5(\''.$pass.'\') AND pass<>\'\' AND '
+	    				.'LOWER(login)=\''.strtolower($login).'\' AND pass=MD5(\''.$pass.'\') AND pass<>\'\' AND '
 							.'user_id=uid AND group_id IN (\''.implode('\',\'', array_keys($this->_iGroups)).'\')';
 					
 				}

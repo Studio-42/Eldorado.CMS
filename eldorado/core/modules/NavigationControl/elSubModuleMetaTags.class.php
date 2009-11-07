@@ -3,6 +3,7 @@
 * @package eldoradoCore
 * Site's meta tags management
 */
+include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
 
 class elSubModuleMetaTags extends elModule
 {
@@ -12,6 +13,12 @@ class elSubModuleMetaTags extends elModule
 
   var $_mMapConf = array();
   
+	var $_mMapAjax = array(
+		'childs' => '_getChilds',
+		'meta'   => '_getMeta',
+		'update' => '_updateMeta'
+		);
+
   var $modules = array('DocsCatalog'   => array('tbc'=>'el_dcat_%d_cat',     'tbi'=>'el_dcat_%d_item', 'tbi2c'=>'el_dcat_%d_i2c', 'sort'=>array('name', 'crtime DESC, name')),
                       'GoodsCatalog'   => array('tbc'=>'el_gcat_%d_cat',     'tbi'=>'el_gcat_%d_cat', 'tbi2c'=>'el_gcat_%d_i2c', 'sort'=>array('name', 'price, name', 'crtime DESC, name')),
                       'IShop'          => array('tbc'=>'el_ishop_%d_cat',    'tbi'=>'el_ishop_%d_item', 'tbi2c'=>'el_ishop_%d_i2c', 'sort'=>array(1  => 'name', 'code, name', 'price DESC, name', 'crtime DESC, name'  )),
@@ -26,67 +33,149 @@ class elSubModuleMetaTags extends elModule
   /**
   * Display list of meta tags
   */
-  function defaultMethod()
-  {
-    if ($this->_aMode < EL_WRITE)
-    {
-      elThrow(E_USER_WARNING, 'Access denied to %s', '', EL_URL);
-    }
-    $this->_initRenderer();
-    $this->_rnd->rndMeta( $this->_getNodes(0) );
-    elAddJs('initMetaTree()', EL_JS_SRC_ONLOAD);
-    elAddJs('var msgSave = "'.m('Save').'";', EL_JS_CSS_SRC);
-  }
+	function defaultMethod()
+	{
+		if (!empty($_POST['action']) && !empty($this->_mMapAjax[$_POST['action']]))
+		{
+			$m = $this->_mMapAjax[$_POST['action']];
+			return $this->_aMode < EL_WRITE ? $this->_jsonError('Access denied!') : $this->$m();
+		}
+
+		if ($this->_aMode < EL_WRITE)
+		{
+			elThrow(E_USER_WARNING, 'Access denied to %s', '', EL_URL);
+		}
+		
+		elLoadJQueryUI();
+		elAddJs('jquery.form.js', EL_JS_CSS_FILE);
+		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
+		elAddJs('ellib/widgets/eldialogform.js', EL_JS_CSS_FILE);
+		
+		$this->_initRenderer();
+		$this->_rnd->rndMeta( $this->_getNodes(0) ); 
+	}
+
+	function editRobotsTxt()
+  	{
+  		$rFile = EL_DIR.'robots.txt';
+  		if ( !file_exists($rFile) && !$this->_saveRobotsTXT('') )
+	  	{
+	  		elThrow(E_USER_WARNING, 'Could not not create file %s', 'robots.txt', EL_URL.$this->_smPath);
+	  	}
+	  	if ( !is_writable($rFile) )
+	  	{
+	  		elThrow(E_USER_WARNING, 'File %s is not writable', 'roots.txt', EL_URL.$this->_smPath);
+	  	}
+	  	$form = & elSingleton::getObj('elForm');
+	  	$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+	  	$form->setLabel( m('Edit robots.txt file') );
+	  	$form->add( new elTextArea('content', m('Content'), file_get_contents($rFile)) );
+	  	if ( !$form->isSubmitAndValid() )
+	  	{
+	  		$this->_initRenderer();
+	  		$this->_rnd->addToContent( $form->toHtml() );
+	  	}
+	  	else
+	  	{
+	  		if ( !$this->_saveRobotsTXT($form->getElementValue('content')) )
+	  		{
+	  			elThrow(E_USER_WARNING, 'Could write to file %s', 'robots.txt', EL_URL.$this->_smPath);
+	  		}
+	  		elMsgBox::put( m('Data saved') );
+	  		elLocation(EL_URL.$this->_smPath);
+	  	}
+  	}
+ 	
+
+	function _getChilds()
+	{
+		$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
+		if (!$ID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		list($pID, $cID, $iID) = explode('_', $ID);
+		$pID = (int)$pID;
+		$cID = (int)$cID;
+		$iID = (int)$iID;
+		if (!$pID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		$nodes = $this->_getNodes($pID, $cID);
+		$ret = array();
+		exit(elJSON::encode($nodes));
 
 
-  function toXML()
-  {
-    $arg  = trim($this->_arg()); 
-    if ('meta' == $arg )
-    {
-      return $this->_metaToXml( trim($this->_arg(1)) );
-    }
-    elseif ('meta_edit' == $arg)
-    {
-      $this->_editMeta(trim($this->_arg(1)));
-      return $this->_metaToXml( trim($this->_arg(1)), m('Meta tags was updated!') );
-    }
-    else
-    {
-      return $this->_treeToXml( $arg );
-    }
-  }
+		exit('get childs');
+	}
 
- function editRobotsTxt()
-  {
-  	$rFile = EL_DIR.'robots.txt';
-  	if ( !file_exists($rFile) && !$this->_saveRobotsTXT('') )
-  	{
-  		elThrow(E_USER_WARNING, 'Could not not create file %s', 'robots.txt', EL_URL.$this->_smPath);
-  	}
-  	if ( !is_writable($rFile) )
-  	{
-  		elThrow(E_USER_WARNING, 'File %s is not writable', 'roots.txt', EL_URL.$this->_smPath);
-  	}
-  	$form = & elSingleton::getObj('elForm');
-  	$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-  	$form->setLabel( m('Edit robots.txt file') );
-  	$form->add( new elTextArea('content', m('Content'), file_get_contents($rFile)) );
-  	if ( !$form->isSubmitAndValid() )
-  	{
-  		$this->_initRenderer();
-  		$this->_rnd->addToContent( $form->toHtml() );
-  	}
-  	else
-  	{
-  		if ( !$this->_saveRobotsTXT($form->getElementValue('content')) )
-  		{
-  			elThrow(E_USER_WARNING, 'Could write to file %s', 'robots.txt', EL_URL.$this->_smPath);
-  		}
-  		elMsgBox::put( m('Data saved') );
-  		elLocation(EL_URL.$this->_smPath);
-  	}
-  }
+	function _getMeta()
+	{
+		$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
+		if (!$ID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		list($pID, $cID, $iID) = explode('_', $ID);
+		$pID = (int)$pID;
+		$cID = (int)$cID;
+		$iID = (int)$iID;
+		if (!$pID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		$db    = & elSingleton::getObj('elDb');
+		$sql   = 'SELECT LOWER(name) AS name, content FROM el_metatag WHERE page_id='.$pID.' AND c_id='.$cID.' AND i_id='.$iID.' ORDER BY IF (LOWER(name)=\'title\', "0", "1"), name';
+		$metas = $db->queryToArray($sql, 'name', 'content');
+		exit(elJSON::encode($metas));
+	}
+
+
+	function _updateMeta()
+	{
+		$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
+		if (!$ID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		list($pID, $cID, $iID) = explode('_', $ID);
+		$pID = (int)$pID;
+		$cID = (int)$cID;
+		$iID = (int)$iID;
+		if (!$pID)
+		{
+			return $this->_jsonError('Invalid arguments');
+		}
+		$db  = & elSingleton::getObj('elDb');
+	    $sql = 'DELETE FROM el_metatag WHERE page_id='.$pID.' AND c_id='.intval($cID).' AND i_id='.intval($iID);
+	    $db->query($sql);
+	    $db->optimizeTable('el_metatag');
+	
+		if (!empty($_POST['meta']['name']) && is_array($_POST['meta']['name']))
+		{
+			for ($i=0, $s = sizeof($_POST['meta']['name']); $i < $s ; $i++) { 
+				$n = !empty($_POST['meta']['name'][$i]) ? trim($_POST['meta']['name'][$i]) : '';
+				$v = !empty($_POST['meta']['value'][$i]) ? trim($_POST['meta']['value'][$i]) : '';
+				if ($n && $v)
+				{
+					$sql = 'REPLACE INTO el_metatag SET name=\''.mysql_real_escape_string($n).'\', content=\''.mysql_real_escape_string($v).'\', '
+			      		.'page_id='.$pID.', c_id='.$cID.', i_id='.$iID;
+					$db->query($sql);
+				}
+			}
+		}
+		exit(elJSON::encode(array('message' => m('Meta tags updated'))));
+	}
+
+	function _jsonError($err, $args=null)
+	{
+		$err = !empty($args) ? vsprintf(m($err), $args) : m($err);
+		exit(elJSON::encode(array('error' => $err)));
+	}
+
+  
+
 
   function _getNodes($pID, $cID=0)
   {
@@ -102,16 +191,18 @@ class elSubModuleMetaTags extends elModule
         : 'SELECT ch.id, ch.name, ch.module, ch._right-ch._left-1 AS has_childs FROM el_menu AS ch, el_menu AS p '
           .'WHERE p.id=\''.intval($pID).'\' AND (ch._left BETWEEN p._left AND p._right) AND ch.level=p.level+1 ORDER BY ch._left';  
        
-      $pages = $db->queryToArray($sql); //elPrintR($pages);
+      $pages = $db->queryToArray($sql); 
 
       foreach ($pages as $p)
       {
-        $nodes[] = array('pid'        => $p['id'],
-                         'cid'        => 0,
-                         'iid'        => 0,
-                         'name'       => $p['name'],
-                         'has_childs' => intval($p['has_childs'] || !empty($this->modules[$p['module']]) ),
-                        );
+        $nodes[] = array(
+			// 'pid'        => $p['id'],
+			// 'cid'        => 0,
+			// 'iid'        => 0,
+			'id'         => $p['id'].'_0_0',
+			'name'       => $p['name'],
+			'has_childs' => intval($p['has_childs'] || !empty($this->modules[$p['module']]) ),
+			);
       }
     }
     
@@ -135,7 +226,7 @@ class elSubModuleMetaTags extends elModule
           $sort   = 'IF(g_sort_ndx>0, LPAD(g_sort_ndx, 4, "0"), "9999"), '
 	      .( ($sortID && $this->modules[$page['module']]['sort'][$sortID]) ? $this->modules[$page['module']]['sort'][$sortID] : 'g_crtime');
             
-          $sql = 'SELECT g_id AS id, g_name AS name, 0 AS childs FROM '.$tbc.' ORDER BY '.$sort; //echo $sql;
+          $sql = 'SELECT g_id AS id, g_name AS name, 0 AS childs FROM '.$tbc.' ORDER BY '.$sort; 
         }
         elseif ( !$tbi2c )
         {
@@ -152,15 +243,17 @@ class elSubModuleMetaTags extends elModule
                 .'WHERE '.$where.' AND c.level=p.level+1 AND (c._left BETWEEN p._left AND p._right) '
                 .'GROUP BY c.id  ORDER BY c._left';
         }
-        $db->query($sql); //echo $sql;
+        $db->query($sql); 
         while ( $r = $db->nextRecord() )
         {
-          $nodes[] = array('pid'       => $pID,
-                          'cid'        => $r['id'],
-                          'iid'        => 0,
-                          'name'       => $r['name'],
-                          'has_childs' => $r['childs']
-                      );
+          $nodes[] = array(
+				// 'pid'       => $pID,
+				// 'cid'        => $r['id'],
+				// 'iid'        => 0,
+				'id'         => $pID.'_'.$r['id'].'_0',
+				'name'       => $r['name'],
+				'has_childs' => $r['childs']
+				);
         }
       }
       
@@ -185,12 +278,14 @@ class elSubModuleMetaTags extends elModule
         $db->query($sql); 
         while ( $r = $db->nextRecord() )
         {
-          $nodes[] = array('pid'       => $pID,
-                          'cid'        => $r['c_id'],
-                          'iid'        => $r['id'],
-                          'name'       => $r['name'],
-                          'has_childs' => 0
-                      );
+          $nodes[] = array(
+				// 'pid'       => $pID,
+				// 'cid'        => $r['c_id'],
+				// 'iid'        => $r['id'],
+				'id'         => $pID.'_'.$r['c_id'].'_'.$r['id'],
+				'name'       => $r['name'],
+				'has_childs' => 0
+				);
         }
       }
       
@@ -198,106 +293,9 @@ class elSubModuleMetaTags extends elModule
     return $nodes;
   }
 
-  function _editMeta($ID)
-  {
-    list($pID, $cID, $iID) = explode('_', $ID);
-    $db    = & elSingleton::getObj('elDb');
-    $sql = 'DELETE FROM el_metatag WHERE page_id='.intval($pID).' AND c_id='.intval($cID).' AND i_id='.intval($iID);
-    $db->query($sql);
-    $db->optimizeTable('el_metatag');
-    foreach($_POST as $k=>$v)
-    {
-      if (!empty($k) && !empty($v))
-      {
-        $sql = 'REPLACE INTO el_metatag SET name=\''.mysql_real_escape_string($k).'\', content=\''.mysql_real_escape_string($v).'\', '
-      .'page_id='.intval($pID).', c_id='.intval($cID).', i_id='.intval($iID);
-      $db->query($sql);  
-      }
-      
-    }
-  }
+  
 
-  function _treeToXml($ID)
-  {
-    $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"yes\" ?>\n";
-    $xml .= "<response>\n";
-    $xml .= "<method>elNCMetaControl</method>\n";
-    $xml .= "<result>\n";
-    $xml .= "<arg>tree</arg>\n";
-    $xml .= "<parentID>".$ID."</parentID>\n";
-    list($pID, $cID, $iID) = explode('_', $ID);// echo "$pID, $cID, $iID";
-    if ( $iID || false == ($nodes = $this->_getNodes($pID, $cID)) )
-    {
-      $xml .= "<error>There are no one childs was found</error>\n";
-    }
-
-    foreach ( $nodes as $n )
-    {
-      $xml .= "<node>\n";
-      $xml .= "<pid>".$n['pid']."</pid>\n";
-      $xml .= "<cid>".$n['cid']."</cid>\n";
-      $xml .= "<iid>".$n['iid']."</iid>\n";
-      $xml .= "<name><![CDATA[".$n['name']."]]></name>\n";
-      $xml .= "<has_childs>".$n['has_childs']."</has_childs>\n";
-      $xml .= "</node>\n";
-    }
-    $xml .= "</result>\n";
-    $xml .= "</response>\n";
-    return $xml;
-  }
-
-  function _metaToXml($ID, $message='')
-  {
-    $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"yes\" ?>\n";
-    $xml .= "<response>\n";
-    $xml .= "<method>elNCMetaControl</method>\n";
-    $xml .= "<result>\n";
-    $xml .= "<arg>meta</arg>\n";
-    $xml .= "<parentID>".$ID."</parentID>\n";
-    list($pID, $cID, $iID) = explode('_', $ID);// echo "$pID, $cID, $iID";
-    $nav  = & elSingleton::getObj( 'elNavigator' );
-    if ( false == ($page  = $nav->getPage($pID) ) && 1<> $pID)
-    {
-      elLoadMessages('Errors');
-      $xml .= "<error>".sprintf( m('Page with ID="%d" does not exists'), $pID)."</error>\n";
-    }
-    else
-    {
-      if ( !empty($message) )
-      {
-        $xml .= "<message><![CDATA[".$message."]]></message>\n";
-      }
-      $db    = & elSingleton::getObj('elDb');
-      $sql   = 'SELECT LOWER(name) AS name, content FROM el_metatag WHERE page_id='.intval($pID).' AND c_id='.intval($cID).' AND i_id='.intval($iID).' ORDER BY IF (LOWER(name)=\'title\', "0", "1"), name';
-      $metas = $db->queryToArray($sql, 'name', 'content');
-      if ( !isset($metas['title']) && 1<>$pID)
-      {
-        $metas = array('title'=>'') + $metas;
-      }
-      if ( !isset($metas['description']) )
-      {
-        $metas['description'] = '';
-      }
-      if ( !isset($metas['keywords']) )
-      {
-        $metas['keywords'] = '';
-      }
-      
-      foreach ( $metas as $name=>$content )
-      {
-        $xml .= "<node>\n";
-        $xml .= "<name><![CDATA[".$name."]]></name>\n";
-        $xml .= "<content><![CDATA[".$content."]]></content>\n";
-        $xml .= "</node>\n";
-      }  
-    }
-    $xml .= "</result>\n";
-    $xml .= "</response>\n";
-    return $xml;
-  }
-
-
- 
+  
 
   function _saveRobotsTXT( $content )
   {

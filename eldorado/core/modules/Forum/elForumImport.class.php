@@ -290,7 +290,7 @@ class elForumImport
 		}
 		$dir .= '/';
 		$exts = array(1=>'.gif', '.jpg', '.png');
-		$im = & elSingleton::getObj('elImager');
+		$im = & elSingleton::getObj('elImage');
 		foreach ($avs as $av)
 		{
 			$img = file_get_contents($url.'index.php?action=dlattach;attach='.$av['ID_ATTACH'].';type=avatar');
@@ -430,7 +430,7 @@ class elForumImport
 			return elThrow(E_USER_ERROR, 'Could not save forum attachments');
 		}
 		$dir .= '/';
-		$im = & elSingleton::getObj('elImager');
+		$im = & elSingleton::getObj('elImage');
 		$this->_db->query('TRUNCATE el_forum_attach');
 		$sql = 'INSERT INTO el_forum_attach (post_id, is_img, filename, size, img_w, img_h, downloads) VALUES (%d, %d, "%s", %d, %d, %d, %d)';
 		foreach ($attachs as $at)
@@ -452,7 +452,7 @@ class elForumImport
 					fclose($fp);
 					if ($at['is_img'])
 					{
-						$im->copyResized($dir.$filename, $dir.'mini-'.$filename, $attachDim, $attachDim);
+						$im->tmb($dir.$filename, $dir.'mini-'.$filename, $attachDim, $attachDim);
 					}
 				}
 			}

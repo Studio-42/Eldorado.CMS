@@ -3,8 +3,8 @@
 class elRndUsersControl extends elModuleRenderer
 {
 	var $_tpls = array( 'groups'  => 'groups.html',
-											'nav'     => 'nav.html',
-											'profile' => 'profile.html' );
+						'nav'     => 'nav.html',
+						'profile' => 'profile.html' );
 
 	var $_admTpls = array('groups'=>'adminGroups.html');
 
@@ -31,6 +31,10 @@ class elRndUsersControl extends elModuleRenderer
 			}
 			$user['atime'] = $user['atime'] ? date('d.m.y H:i', $user['atime']) : '';
 			$this->_te->assignBlockVars('USER', $user);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('USER.ADMIN', array('uid' => $user['uid'], 'login' => $user['login']), 1);
+			}
 		}
 
 		if ( $num>1)
@@ -71,7 +75,14 @@ class elRndUsersControl extends elModuleRenderer
 	{
 		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
 		$this->_setFile('groups');
-		$this->_te->assignBlockFromArray('GROUP', $groups);
+		foreach ($groups as $g)
+		{
+			$this->_te->assignBlockVars('GROUP', $g);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('GROUP.ADMIN', $g, 1);
+			}
+		}
 	}
 
 	function rndGroupsConfig($groups)

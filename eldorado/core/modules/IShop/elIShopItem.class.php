@@ -442,7 +442,7 @@ class elIShopItem extends elCatalogItem
     return false;
   }
 
-  function changeImage($lSize, $iSize)
+  function changeImage($lSize, $cSize)
   {
     $this->_makeImageForm();
     if ( !$this->form->isSubmitAndValid() )
@@ -451,11 +451,11 @@ class elIShopItem extends elCatalogItem
     }
 
     $sqlTpl = 'UPDATE '.$this->tb.' SET img="%s" WHERE id="'.$this->ID.'"';
-    $data   = $this->form->getValue(); //elPrintR($data);
+    $data   = $this->form->getValue(); //elPrintR($data); return;
     if ( empty($data['imgURL']) )
     {
       $imgPath = '';
-      if ( !empty($data['rm']) && $this->img )
+      if ($this->img)
       {
         list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
         @unlink('.'.$tmbl);
@@ -464,30 +464,22 @@ class elIShopItem extends elCatalogItem
     }
     else
     {
-      if (30 > $lSize)
-      {
-        $lSize = 120;
-      }
-      if (30 > $iSize)
-      {
-        $lSize = 250;
-      }
-      $imgPath = str_replace(EL_BASE_URL, '', $data['imgURL']);
-      $imager  = & elSingleton::getObj('elImager');
-      list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
-
-	    if (!$imager->copyResized('.'.$imgPath, '.'.$tmbl, $lSize, $iSize))
-	    {
-	     elThrow(E_USER_WARNING, $imager->getError());
-	    }
-	    if (!$imager->copyResized('.'.$imgPath, '.'.$tmbc, $iSize, $iSize))
-	    {
-	     elThrow(E_USER_WARNING, $imager->getError());
-	    }
-
+		$lSize = $lSize < 30 ? 120 : $lSize;
+		$cSize = $cSize < 30 ? 120 : $cSize;
+      	$imgPath = str_replace(EL_BASE_URL, '', $data['imgURL']);
+		list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
+		$image = & elSingleton::getObj('elImage');
+		if (!$image->tmb('.'.$imgPath, '.'.$tmbl, $lSize, ceil($lSize/(4/3))))
+		{
+			return elThrow(E_USER_WARNING, $image->error);
+		}
+		if (!$image->tmb('.'.$imgPath, '.'.$tmbc, $cSize, $cSize, false))
+		{
+			return elThrow(E_USER_WARNING, $image->error);
+		}
     }
     $db = & elSingleton::getObj('elDb');
-    $db->query( sprintf($sqlTpl, $imgPath) );
+    $db->query( sprintf($sqlTpl, mysql_real_escape_string($imgPath)) );
     return true;
   }
 
@@ -510,56 +502,61 @@ class elIShopItem extends elCatalogItem
 
   function _makeImageForm()
   {
+		elLoadJQueryUI();
+
+		elAddCss('contextmenu.css',  EL_JS_CSS_FILE);
+		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
+		elAddCss('elrtee.css',       EL_JS_CSS_FILE);
+		elAddCss('elfinder.css',     EL_JS_CSS_FILE);
+		
+		elAddJs('jquery.metadata.js',       EL_JS_CSS_FILE);
+		elAddJs('jquery.cookie.js',         EL_JS_CSS_FILE);
+		elAddJs('jquery.form.js',           EL_JS_CSS_FILE);
+		elAddJs('ellib/eli18n.js',          EL_JS_CSS_FILE);
+		elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
+		elAddJs('elfinder/elfinder.js',     EL_JS_CSS_FILE);
+		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
+		{
+			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
+		}
+
     	$this->form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), $this->name )  );
 		$this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-    	$attrs = array('onClick'=>'return popUp(\''.EL_BASE_URL.'/'.EL_URL_POPUP.'/__fm__/'.'\', 500, 400)', 'class'=>'form-submit');
+		$this->form->add( new elHidden('imgURL', '', $this->img ? EL_BASE_URL.$this->img : '') );
+		
+		$js = "
+		$('#ishop-sel-img').click(function(e) {
+			e.preventDefault();
+			$('<div />').elfinder({
+				url  : '".EL_URL."__finder__/', 
+				lang : '".EL_LANG."', 
+				editorCallback : function(url) { $('#imgURL').val(url).trigger('change');}, 
+				dialog : { width : 750, modal : true}});
+		});
+		$('#ishop-rm-img').click(function(e) {
+			e.preventDefault();
+			$('#imgURL').val('').parents('form').submit();
+		});
+		$('#imgURL').bind('change', function() {
+			var p = $('#ishop-sel-prev').empty();
+			if (this.value) {
+				window.console.log();
+				var pw = p.width();
+				var img = $('<img />').attr('src', this.value).load(function() {
+					var w = parseInt($(this).css('width'));
+					if (w>=pw) $(this).css('width', (pw-10)+'px')
+					window.console.log($(this).css('width'))
+				})
+				p.append(img);
+			}
 
-	  $this->form->add( new elSubmit('s', '', m('Select or upload image file'), $attrs), array('cellAttrs'=>'colspan="2"') );
-		//$this->form->add( new elCData('c1', m('Select or upload image file')), array('cellAttrs'=>'colspan="2"'));
-	  if ( !$this->img )
-	  {
-	    $imgURL = '';
-	    $imgHtml = m('No image');
-	  }
-	  else
-	  {
-	    $imgURL  = EL_BASE_URL.$this->img; //echo $imgURL;
-	    $imgHtml = '<img src="'.$imgURL.'" />';
-	    $this->form->add( new elCheckBox('rm', m('Delete image'), 1, array('onClick'=>'elISUpdatePreview(this.checked?1:0);')));
-	  }
-	  $this->form->add( new elHidden('imgURL',     '', $imgURL) );
-	  $this->form->add( new elHidden('imgURLSave', '', $imgURL) );
-	  $this->form->add( new elCData('i', '<b>'.m('Preview').'</b><br /><div id="imgPrew" align="center">'.$imgHtml.'</div>'));
+		}).trigger('change');
+		";
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		$this->form->add(new elCData('img',  "<a href='#' class='link link-image' id='ishop-sel-img'>".m('Select or upload image file')."</a>"));
+		$this->form->add(new elCData('rm',   "<a href='#' class='link link-delete' id='ishop-rm-img'>".m('Delete image')."</a> "));
+		$this->form->add(new elCData('prev', "<fieldset id='ishop-sel-prev'><legend>".m('Preview')."</legend></fieldset>"));
 
-    $js = "
-      function SetUrl(URL){  elISUpdatePreview(URL); }
-
-      function elISUpdatePreview(URL)
-      {
-        var h    = document.getElementById('imgURL');
-        var hs   = document.getElementById('imgURLSave');
-        var prev = document.getElementById('imgPrew');
-        if (URL == 0)
-        {
-          h.value = hs.value;
-          var i = document.createElement('img');
-          i.src=h.value;
-        }
-        else if (URL == 1)
-        {
-          h.value = '';
-          i = document.createTextNode('".m('No image')."');
-        }
-        else
-        {
-          h.value = hs.value = URL;
-          var i = document.createElement('img');
-          i.src=URL;
-        }
-        prev.replaceChild(i, prev.firstChild);
-      }
-    ";
-    elAddJs($js);
   }
 
   /***********************************************************/

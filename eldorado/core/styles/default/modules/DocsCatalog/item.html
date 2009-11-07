@@ -1,27 +1,12 @@
 <div class="item mod-dcat-item">
+	<!-- BEGIN ITEM_ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}edit_item/{catID}/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+		<li><a href="{URL}rm_item/{catID}/{id}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+	</ul>
+	<!-- END ITEM_ADMIN -->
 	<h2>{name}</h2>
 	{content} 
 
-	<!-- BEGIN LINKED_OBJS -->
-	<!-- BEGIN LOBJS_GROUP -->
-	<div class="rounded-top-5 crosslinks-group">
-		<div class="rounded-top-5 ">
-			<span href="#" class="el-collapsed">{name}</span>
-		</div>
-		<ul class="hide">
-			<!-- BEGIN LOBJ -->
-			<li><a href="{url}">{name}</a></li>
-			<!-- END LOBJ -->
-		</ul>
-	</div>
-	<!-- END LOBJS_GROUP -->
-	<!-- END LINKED_OBJS -->
+	{LINKED_OBJS}
 </div>
-<script type="text/javascript" charset="utf-8">
-	$().ready( function() {
-		$('.crosslinks-group .el-collapsed').click( function() {
-			$(this).toggleClass('el-expanded');
-			$(this).parent().siblings('ul').slideToggle('slow');
-		});
-	});
-</script>

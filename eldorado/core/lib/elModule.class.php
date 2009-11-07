@@ -274,6 +274,7 @@ class elModule
 				}
 			}
 			$pls = getPluginsManageList();
+			// elPrintR($pls);
 			if (!empty($pls))
 			{
 				$acts['Plugins'] = $pls;
@@ -496,7 +497,7 @@ class elModule
 		elLoadMessages('ModuleAdmin'.$this->name);
 		include_once 'elCoreAdmin.lib.php';
 		$this->_initNormal();
-		elAddJs( $this->name.'Admin.lib.js', EL_JS_CSS_FILE );
+
 
 		if ( !$this->_hasImportedData() )
 		{
@@ -559,11 +560,11 @@ class elModule
 			{
 				$this->_rndClass = 'elRnd'.$this->name;
 			}
-			$prnt   = ($this->_prnt && empty($_POST) && !in_array($this->_mh, $this->_noPrnt) );
+			
 			$admin  = EL_READ < $this->_aMode;
 
 			$this->_rnd = & elSingleton::getObj($this->_rndClass );
-			$this->_rnd->init( $this->name, $this->_conf, $prnt, $admin, $this->_tabs, $this->_curTab );
+			$this->_rnd->init( $this->name, $this->_conf, false, $admin, $this->_tabs, $this->_curTab );
 			if ( !empty($this->_sharedRndMembers) )
 			{
 				foreach ( $this->_sharedRndMembers as $m )

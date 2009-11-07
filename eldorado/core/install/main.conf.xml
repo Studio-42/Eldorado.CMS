@@ -7,7 +7,7 @@
 <NODE name="phones">Contacts</NODE>
 <NODE name="cacheAllow">0</NODE>
 <NODE name="gzOutputAllow">1</NODE>
-<NODE name="debug">1</NODE>
+<NODE name="debug">0</NODE>
 <NODE name="timer">1</NODE>
 <NODE name="locale">en_US.UTF-8</NODE>
 </GROUP>
@@ -44,6 +44,9 @@
 <NODE name="addMenuTop">2</NODE>
 <NODE name="addMenuBottom">1</NODE>
 <NODE name="servicesTpl">0</NODE>
+<NODE name="jQUITheme">Base</NODE>
+<NODE name="ICartPosition"></NODE>
+<NODE name="iCartDisplayEmpty">1</NODE>
 </GROUP>
 <GROUP name="mail">
 <NODE name="transport">PHP</NODE>
@@ -51,11 +54,6 @@
 <NODE name="smtpAuth">0</NODE>
 <NODE name="logSend">0</NODE>
 <NODE name="logFailed">1</NODE>
-</GROUP>
-<GROUP name="eshopOrder">
-<NODE name="rcptID">1</NODE>
-<NODE name="msgFormatHtml">1</NODE>
-<NODE name="allowOnlyRegUser">0</NODE>
 </GROUP>
 <GROUP name="currency">
 <NODE name="currency">RUR</NODE>
@@ -86,26 +84,19 @@
 <NODE name="module">SiteControl</NODE>
 </GROUP>
 <GROUP name="10">
-<NODE name="module">PluginsControl</NODE>
+<NODE name="module">Finder</NODE>
 </GROUP>
-<GROUP name="FileManager">
-<NODE name="uploadFilesNum">3</NODE>
-<NODE name="numInRow">7</NODE>
-<NODE name="numInRowPopup">5</NODE>
-<NODE name="tmbW">125</NODE>
-<NODE name="tmbH">125</NODE>
+<GROUP name="10">
+<NODE name="module">PluginsControl</NODE>
 </GROUP>
 <GROUP name="25">
 <NODE name="module">SitemapGenerator</NODE>
-<NODE name="numLinks">2</NODE>
-<NODE name="lmd">1244195989</NODE>
+<NODE name="numLinks"></NODE>
+<NODE name="lmd"></NODE>
 </GROUP>
 <GROUP name="26">
 <NODE name="checkVerTs">0</NODE>
 <NODE name="module">UpdateClient</NODE>
-</GROUP>
-<GROUP name="updateClient">
-<NODE name="checkVerTs">0</NODE>
 </GROUP>
 <GROUP name="27">
 <NODE name="module">TemplatesEditor</NODE>

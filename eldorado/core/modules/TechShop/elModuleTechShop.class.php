@@ -20,7 +20,6 @@ class elModuleTechShop extends elCatalogModule
 
 	var $_mMap      = array(
 		'item'       => array('m' => 'displayItem'),
-		'mod_img'    => array('m' => 'displayModelImg'),
 		'mnfs'       => array('m' => 'displayManufacturers'),
 		'mnf'        => array('m' => 'displayManufacturer'),
 		'mnf_items'  => array('m' => 'displayManufacturerItems'),
@@ -112,19 +111,6 @@ class elModuleTechShop extends elCatalogModule
 
 	}
 
-	function displayModelImg()
-	{
-	   $mID = (int)$this->_arg(); //echo $mID;
-	   $model = $this->_factory->create(EL_TS_MODEL, $this->_arg(0));
-	   if ( !$model->ID )
-	   {
-	     return elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($model->getObjName(), $this->_arg(0)) );
-	   }
-	   $this->_initRenderer();
-	   $this->_rnd->rndModel($model);
-	}
-
 
 	/**
    * Display list of manufacturers
@@ -203,16 +189,16 @@ class elModuleTechShop extends elCatalogModule
 		{
 			if (1 <> $ID)
 			{
-				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-								array($this->_cat->getObjName(), $ID), EL_URL);
+				header('HTTP/1.x 404 Not Found'); 
+				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $ID), EL_URL);
 			}
 			$nav = &elSingleton::getObj('elNavigator');
 			$this->_cat->makeRootNode( $nav->getPageName($this->pageID) );
 			$this->_cat->setUniqAttr( 1 );
 			if ( !$this->_cat->fetch() )
 			{
-				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-								array($this->_cat->getObjName(), 1), EL_BASE_URL);
+				header('HTTP/1.x 404 Not Found'); 
+				elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), 1), EL_BASE_URL);
 			}
 		}
 		$GLOBALS['categoryID'] = $this->_cat->ID;
@@ -233,7 +219,7 @@ class elModuleTechShop extends elCatalogModule
       if ( $this->_item )
       {
         elAppendToPagePath( array('url'=>'item/'.$this->_cat->ID.'/'.$this->_item->ID,
-        													'name'=>$this->_item->name.' '.$this->_item->code) );
+													'name'=>$this->_item->name.' '.$this->_item->code) );
       }
       elseif (!empty($this->_mnf))
       {

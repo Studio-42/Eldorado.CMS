@@ -1,5 +1,5 @@
 <?php
-include_once './core/lib/elDataMapping.class.php';
+
 class elModuleForum extends elModule
 {
 	var $_user = null;
@@ -452,8 +452,8 @@ class elModuleForum extends elModule
 			$dim    = $this->_conf('attachImgDimensions');
 			if ( $nfo[0]>$dim || $nfo[1]>$dim )
 			{
-				$im     = & elSingleton::getObj('elImager');
-				$im->copyResized($dir.$filename, $dir.'mini-'.$filename, $dim, $dim);
+				$im     = & elSingleton::getObj('elImage');
+				$im->tmb($dir.$filename, $dir.'mini-'.$filename, $dim, $dim);
 			}
 			else
 			{
@@ -584,7 +584,7 @@ class elModuleForum extends elModule
 		}
 		$topic = & $this->_topic((int)$this->_arg(1));
 		$topic->delete();
-		elMsgBox::put( sprintf( m('Topic "%s" was deleted'), $topic->objName(), $topic->subject) );
+		elMsgBox::put( sprintf( m('Topic "%s" was deleted'), $topic->subject) );
 		elLocation(EL_URL.$this->_catID.'/');
 	}
 	
@@ -1089,7 +1089,7 @@ class elModuleForum extends elModule
 		
 		if ( $user->UID )
 		{
-			$this->_gids  = array_merge($this->_gids, 0, $user->getGroups());
+			$this->_gids  = array_merge($this->_gids, array(0), $user->getGroups());
 			$this->_admin = $this->_aMode>EL_READ;
 			$this->_profile = & $this->_profile($user->UID);
 		}

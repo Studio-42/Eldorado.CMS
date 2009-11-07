@@ -11,7 +11,6 @@ function checkMFType()
 	var comValue = document.getElementById('row_c_value');
 	var fsize    = document.getElementById('row_fsize');
 
-	//alert('Koko-ni des '+ foptsCom);
 	var isComment = ftype.value == 'comment' || ftype.value == 'subtitle';
 	var isSelect  = ftype.value == 'select' || ftype.value == 'checkbox' || ftype.value == 'radio' || ftype.value == 'date';
 	

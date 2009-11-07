@@ -1,6 +1,6 @@
 <div class="pl-rndimg plugins">
 	<!-- BEGIN PL_RI_TITLE -->
-	<div class="pl-rndimg-title plugins-title"><h5>{title}</h5></div>
+	<div class="pl-rndimg-title plugins-title rounded-left-20"><h5>{title}</h5></div>
 	<!-- END PL_RI_TITLE -->
 	<ul>
 	<!-- BEGIN PL_RI -->
@@ -20,9 +20,12 @@
 			<!-- BEGIN PL_RI_LB_NAME -->
 			<div>{i_name}</div>
 			<!-- END PL_RI_LB_NAME -->
+			<div class="card">
 			<a href="{STORAGE_URL}galleries/{srcID}/640x480/{i_file}"  rel="fancy-tour" title="{i_name}">
 				<img src="{STORAGE_URL}galleries/{srcID}/tmb/{i_file}" width="{i_width_tmb}" height="{i_height_tmb}" />
 			</a>
+			</div>
+			<div class="card-bot"></div>
 		</li>
 		<!-- END PL_RI_LB -->
 
@@ -38,3 +41,5 @@
 	$().ready( function(){ $(".pl-rndimg a").fancybox(); } );
 </script>
 <!-- END PL_RI_SCRIPT -->
+
+

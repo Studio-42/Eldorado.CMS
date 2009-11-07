@@ -9,7 +9,6 @@ class elMemberAttribute
 	var $_formRndClass    = 'elTplFormRenderer';
 	var $_objName         = 'Object';
 
-
 	function elMemberAttribute( $attrs=null, $tb=null, $uniq=null )
 	{
 		if ( $uniq )
@@ -107,7 +106,7 @@ class elMemberAttribute
 
 	function getCollection($field=null, $orderBy=null, $offset=0, $limit=0, $where=null )
 	{
-		$db    = & $this->_getDb();;
+		$db    = & $this->_getDb();
 		$order = $orderBy ? $orderBy : $this->_uniq;
 		$where = $where ? ' WHERE '.$where : '';
 		$limit = $limit > 0 ? ' LIMIT '.intval($offset).', '.intval($limit).' ' : ' ';
@@ -118,7 +117,8 @@ class elMemberAttribute
 		}
 
 		$coll = array();
-		$db->query('SELECT '.implode(',', $this->listAttrs()).' FROM '.$this->tb.$where.' ORDER BY '.$order.$limit);
+		$sql = 'SELECT '.implode(',', $this->listAttrs()).' FROM '.$this->tb.$where.' ORDER BY '.$order.$limit;
+		$db->query($sql);
 
 		while ( $r = $db->nextRecord() )
 		{
@@ -252,7 +252,6 @@ class elMemberAttribute
 		if ( !$vals[$this->_uniq] )
 		{
 			unset($vals[$this->_uniq]);
-			$vals = array_map('mysql_real_escape_string', $vals);
 			$sql = 'INSERT INTO '.$this->tb
 			.' ('. implode(',', array_keys($vals)).') VALUES '
 			.'(\''.implode('\',\'', $vals).'\')';
@@ -264,7 +263,7 @@ class elMemberAttribute
 			{
 				if ( $k != $this->_uniq )
 				{
-					$sql .= $k.'=\''.$v.'\',';
+					$sql .= $k.'=\''.($v).'\',';
 				}
 			}
 			$sql = substr($sql, 0, -1).' WHERE '.$this->_uniq.'=\''.$vals[$this->_uniq].'\'';

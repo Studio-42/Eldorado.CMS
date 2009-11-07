@@ -29,5 +29,5 @@ $elMsg[''] = '';
 $elMsg['Select profile fields']    = 'Выберите необходимые поля для профайла пользователя';
 $elMsg['Required']                 = 'Обязательно для заполнения';
 $elMsg['New user registration']    = 'Регистрация нового пользователя';
-$elMsg['Congratulation! Registration was successfully complited. Your login and password was send on your e-mail.'] = 'Поздравляем!<br /> Вы зарегистрованы в качестве пользователя. Логин и пароль для авторизации высланы на ваш e-mail.';
+$elMsg['Congratulation! Registration was successfully complited. Your login and password was send on your e-mail.'] = 'Поздравляем!<br /> Вы зарегистрированы в качестве пользователя. Логин и пароль для авторизации высланы на ваш e-mail.';
 ?>

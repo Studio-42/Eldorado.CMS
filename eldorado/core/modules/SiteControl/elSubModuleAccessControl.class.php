@@ -89,7 +89,7 @@ class elSubModuleAccessControl extends elModule
     {
       $form = & parent::_makeConfForm();
       $form->setLabel( m('Edit site access configuration') );
-      $form->addJsSrc( 'checkAuthType();', EL_JS_SRC_ONLOAD );
+      $form->addJsSrc( '$("#isRemoteAuth").trigger("change")', EL_JS_SRC_ONREADY );
 
       $form->add( new elSelect('sessionTimeOut', m('Session timeout'),             
              (int)$this->_conf('sessionTimeOut'), $this->_timeOuts) );
@@ -107,7 +107,7 @@ class elSubModuleAccessControl extends elModule
               (int)$this->_conf('disableAboutNewUserNotify'),   $GLOBALS['yn']) );                                         
       $form->add( new elSelect('isRemoteAuth',   m('Authorization type'), 
              (int)!$this->_ats->isLocalAuth(),    $this->_aTypes,
-             array('onChange'=>'checkAuthType();')), array('cellElAttrs'=>'width="40%"') );
+             array('onChange'=>"if (this.value == '1') { $(this).parents('tr').eq(0).nextAll().show();} else { $(this).parents('tr').eq(0).nextAll().hide(); }")), array('cellElAttrs'=>'width="40%"') );
       
       $db = array('host'=>'localhost', 'db'=>'', 'user'=>'', 'pass'=>'', 'sock'=>'');
       if ( !$this->_ats->isLocalAuth() )

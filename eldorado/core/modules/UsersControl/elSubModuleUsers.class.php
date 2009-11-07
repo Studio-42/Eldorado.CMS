@@ -4,7 +4,7 @@ class elSubModuleUsers extends elModule
 {
 	var $_mMap      = array('profile' => array('m'=>'viewProfile'));
 	var $_mMapAdmin = array(
-		'edit'    => array('m'=>'editUser', 'ico'=>'icoUser', 'l'=>'Create user', 'g'=>'Actions'),
+		'edit'    => array('m'=>'editUser', 'ico'=>'icoUserNew', 'l'=>'Create user', 'g'=>'Actions'),
 		'ugroups' => array('m'=>'groups'),
 		'passwd'  => array('m'=>'passwd'),
 		'delete'  => array('m'=>'rmUser') );
@@ -206,20 +206,20 @@ class elSubModuleUsers extends elModule
 
 		$ats = & elSingleton::getObj('elATS');
 
-		$g = array(''=>m('Only group').':', '-1'=>m('w/o group'));
-		$g = $g + $ats->getGroupsList();
-		$sort = array(''=>m('Sort by').':', 'uid'=>'ID','login'=>m('Login'), 'email'=>m('Email'));
-		$offset = range(9, 100);
+		$g         = array(''=>m('Only group').':', '-1'=>m('w/o group'));
+		$g         = $g + $ats->getGroupsList();
+		$sort      = array(''=>m('Sort by').':', 'uid'=>'ID','login'=>m('Login'), 'email'=>m('Email'));
+		$offset    = range(9, 100);
 		$offset[0] = m('Nums');
 
 		$form->add( new elSelect('group',  null, $this->_filter['group'],  $g) );
 		$form->add( new elSelect('sort',   null, $this->_filter['sort'],   $sort) );
 		$form->add( new elSelect('offset', null, $this->_filter['offset'], $offset, null, false, false ) );
 
-		$c = & new elFormContainer('c1', '', array('style'=>'white-space:nowrap;')); //elPrintR($c);
-		$form->add( $c, array('width'=>40) );
-		$c->add( new elFormImage('i', null, '{icoFind}',  array('title'=>m('Apply filter'), 'style'=>'border:none;margin:0 .5em') ) );
-		$c->add( new elFormImage('i', null, '{icoClean}', array('title'=>m('Drop filter'),	'style'=>'border:none', 'onclick'=>'this.form.drop.value=1;' ) ) );
+		$buttons = '<ul class="adm-icons"><li><a href="#" class="icons find" title="'.m('Apply filter').'" onclick="$(this).parents(\'form\').submit(); return false;"></a></li>';
+		$buttons .= '<li><a href="#" class="icons clean" title="'.m('Clean filter').'" onclick="$(this).parents(\'form\').find(\'#drop\').val(1).end().submit()"></a></li></ul>';
+		
+		$form->add( new elCData('i', $buttons));
 		return $form->toHtml();
 	}
 

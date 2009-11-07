@@ -5,22 +5,33 @@
 		    <th>{m('Login')}</th>
 		    <th>{m('Email')}</th>
 			<th>{m('Groups')}</th>
-			<th>{m('Visits')}</th>
+			<th colspan="2">{m('Visits')}</th>
   		</tr>
 	</thead>
 	<tbody>
 		<!-- BEGIN USER -->
   		<tr>
   			<td>{uid}</td>
-    		<th><a href="" onClick="return popUp('{POPUP_URL}profile/{uid}/', 400, 500);" title="{m('User profile')}">{login}</a></th>
+    		<td><a href="#" onClick="return popUp('{POPUP_URL}profile/{uid}/', 400, 500);" title="{m('User profile')}">{login}</a></td>
     		<td>{email} &nbsp;</td>
 			<td>{groups} &nbsp;</td>
 			<td>{visits} / {atime}</td>
+			<td>
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}edit/{uid}/"    class="icons user-edit"  title="{m('Edit')}"></a></li>
+					<li><a href="{URL}ugroups/{uid}/" class="icons user-group" title="{m('Groups')}"></a></li>
+					<li><a href="{URL}passwd/{uid}/"  class="icons lock"       title="{m('Password')}"></a></li>
+					<li><a href="{URL}delete/{uid}/"  class="icons delete"     title="{m('Delete)}" onClick="return confirm('{m('Do you realy want to delete user')} `{login}`?');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+			</td>
+			
   		</tr>
 		<!-- END USER -->
 	</tbody>
 </table>
 {PAGER}
 <script type="text/javascript" charset="utf-8">
-	$().ready(function() { $("#users-list").tablesorter(  ); } );
+	$().ready(function() { $("#users-list").tablesorter(); });
 </script>

@@ -21,12 +21,23 @@
   		</tr>
 	</thead>
 	<tbody>
-<!-- BEGIN ROW -->
+	<!-- BEGIN ROW -->
   		<tr>
-    		<td><a href="{BASE_URL}backup/{file}"  title="{m('Download')}">{file}</a></td>
+    		<td>
+				<!-- BEGIN FILE --> {file} <!-- END FILE -->
+				<!-- BEGIN LINK --> <a href="{BASE_URL}backup/{file}"  title="{m('Download')}">{file}</a> <!-- END LINK -->
+			</td>
 			<td>{size} Mb</td>
     		<td>{date}</td>
-    	</tr>
-<!-- END ROW -->
+    		<td>
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}restore/{hash}/" class="icons backup-restore" title="{m('Restore site from backup')}" ></a></li>
+					<li><a href="{URL}rm/{hash}/"      class="icons delete" onClick="return confirm('{m('Do You really want to delete')}' +' {file}');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+    		</td>
+  		</tr>
+	<!-- END ROW -->
 	</tbody>
 </table>

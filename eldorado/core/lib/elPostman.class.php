@@ -243,7 +243,7 @@ class elPostman
 		{
 			$this->_log('mail-send.log');
 		}
-		elseif ( !$status || $this->_logFailed )
+		elseif ( !$status && $this->_logFailed )
 		{
 			$this->_log('mail-failed.log');
 		}

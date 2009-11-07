@@ -132,6 +132,7 @@ class elCatalogCategory extends elMemberAttribute
 
   function makeForm($dir='')
   {
+	
     parent::makeForm();
     if ( $this->ID )
     {

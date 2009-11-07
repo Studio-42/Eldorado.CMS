@@ -1,6 +1,6 @@
 <?php
 
-define('EL_NEW_VER', '3.8');
+//define('EL_NEW_VER', '3.9.0');
 
 function elPostInstall()
 {
@@ -27,6 +27,190 @@ function elPostInstall()
   return true;
 }
 
+function elPSUpdate_3_9_0()
+{
+	$msgs[] = 'Update 3.8.0 version';
+	if ( false == ($db = & elSingleton::getObj('elDb'))  )
+	{
+		$msgs[] = 'Could not get DB object';
+		return false;
+	}
+	if ( !isFieldExists($db, 'el_user', 'forum_posts_count') )
+	{
+		if ( !$db->query("ALTER TABLE el_user ADD `forum_posts_count` INT( 5 ) NOT NULL") )
+        {
+        	$msgs[] = 'Could not add field `forum_posts_count` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `avatar` varchar(150) collate utf8_bin NOT NULL") )
+        {
+        	$msgs[] = 'Could not add field `avatar` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `signature` mediumtext collate utf8_bin") )
+        {
+        	$msgs[] = 'Could not add field `signature` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `personal_text` varchar(256) collate utf8_bin default NULL") )
+        {
+        	$msgs[] = 'Could not add field `personal_text` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `location` varchar(256) collate utf8_bin default NULL") )
+        {
+        	$msgs[] = 'Could not add field `location` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `birthdate` int(11) default NULL") )
+        {
+        	$msgs[] = 'Could not add field `birthdate` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `gender` enum('','male','female') collate utf8_bin NOT NULL default ''") )
+        {
+        	$msgs[] = 'Could not add field `gender` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `show_email` tinyint(1) NOT NULL default '0'") )
+        {
+        	$msgs[] = 'Could not add field `show_email` to table el_user';
+        }
+		if ( !$db->query("ALTER TABLE el_user ADD `show_online` tinyint(1) NOT NULL default '0'") )
+        {
+        	$msgs[] = 'Could not add field `show_online` to table el_user';
+        }
+	}
+	
+	if ( !$db->isTableExists('el_icart')  )
+	{
+		$sql = "CREATE TABLE `el_icart` (
+		  `id` int(8) NOT NULL auto_increment,
+		  `sid` varchar(32) collate utf8_bin NOT NULL,
+		  `uid` int(5) NOT NULL,
+		  `shop` enum('IShop','TechShop') collate utf8_bin NOT NULL default 'IShop',
+		  `i_id` int(5) NOT NULL,
+		  `m_id` int(5) NOT NULL,
+		  `code` varchar(256) collate utf8_bin NOT NULL,
+		  `display_code` tinyint(1) NOT NULL default '1',
+		  `name` varchar(256) collate utf8_bin NOT NULL,
+		  `qnt` int(5) NOT NULL default '1',
+		  `price` double(8,2) NOT NULL,
+		  `props` text collate utf8_bin,
+		  `crtime` int(11) NOT NULL,
+		  `mtime` int(11) NOT NULL,
+		  PRIMARY KEY  (`id`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		if (!$db->query($sql))
+		{
+			$msgs[] = 'Could not create table el_icart';
+		}
+	}
+	if ( !$db->isTableExists('el_order')  )
+	{
+		$sql = "CREATE TABLE `el_order` (
+		  `id` int(5) NOT NULL auto_increment,
+		  `uid` int(5) NOT NULL,
+		  `crtime` int(11) NOT NULL,
+		  `mtime` int(11) NOT NULL,
+		  `state` enum('send','accept','deliver','complite','aborted') collate utf8_bin NOT NULL default 'send',
+		  `amount` double(10,2) NOT NULL,
+		  `delivery_price` double(6,2) NOT NULL,
+		  `total` double(10,2) NOT NULL,
+		  PRIMARY KEY  (`id`),
+		  KEY `uid` (`uid`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		if (!$db->query($sql))
+		{
+			$msgs[] = 'Could not create table el_order';
+		}
+	}
+	
+	if ( !$db->isTableExists('el_order_customer')  )
+	{
+		$sql = "CREATE TABLE `el_order_customer` (
+		  `id` int(5) NOT NULL auto_increment,
+		  `order_id` int(5) NOT NULL,
+		  `uid` int(5) NOT NULL,
+		  `label` varchar(256) collate utf8_bin NOT NULL,
+		  `value` mediumtext collate utf8_bin,
+		  PRIMARY KEY  (`id`),
+		  KEY `order_id` (`order_id`),
+		  KEY `uid` (`uid`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		if (!$db->query($sql))
+		{
+			$msgs[] = 'Could not create table el_order_customer';
+		}
+	}
+	
+	if ( !$db->isTableExists('el_order_item')  )
+	{
+		$sql = "CREATE TABLE `el_order_item` (
+		  `id` int(8) NOT NULL auto_increment,
+		  `order_id` int(5) NOT NULL,
+		  `uid` int(5) NOT NULL,
+		  `shop` enum('IShop','TechShop') collate utf8_bin NOT NULL default 'IShop',
+		  `i_id` int(5) NOT NULL,
+		  `m_id` int(5) NOT NULL,
+		  `code` varchar(256) collate utf8_bin NOT NULL,
+		  `name` varchar(256) collate utf8_bin NOT NULL,
+		  `qnt` int(5) NOT NULL default '1',
+		  `price` double(8,2) NOT NULL,
+		  `props` text collate utf8_bin,
+		  `crtime` int(11) NOT NULL,
+		  PRIMARY KEY  (`id`),
+		  KEY `order_id` (`order_id`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		if (!$db->query($sql))
+		{
+			$msgs[] = 'Could not create table el_order_item';
+		}
+	}
+	
+	$sql = 'UPDATE el_module SET module="GAStat" WHERE module="Stat"';
+	$db->query($sql);
+	
+	if ( !$db->isTableExists('el_plugin_calc')  )
+	{
+		$sql = 'REPLACE INTO el_plugin (name, lable, descrip, is_on, status) VALUES ("Calculator", "", "", "0", "off")';
+		$db->query($sql);
+		
+		$sql = "CREATE TABLE `el_plugin_calc` (
+		  `id` tinyint(2) NOT NULL auto_increment,
+		  `name` varchar(255) collate utf8_bin NOT NULL,
+		  `pos` enum('l','r','t','b') collate utf8_bin default 'l',
+		  `tpl` varchar(250) collate utf8_bin NOT NULL,
+		  `formula` mediumtext collate utf8_bin,
+		  `unit` varchar(20) collate utf8_bin default NULL,
+		  `dtype` enum('int','double') collate utf8_bin NOT NULL default 'int',
+		  `view` enum('inline','dialog') collate utf8_bin NOT NULL default 'inline',
+		  PRIMARY KEY  (`id`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		$db->query($sql);
+		
+		$sql = "CREATE TABLE `el_plugin_calc2page` (
+		  `id` tinyint(2) NOT NULL,
+		  `page_id` int(3) NOT NULL,
+		  PRIMARY KEY  (`id`,`page_id`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		$db->query($sql);
+		
+		$sql = "CREATE TABLE `el_plugin_calc_var` (
+		  `id` int(3) NOT NULL auto_increment,
+		  `cid` tinyint(3) NOT NULL,
+		  `name` varchar(255) collate utf8_bin NOT NULL,
+		  `title` varchar(255) collate utf8_bin NOT NULL,
+		  `type` enum('input','select') collate utf8_bin NOT NULL default 'input',
+		  `dtype` enum('int','double') collate utf8_bin NOT NULL default 'int',
+		  `variants` mediumtext collate utf8_bin,
+		  `minval` varchar(24) collate utf8_bin NOT NULL,
+		  `maxval` varchar(24) collate utf8_bin NOT NULL,
+		  `unit` varchar(20) collate utf8_bin default NULL,
+		  PRIMARY KEY  (`id`),
+		  UNIQUE KEY `cid_2` (`cid`,`name`),
+		  KEY `cid` (`cid`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		$db->query($sql);
+	}
+
+	return true;
+}
+
+
 function elPsUpdate_3_8_1()
 {
 	global $msgs;
@@ -47,7 +231,7 @@ function elPsUpdate_3_8_1()
 		    @chmod("./storage/.htaccess", 0444);
 		  }
 	}
-	return true;
+	return elPSUpdate_3_9_0();
 }
 
 /**

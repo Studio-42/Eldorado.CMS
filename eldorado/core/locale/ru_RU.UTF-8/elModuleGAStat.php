@@ -46,6 +46,8 @@ $elMsg['view report']    = 'просмотреть отчёт';
 
 $elMsg['Statistics is empty'] = 'Нет данных в статистике';
 
+
+
 //$elMsg[''] = '';
 
 ?>

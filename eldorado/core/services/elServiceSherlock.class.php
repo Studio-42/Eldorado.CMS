@@ -4,8 +4,9 @@ class elServiceSherlock extends elService
 {
 	var $nav        = null;
 	var $_tplDir    = 'common/search/';
-	var $_tplFile   = 'searchResult.html';
+	var $_tplFile   = 'result.html';
 	var $_pageTitle = 'Search';
+	var $_mMap      = array('html' => array('m' => 'html'));
 
 	function defaultMethod()
 	{
@@ -14,12 +15,12 @@ class elServiceSherlock extends elService
 
 		if ( !$form->isSubmitAndValid() )
 		{
-				$vars   = array( 'FORM' => $form->toHtml() );
-				$this->_rnd->render($vars);
+			$vars   = array( 'FORM' => $form->toHtml() );
+			$this->_rnd->render($vars);
 		}
 		else
 		{
-			$sstr = strip_tags($form->getElementValue('sstr')); //echo $sstr;
+			$sstr   =  $this->_searchString($_GET['sstr']);
 			$result = $this->_search( $sstr );
 			$block  = empty($result) ? 'SR_NORESULT' : 'SR_RESULT';
 			$vars   = array(
@@ -34,24 +35,29 @@ class elServiceSherlock extends elService
 		}
 	}
 
-	function toXML()
+	function html()
 	{
-		$sstr = strip_tags( trim($_GET['sstr']) );
-		$result = $this->_search( $sstr );// elPrintR($result);
-		$tpl    = "<record><name>%s</name><url>%s</url></record>\n";
-		$reply  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-		$reply .= "<response>\n";
-		$reply .= "<method>doSearch</method>\n";
-		$reply .= "<result>\n";
-		$reply .= "<searchString>".htmlspecialchars($sstr)."</searchString>\n";
-		foreach ($result as $one )
+		$sstr   =  $this->_searchString($_GET['sstr']);
+		$result = $this->_search( $sstr );
+		$html   = '<div><h4>'.m('Search results for').': "'.$sstr.'"</h4>';
+		if (!$result)
 		{
-			$reply .= sprintf($tpl, $one['name'], $one['url']);
+			$html .= '<p>'.m('There is nothing was found').'</p>';
 		}
-		$reply .= "</result>\n";
-		$reply .= "</response>\n";
-		return $reply;
+		else
+		{
+			$html .= '<ul>';
+			foreach ($result as $one)
+			{
+				$html .= '<li><a href="'.$one['url'].'" class="link forward2">'.$one['name'].'</a></li>';
+			}
+			$html .= '</ul>';
+		}
+
+		exit($html.'</div>');
 	}
+
+
 
 	function & makeForm()
 	{
@@ -86,13 +92,18 @@ class elServiceSherlock extends elService
 		return $sList;
 	}
 
-	function _search( $str )
+	function _searchString($str)
 	{
-		$str = substr($str, 0, 100);
+		$str = substr(trim($str), 0, 100);
 		$r   = '/\[|\]|\\\|\/|\'|\"|\*|\||\(|\)|(\s{2,)/';
 		$str = preg_replace($r, '', $str);
 		$r   = array('.',',','!','@','#','^','&','*',':', '%');
-		$str = str_replace( $r, '', $str); 
+		$str = str_replace( $r, '', $str);
+		return $str;
+	}
+
+	function _search( $str )
+	{
 		if ( empty($str) )
 		{
 			return array();
@@ -100,9 +111,11 @@ class elServiceSherlock extends elService
 		$this->nav  = & elSingleton::getObj('elNavigator');
 		$sList      = $this->_getSourceList();
 		$result     = array();
-		$regex      = preg_replace( '/\s+/i', '|',	preg_quote($str));
-		$regex      = 'UPPER("'.$regex.'")';
-		//echo "$str $regex";
+		$regex1     = preg_replace( '/\s+/i', ' ', preg_quote($str));
+		$regex1     = 'UPPER("'.$regex1.'")';
+		$regex2     = preg_replace( '/\s+/i', '|', preg_quote($str));
+		$regex2     = 'UPPER("'.$regex2.'")';
+		$tmp        = array();
 		foreach ( $sList as $moduleName => $pageIDs )
 		{
 			$class = 'elModule'.$moduleName.'Search';
@@ -111,23 +124,30 @@ class elServiceSherlock extends elService
 				continue;
 			}
 			$searchObj = & elSingleton::getObj($class);
-			$r = $searchObj->getResults($pageIDs, $regex);
+			$r = $searchObj->getResults($pageIDs, $regex1, $regex2);
 
-			foreach ($r as $pageID=>$onePageRes)
+			$tmp += $r;
+		}
+		
+		if (!empty($tmp))
+		{
+			uasort($tmp, '_cmp');
+			foreach ($tmp as $url=>$v)
 			{
-				$pageName = $this->nav->getPageName($pageID);
-				$pageURL  = $this->nav->getPageURL($pageID);
-				foreach ( $onePageRes as $one)
-				{
-					$name     = $pageName.($one['title'] ? ' :: '.$one['title'] : '');
-					$url      = $pageURL.($one['path'] ? $one['path'] : '');
-					$result[] = array('name'=>$name, 'url'=>$url);
-				}
+				$result[] = array('url'=>$url, 'name' => $v['title']);
 			}
 		}
 		return $result;
 	}
+}
 
+function _cmp($a, $b)  
+{
+	if ($a['weight'] == $b['weight'])
+	{
+		return strcasecmp($a['title'], $b['title']);
+	}
+	return $a['weight'] > $b['weight'] ? -1 : 1;
 }
 
 ?>

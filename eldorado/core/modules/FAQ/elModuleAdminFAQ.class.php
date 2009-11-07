@@ -113,7 +113,7 @@ class elModuleAdminFAQ extends elModuleFAQ
 		}
 		else
 		{
-			$l  = m('Question sorting');
+			$l  = m('Questions sorting');
 			$c  = m('To change question display order set sort indexes');
 			$f  = 'qsort';
 			$id = 'id';

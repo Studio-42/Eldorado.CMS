@@ -17,11 +17,11 @@ class elPluginPoll extends elPlugin
 	 */
 	function onUnload()
 	{
-		$srcs = array_keys($this->_params); 
-		if ( empty($srcs) )
+		if ( empty($this->_params) )
 		{
 			return;
 		}
+		$srcs = array_keys($this->_params); 
 		$db  = & elSingleton::getObj('elDb');
 		$rnd = & elSingleton::getObj('elTE');
 		$nav = & elSingleton::getObj('elNavigator');
@@ -38,7 +38,6 @@ class elPluginPoll extends elPlugin
 
 			if (!$db->isTableExists('el_poll_'.$src))
 			{
-				echo 'drop';
 				//$this->_dropSrc($src); 
 				continue;
 			}
@@ -102,8 +101,7 @@ class elPluginPoll extends elPlugin
 	 */
 	function conf()
 	{
-		$conf = & elSingleton::getObj('elXmlConf');
-		$srcs = $conf->findGroup('module', 'Poll', true);
+		$srcs = $this->findSources('Poll');
 		if (!$srcs)
 		{
 			elThrow(E_USER_ERROR, 'There are no one data source of required type was found!', null, EL_URL);
@@ -131,9 +129,9 @@ class elPluginPoll extends elPlugin
 					$params[$src]['pos']     = $data['pos_'.$src];
 					$params[$src]['pages']   = $data['pages_'.$src];
 					$params[$src]['descrip'] = $data['descrip_'.$src];
-					//elPrintR($params);
 				}
 			}
+			$conf = & elSingleton::getObj('elXmlConf');
 			$conf->dropGroup('plugin'.$this->name);
 			$conf->makeGroup('plugin'.$this->name, $params);
 			$conf->save();
@@ -162,7 +160,7 @@ class elPluginPoll extends elPlugin
 		$pages[1] = m('Whole site');
 		$swLabel = m('Use this data source');
 		foreach ($srcs as $src)
-		{//echo $src;
+		{
 			$pageName = $nav->getPageName($src);
 			$box = & new elExpandBox('src_'.$src, $pageName, array('swLabel'=>$swLabel));
 			if ($this->_param($src))

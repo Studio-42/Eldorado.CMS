@@ -1,3 +1,0 @@
-<?php
-$styleFiles["./style/alternative"] = "";
-?>

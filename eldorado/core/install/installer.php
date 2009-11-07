@@ -1,1114 +1,1745 @@
 <?php
+session_name('ELSID');
+session_set_cookie_params( 60*60*24 );
 session_start();
+define('EL_FS_ONLY_DIRS', 1);
+define('EL_FS_ONLY_FILES', 2);
+define('EL_FS_DIRMODE', 0777);
 error_reporting(0);
-set_time_limit(0);
-$GLOBALS['elInstallerVer'] = '0.9.6';
-$GLOBALS['elInstLangs'] = array('en_US' => 'English', 'ru_RU' => 'Русский');
-$GLOBALS['elInstLang']  = 'en_US';
-$GLOBALS['elInstMsg'] = array(
-	'en_US' => array(),
-	'ru_RU' => array(
-		'Back'                                  => 'Назад',
-		'Finish'                                => 'Завершить',
-		'Continue'                              => 'Продолжить',
-		'Decline'                               => 'Не принимаю',
-		'Accept'                                => 'Принимаю',
 
-		'Select installation language'          => 'Выбор языка установки',
-		'Please, select installation language'  => 'Пожалуйста, выберите язык установки',
-		'Wellcome to Eldorado.CMS installation' => 'Добро пожаловать в установку Eldorado.CMS',
-		'Installation type'                     => 'Тип установки',
-		'Site design installation'              => 'Установка шаблонов дизайна сайта',
-		'Root password'                         => 'Пароль администратора сайта',
-		'Installation complite'                 => 'Завершение установки',
-		
-		'Thanks for choosing our web-site content management system Eldorado.CMS.' => 
-					'Благодарим за выбор нашей системы управления сайтами Eldorado.CMS.',
-		'Before install Eldorado.CMS You should read this product\'s license text and accept it.' => 
-					'До начала установки Eldorado.CMS вам следует ознакомиться с лицензией продукта и принять ее.',
-		
-		'Please, select installation type'                        => 'Пожалуйста, выберите тип установки',
-		'Eldorado.CMS core installation'                          => 'Установка ядра и модулей Eldorado.CMS',
-		'Standalone site installation'                            => 'Установка одиночного сайта',
-		'Multi-site instalation. System core will be installed.'  => 'Мульти-сайтовая установка с установкой ядра системы',
-		'Multi-site installation. System core already installed.' => 'Мульти-сайтовая установка. Ядро системы уже установлено',
-		'For detailed information about installation types appeal to documentation.' => 
-					'Для получения подробной информации о типах установки обратитесь к документации',
-		'Please, upload archive file with Eldorado.CMS core. (eldorado.CMS-ver-xxx.tar.gz)' => 
-					'Загрузите архив с ядром Eldorado.CMS. (eldorado.CMS-ver-xxx.tar.gz)',
-		'Please, specify directory name in which Eldorado.CMS core will be installed' => 
-					'Укажите имя директории, в которую будет установлено ядро системы Eldorado.CMS',
-		'Please, specify directory name where Eldorado.CMS core was installed' => 
-					'Укажите имя директории, в содержащей ядро системы Eldorado.CMS',
-		'Base site configuration'    => 'Первоначальная настройка сайта',
-		'MySQL data base parameters' => 'Параметры базы данных MySQL',
-		'Db host'                    => 'Сервер MySQL (host)',
-		'Db socket'                  => 'Сокет (если используется)',
-		'Db user name'               => 'Имя пользователя',
-		'Db user password'           => 'Пароль',
-		'Db name'                    => 'База данных',
-		'Site interface language'    => 'Язык интерфейса сайта',
-		'Interface language'         => 'Язык интерфейса',
-		'Other parameters'           => 'Прочие параметры',
-		'Site name'                  => 'Название сайта',
-	
-		'Site design installation'            => 'Установка шаблонов дизайна сайта',
-		'You should upload design templates archive from distr (eldorado-style-xxx.tar.gz) or select one from styles list available in core.' => 'Вы можете загрузить архив с шаблонами дизайна сайта из вашего дистрибутива системы (если таковой имеется в вашем дистрибутиве) или выбрать из списка один из стилей дизайна, доступных в ядре системы.',
-		'For more information about design templates usage, please, read documentation' => 
-					'Для получения подробной информации о шаблонах дизайна обратитесь к документации',
-		'Upload archive'                        => 'Загрузите архив',
-		'Or select style from list'             => 'или выберите стиль из списка',
-		'Main site administrator has login "root". On this step You should set password and Master Password for user root' => 
-					'Главный администратор сайта имеет имя пользователя (login) - "root". На данном шаге Вы должны создать пароль и Мастер-Пароль для пользователя root',
-		'Password may contains only latin alfanum chars, digits or underscore and dash symbols and must be from 4 till 20 chars.' => 'Пароли могут содержать только латинские буквы, цифры и знаки подчеркивания и тире. Длинна паролей должна быть от 4 до 20 знаков.',
-		'For more information about master password, please, read documentation' => 
-					'Для получения подробной информации о Мастер-Пароле обратитесь к документации',
-		'Enter password for user root'          => 'Введите пароль для пользователя root',
-		'Enter Master Password for user root'   => 'Введите Мастер-Пароль для пользователя root',
-		'Password'                              => 'Пароль',
-		'Password confirm'                      => 'Подтверждение пароля',
-		'Master Password'                       => 'Мастер-пароль',
-		'Master Password confirm'               => 'Подтверждение Мастер-Пароля',
-		'Installation complite'                 => 'Завершение установки',
-		//errors
-		'Server configuration error!'           => 'Ошибка конфигурации сервера',
-		'Installation interrupted!'             => 'Установка прервана!',
-		'Installer internal error!'             => 'Внутренняя ошибка программы установки!',
-		'Product licence was not accepted!'     => 'Лицензионное соглашение не принято!',
-		'Windows OS found! Sorry, but Eldorado.CMS work only on *nix OS or Mac OS X!' => 
-					'Обнаружена операционная система Windows! Eldorado.CMS работает только на *nix или  Mac OS X!',
-		'Current directory %s has no write permissions' => 
-					'Отсутствуют права доступа на запись в текущую директорию %s',
-		'PHP version %s was found! You should have PHP version 4.x'         => 'Обнаружена версия %s PHP! Требуется версия 4.x',
-		'MySQL support in PHP was not found! Check Your PHP configuration!' => 
-					'Не удается обнаружить поддержку базы данных MySQL! Проверьте настройки PHP!',
-		'Could not access system command "%s"' => 'Не удается получить доступ к системной команде "%s"',
-
-		'You are not accepted product licence. Installation interrupted!' => 
-					'Вы не приняли условия лицензии продукта! Установка прервана!',
-		'Directory ./core does not contains valid Eldorado.CMS core files! Please, check Your installation files!' => 
-					'Директория ./core не содержит небходимых файлов ядра Eldorado.CMS! Проверьте ваши установочные файлы!',
-		'Could not create direcories tree'                   => 'Не удалось создать дерево директорий',
-		'Could not copy nessesery files from ./core/install' => 'Не удалось скопировать необходимые файлы из ./core/install',
-		'Could not create file %s'                           => 'Не удалось создать файл %s',
-		'Please, fill all fields marked with *'              => 'Пожалуйста, заполните все поля отмеченные *',
-		'Could not access file "%s"'                         => 'Не удалось получить доступ к файлу "%s"',
-		'File must have tar.gz or tgz extension'             => 'Файл должен иметь расширение tar.gz или tgz',
-		'Upload file error'                                  => 'Ошибка загрузки файла',
-		'Archive "%s" expanded, but does not contains "%s" folder!' => 
-					'Архив "%s" успешно распакован, но не обрнаружена директория "%s"!',
-		'Invalid style was selected!'                        => 'Выбран некорретный стиль',
-		'Could not create symlink to "%s"'                   => 'Не удается создать символическую ссылку на "%s"',
-		'You should upload style\'s archive or select one from list' 
-			=> 'Загрузите архив с шаблонами дизайна или выберите стиль из списка',
-		'Field "%s" contains invalid chars or has invalid lenght' => 
-					'Поле "%s" содержит недопустимые символы или имеет некорректную длину',
-		'Fields Password and Password confirm not equal'     => 'Пароль и подтерждение пароля не одинаковы',
-		'Fields Master Password and Master Password confirm not equal' => 
-					'Мастер-Пароль и подтверждение Мастер-Пароля не одинаковы',
-		'Could not save password'                            => 'Не удалось сохранить пароль',
-		'Expanding archive "%s" error! Command return value:%s and additional output: %s' => 
-					'Ошибка распаковки архива "%s"! Команда распаковки вернула значение: %s и дополнительную информацию: %s',
-		'File was not sent'                                  => 'Файл не был отправлен',
-		'Path to Eldorado.CMS core could not be empty!'      => 'Путь к ядру системы Eldorado.CMS не может быть пустым!',
-		'Directory %s already exists!'                       => 'Директория "%s" уже существует!',
-		'Could not move Eldorado.CMS core to directory %s!'  => 
-					'Не удалось переместить ядро системы Eldorado.CMS в директорию %s!',
-		'Eldorado.CMS core directory %s does not exists'     => 'Директория с ядром системы Eldorado.CMS не существует',
-		'Symlink ./core already exists but does not point to %s' => 
-					'Символическая ссылка ./core уже существует, но указывает на %s',
-		'File ./core already exists'                         => 'Файл ./core уже существует',
-		'Could not save master password into file'           => 'Не удалось сохранить Мастер-Пароль в файле',
-		'Can not connect to db on host %s'                   => 'Не удалось соединиться с сервером баз данных %s',
-		'Could not create MySQL database "%s"! MySQL says: %s' => 'Не удалось создать базу данных "%s"! MySQL сказала: %s',
-		'Can not change db to %s'                            => 'Не удалось переключиться на базу данных %s',
-		'Could not read file "%s" or file is empty'          => 'Не удалось прочесть файл "%s" или файл пуст',
-		'Please, put in site directory file named .htaccess with following lines: <br />%s' => 
-					'Не удалось создать файл ./.httaccess. Для корректной работы сайта поместите в корневую директорию файл .htaccess следующего содержания: <br />%s'
-		)
-	);
-	
-$GLOBALS['elLicenceTxt'] = array(
-	'en_US' => "Eldorado.CMS licence", 
-	'ru_RU' => "Лицензионное соглашение на использование системы управления сайтом Eldorado.CMS
-
-Прочтите внимательно нижеизложенное, прежде чем устанавливать, копировать или иным образом использовать приобретенный продукт 'Система управления Eldorado.CMS'. Любое использование Вами приобретенного продукта, в том числе его установка и копирование, означает Ваше согласие с условиями приведенного ниже Лицензионного соглашения.
-
-Настоящее лицензионное соглашение (далее Соглашение) является юридическим документом, заключаемым между Вами, конечным пользователем (физическим или юридическим лицом) (далее Пользователь), и  студия «Терра Дизайн» (далее Студия) относительно программного продукта «Система управления Eldorado.CMS» (далее Система или Программное обеспечение).
-
-Если Вы не согласны с условиями настоящего лицензионного соглашения, вы не имеете права использовать данную Программу. 
-
-
-Лицензионное соглашение вступает в силу с момента приобретения или установки продукта и действует на протяжении всего срока использования продукта. 
-
-1. ПРЕДМЕТ ЛЕЦЕНЗИОННОГО СОГЛАШЕНИЯ И УСЛОВИЯ ИСПОЛЬЗОВАНИЯ
-
-•	Предметом настоящего лицензионного соглашения является право использования одной копии системы управления Eldorado.CMS.
-
-•	В рамках одной копии системы управления пользователю разрешается создавать неограниченное, число сайтов на различных языках в рамках одного проекта или домена. 
-
-•	Вы обязуетесь не распространять Систему управления Eldorado.CMS. Под распространением Программного обеспечения понимается тиражирование или предоставление доступа третьим лицам к воспроизведенным в любой форме компонентам Системы, в том числе сетевыми и иными способами, а также путем их продажи, проката, сдачи внаем или предоставления взаймы. Тиражированием не считается изготовление одной или нескольких резервных копий базы данных программы в целях обеспечения безопасности или архивации.
-
-•	Конечный пользователь имеет право вносить любые изменения в код системы, добавлять и удалять файлы. Кроме изменения или удаления любой информации об авторских правах.
-
-•	Запрещается использование системы управления в любых случаях, которые, нарушают законодательство РФ.
-
-•	Данное соглашение распространяется на все версии и компоненты системы управления Eldorado.CMS, а так же обновления предоставляемые Пользователю, в период гарантийного обслуживания.
-
-
-
-2. АВТОРСКИЕ И ИМУЩЕСТВЕННЫЕ ПРАВА
-
-
-•	Все авторские и имущественные права на данную Систему управления принадлежат исключительно авторам Системы. Права на продажу и тиражирование системы принадлежат студии Терра Дизайн. Вам, конечному Пользователю, предоставляется неисключительное право, т.е. именная, непередаваемая и неисключительная Лицензия на использование Программы в указанных в документации целях и при соблюдении приведенных ниже условий. Лицензия предоставляется Вам, только Вам и никому больше, если на то нет письменного согласия Студии. 
-
-•	Все права интеллектуальной собственности на информационное содержание, которое не является частью программы, но, доступ к которому предоставляет программа, принадлежат владельцам прав на это содержание и защищены законами об авторском праве и другими законами и международными соглашениями о правах на интеллектуальную собственность.
-
-
-3. ГАРАНТИЙНЫЕ ОБЯЗАТЕЛЬСТВА
-
-•	Студия обслуживает работоспособность Системы в течение 12 (двенадцати) месяцев со дня ее покупки при условии, что она используется с аппаратными средствами, операционными системами и серверами баз данных, для которых она была разработана, и в полном соответствии с Руководством по эксплуатации. 
-
-•	В течении срока гарантийного  обслуживания Студия предоставляет:
-
-o	Бесплатные обновление системы.
-o	Консультации пользователя по телефону или электронной почте в рабочее время с 9 до 18 часов по Московскому времени.
-o	Проведение консультационно-обучающих семинаров по работе с системой управления Eldorado.CMS, при наборе группы более 10 человек в определенно назначенное время.
-
-•	Единственным гарантийным обязательством студии Терра Дизайн является бесплатное устранение неисправностей системы, не позволяющих ее использование по прямому назначению. Получение любых необходимых для устранения неисправностей исправлений системы в электронном виде или на любых других носителях осуществляется силами конечного Пользователя и за его счет.
-
-•	За исключением вышесказанного, не существует никаких других явно выраженных или подразумеваемых гарантий в отношении Системы или ее составных частей, в том числе, гарантий пригодности использования Системы непосредственно для Ваших конкретных целей. 
-
-•	Студия не несет ответственности за работу системы, в которую были внесены изменения Вами или третьими лицами. Студия в праве отказать в обслуживании в течении гарантийного периода если сбой в работе системы управления произошел по вине конечного пользователя.
-
-"
-	);	
-	
-$GLOBALS['elInstErrors'] = array();
-	
-function m($str)
-{
-	return !empty($GLOBALS['elInstMsg'][$GLOBALS['elInstLang']][$str])
-		? $GLOBALS['elInstMsg'][$GLOBALS['elInstLang']][$str]
-		: $str;
-}
-
-function elThrow($errLevel, $msg, $params=null)
-{
-	$GLOBALS['elInstErrors'][] = vsprintf(m($msg), $params);
-}
-
-function elDebug($msg) 
-{ 
-	//echo nl2br($msg);
-}
-
-$installer = & new elInstaller;
+$installer = & new elInstaller();
 $installer->run();
 
-class elInstallerConf
-{
-	var $dbLink       = null;
-	var $reqConfValid = true;  
-	var $tar          = '';
-	var $instType     = 1;
-	var $dirTree = array('backup', 'cache', 'conf', 'log', 'storage', 'storage/pageIcons');
-	var $coreTree = array('editor','forms', 'lib', 'install', 'install/install.sql', 'install/index.php', 'install/counter.php', 'install/main.conf.xml');	
-
-	function elInstallerConf()
-	{
-		if ( stristr(PHP_OS, 'win') && 'darwin' != strtolower(PHP_OS) )
-		{
-			$this->_reqConfInvalid('Windows OS found! Sorry, but Eldorado.CMS work only on *nix OS or Mac OS X!');
-		}
-		if ( 4 != substr(PHP_VERSION, 0, 1) )
-		{
-			$this->_reqConfInvalid('PHP version %s was found! You should have PHP version 4.x', PHP_VERSION);
-		}
-		if ( !function_exists('mysql_connect'))
-		{
-			dl('mysql');
-			if ( !function_exists('mysql_connect'))
-			{
-				$this->_reqConfInvalid('MySQL support in PHP was not found! Check Your PHP configuration!');
-			}
-		}
-		$this->dir = getcwd().'/';
-		if (!is_writable($this->dir) )
-		{
-			$this->_reqConfInvalid('Current directory %s has no write permissions', $this->dir);
-		}
-		$which = exec('which which');
-		if (!strstr($which, '/which'))
-		{
-			$this->_reqConfInvalid('Could not access system command "%s"', 'which');
-		}
-		$this->tar = exec('which tar');
-		if (!strstr($this->tar, '/tar'))
-		{
-			$this->_reqConfInvalid('Could not access system command "%s"', 'tar');
-		}
-	}
-	
-	
-	function getLangsList()
-	{
-		$locales = array_merge_recursive( glob('./core/locale/*', GLOB_ONLYDIR), glob('./local/locale/*', GLOB_ONLYDIR));
-		$langs = array();
-		foreach ( $locales as $l )
-		{
-			$lang   = substr(basename($l), 0, 5); 
-			$region = substr(basename($l), 3, 2);
-			$langs[$lang] = (!empty($GLOBALS['elInstLangs'][$lang]) ? $GLOBALS['elInstLangs'][$lang] : $lang).' ('.$region.')';
-		}
-		return !empty($langs) ? $langs : array('en_US' => 'English');
-	}
-	
-	function getStylesList()
-	{
-		include_once('./core/locale/'.$GLOBALS['elInstLang'].'.UTF-8/elInstall.php');
-		$styles = array();
-		$list = glob('./core/styles/*', GLOB_ONLYDIR);
-		foreach ( $list as $d)
-		{
-			$d = basename($d);
-			$styles[$d] = !empty($elStyleName[$d]) ? $elStyleName[$d] : $d;
-		}
+class elInstaller {
+	var $_steps = array(
+		'lang'     => array('m' => 'selectLanguage', 'l' => 'Select language'),
+		'license'  => array('m' => 'license',        'l' => 'Select language'),
+		'type'     => array('m' => 'installType',    'l' => 'Select instalation type'),
+		'db'       => array('m' => 'dbConf',         'l' => 'Configure database'),
+		'user'     => array('m' => 'createUser',     'l' => 'Create administrator account'),
+		'style'    => array('m' => 'styleSelect',    'l' => 'Select site style'),
+		'misc'     => array('m' => 'miscConf',       'l' => 'Site options'),
+		'complite' => array('m' => 'complite',       'l' => 'Instalation complite')
+		);
 		
-		return $styles;
-	}
-	
-	/**
-	 * upload/extract core, create base directory tree and copy config files
-	 *
-	 * @return bool
-	 */
-	function installCore()
+	var $_step ='lang';
+	var $_lang = 'en';
+	var $_rnd = null;
+	var $_tr  = null;
+	var $_langs = array(
+		'en' => 'English',
+		'ru' => 'Русский',
+		'ua' => 'Украинский'
+		);
+	var $_locales = array(
+		'en' => 'en_US.UTF-8',
+		'ru' => 'ru_RU.UTF-8',
+		'ua' => 'uk_UA.UTF-8'
+		);
+	var $_rootDir = '';
+		
+		
+	function elInstaller() 
 	{
-		if ( $this->instType < 3 && !$this->_uploadCore() ) //upload and extract core
-		{
-			return false;
-		}
-		if ( 2 == $this->instType && !$this->_installType2() )
-		{
-			return false;
-		}
-		elseif ( 3 == $this->instType && !$this->_installType3() )
-		{
-			return false;
-		}
 		
-		if ( !$this->_checkCoreInstallation() )
+		if (!empty($_SESSION['step']) && !empty($this->_steps[$_SESSION['step']]))
 		{
-			if ( 1 < $this->instType )
-			{
-				@unlink('./core');
-			}
-			 return elThrow(E_USER_WARNING, 
-			 	'Directory ./core does not contains valid Eldorado.CMS core files! Please, check Your installation files!');
+			$this->_step = $_SESSION['step'];
 		}
-		// create directories tree
-		foreach ($this->dirTree as $dir)
+		if (!empty($_SESSION['lang']) && !empty($this->_langs[$_SESSION['lang']]))
 		{
-			if ( !file_exists('./'.$dir) && !mkdir('./'.$dir, 0775) )
-			{
-				return elThrow(E_USER_WARNING, 'Could not create direcories tree') ;
-			}
-		}
-		//copy config files
-		if (!copy('./core/install/index.php',     './index.php') 
-		||  !copy('./core/install/main.conf.xml', './conf/main.conf.xml')
-		||  !copy('./core/install/counter.php',   './counter.php')
-		||  !copy('./core/install/install.sql',   './conf/install.sql') )
-		{
-			return elThrow(E_USER_WARNING, 'Could not copy nessesery files from ./core/install');
-		}
-		if ( !$this->createHtaccess('./storage', 'RewriteEngine Off'))
-		{
-			elThrow(E_USER_WARNING, 'Could not create file %s', './storage/.htaccess');
-		}
-		if ( !$this->createHtaccess('./backup', 'RewriteEngine Off'))
-		{
-			elThrow(E_USER_WARNING, 'Could not create file %s', './backup/.htaccess');
-		}
-		return true;
-	}
-	
-		
-	function configure()
-	{
-		if ( empty($_POST['host']) || empty($_POST['user']) || empty($_POST['pass']) || empty($_POST['name']))
-		{
-			return elThrow(E_USER_WARNING, 'Please, fill all fields marked with *' );
-		}
-		$host   = trim($_POST['host']);
-		$sock   = trim($_POST['sock']);
-		$user   = trim($_POST['user']);
-		$pass   = trim($_POST['pass']);
-		$db     = trim($_POST['name']);
-		$langs  = $this->getLangsList();
-		$locale = !empty($langs[$_POST['lang']]) ? $_POST['lang'].'.UTF-8' : 'en_US.UTF-8';
-		
-		if (!include_once './core/lib/elDbInstall.class.php' )
-		{
-			return elThrow(E_USER_WARNING, 'Could not access file "%s"', './core/lib/elDbInstall.class.php');
-		}
-		$this->db = & new elDbInstall($user, $pass, $db, $host, $sock); 
-		if ( !$this->db->initDb() )
-		{
-			return false;
-		}
-		
-		$this->db->localizeDb($locale);
-		
-		if ( !include_once './core/lib/elXmlConf.class.php')
-		{
-			return elThrow(E_USER_WARNING, 'Could not access file "%s"', './core/lib/elXmlConf.class.php' );
-		}
-		$conf = & new elXmlConf('main.conf.xml');
-		$conf->set('host',   $host,   'db');
-		$conf->set('sock',   $sock,   'db');
-		$conf->set('user',   $user,   'db');
-		$conf->set('pass',   $pass,   'db');
-		$conf->set('db',     $db,     'db');
-		$conf->set('locale', $locale, 'common');
-		if ( !empty($_POST['siteName']) )
-		{
-			$conf->set('siteName', trim($_POST['siteName']), 'common');
-		}
-		if ( !$conf->save() || !empty($GLOBALS['elInstErrors']) )
-		{
-			return false;
-		}
-		return true;
-	}
-
-	function installStyle()
-	{
-		if ( !empty($_FILES['styleFile']) && !empty($_FILES['styleFile']['size']) )
-		{
-			if ( !preg_match('/\.tgz$/i',     $_FILES['styleFile']['name']) 
-			&&   !preg_match('/\.tar\.gz$/i', $_FILES['styleFile']['name']) )
-			{
-				return elThrow(E_USER_WARNING, 'File must have tar.gz or tgz extension') ;
-			}
-			if (!move_uploaded_file($FILES['styleFile']['tmp_name'], './'.$FILES['styleFile']['name']))
-			{
-				return elThrow(E_USER_WARNING, 'Upload file error');
-			}
-			if ( !$this->_expandArc('./'.$FILES['styleFile']['name']) )
-			{
-				return false; 
-			}
-			if ( !file_exists('./style') || !is_dir('./style') )
-			{
-				return elThrow(E_USER_WARNING, 'Archive "%s" expanded, but does not contains "%s" folder!', 
-											array($FILES['styleFile']['name'], 'style'));
-			}
-			$this->_copyPageIcons();
-		}
-		elseif ( !empty($_POST['style']) )
-		{
-			$style = trim($_POST['style']);
-			if (!is_dir('./core/styles/'.$style))
-			{
-				return elThrow(E_USER_WARNING, 'Invalid style was selected!');
-			}
-			if (!symlink('./core/styles/'.$style, './style'))
-			{
-				return elThrow(E_USER_WARNING, 'Could not create symlink to "%s"', './core/styles/'.$style);
-			}
-			$this->_copyPageIcons();
+			$this->_lang = $_SESSION['lang'];
 		}
 		else
 		{
-			return elThrow(E_USER_WARNING, 'You should upload style\'s archive or select one from list');
-		}
-		return true;
-	}
-	
-	function _copyPageIcons()
-	{
-		if ( !is_dir('./storage') || !is_writable('./storage') || !is_dir('./style/pageIcons') )
-		{
-			return;
-		}
-		if ( !is_dir('./storage/pageIcons') && !@mkdir('./storage/pageIcons', 0775) )
-		{
-			return;
-		}
-		$d = dir('./style/pageIcons');
-		if ( empty($d->handle) )
-		{
-			return;
-		}
-		while ( false !== ($entr = $d->read()) )
-		{
-			if (is_file($d->path.'/'.$entr))
+			foreach ($this->_langs as $lang=>$v)
 			{
-				copy($d->path.'/'.$entr, './storage/pageIcons/'.$entr);
+				if ($lang != 'en' && preg_match('/'.$lang.'(,|\-|;)/', $_SERVER['HTTP_ACCEPT_LANGUAGE']))
+				{
+					$this->_lang = $lang;
+					break;
+				}
 			}
 		}
-		$d->close();
-	}
-	
-	function savePasswd()
-	{
-		if ( empty($_POST['p1']) || empty($_POST['p2']) || empty($_POST['p1']) || empty($_POST['p2']))
+		$this->_tr  = & new elInstallerTranslator($this->_lang);
+		$this->_rnd = & new elInstallerRnd($this->_lang, $this->_tr);
+		
+		if (!$this->_rootDir)
 		{
-			return elThrow(E_USER_WARNING, 'Please, fill all fields marked with *' );
-		}
-		$ps = array('p1'=>m('Password'), 'p2'=>m('Password confirm'), 'mp1'=>m('Master Password'), 'mp2'=>m('Master Password confirm') );
-		foreach ($ps as $p=>$l)
-		{
-			${$p} = trim($_POST[$p]);
-			if ( !preg_match('/^[a-z0-9\-_]{4,20}$/i', ${$p}))
+			if (!empty($_SESSION['rootDir']) && is_dir($_SESSION['rootDir']))
 			{
-				return elThrow(E_USER_WARNING, 'Field "%s" contains invalid chars or has invalid lenght', $l);
+				$this->_rootDir = $_SESSION['rootDir'];
 			}
-		}
-		if ($p1 != $p2)
-		{
-			return elThrow(E_USER_WARNING, 'Fields Password and Password confirm not equal');
-		}
-		if ($mp1 != $mp2)
-		{
-			return elThrow(E_USER_WARNING, 'Fields Master Password and Master Password confirm not equal');
-		}
-		if ( !@include_once('./core/lib/elXmlConf.class.php') )
-		{
-			return elThrow(E_USER_WARNING, 'Could not access file "%s"', './core/lib/elXmlConf.class.php');
-		}
-		if (!@include_once './core/lib/elDbInstall.class.php' )
-		{
-			return elThrow(E_USER_WARNING, 'Could not access file "%s"', './core/lib/elDbInstall.class.php');
-		}
-		$conf = & new elXmlConf('main.conf.xml');
-		$this->db = & new elDbInstall($conf->get('user', 'db'), $conf->get('pass', 'db'), $conf->get('db', 'db'), 
-																	$conf->get('host', 'db'), $conf->get('sock', 'db'));
-		if ( !$this->db->connect() )
-		{
-			return false;
-		}
-		if ( !$this->db->query('UPDATE el_user SET pass=MD5("'.$p1.'" ) WHERE uid=1') )
-		{
-			return elThrow(E_USER_WARNING, 'Could not save password');
-		}
-		$this->db->close();
-		//failed to save MP is not an error
-		if ( false != ($fp = fopen('./conf/mp', 'w')) )
-		{
-			fwrite($fp, md5($mp1)."\n");
-			fclose($fp);
-		}
-		return true;
-	}
-	
-	
-	////////////
-	
-	function _expandArc($file)
-	{
-		$cmd   = $this->tar.' xzf '.escapeshellarg($file); 
-		$otput = array(); 
-		$ret   = null;
-		$res   = exec($cmd, $output, $ret); 
-		@unlink($file);
-		if ( 0 <> $ret )
-		{
-			return elThrow(E_USER_WARNING, 'Expanding archive "%s" error! Command return value:%s and additional output: %s',
-											array($file, $ret, implode('<br />', $output)) );
-		}
-		return true;
-	}
-	
-	function _uploadCore()
-	{
-		if (empty($_FILES['coreFile']['name']) || empty($_FILES['coreFile']['size']))
-		{
-			return elThrow(E_USER_WARNING, 'File was not sent') ;
-		}
-		if ( !preg_match('/\.tgz$/i', $_FILES['coreFile']['name']) && !preg_match('/\.tar\.gz$/i', $_FILES['coreFile']['name']) )
-		{
-			return elThrow(E_USER_WARNING, 'File must have tar.gz or tgz extension') ;
-		}
-		if (!move_uploaded_file($_FILES['coreFile']['tmp_name'], $this->dir.$_FILES['coreFile']['name']))
-		{
-			return elThrow(E_USER_WARNING, 'Upload file error');
-		}
-		return $this->_expandArc('./'.$_FILES['coreFile']['name']);
-	}
-	
-	function _getCorePath()
-	{
-		if ( empty($_POST['corePath']) )
-		{
-			return elThrow(E_USER_WARNING, 'Path to Eldorado.CMS core could not be empty!') ;
-		}
-		$corePath = '/' == substr($_POST['corePath'], 0, -1) 
-				? substr($_POST['corePath'], 0, strlen($_POST['corePath']))
-				: $_POST['corePath'];
-		$testDirs     = $this->dirTree;
-		$testDirs[]   = '.';
-		$testDirs[]   = './style';
-		foreach ( $testDirs as $dir )
-		{
-			if ($dir == $corePath)
+			else 
 			{
-				$msg = 'Eldorado.CMS core directory could not be placed in "%s" because of system use this path for other needs';
-				return elThrow(E_USER_WARNING, $msg, $dir);
-			}
-		}
-		return $corePath;
-	}
-	
-	function _installType2()
-	{
-		if ( false == ($corePath = $this->_getCorePath()) )
-		{
-			return false;
-		}
-		if ('./core' == $corePath)
-		{
-			return true;
-		}
-		if ( file_exists($corePath) )
-		{
-			return elThrow(E_USER_WARNING, 'Directory %s already exists!', $corePath) ;
-		}
-		if ( !rename('./core', $corePath))
-		{
-			return elThrow(E_USER_WARNING, 'Could not move Eldorado.CMS core to directory %s!', $corePath) ;
-		}
-		if ( !$this->_coreSymlink($corePath) )
-		{
-			return elThrow( E_USER_WARNING, 'Could not create symlink to Eldorado.CMS core directory %s!', $corePath );
-		}
-		return true;
-	}
-	
-	function _installType3()
-	{
-		if ( false == ($corePath = $this->_getCorePath()) )
-		{
-			return false;
-		}
-		if ( !is_dir($corePath) )
-		{
-			return elThrow(E_USER_WARNING, 'Eldorado.CMS core directory %s does not exists', $corePath);
-		}
-		if ( !$this->_coreSymlink($corePath) )
-		{
-			return elThrow( E_USER_WARNING, 'Could not create symlink to Eldorado.CMS core directory %s!', $corePath );
-		}
-		return true;
-	}
+				$dir = dirname(__FILE__); 
+				$reg = '|core'.DIRECTORY_SEPARATOR.'install$|';
+				if (preg_match($reg, $dir))
+				{
+					$dir = preg_replace($reg, '');
+				}
 
-	function _coreSymlink($corePath)
-	{
-		if ( is_link('./core') )
-		{
-			$coreExist = readlink('./core'); 
-			return realpath($coreExist) == realpath($corePath)
-				? true
-				: elThrow(E_USER_WARNING, 'Symlink ./core already exists but does not point to %s', $corePath);
-		}
-		if ( file_exists('./core') ) // file, dir or invalid symlink
-		{
-			return elThrow(E_USER_WARNING, 'File ./core already exists');
-		}
-		return @symlink($corePath, './core');
-	}
-	
-	function _checkCoreInstallation()
-	{
-		foreach ($this->coreTree as $f)
-		{
-			if (!file_exists('./core/'.$f))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	function createHtaccess($dir, $content)
-	{
-		if ( false == ($fp = @fopen($dir.'/.htaccess', 'w')) )
-		{
-			return false;
-		}
-		fwrite($fp, $content."\n");
-		fclose($fp);
-		return true;
-	}
-
-	function _reqConfInvalid($msg, $params=null)
-	{
-		$this->reqConfValid = false;
-		elThrow(E_USER_WARNING, $msg, $params);
-	}
-
-}
-
-
-class elInstaller
-{
-	var $steps    = array(
-		0 => array('Select installation language', 'langSelect'),
-		1 => array('Wellcome to Eldorado.CMS installation', 'wellcome'),
-		2 => array('Installation type', 'instType'),
-		3 => array('Eldorado.CMS core installation', 'instCore'),
-		4 => array('Base site configuration', 'configure'),
-		5 => array('Site design installation', 'instStyle'),
-		6 => array('Root password', 'passwd'),
-		7 => array('Installation complite', 'instFinish'),
-		);
-	var $step      = 0;
-	var $rnd       = null;
-	var $configurator = null;
-	var $dir       = './';
-	var $URL       = '';
-	var $instType  = 1;
-	var $instTypes = array(
-		1 => 'Standalone site installation', 
-		2 => 'Multi-site instalation. System core will be installed.',
-		3 => 'Multi-site installation. System core already installed.'
-		);
-	
-	function elInstaller()
-	{
-		$this->dir = getcwd().'/';
-		$this->URL = $_SERVER['PHP_SELF'];
-		$this->rnd = & new elRndInstaller($this->URL);
-		$this->configurator = & new elInstallerConf();
-		
-		if ( !empty($_POST['step']) )
-		{
-			$this->step = (int)$_POST['step'];
-		}
-		elseif ( !empty($_GET['step']) )
-		{
-			$this->step = (int)$_GET['step'];
-		}
-		
-		$complite = !empty($_SESSION['complite']) && !empty($this->steps[$_SESSION['complite']])
-			? (int)$_SESSION['complite'] : 0;
-		
-		if ( empty($this->steps[$this->step]) || $this->step > $complite+1)
-		{
-			$this->step = 0;
-		}
-		$this->rnd->step = $this->step;
-				
-		 
-		
-		if ($this->step == sizeof($this->steps)-1)
-		{
-			$this->rnd->lastStep = true;
-		}
-		if (!empty($_SESSION['lang']) && !empty($GLOBALS['elInstLangs'][$_SESSION['lang']]) )
-		{
-			$GLOBALS['elInstLang'] = $_SESSION['lang'];
-		}
-		
-		if ( !$this->configurator->reqConfValid )
-		{
-			if ( 0 == $this->step )
-			{
-				$GLOBALS['elInstErrors'] = array();
-			}
-			else
-			{
-				array_unshift($GLOBALS['elInstErrors'], m('Server configuration error!'));
-				$this->rnd->rnd(m('Server configuration error!'));
-				exit;
+				$this->_rootDir = $dir.DIRECTORY_SEPARATOR;
+				$_SESSION['rootDir'] = $this->_rootDir;
 			}
 		}
 		
-		if ( $this->step > 1 && empty($_SESSION['accept']) )
-		{
-			unset($_SESSION['complite']);
-			elThrow(E_USER_WARNING, 'You are not accepted product licence. Installation interrupted!');
-			$this->rnd->rnd( m('Installation interrupted!'));
-			exit();
-		}
-		if ( $this->step >1 && !empty($_SESSION['instType']) && !empty($this->instTypes[$_SESSION['instType']]))
-		{
-			$this->instType = $this->configurator->instType = (int)$_SESSION['instType'];
-		}
+		// $_SESSION = array();
 	}
-	
-	
 	
 	function run()
 	{
-		if ( empty($this->steps[$this->step][1]) || !method_exists($this, $this->steps[$this->step][1]))
+		if (!empty($_POST['cancel_install']))
 		{
-			elThrow('Installer internal error!');
-			$this->rnd->rnd(m('Installer internal error!'));
-			exit();
+			session_destroy();
+			header('Location: '.$_SERVER['REQUEST_URI']);
 		}
-		$this->rnd->title = m($this->steps[$this->step][0]);
-		$this->{$this->steps[$this->step][1]}();
-	}
-	
-	/**
-	 * First step
-	 *
-	 */
-	function langSelect()
-	{
-		if ( !empty($_POST['lang']) && !empty($GLOBALS['elInstLangs'][$_POST['lang']]))
-		{
-			$GLOBALS['elInstLang'] = $_SESSION['lang'] = $_POST['lang'];
-			$this->complite();
-		}
-		$this->rnd->rndLangSelectForm();
-	}
 
-	/**
-	 * Second step - accept licence
-	 *
-	 */
-	function wellcome()
-	{
-		if ( isset($_POST['accept']))
-		{
-			$_SESSION['accept'] = $_POST['accept'];
-			$this->complite();
-		}
-		$this->rnd->rndWellcome( );
+		$m = $this->_steps[$this->_step]['m'];
+		$this->$m();
 	}
 	
-	/**
-	 * Third step - select installation type
-	 *
-	 */
-	function instType()
+	function selectLanguage()
 	{
-		if (!empty($_POST['instType']))
+		if (!empty($_POST['lang']) && !empty($this->_langs[$_POST['lang']]))
 		{
-			$_SESSION['instType'] = !empty($this->instTypes[$_POST['instType']]) ? (int)$_POST['instType'] : 1;
-			$this->complite();
+			$_SESSION['lang'] = trim($_POST['lang']);
+			$_SESSION['step'] = 'license';
+			header('Location: '.$_SERVER['REQUEST_URI']);
 		}
-		$this->rnd->rndInstTypeForm($this->instTypes, $this->instType);
+		$this->_rnd->rndSelectLanguage($this->_langs);
 	}
 	
-	/**
-	 * 4 step - install core
-	 *
-	 */
-	function instCore()
+	function license()
 	{
-		if (!empty($_POST))
+		if (isset($_POST['accept']))
 		{
-			if ( $this->configurator->installCore() )
+			if ($_POST['accept'] == 1) 
 			{
-				$this->complite();
-			} 
-		}
-		$this->rnd->rndInstCoreForm($this->instType, $this->instTypes); 
-	}
-	
-	function configure()
-	{
-		if (!empty($_POST))
-		{
-			if ( $this->configurator->configure() )
+				$_SESSION['step'] = 'type';
+				header('Location: '.$_SERVER['REQUEST_URI']);
+			}
+			else
 			{
-				$this->complite();
+				$_SESSION = array();
+				return $this->_rnd->rndError('License was not accepted!<br />Unable to complite installation!');
 			}
 		}
-		$this->rnd->rndConfigure($this->configurator->getLangsList());
+		$this->_rnd->rndLicense();
 	}
 	
-	function instStyle()
+	function installType()
 	{
-		if ( !empty($_POST) || !empty($_FILES) )
+		if (!is_writable($this->_rootDir) || (!elFS::mkdir($this->_rootDir.'tmp')))
 		{
-			if ( $this->configurator->installStyle() )
+			return $this->_rnd->rndError('Site directory has no write permissions!<br />Unable to complite installation!');
+		}
+
+		$files = $this->_isFilesExists();
+		
+		if ($files && $this->_isInstalled())
+		{
+			return $this->_reInstall();
+		}
+		
+		if (!$files && !$this->_tar())
+		{
+			return $this->_rnd->rndError('Unable to find tar and gzip command! This need to unpack archive. To install ELDORADO.CMS, upload files using FTP/SSH. <br />Instalation interrupted.');
+		}
+		
+		if (!empty($_POST['src']))
+		{
+			return $this->_install($_POST['src']);
+		}
+		
+		$this->_rnd->rndInstallSelect($this->_installVariants());
+	}
+	
+	function _tar()
+	{
+		exec('tar --version', $o, $c);
+		$tar = $c == 0 && !empty($o);
+		exec('gzip --version', $o, $c);
+		return $tar && $c == 0 && !empty($o);
+	}
+	
+	function _installVariants()
+	{
+		$files = $this->_isFilesExists(); 
+		$tar   = $this->_tar();
+		$vars = array();
+		if ($files)
+		{
+			$vars['files'] = $this->_tr->translate('Files on server');
+		}
+		if ($tar)
+		{
+			$found = elFS::find($this->_rootDir, '/.+\.tar\.gz$/i', false);
+			foreach ($found as $f)
 			{
-				$this->complite();
+				$f = basename($f);
+				$vars[$f] = $this->_tr->translate('Archive').' ('.$f.')';
+			}
+			if ($vars)
+			{
+				$vars['upload'] = $this->_tr->translate('Upload archive');
+			}
+			
+		}
+		return $vars;
+	}
+	
+	function dbConf()
+	{
+		$err = '';
+		if (isset($_POST['host']))
+		{
+			$host   = !empty($_POST['host']) ? trim($_POST['host']) : '';
+			$sock   = !empty($_POST['sock']) ? trim($_POST['sock']) : '';
+			$user   = !empty($_POST['user']) ? trim($_POST['user']) : '';
+			$passwd = !empty($_POST['passwd']) ? trim($_POST['passwd']) : '';
+			$dbname = !empty($_POST['db']) ? trim($_POST['db']) : '';
+			if (!$host || !$user || !$dbname) 
+			{
+				return $this->_rnd->rndDbConf('Host, User or Db name could not be empty.');
+			}
+			$db = & new elInstallerDb();
+			if (!$db->connect($host, $sock, $user, $passwd))
+			{
+				return $this->_rnd->rndDbConf('Unable to connect to MySQL server!<br />Check entered data.');
+			}
+			if (!$db->isDbExists($dbname) && !$db->createDb($dbname))
+			{
+				return $this->_rnd->rndDbConf('Unable to create data base! Check data base user permissions.');
+			}
+			if (!$db->selectDb($dbname))
+			{
+				return $this->_rnd->rndDbConf('Unable to connect to data base!<br />Check entered data.');
+			}
+			
+			$conf = $this->_getConf();
+			if (!$conf)
+			{
+				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+			}
+			$conf->set('host',   $host, 'db');
+			!empty($sock) && $conf->set('sock', $sock, 'db');
+			$conf->set('user',   $user, 'db');
+			$conf->set('pass',   $passwd, 'db');
+			$conf->set('db',     $dbname, 'db');
+			$conf->set('locale', $this->_locales[$this->_lang], 'common');
+			if (!$conf->save())
+			{
+				$this->_rnd->rndError('Unable to save config file!<br />Unable to complite installation.');
+			}
+			
+			if (!include_once($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elDbDump.class.php'))
+			{
+				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+			}
+			
+			$installDir = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
+			$file = file_exists($installDir.'install-'.$this->_lang.'.sql') ? $installDir.'install-'.$this->_lang.'.sql' : $installDir.'install.sql';
+			
+			$dump = & new elDbDump($db);
+			if (!$dump->restore($file))
+			{
+				return $this->_rnd->rndError('Unable to insert data into data base!<br />Unable to complite installation.');
+			}
+			
+			$_SESSION['step'] = 'user';
+			header('Location: '.$_SERVER['REQUEST_URI']);
+		}
+		
+		$this->_rnd->rndDbConf($err);
+	}
+	
+	function createUser()
+	{
+		if (isset($_POST['passwd1']))
+		{
+			$p1 = trim($_POST['passwd1']);
+			$p2 = isset($_POST['passwd2']) ? trim($_POST['passwd2']) : $_POST['passwd2'];
+			if (!$p1 || !$p2)
+			{
+				return $this->_rnd->rndUserPassword('Password could not be empty!');
+			}
+			if ($p1 != $p2)
+			{
+				return $this->_rnd->rndUserPassword('Passwords not equal!');
+			}
+			if (!preg_match('/[a-z0-9\-\.\!\s@]{6,}/i', $p1))
+			{
+				return $this->_rnd->rndUserPassword('Password should contains not less then 6 alfanumeric and/or punctuation sybmbols');
+			}
+			
+			$t     = time();
+			$db    = $this->_getDb();
+			$email = mysql_real_escape_string($_POST['email']);
+			if (!$db)
+			{
+				return $this->_rnd->rndUserPassword('Unable connect to data base!');
+			}
+			$sql = 'REPLACE INTO el_user (uid, login, pass, email, f_name, crtime, mtime) VALUES '
+				.'(1, "root", "'.md5($p1).'", "'.$email.'", "Administrator", '.$t.', '.$t.')';
+			if (!$db->query($sql))
+			{
+				return $this->_rnd->rndUserPassword('Unable to create user! Unable to complite install.');
+			}
+			$_SESSION['step'] = 'style';
+			header('Location: '.$_SERVER['REQUEST_URI']);
+		}
+		$this->_rnd->rndUserPassword();
+	}
+	
+	function styleSelect()
+	{
+		if (file_exists($this->_rootDir.'style'.DIRECTORY_SEPARATOR.'hormal.html'))
+		{
+			$_SESSION['step'] =  $this->_step = 'misc';
+			return $this->run();
+		}
+		$styles = elFS::ls($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'styles', EL_FS_ONLY_DIRS); 
+		if (sizeof($styles) == 1 && !$this->_tar())
+		{
+			if (!$this->_setStyle($styles[0]))
+			{
+				return $this->_rnd->rndError('Unable to set site style! Unable to complite installation.');
+			}
+			else
+			{
+				$_SESSION['step'] =  $this->_step = 'misc';
+				return $this->run();
 			}
 		}
-		$this->rnd->rndStyleForm( $this->configurator->getStylesList() );
-	}
-	
-	function passwd()
-	{
-		if (!empty($_POST))
+
+		if (isset($_POST['style_select']))
 		{
-			if ($this->configurator->savePasswd())
+			if (!empty($_FILES['upl_style']['name']))
 			{
-				$_POST = array();
-				$this->complite();
+				$tmpDir = $this->_rootDir.'tmp'.DIRECTORY_SEPARATOR;
+				$err = '';
+				if (empty($_FILES['upl_style']['tmp_name']) || !$_FILES['upl_style']['size'] || $_FILES['upl_style']['error'])
+				{
+					$err = 'Upload file error.';
+				}
+				elseif (!move_uploaded_file($_FILES['upl_style']['tmp_name'], $tmpDir.$_FILES['upl_style']['name']))
+				{
+					$err = 'Upload file error.';
+				}
+				if ($err)
+				{
+					return $this->_rnd->rndStyleSelect($styles, $err);
+				}
+				$cwd = getcwd();
+				chdir($tmpDir);
+				exec('tar xzf '.escapeshellarg('./'.$_FILES['upl_style']['name']), $o, $c);
+				chdir($cwd);
+				@unlink($tmpDir.$_FILES['upl_style']['name']);
+				if ($c>0)
+				{
+					return $this->_rnd->rndStyleSelect($styles, 'Unable unpack archive.');
+				}
+				if (!is_dir($tmpDir.'style'))
+				{
+					return $this->_rnd->rndStyleSelect($styles, 'Archive does not contains "style" directory.');
+				}
+				if (is_dir($this->_rootDir.'style'))
+				{
+					elFS::rmDir($this->_rootDir.'style');
+				} 
+				elseif (is_link($this->_rootDir.'style'))
+				{
+					@unlink($this->_rootDir.'style');
+				}
+				if (!elFS::move($tmpDir.'style', $this->_rootDir))
+				{
+					return $this->_rnd->rndStyleSelect($styles, 'Unable to move "style" directory.');
+				}
+				$this->_copyIcons();
 			}
+			else
+			{
+				$style = !empty($_POST['style']) && in_array($_POST['style'], $styles) ? $_POST['style'] : $styles[0];
+				if (!$this->_setStyle($style))
+				{
+					return $this->_rnd->rndError('Unable to set site style! Unable to complite installation.');
+				}
+			}
+			$_SESSION['step'] = 'misc';
+			header('Location: '.$_SERVER['REQUEST_URI']);
+			
 		}
-		$this->rnd->rndPasswdForm();
+		$this->_rnd->rndStyleSelect($styles);
 	}
 	
-	function instFinish()
+	
+	function miscConf()
 	{
-		if ( !file_exists('./conf/mp') )
+		if (isset($_POST['misc']))
 		{
-			elThrow(E_USER_WARNING, 'Could not save master password into file');
+			$name     = !empty($_POST['site_name']) ? trim($_POST['site_name']) : '';
+			$contacts = !empty($_POST['contacts'])  ? trim($_POST['contacts'])  : '';
+			$phone    = !empty($_POST['phone'])     ? trim($_POST['phone'])     : '';
+			$email    = !empty($_POST['email'])     ? trim($_POST['email'])     : '';
+			if ($name || $contacts || $phone)
+			{
+				$conf = $this->_getConf();
+				if (!$conf)
+				{
+					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+				}
+				$name     && $conf->set('siteName', $name,     'common');
+				$contacts && $conf->set('contacts', $contacts, 'common');
+				$phone    && $conf->set('phones',   $phone,    'common');
+				$conf->save();
+			}
+			if ($email)
+			{
+				$db = $this->_getDb();
+				if (!$db)
+				{
+					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+				}
+				$db->query('TRUNCATE el_email');
+				$db->query('INSERT INTO el_email (label, email, is_default) VALUES ("default", "'.mysql_real_escape_string($email).'", 1)');
+			}
+			$_SESSION['step'] = 'complite';
+			header('Location: '.$_SERVER['REQUEST_URI']);
 		}
-		$ht  = "RewriteEngine On\n";
-		$ht .= "RewriteBase ".dirname( $_SERVER['PHP_SELF'] )."\n";
-		$ht .= "RewriteRule robots.txt robots.txt [L]\n";
-		$ht .= "RewriteRule favicon.ico favicon.ico [L]\n";
-		$ht .= "RewriteRule counter.php(.*) counter.php$1 [L]\n";
-		$ht .= "RewriteRule (.*) index.php [L]\n";
-		if ( !$this->configurator->createHtaccess('./', $ht) )
-		{
-			elThrow(E_USER_WARNING, 'Please, put in site directory file named .htaccess with following lines: <br />%s', 
-							nl2br($ht));
-		}
-		//@unlink('./installer);
-		$this->rnd->rndFinish();
+		
+		$this->_rnd->rndMiscConf();
 	}
 	
 	function complite()
 	{
-		$_SESSION['complite'] = $this->step; 
-		exit( header('Location: '.$this->URL.'?step='.($this->step+1)));
-	}
-	
-}
-
-/**
- * Installation renderer class
- *
- */
-
-class elRndInstaller
-{
-	var $tplMain = 
-	"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n
-	 <html>
-	<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" /><title>{TITLE}</title></head>\n
-	<style>\n
-	.title { color:navy; font-weight:bold; text-align:center;}
-	.subhead { background-color:#f5f5f5; font-weight:bold; padding:5px }
-	</style>\n
-	<body>\n
-	<div style=\"border:1px solid red;position:absolute;left:25%;top:25%;width:50%;height:50%;padding:7px;\" align=\"justify\">\n
-	<form method=\"POST\" action=\"{URL}\" enctype=\"multipart/form-data\">
-	<input type=\"hidden\" name=\"step\" value=\"{STEP}\" />
-	<table width=\"100%\" height=\"100%\" border=\"0\" cellpadding=\"7\">
-	<tr><td height=\"25\" class=\"title\">{TITLE}</td></tr>
-	<tr><td>
-	{ERRORS}\n
-	{CONTENT}\n
-	</td></tr>
-	<tr><td height=\"20\" align=\"center\">{BUTTONS}</td></tr>
-	</table>
-	</form>
-	</div>
-	<div style=\"position:absolute;bottom:5px;right:5px;font-size:small;\">Eldorado.CMS Installer ver {INST_VER}</div>
-	</body>\n</html>\n";
-
-	var $step = 0;
-	var $lastStep = false;
-	var $title   = '';
-	var $content = '';
-	var $URL = '';
-	var $buttons = '';
-	
-	function elRndInstaller($URL)
-	{
-		$this->URL = $URL; 
-	}
-	
-	function getErrors()
-	{
-		if ( !empty($GLOBALS['elInstErrors']) )
+		$path = preg_replace('|(~[^/]+/)|i', '', $_SERVER['REQUEST_URI']);
+		$path = str_replace('/'.basename(__FILE__), '', $path);
+		if (!$path)
 		{
-			return '<div style="color:red;font-weight:bold">'.implode('<br />', $GLOBALS['elInstErrors']).'</div>';
+			$path = '/';
 		}
-		return '';		
-	}
-	
-	function rnd($title='')
-	{
-		if ($title)
+
+		$ht = "RewriteEngine On                                                                
+		RewriteBase  ".$path."                                                   
+		RewriteRule ^conf\/(.*)\.(sql|xml) index.php [NS,F]    
+		RewriteRule ^combo\.php(.*) combo.php$1 [L]                                
+		RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]                              
+		RewriteRule (.*)\.(php|phtml) index.php [L]                                  
+		RewriteRule ^storage(.*)  storage$1 [L]                                         
+		RewriteRule ^style/(.*) style/$1 [L]                                            
+		RewriteRule ^(.*)\.(jpg|gif|png|swf|ico|html|css|js|xml|gz)(.*) $1.$2$3 [L]     
+
+		RewriteRule (.*) index.php [L]
+		";
+		$err = '';
+		if (false == ($fp = fopen('./.htaccess', 'w')))
 		{
-			$this->title = $title;
+			$err = $this->_tr->translate('Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.');
+			$err .= '<br />'.nl2br($ht);
 		}
-		echo str_replace(array('{TITLE}', '{CONTENT}', '{URL}', '{BUTTONS}', '{STEP}', '{ERRORS}', '{INST_VER}'), 
-										array($this->title, $this->content, $this->URL, $this->getButtons(), $this->step, $this->getErrors(),
-										$GLOBALS['elInstallerVer']), 
-										$this->tplMain );
-	}
-	
-	
-	function rndLangSelectForm()
-	{
-		$this->content .= m('Please, select installation language').': ';
-		$this->content .= '<select name="lang">';
-		foreach ($GLOBALS['elInstLangs'] as $lang=>$name)
+		else {
+			fwrite($fp, $ht);
+			fclose($fp);
+		}
+		if ($fp = fopen('./robots.txt', 'w'))
 		{
-			$sel = $lang == $GLOBALS['elInstLang'] ? ' selected="on"' : '';
- 			$this->content .= '<option value="'.$lang.'"'.$sel.'>'.$name.'</option>';
+			$str = "User-Agent: *
+			Disallow: /*__
+			Disallow: /*.exe
+			Disallow: /*.zip
+			";
+			fwrite($fp, $str);
+			fclose($fp);
 		}
-		$this->content .= '</select>';
-		$this->rnd();
-	}
-	
-	
-	function rndWellcome()
-	{
-		$this->content  = m('Thanks for choosing our web-site content management system Eldorado.CMS.').'<br />';
-		$this->content .= m('Before install Eldorado.CMS You should read this product\'s license text and accept it.');
-		$this->content .= '<input type="hidden" name="accept" value="" />';
-		$this->content .= '<textarea name="licence" style="width:100%" rows="16">';
-		$txt = !empty($GLOBALS['elLicenceTxt'][$GLOBALS['elInstLang']])
-			? $GLOBALS['elLicenceTxt'][$GLOBALS['elInstLang']]
-			: $GLOBALS['elLicenceTxt']['en'];
-		$this->content .= htmlspecialchars( $txt );
-		$this->content .= '</textarea>';
-		$this->buttons .= '<input type="submit" value="&lt;&lt;&nbsp; '.m('Back').'" 
-							onClick="this.form.elements[\'step\'].value='.($this->step-1).';this.form.submit();" />';
-		$this->buttons .= '<input type="submit" value="'.m('Decline').'" />';
-		$this->buttons .= '<input type="submit" value="'.m('Accept').'" 
-							onClick="this.form.elements[\'accept\'].value=1;this.form.submit();" />';
-		$this->rnd();
-	}
-	
-	function rndInstTypeForm($instTypes, $type)
-	{
-		$this->content .= m('Please, select installation type').'<br />';
 		
-		$this->content .= '<ul>';
-		foreach ($instTypes as $ID=>$name)
-		{
-			$sel = $ID == $type ? ' checked="on"' : '';
-			$this->content .= '<input type="radio" name="instType" value="'.$ID.'"'.$sel.' /> '.m($name).'<br />';	
-		}
-		$this->content .= '</ul>';
-		$this->content .= m('For detailed information about installation types appeal to documentation.');
 		
-		$this->rnd();
+		if (!copy($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'index.php', $this->_rootDir.'index.php'))
+		{
+			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complite installation.');
+		}
+		if (!copy($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'combo.php', $this->_rootDir.'combo.php'))
+		{
+			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complite installation.');
+		}
+		$this->_rnd->url = 'http'.(isset($_SERVER['HTTPS']) ? 's' : '').'://'.$_SERVER['SERVER_NAME'].substr($_SERVER['REQUEST_URI'], 0, -strlen(basename(__FILE__)));
+		$this->_rnd->rndComplite($err);
+		session_destroy();
+		$_SESSION = array();
+		
+		@file_get_contents('http://www.eldorado-cms.ru/counter.php');
+		@unlink(__FILE__);
 	}
 	
-	function rndInstCoreForm($instType, $instTypes)
+	/*************************************************************/
+	
+	function _isFilesExists($dir='')
 	{
-		$this->content .= '<b>'.m('Installation type').': '.m($instTypes[$instType]).'</b><p />';
-		if ( $instType<3 )
+		$dir     = $dir ? $dir : $this->_rootDir;
+		$core    = $dir.'core'.DIRECTORY_SEPARATOR;
+		$install = $core.'install'.DIRECTORY_SEPARATOR;
+		$modules = $core.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
+		$dirs = array(
+			$core, 
+			$install, 
+			$modules,
+			$core.DIRECTORY_SEPARATOR.'forms', 
+			$core.DIRECTORY_SEPARATOR.'js', 
+			$core.DIRECTORY_SEPARATOR.'lib',
+			$core.DIRECTORY_SEPARATOR.'locale',
+			$core.'plugins',
+			$core.'services',
+			$modules.'SimplePage',
+			$modules.'Container',
+			$modules.'UsersControl',
+			$modules.'NavigationControl',
+			$modules.'SiteControl'
+			);
+		
+		foreach ($dirs as $d)
 		{
-			$this->content .= m('Please, upload archive file with Eldorado.CMS core. (eldorado.CMS-ver-xxx.tar.gz)').'<br />';
-			$this->content .= '<input type="file" name="coreFile" /><p />';
-			if ( 2 == $instType )
+			if (!is_dir($d))
 			{
-				$this->content .= m('Please, specify directory name in which Eldorado.CMS core will be installed').'<br />';
-				$this->content .= '<input type="text" style="width:100%" name="corePath" />';
+				return false;
+			}
+		}
+		
+		if (!is_file($core.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elCore.class.php')
+		||  !is_file($install.'main.conf.xml') 
+		||  !is_file($install.'install.sql') 
+		||  !is_file($install.'index.php'))
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	function _isInstalled()
+	{
+		if ($this->_isFilesExists()
+		&& is_file($this->_rootDir.'index.php')
+		&& is_file($this->_rootDir.'.htaccess')
+		&& $this->_getDb())
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	function _getConf()
+	{
+		if (include_once $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elXmlConf.class.php')
+		{
+			return new elXmlConf('main.conf.xml', $this->_rootDir.'conf'.DIRECTORY_SEPARATOR, false);
+		}
+	}
+	
+	function _getDb()
+	{
+		if (false != ($conf = $this->_getConf()))
+		{
+			$db = & new elInstallerDb();
+			if ($db->connect($conf->get('host', 'db'), $conf->get('sock', 'db'), $conf->get('user', 'db'), $conf->get('pass', 'db')) && $db->selectDb($conf->get('db', 'db')))
+			{
+				return $db;
+			}
+		}
+	}
+	
+	function _reInstall()
+	{
+		if (isset($_POST['passwd1']) && isset($_POST['passwd2']))
+		{
+			$p1 = trim($_POST['passwd1']);
+			$p2 = trim($_POST['passwd2']);			
+			if (empty($p1) || empty($p2))
+			{
+				return $this->_rnd->rndRootPasswd('Password could not be empty');
+			}
+			if ($p1 != $p2)
+			{
+				return $this->_rnd->rndRootPasswd('Passwords not equal');
+			}
+			$db = $this->_getDb();
+			$res = $db->query('SELECT uid FROM el_user WHERE login="root" AND pass="'.md5($p1).'"');
+			
+			if ($res && $db->nextRecord())
+			{
+				return $this->_install('files');
+			}
+			$_SESSION = array();
+			return $this->_rnd->rndError('Invalid password! Unable to complite installation');
+		}
+		return $this->_rnd->rndRootPasswd();
+	}
+	
+	function _install($src)
+	{
+		$tmpDir = $this->_rootDir.'tmp'.DIRECTORY_SEPARATOR;
+		if ($src == 'files')
+		{
+			if (!$this->_isFilesExists())
+			{
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), 'To install ELDORADO.CMS You have to upload archive');
+			}
+		}
+		elseif ($src == 'upload')
+		{
+			
+			$err = '';
+			if (empty($_FILES['arc']['name']))
+			{
+				$err = 'Please, upload ELDORADO.CMS archive';
+			} 
+			elseif (empty($_FILES['arc']['tmp_name']))
+			{
+				$err = 'Upload file error';
+			} 
+			elseif (!preg_match('/tar\.gz$/i', $_FILES['arc']['name']))
+			{
+				$err = 'Invalid archive type';
+			} 
+			elseif (!move_uploaded_file($_FILES['arc']['tmp_name'], $tmpDir.$_FILES['arc']['name']))
+			{
+				$err = 'Upload file error';
+			}
+			if ($err)
+			{
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), $err);
+			}
+			
+			if (false != ($err = $this->_unpackCore($_FILES['arc']['name'])))
+			{
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), $err);
 			}
 		}
 		else
 		{
-			$this->content .= m('Please, specify directory name where Eldorado.CMS core was installed').'<br />';
-			$this->content .= '<input type="text" style="width:100%" name="corePath" />';
+			$file = false;
+			$found = elFS::find($this->_rootDir, '/.+\.tar\.gz$/i', false);
+			foreach ($found as $f)
+			{
+				if ($src == basename($f))
+				{
+					$file = $f;
+					break;
+				}
+			}
+			if (!$file)
+			{
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), 'Selected archive does not exists');
+			}
+			if (!elFS::copy($file, $tmpDir))
+			{
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), 'Unable unpack archive');
+			}
+			if (false != ($err = $this->_unpackCore($src)))
+			{
+				elFS::move($src, $this->_rootDir);
+				return $this->_rnd->rndInstallSelect($this->_installVariants(), $err);
+			}
 		}
-		$this->rnd();
-	}
-	
-	function rndConfigure($langs)
-	{
-		$this->content .= '<table width="100%" border="0" cellpadding="1">';
-		$this->content .= '<tr><td colspan="2" class="subhead">'.m('MySQL data base parameters').'</td></tr>';
-		$this->content .= '<tr><td>'.m('Db host').'*:</td>';
-		$this->content .= '<td><input type="text" name="host" value="localhost" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Db socket').':</td>';
-		$this->content .= '<td><input type="text" name="sock" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Db user name').'*:</td>';
-		$this->content .= '<td><input type="text" name="user" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Db user password').'*:</td>';
-		$this->content .= '<td><input type="text" name="pass" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Db name').'*:</td>';
-		$this->content .= '<td><input type="text" name="name" /></td></tr>';
-		
-		$this->content .= '<tr><td colspan="2" class="subhead">'.m('Site interface language').'</td></tr>';
-		$this->content .= '<tr><td>'.m('Interface language').':</td>';
-		$this->content .= '<td><select name="lang">';
-		foreach ($langs as $l => $name)
-		{
-			$sel = $l == $GLOBALS['elInstLang'] ? ' selected="on"' : '';
-			$this->content .= '<option value="'.$l.'"'.$sel.'>'.$name.'</option>';
-		}
-		$this->content .= '</select></td></tr>';
 
-		$this->content .= '<tr><td colspan="2" class="subhead">'.m('Other parameters').'</td></tr>';
-		$this->content .= '<tr><td>'.m('Site name').'*:</td>';
-		$this->content .= '<td><input type="text" name="siteName" /></td></tr>';
-		$this->content .= '</table>';
-		$this->rnd();
-	}
-	
-	function rndStyleForm($stylesList)
-	{
-		$this->content .= m('You should upload design templates archive from distr (eldorado-style-xxx.tar.gz) or select one from styles list available in core.');
-		$this->content .= "<p>".m('For more information about design templates usage, please, read documentation')."</p>\n";
-		$this->content .= '<table align="center">';
-		$this->content .= '<tr><td>'.m('Upload archive').':</td>';
-		$this->content .= '<td><input type="file" name="styleFile" /></td></tr>';
-		$this->content .= '<tr><td> '.m('Or select style from list').': </td>';
-		$this->content .= "<td><select name=\"style\">\n";
-		foreach ($stylesList as $style=>$name)
+		if (!elFS::mkdir($this->_rootDir.'conf')
+		||  !elFS::mkdir($this->_rootDir.'storage'))
 		{
-			$this->content .= '<option value="'.$style.'">'.$name.'</option>'."\n";
+			return $this->_rnd->rndError('Unable to create directories!<br />Unable to complite installation!');
 		}
-		$this->content .= "</sellect>\n</td></tr></table>\n";
-		$this->rnd();
-	}
-	
-	function rndPasswdForm()
-	{
-		$this->content .= m('Main site administrator has login "root". On this step You should set password and Master Password for user root')."\n";
-		$this->content .= '<p>'.m('Password may contains only latin alfanum chars, digits or underscore and dash symbols and must be from 4 till 20 chars.').'</p>';
-		$this->content .= "<p>".m('For more information about master password, please, read documentation')."</p>\n";
-		$this->content .= '<table align="center">';
-		$this->content .= '<tr><td colspan="2" class="subhead">'.m('Enter password for user root').'</td></tr>';
-		$this->content .= '<tr><td>'.m('Password').'*: </td><td><input type="password" name="p1" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Password confirm').'*: </td><td><input type="password" name="p2" /></td></tr>';
-		$this->content .= '<tr><td colspan="2" class="subhead">'.m('Enter Master Password for user root').'</td></tr>';
-		$this->content .= '<tr><td>'.m('Master Password').'*: </td><td><input type="password" name="mp1" /></td></tr>';
-		$this->content .= '<tr><td>'.m('Master Password confirm').'*: </td><td><input type="password" name="mp2" /></td></tr>';
-		$this->content .= '</table>';
-		$this->rnd();
-	}
-	
-	function rndFinish()
-	{
-		$this->rnd();
-	}
-	
-	function getButtons()
-	{
-		if ( $this->buttons )
+		$warn = '';
+		if (!elFS::mkdir($this->_rootDir.'backup'))
 		{
-			return $this->buttons;
+			$warn .= 'backup';
 		}
-		$this->buttons  = '<div style="text-align:center;margin-top:15px;">';
-		if ($this->step>0)
+		if (!elFS::mkdir($this->_rootDir.'cache'))
 		{
-			$this->buttons .= '<input type="submit" value="&lt;&lt;&nbsp; '.m('Back').'" 
-												onClick="this.form.elements[\'step\'].value='.($this->step-1).';this.form.submit();" />';
+			$warn .= ' cache';
 		}
-		if ( $this->lastStep )
+		if (!elFS::mkdir($this->_rootDir.'log'))
 		{
-			$this->buttons .= '<input type="hidden" name="finish" value="1" />';
-			$this->buttons .= '<input type="submit" value="'.m('Finish').'" />';
+			$warn .= ' log';
+		}
+		
+		$installDir = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
+		if (!@copy($installDir.'main.conf.xml', $this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml'))
+		{
+			return $this->_rnd->rndError('Unable to copy config file!<br />Unable to complite installation!');
+		}
+		if (!is_writable($this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml') && !@chmod($this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml', 0666))
+		{
+			return $this->_rnd->rndError('Unable to set write permissions for config file!<br />Unable to complite installation!');
+		}
+		
+		if ($warn)
+		{
+			$_SESSION['warn'] = $warn;
+		}
+		$_SESSION['step'] = 'db';
+		header('Location: '.$_SERVER['REQUEST_URI']);
+		
+	}
+	
+	function _unpackCore($file)
+	{
+
+		$tmpDir = $this->_rootDir.'tmp'.DIRECTORY_SEPARATOR;
+		$cwd = getcwd();
+		chdir($tmpDir);
+		exec('tar xzf '.escapeshellarg('./'.$file), $o, $c);
+		chdir($cwd);
+		if ($c>0)
+		{
+			elFS::rmdir($tmpDir);
+			return 'Unable unpack archive';
+		}
+		if (!$this->_isFilesExists($tmpDir))
+		{
+			elFS::rmdir($tmpDir);
+			return 'Archive does not contains required files';
+		}
+		
+		is_dir($this->_rootDir.'core') && elFS::rmDir($this->_rootDir.'core');
+		
+		if (!elFS::move($tmpDir.'core', $this->_rootDir))
+		{
+			elFS::rmdir($tmpDir);
+			return 'Unable to copy "core" directories!<br />Unable to complite installation!';
+		}
+		
+		if (is_dir($this->_rootDir.'style'))
+		{
+			elFS::rmDir($this->_rootDir.'style');
+		} 
+		elseif (is_link($this->_rootDir.'style'))
+		{
+			@unlink($this->_rootDir.'style');
+		}
+		if (is_dir($tmpDir.'style'))
+		{
+			elFS::move($tmpDir.'style', $this->_rootDir);
+			$this->_copyIcons();
+		}
+		
+		@unlink($tmpDir.$file);
+	}
+	
+	
+	function _setStyle($style)
+	{
+		$style = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$style;
+		if (is_dir($style))
+		{
+			if (!symlink($style, 'style'))
+			{
+				if (!elFS::copy($style, $this->_rootDir))
+				{
+					return false;
+				}
+			}
+			$this->_copyIcons();
+			return true;
+			
+		}
+	}
+	
+	function _copyIcons()
+	{
+		elFS::copy($this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'pageIcons', $this->_rootDir.'storage');
+		elFS::copy($this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'forum'.DIRECTORY_SEPARATOR.'avatars',   $this->_rootDir.'storage');
+	}
+	
+}
+
+class elInstallerRnd {
+
+	var $url = '';
+	
+	function elInstallerRnd($lang, &$tr)
+	{
+		$this->lang = $lang;
+		$this->tr = & $tr;
+	}
+
+
+	function rndSelectLanguage($langs)
+	{
+		$content = '<fieldset><legend>'.$this->tr->translate('Select instalation language').'</legend>';
+		$content .= '<select name="lang">';
+		foreach ($langs as $k=>$v)
+		{
+			$content .= '<option value="'.$k.'"'.($k == $this->lang ? ' selected="on"' : '').'>'.$v.'</option>';
+		}
+		$content .= '</select></fieldset>';
+		$this->_rnd($content, '', false);
+	}
+	
+	function rndLicense()
+	{
+		$content = "<p>".$this->tr->translate('Thanks for choosing ELDORADO.CMS!<br />Before install, please, read license.')."</p>";
+		$content .= '<textarea name="license">'.$this->tr->license().'</textarea>';
+		$content .= '<label class="chk"><input type="radio" name="accept" value="0" /> '.$this->tr->translate('Not accept').'</label>';
+		$content .= '<label class="chk"><input type="radio" name="accept" value="1" /> '.$this->tr->translate('Accept').'</label>';
+		
+		
+		$this->_rnd('', $content);
+	}
+	
+	function rndError($err)
+	{
+		$_SESSION = array();
+		$content = '<p class="err">'.$this->tr->translate($err).'</p>';
+		$this->_rnd('', $content);
+	}
+	
+	function rndRootPasswd($err='')
+	{
+		$content = '<p>'.$this->tr->translate('Installed copy of ELDORADO.CMS was detected!<br />If You continue, all existed data will be lost!<br />To continue enter site administrator password!').'</p>';
+		if ($err)
+		{
+			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
+		}
+		$content .= '<p><label>'.$this->tr->translate('Password').'</label><input type="password" name="passwd1" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Repeat').'</label><input type="password" name="passwd2" /></p>';
+		$this->_rnd('', $content);
+	}
+	
+	function rndInstallSelect($variants, $err=null)
+	{
+		$content = '';
+		if ($variants)
+		{
+			$content .= '<p>'.$this->tr->translate('To install ELDORADO.CMS select installation source').'</p>';
+			$content .= '<p><label>'.$this->tr->translate('Install from').'</label>';
+			$js       = "document.getElementById('upload').style.display=this.value == 'upload' ? 'block' : 'none' ";
+			$content .= '<select name="src" onchange="'.$js.'">';
+			foreach ($variants as $k=>$v)
+			{
+				$content .= '<option value="'.$k.'">'.$v.'</option>';
+			}
+			$content .= '</select></p>';
+
+		}
+		else 
+		{
+			$content .= '<p>'.$this->tr->translate('To install ELDORADO.CMS You have to upload archive').'</p>';
+			$content .= '<input type="hidden" name="src" value="upload" />';
+		}
+		$content .= '<p id="upload" '.($variants ? 'style="display:none"' : '').'><label>'.$this->tr->translate('Select file').'</label><input type="file" name="arc" /></p>';
+		$this->_rnd($content, $err);
+	}
+	
+	
+	function rndDbConf($err)
+	{
+		$content = '<p>'.$this->tr->translate('Enter MySQL Db connection data').'</p>';
+		if ($err)
+		{
+			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
+		}
+		$content .= '<p><label>'.$this->tr->translate('Host').'</label><input type="text" name="host" value="'.(isset($_POST['host']) ? $_POST['host'] : 'localhost').'" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Socket').'</label><input type="text" name="sock" value="'.(isset($_POST['sock']) ? $_POST['sock'] : '').'" /></p>';			
+		$content .= '<p><label>'.$this->tr->translate('User').'</label><input type="text" name="user" value="'.(isset($_POST['user']) ? $_POST['user'] : '').'" /></p>';						
+		$content .= '<p><label>'.$this->tr->translate('Password').'</label><input type="password" name="passwd" value="'.(isset($_POST['passwd']) ? $_POST['passwd'] : '').'" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Db name').'</label><input type="text" name="db" value="'.(isset($_POST['db']) ? $_POST['db'] : '').'" /></p>';
+		$this->_rnd('', $content);
+	}
+	
+	function rndUserPassword($err='')
+	{
+		$content = '<p>'.$this->tr->translate('Main administrator in ELDORADO.CMS has login "root".<br /> Please, enter new password and e-mail for user "root".').'</p>';
+		if ($err)
+		{
+			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
+		}
+		$content .= '<p><label>'.$this->tr->translate('Password').'</label><input type="password" name="passwd1" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Repeat').'</label><input type="password" name="passwd2" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('E-mail').'</label><input type="text" name="email" value="'.(isset($_POST['email']) ? trim($_POST['email']) : '').'" /></p>';
+		$this->_rnd('', $content);
+	}
+	
+	function rndStyleSelect($styles, $err='')
+	{
+		$content = '<input type="hidden" name="style_select" value="1" />';
+		if ($err)
+		{
+			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
+		}
+		if (sizeof($styles)==1)
+		{
+			$content .= '<p>'.$this->tr->translate('You use default site design or upload You own (archive with "style" directory).').'</p>';
 		}
 		else
 		{
-			$this->buttons .= '<input type="submit" value="'.m('Continue').' &gt;&gt;" />';
+			$content .= '<p>'.$this->tr->translate('You may select one of existed site designs or upload You own (archive with "style" directory).').'</p>';
+			$sel = '<select name="style">';
+			foreach ($styles as $s)
+			{
+				$sel .= '<option value="'.$s.'">'.$s.'</option>';
+			}
+			$sel .= '</select>';
+			$content .= '<p><label>'.$this->tr->translate('Select style').'</label> '.$sel.'</p>';
 		}
-		$this->buttons .= '</div>';
-		return $this->buttons;
+		
+		$content .= '<p><label>'.$this->tr->translate('Upload style').'</label><input type="file" name="upl_style" /></p>';
+		return $this->_rnd('', $content);
 	}
+	
+	
+	function rndMiscConf()
+	{
+		$content = '<input type="hidden" name="misc" value="1" />';
+		$content .= '<p>'.$this->tr->translate('Here You may enter common information about site.<br /> But, also, You may do it later on site.').'</p>';
+		$content .= '<p><label>'.$this->tr->translate('Site name').'</label> <input type="text" name="site_name" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Contact information').'</label> <input type="text" name="contacts" /></p>';
+		$content .= '<p><label>'.$this->tr->translate('Phone number').'</label> <input type="text" name="phone" /></p>';
+		$content .= '<p><label>E-mail</label> <input type="text" name="email" /></p>';
+		return $this->_rnd('', $content);
+	}
+	
+	function rndComplite($err)
+	{
+		$content = '';
+		if ($err)
+		{
+			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
+		}
+		$content .= '<p>'.$this->tr->translate('ELDORADO.CMS was succesfully instaled!<br /> Press "Ok" to go to You new site.').'</p>';
+		return $this->_rnd('', $content, false);
+	}
+	
+	function _rnd($content, $err='', $cancel=true)
+	{
+		if ($err)
+		{
+			$content = '<p class="err">'.$this->tr->translate($err).'</p>'.$content;
+		}
+		$cancelMsg = $this->tr->translate('Do You really interrupt installation?');
+		$cancel = $cancel 
+			? "<input type='submit' value='Cancel' onclick=\"if (confirm('".$cancelMsg."')) { document.getElementById('cancel_install').value =1; return true; } return false;\" />" 
+			: '';
+		
+		$from = array('{title}', '{content}', '{url}', '{cancel}');
+		$to   = array($this->tr->translate('ELDORADO.CMS installation'), $content, $this->url, $cancel);
+		$tpl  = str_replace($from, $to, $this->_tpl);
+		if ( !headers_sent()  )
+		{
+			header('Content-type: text/html; charset=utf-8');
+		}
+		echo $tpl;
+	}
+	
+	
+	var $_tpl = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">
+		<html>
+		<head>
+			<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
+			<title>{title}</title>
+			<style type=\"text/css\" media=\"screen\">
+				body { 
+					background-color: #eee; 
+
+				}
+				body * {
+					font:.9em Verdana, Tahoma, Geneva, Helvetica, sans-serif;
+				}
+				textarea { width: 100%; height:120px;  }
+				input, textarea { border:1px solid #ccc;  }
+				input, textarea, select { font-size:1em }
+				label.chk { display: block; padding: 1px}
+				p label { width: 150px; display:inline-block}
+				p input, p select { width: 270px; }
+				#main { 
+					width: 450px; 
+					border:1px solid #ccc; 
+					border-bottom:2px solid #ccc;
+					border-right:2px solid #ccc;
+					margin:120px auto; 
+					border-radius:9px;
+					-moz-border-radius:9px;
+					-webkit-border-radius:9px;
+					padding: 25px 9px 9px;
+					background: #fff url(./core/logo2.png) 10px 10px no-repeat;
+					
+					position:relative;
+				}
+				#label {
+					position:absolute;
+					top : -12px;
+					left : 19px;
+					
+					font-weight:bold;
+					line-height:22px;
+					padding:3px 12px;
+					background-color: #eee;
+					border:1px solid #ccc; 
+					border-radius:5px;
+					-moz-border-radius:5px;
+					-webkit-border-radius:5px;
+
+				}
+				#submit {
+					border-top: 1px solid #ccc;
+					margin-top:12px;
+					padding:7px 3px;
+					text-align:right;
+				}
+				#submit input {
+					background:#eee;
+					border:1px solid #ccc; 
+					border-radius:5px;
+					-moz-border-radius:5px;
+					-webkit-border-radius:5px;
+					padding:3px 7px
+				}
+				fieldset {
+					border:1px solid #ccc; 
+					border-radius:5px;
+					-moz-border-radius:5px;
+					-webkit-border-radius:5px;	
+				}
+				legend {
+					padding:3px 9px;
+					border-radius:3px;
+					-moz-border-radius:3px;
+					-webkit-border-radius:3px;
+					
+				}
+				.err { color: red}
+				
+			</style>
+		</head>
+		<body>
+		<form method=\"POST\" enctype=\"multipart/form-data\" action=\"{url}\">
+		<input type='hidden' name='cancel_install' id='cancel_install' value='0' />
+		<div id='main'>
+			<div id='label'>{title}</div>
+			{content}
+			<div id='submit'>
+				
+				<input type='submit' value='OK' />
+				{cancel}
+			</div>
+		</div>
+		</form>
+		</body>
+		</html>
+		";
+
+	var $lang = 'en';
+	var $tr = null;
+	
+	
+}
+
+class elInstallerTranslator {
+	var $lang = 'en';
+	
+	
+	
+	function elInstallerTranslator($lang)
+	{
+		$this->lang = $lang;
+		$this->_license['ua'] = $this->_license['en'] = $this->_license['ru'];
+	}
+	
+	function translate($msg)
+	{
+		return !empty($this->msgs[$this->lang][$msg]) ? $this->msgs[$this->lang][$msg] : $msg;
+	}
+	
+	function formatTranslate($msg, $args)
+	{
+		return vsprintf($this->translate($msg), $args);
+	}
+	
+	function license()
+	{
+		return $this->_license[$this->lang];
+	}
+	
+	var $msgs = array(
+		'ru' => array(
+			'ELDORADO.CMS installation' => 'Установка ELDORADO.CMS',
+			'Select instalation language' => 'Выберите язык установки',
+			'Thanks for choosing ELDORADO.CMS!<br />Before install, please, read license.' => 'Спасибо, что выбрали ELDORADO.CMS!<br />Перед установкой, пожалуйста, ознакомьтесь с условиями лицензионного соглашения',
+			'Not accept' => 'Не принимаю',
+			'Accept'     => 'Принимаю',
+			'License was not accepted!<br />Unable to complite installation!' => 'Вы не приняли условия лицензионного соглашения! <br />Установка прервана!',
+			'To install ELDORADO.CMS select installation source' => 'Укажите, из какого источника установить ELDORADO.CMS.',
+			'To install ELDORADO.CMS You have to upload archive' => 'Чтобы установить ELDORADO.CMS необходимо загрузить архив с системой на сервер.',
+			'Install from' => 'Установить из',
+			'Archive' => 'Архива',
+			'Files on server' => 'Файлов на сервере',
+			'Upload archive' => 'Загрузить архив',
+			'Select file' => 'Выбрать файл',
+			'Upload file error' => 'Ошибка загрузки файла',
+			'Password could not be empty' => 'Поле "Пароль" должно быть заполнено',
+			'Enter MySQL Db connection data' => 'Введите данные для доступа к MySQL базе',
+			'Host, User or Db name could not be empty.' => 'Поля "Хост", "Логин" и "Имя базы данных" должны быть заполнены',
+			'Unable to connect to MySQL server!<br />Check entered data.' => 'Не удалось соединиться с MySQL сервером! <br /> Проверьте введенные данные.',
+			'Unable to create data base! Check data base user permissions.' => 'Не удается создать базу данных! Проверить права пользователя базы данных.',
+			'Unable to connect to data base!<br />Check entered data.' => 'Не удается подключиться к базе данных! <br /> Проверьте введенные данные.',
+			'Unable to include required file! Check installation archive!<br />Unable to complite installation.' => 'Не удается подключить нужный файл! Проверьте установочный архив! <br /> Невозможно завершить установку.',
+			'Unable to connect to DB server' => 'Не удается подключиться к серверу БД',
+			'Does not connected to DB server' => 'Нет соединения с сервером БД',
+			'SQL query failed' => 'Ошибка SQL запросов',
+			
+			'Archive does not contains required files' => 'Архив не содержит необходимых файлов',
+			'Unable unpack archive' => 'Невозможно распаковать архив',
+			'Unable to set write permissions for config file!<br />Unable to complite installation!' => 'Не удается установить права на запись для файла конфигурации <br /> Невозможно завершить установку',
+			'Unable to copy config file!<br />Unable to complite installation!' => 'Не удается скопировать файл конфигурации! <br /> Невозможно завершить установку!',
+			'Unable to create directories!<br />Unable to complite installation!' => 'Не удается создать папки! <br /> Невозможно завершить установку!',
+			'Selected archive does not exists' => 'Выбранный архив не существует',
+			'Please, upload ELDORADO.CMS archive' => 'Пожалуйста, загрузите архив с ELDORADO.CMS',
+			'Invalid password! Unable to complite installation' => 'Неправильный пароль! Невозможно завершить установку!',
+			'Passwords not equal' => 'Пароли не совпадают',
+			'Password could not be empty' => 'Поле "Пароль" не может быть пустым',
+			'Unable to copy "index.php" file! <br />Unable to complite installation.' => 'Невозможно скопировать "файл index.php"! <br /> Невозможно завершить установку!',
+			'Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.' => 'Не удается записать .htaccess файл! <br /> Запишите следующие строки в .htaccess файл',
+			'Unable to set site style! Unable to complite installation.' => 'Не удается установить стили для сайта! Невозможно завершить установку!',
+			'Unable to move "style" directory.' => 'Не удается переместить папку "style".',
+			'Archive does not contains "style" directory.' => 'Архив не содержит папку "style"',
+			'Unable to create user! Unable to complite install.' => 'Невозможно создать пользователя! Невозможно завершить установку!',
+			'Unable connect to data base!' => 'Не удается подключиться к базе данных!',
+			'Password should contains not less then 6 alfanumeric and/or punctuation sybmbols' => 'Пароль должен содержать не менее 6 символов',
+			'Passwords not equal!' => 'Пароли не совпадают',
+			'Password could not be empty!' => 'Поле "Пароль" не может быть пустым',
+			'Unable to insert data into data base!<br />Unable to complite installation.' => 'Не удается вставить данные в базу данных! <br /> Невозможно завершить установку.',
+			'Main administrator in ELDORADO.CMS has login "root".<br /> Please, enter new password and e-mail for user "root".' => 'Логин главного администратора сайта - "root"<br/> Пожалуйста, введите для него пароль и e-mail адрес.',
+			'ELDORADO.CMS was succesfully instaled!<br /> Press "Ok" to go to You new site.' => 'Поздравляем! ELDORADO.CMS успешно установлена <br /> нажмите "ОК", чтобы перейди на сайт.',
+			'Do You really interrupt installation?' => 'Вы действительно хотите прервать установку?',
+			'Here You may enter common information about site.<br /> But, also, You may do it later on site.' => 'Здесь вы можете ввести общую информацию о сайте. <br /> Также доступно через "Контрольный центр" - "Настройки сайта"',
+			'Upload style' => 'Загрузить стиль',
+			'Select style' => 'Выбрать стиль',
+			'Site name' => 'Имя сайта',
+			'Contact information' => 'Контактная информация',
+			'Phone number' => 'Номер телефона',
+			'You may select one of existed site designs or upload You own (archive with "style" directory).' => 'Вы можете выбрать один из существовавших дизайна сайта или загрузить свой.',
+			'You use default site design or upload You own (archive with "style" directory).' => 'Вы можете использовать дизайн сайта по умолчанию или загрузить свой',
+			'Repeat' => 'Еще раз',
+			'Password' => 'Пароль',
+			'Db name' => 'Имя базы данных',
+			'User' => 'Логин',
+			'Host' => 'Хост',
+			'Socket' => 'Сокет',
+			'Installed copy of ELDORADO.CMS was detected!<br />If You continue, all existed data will be lost!<br />To continue enter site administrator password!' => 'Найдена установленная копия ELDORADO.CMS! <br /> Если вы продолжите установку, все существовали данные будут потеряны! <br /> Чтобы продолжить введите пароль администратора сайта!',
+			'Unable to save config file!<br />Unable to complite installation.' => 'Не удается сохранить файл конфигурации! <br /> Невозможно завершить установку!',
+			'Unable to switch to required DB' => 'Не удаеться подключиться к БД',
+			'Unable to copy %s to %s' => 'Не удается скопировать %s в %s',
+			'File %s has no write permissions' => 'Файл %s не имеет прав на запись',
+			'Unable to find tar and gzip command! This need to unpack archive. To install ELDORADO.CMS, upload files usinf FTP/SSH. <br />Instalation interrupted.' => 'Невозможно найти TAR и GZIP команду! Это необходимо для распаковки архива. Чтобы установить ELDORADO.CMS, закачайте распакованные файлы системы на сервер через FTP / SSH. <br /> Инсталляция прервана.',
+			'Invalid archive type' => 'Неправильный тип архива'
+			),
+		'ua' => array(
+			'ELDORADO.CMS installation' => 'Установка ELDORADO.CMS',
+			'Select instalation language' => 'Виберіть мову установки',
+			'Thanks for choosing ELDORADO.CMS!<br />Before install, please, read license.' => 'Дякуємо, що обрали ELDORADO.CMS! <br /> Перед установкою, будь ласка, ознайомтеся з умовами ліцензійної угоди',
+			'Not accept' => 'Не приймаю',
+			'Accept'     => 'Приймаю',
+			'License was not accepted!<br />Unable to complite installation!' => 'Ви не погодилися з умовами ліцензійної угоди! <br />Установка перервана!',
+			'To install ELDORADO.CMS select installation source' => 'Вкажіть, з якого джерела встановити ELDORADO.CMS.',
+			'To install ELDORADO.CMS You have to upload archive' => 'Щоб встановити ELDORADO.CMS необхідно завантажити архів з системою на сервер.',
+			'Install from' => 'Встановити з',
+			'Archive' => 'Архіву',
+			'Files on server' => 'Файли на сервері',
+			'Upload archive' => 'Завантажити архів',
+			'Select file' => 'Вибрати файл',
+			'Upload file error' => 'Помилка завантаження файлу',
+			'Password could not be empty' => 'Поле "Пароль" має бути заповнено',
+			'Enter MySQL Db connection data' => 'Введіть дані для доступу до MySQL базі',
+			'Host, User or Db name could not be empty.' => 'Поля "Хост", "Логін" і "Ім&rsquo;я бази даних" повинні бути заповнені',
+			'Unable to connect to MySQL server!<br />Check entered data.' => 'Не вдалося з&rsquo;єднатися з сервером MySQL! <br /> Перевірте введені дані.',
+			'Unable to create data base! Check data base user permissions.' => 'Не вдається створити базу даних! Перевірити права користувача бази даних.',
+			'Unable to connect to data base!<br />Check entered data.' => 'Не вдається підключитися до бази даних! <br /> Перевірте введені дані.',
+			'Unable to include required file! Check installation archive!<br />Unable to complite installation.' => 'Не вдається підключити потрібний файл! Перевірте установочний архів! <br /> Неможливо завершити установку.',
+			'Unable to connect to DB server' => 'Не вдається підключитися до сервера БД',
+			'Does not connected to DB server' => 'Немає з&rsquo;єднання з сервером БД',
+			'SQL query failed' => 'Помилка SQL запитів',
+			'Site directory has no write permissions!<br />Unable to complite installation!' => 'Папка захищена від запису! <br />Продовжити встановлення неможливо. Виправте будь ласка.',
+			'Archive does not contains required files' => 'Архів не містить необхідних файлів',
+			'Unable unpack archive' => 'Неможливо розпакувати архів',
+			'Unable to set write permissions for config file!<br />Unable to complite installation!' => 'Не вдається встановити права на запис для файлу конфігурації <br /> Неможливо завершити установку',
+			'Unable to copy config file!<br />Unable to complite installation!' => 'Не вдається скопіювати файл конфігурації! <br /> Неможливо завершити установку!',
+			'Unable to create directories!<br />Unable to complite installation!' => 'Не вдається створити папки! <br /> Неможливо завершити установку!',
+			'Selected archive does not exists' => 'Обраний архів не існує',
+			'Please, upload ELDORADO.CMS archive' => 'Будь ласка, завантажте архів з ELDORADO.CMS',
+			'Invalid password! Unable to complite installation' => 'Неправильний пароль! Неможливо завершити установку!',
+			'Passwords not equal' => 'Паролі не збігаються',
+			'Password could not be empty' => 'Поле "Пароль" не може бути порожнім',
+			'Unable to copy "index.php" file! <br />Unable to complite installation.' => 'Неможливо скопіювати "файл index.php"! <br /> Неможливо завершити установку!',
+			'Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.' => 'Не вдається записати. Htaccess файл! <br /> Запишіть наступні рядки в .htaccess файл',
+			'Unable to set site style! Unable to complite installation.' => 'Не вдається встановити стилі для сайту! Неможливо завершити установку!',
+			'Unable to move "style" directory.' => 'Не вдається перемістити папку "style".',
+			'Archive does not contains "style" directory.' => 'Архів не містить папку "style"',
+			'Unable to create user! Unable to complite install.' => 'Неможливо створити користувача! Неможливо завершити установку!',
+			'Unable connect to data base!' => 'Не вдається підключитися до бази даних!',
+			'Password should contains not less then 6 alfanumeric and/or punctuation sybmbols' => 'Пароль повинен містити не менше 6 символів',
+			'Passwords not equal!' => 'Паролі не збігаються',
+			'Password could not be empty!' => 'Паролі не збігаються',
+			'Unable to insert data into data base!<br />Unable to complite installation.' => 'Не вдається вставити дані в базу даних! <br /> Неможливо завершити установку.',
+			'Main administrator in ELDORADO.CMS has login "root".<br /> Please, enter new password and e-mail for user "root".' => 'Логін головного адміністратора сайту - "root" <br/> Будь ласка, введіть для нього пароль та e-mail адресу.',
+			'ELDORADO.CMS was succesfully instaled!<br /> Press "Ok" to go to You new site.' => 'Вітаємо! ELDORADO.CMS успішно встановлено <br /> натисніть "ОК", щоб перейди на сайт.',
+			'Do You really interrupt installation?' => 'Ви дійсно хочете перервати встановлення?',
+			'Here You may enter common information about site.<br /> But, also, You may do it later on site.' => 'Тут ви можете ввести загальну інформацію про сайт. <br /> Також доступне через "Контрольний центр" - "Установки сайту"',
+			'Upload style' => 'Завантажити стиль',
+			'Select style' => 'Вибрати стиль',
+			'Site name' => 'Ім&rsquo;я сайту',
+			'Contact information' => 'Контактна інформація',
+			'Phone number' => 'Номер телефону',
+			'You may select one of existed site designs or upload You own (archive with "style" directory).' => 'Ви можете вибрати один з існуючих дизайну сайту або завантажити свій.',
+			'You use default site design or upload You own (archive with "style" directory).' => 'Ви можете використати дизайн сайту за умовчанням або завантажити свій',
+			'Repeat' => 'Ще раз',
+			'Password' => 'Пароль',
+			'Db name' => 'Ім&rsquo;я бази даних',
+			'User' => 'Логін',
+			'Host' => 'Хост',
+			'Socket' => 'Сокет',
+			'Installed copy of ELDORADO.CMS was detected!<br />If You continue, all existed data will be lost!<br />To continue enter site administrator password!' => 'Знайдена встановлена копія ELDORADO.CMS! <br /> Якщо ви продовжите, всі існували дані будуть втрачені! <br /> Щоб продовжити введіть пароль адміністратора сайту!',
+			'Unable to save config file!<br />Unable to complite installation.' => 'Не вдається зберегти файл конфігурації! <br /> Неможливо завершити установку!',
+			'Unable to switch to required DB' => 'Не вдається підключитися до БД',
+			'Unable to copy %s to %s' => 'Не вдається скопіювати %s в %s',
+			'File %s has no write permissions' => 'не має прав на запис',
+			'Unable to find tar and gzip command! This need to unpack archive. To install ELDORADO.CMS, upload files usinf FTP/SSH. <br />Instalation interrupted.' => 'Неможливо знайти TAR і GZIP команду! Це необхідно розпакувати архів. Щоб встановити ELDORADO.CMS, закачувати файли через FTP / SSH. <br /> Інсталяція перервана.',
+			'Invalid archive type' => 'Неправильний тип архіву'
+			)
+		);
+	
+	
+	var $_license = array(
+		'ru' => "Лицензионное соглашение на использование системы управления сайтом ELDORADO.CMS
+
+	Прочтите внимательно нижеизложенное, прежде чем устанавливать, копировать или иным образом использовать приобретенный продукт 'Система управления ELDORADO.CMS'. Любое использование Вами приобретенного продукта, в том числе его установка и копирование, означает Ваше согласие с условиями приведенного ниже Лицензионного соглашения.
+
+	Настоящее лицензионное соглашение (далее Соглашение) является юридическим документом, заключаемым между Вами, конечным пользователем (физическим или юридическим лицом) (далее Пользователь), и  ООО «Студия 42» (далее Студия) относительно программного продукта «Система управления ELDORADO.CMS» (далее Система или Программное обеспечение).
+
+	Если Вы не согласны с условиями настоящего лицензионного соглашения, вы не имеете права использовать данную Программу. 
+
+
+	Лицензионное соглашение вступает в силу с момента приобретения или установки продукта и действует на протяжении всего срока использования продукта. 
+
+	1. ПРЕДМЕТ ЛИЦЕНЗИОННОГО СОГЛАШЕНИЯ И УСЛОВИЯ ИСПОЛЬЗОВАНИЯ
+
+	•	Предметом настоящего лицензионного соглашения является право использования одной копии системы управления ELDORADO.CMS.
+
+	•	В рамках одной копии системы управления пользователю разрешается создавать неограниченное, число сайтов на различных языках в рамках одного проекта или домена. 
+
+	•	Вы обязуетесь не распространять Систему управления ELDORADO.CMS. Под распространением Программного обеспечения понимается тиражирование или предоставление доступа третьим лицам к воспроизведенным в любой форме компонентам Системы, в том числе сетевыми и иными способами, а также путем их продажи, проката, сдачи внаем или предоставления взаймы. Тиражированием не считается изготовление одной или нескольких резервных копий базы данных программы в целях обеспечения безопасности или архивации.
+
+	•	Конечный пользователь имеет право вносить любые изменения в код системы, добавлять и удалять файлы. Кроме изменения или удаления любой информации об авторских правах.
+
+	•	Запрещается использование системы управления в любых случаях, которые, нарушают законодательство РФ.
+
+	•	Данное соглашение распространяется на все версии и компоненты системы управления ELDORADO.CMS, а так же обновления предоставляемые Пользователю, в период гарантийного обслуживания.
+
+
+
+	2. АВТОРСКИЕ И ИМУЩЕСТВЕННЫЕ ПРАВА
+
+
+	•	Все авторские и имущественные права на данную Систему управления принадлежат исключительно авторам Системы. Права на продажу и тиражирование системы принадлежат ООО «Студия 42». Вам, конечному Пользователю, предоставляется неисключительное право, т.е. именная, непередаваемая и неисключительная Лицензия на использование Программы в указанных в документации целях и при соблюдении приведенных ниже условий. Лицензия предоставляется Вам, только Вам и никому больше, если на то нет письменного согласия Студии. 
+
+	•	Все права интеллектуальной собственности на информационное содержание, которое не является частью программы, но, доступ к которому предоставляет программа, принадлежат владельцам прав на это содержание и защищены законами об авторском праве и другими законами и международными соглашениями о правах на интеллектуальную собственность.
+
+
+	3. ГАРАНТИЙНЫЕ ОБЯЗАТЕЛЬСТВА
+
+	•	Студия обслуживает работоспособность Системы в течение 12 (двенадцати) месяцев со дня ее покупки при условии, что она используется с аппаратными средствами, операционными системами и серверами баз данных, для которых она была разработана, и в полном соответствии с Руководством по эксплуатации. 
+
+	•	В течении срока гарантийного  обслуживания Студия предоставляет:
+
+	o	Бесплатные обновление системы.
+	o	Консультации пользователя по телефону или электронной почте в рабочее время с 9 до 18 часов по Московскому времени.
+	o	Проведение консультационно-обучающих семинаров по работе с системой управления ELDORADO.CMS, при наборе группы более 10 человек в определенно назначенное время.
+
+	•	Единственным гарантийным обязательством ООО «Студия 42» является бесплатное устранение неисправностей системы, не позволяющих ее использование по прямому назначению. Получение любых необходимых для устранения неисправностей исправлений системы в электронном виде или на любых других носителях осуществляется силами конечного Пользователя и за его счет.
+
+	•	За исключением вышесказанного, не существует никаких других явно выраженных или подразумеваемых гарантий в отношении Системы или ее составных частей, в том числе, гарантий пригодности использования Системы непосредственно для Ваших конкретных целей. 
+
+	•	Студия не несет ответственности за работу системы, в которую были внесены изменения Вами или третьими лицами. Студия в праве отказать в обслуживании в течении гарантийного периода если сбой в работе системы управления произошел по вине конечного пользователя.
+
+	"
+	
+
+		);
+	
 }
 
 
+class elInstallerDb
+{
+	var $_link = null;
+	var $_res  = null;
+	var $error = '';
+	
+	function connect($host, $sock, $user, $pass)
+	{
+		$host = !empty($sock) ? ':'.$sock : '';
+		if (false == ($this->_link = mysql_connect($host, $user, $pass)))
+		{
+			return $this->_error('Unable to connect to DB server');
+		}
+		$this->query('SET SESSION character_set_client=\'utf8\'');
+    	$this->query('SET SESSION character_set_connection=\'utf8\'');
+    	$this->query('SET SESSION character_set_results=\'utf8\'');
+		
+		return true;
+	}
+	
+	function selectDb($db)
+	{
+		return mysql_select_db($db) ? true : $this->_error('Unable to switch to required DB');
+	}
 
-?> 
+	function isDbExists($db)
+	{
+		if ($this->query('SHOW DATABASES'))
+		{
+			while ($r = $this->nextRecord())
+			{
+				if ($r['Database'] == $db)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	
+	function createDb($db)
+	{
+		return $this->query('CREATE DATABASE `'.$db.'` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;');
+	}
+	
+	function query($sql)
+	{
+		if (!$this->_link)
+		{
+			return $this->_error('Does not connected to DB server');
+		}
+		
+		$this->_res = mysql_query($sql, $this->_link);
+		return $this->_res ? $this->_res : $this->_error('SQL query failed');
+	}
+	
+	function nextRecord()
+	{
+	    if ( !$this->_res )
+	    {
+	      return $this->_error('There is no valid MySQL result resource');
+	    }
+	    if ( false == ($record = mysql_fetch_array($this->_res, MYSQL_ASSOC)) )
+	    {
+	      	mysql_free_result( $this->_res );
+	      	$this->_res = null;
+	    }
+	    return $record;
+	  }
+	
+	function tablesList()
+	{
+		$tables = array();
+		$resID = $this->query('SHOW TABLES');
+	  	while ( $r = mysql_fetch_array($resID))
+	  	{
+	  		$tables[] = $r[0];
+	  	}
+		return $tables;
+	}
+	
+	function _error($err)
+	{
+		$this->error = $err;
+		return false;
+	}
+}
+
+if (!defined('EL_URL'))
+{
+	define('EL_URL', $_SERVER['REQUEST_URI']);
+}
+
+function elThrow($err, $msg)
+{
+	echo $msg;
+}
+
+
+/**
+ * Статический класс для работы с файловой системой.
+ * Получение списков файлов и директорий,
+ * рекурсивное корирование, перемещение и удаление директорий,
+ * подробная инф о файлах
+ *
+ * @package    el.lib
+ * @subpackage filesistem
+ * @author     Dmitry Levashov dio@eldorado-cms.ru
+ **/
+
+
+class elFS
+{
+
+	/**
+	 * Возвращает список - содержимое директории
+	 *
+	 * @param  string  $dir            имя директории
+	 * @param  int     $flag           если задан - возвращает или только файлы или только директории
+	 * @param  bool    $ignoreDotFiles игнорировать файлы начинающиеся с точки
+	 * @return array
+	 **/
+	function ls($dir, $flag=0, $ignoreDotFiles=true, $hashKey=false)
+	{
+		$_dir = realpath($dir);
+		if (!$_dir || !is_dir($_dir))
+		{
+			trigger_error(sprintf('Directory %s does not exists', $dir));
+			return false;
+		}
+		if (!is_readable($_dir))
+		{
+			trigger_error(sprintf('Directory %s is not readable', $dir));
+			return false;
+		}
+		$list = array();
+		if ( false == ($d = dir($_dir)))
+		{
+			trigger_error(sprintf('Unable to open directory %s', $dir), E_USER_WARNING);
+			return false;
+		}
+		while( $entr = $d->read())
+		{
+			if ('.'!=$entr && '..'!=$entr && (!$ignoreDotFiles || '.'!=substr($entr, 0, 1)))
+			{
+				$_path = $d->path.DIRECTORY_SEPARATOR.$entr;
+				if (!$flag 
+				|| (EL_FS_ONLY_FILES == $flag && is_file($_path)) 
+				|| (EL_FS_ONLY_DIRS  == $flag && is_dir($_path)))
+				{
+					if ($hashKey)
+					{
+						$list[crc32($_path)] = $entr;
+					}
+					else
+					{
+						$list[] = $entr;
+					}
+				}
+			}
+		}
+		$d->close();
+		return $list;
+	}
+	
+	/**
+	 * Возвращает массив директории и файлы в заданной директории с подробной информацией о них ( см FileInfo::info())
+	 *
+	 * @param  string  $dir            имя директории
+	 * @param  bool    $ignoreDotFiles флаг - игнорировать файлы начинающиеся с точки
+	 * @return array
+	 **/
+	function lsall($dir, $ignoreDotFiles=true)
+	{
+		if (false === ($list = elFS::ls($dir, 0, $ignoreDotFiles)))
+		{
+			return false;
+		}
+		if (!class_exists('elFileInfo'))
+		{
+			include_once('elFileInfo.class.php');
+		}
+		$dir  = realpath($dir);
+		$dirs = $files = array();
+		for ($i=0, $s=sizeof($list); $i < $s; $i++) 
+		{ 
+			$path = $dir.DIRECTORY_SEPARATOR.$list[$i];
+			if ( is_dir($path) )
+			{
+				$dirs[$list[$i]] = elFileInfo::info($path);
+			}
+			else 
+			{
+				$files[$list[$i]] = elFileInfo::info($path);
+			}
+		}
+		return $dirs+$files;
+	}
+
+	function find($path, $regexp, $deep=true)
+	{
+		$ret = array();
+		$path = realpath($path);
+		if (!$path || !is_dir($path))
+		{
+			return $ret;
+		}
+		
+		if ( false == ($d = dir($path)))
+		{
+			trigger_error(sprintf('Unable to open directory %s', $path), E_USER_WARNING);
+			return false;
+		}
+		while( $entr = $d->read())
+		{
+			if ('.'!=$entr && '..'!=$entr)
+			{
+				if (preg_match($regexp, $entr))
+				{
+					$ret[] = $d->path.DIRECTORY_SEPARATOR.$entr;
+				}
+				if (is_dir($d->path.DIRECTORY_SEPARATOR.$entr) && $deep)
+				{
+					$ret += elFS::find($d->path.DIRECTORY_SEPARATOR.$entr, $regexp);
+				}
+			}
+		}
+		$d->close();
+		return $ret;
+	}
+
+	/**
+	 * Возвращает многомерный массив  - дерево директории
+	 *
+	 * @param  string  $dir  имя директории
+	 * @param  el\ACL  $acl  если передан - директория добавляется в дерево, только если доступ к ней разрешен в $acl
+	 * @param  string  $role роль для которой проверяет доступ $acl
+	 * @return array
+	 **/
+	function tree($path, $acl=null, $role='', $perms=array(), $default=false)
+	{
+		$path  = realpath($path); 
+		if ($path && is_dir($path))
+		{
+			$tree = array(
+				'path' => $path,
+				'hash' => crc32($path),
+				'dirs' => array()
+				);
+			if (false!=($list = elFS::ls($path, EL_FS_ONLY_DIRS)))
+			{
+				
+				foreach (elFS::ls($path, EL_FS_ONLY_DIRS) as $dirName)
+				{
+					$dir = $path.DIRECTORY_SEPARATOR.$dirName;
+					if ($acl && $role) 
+					{
+						if ($acl->isAllowed($role, $dir)) {
+							$tree['dirs'][$dirName] = elFS::tree($dir, $acl, $role);
+						}
+					}
+					elseif ($perms) 
+					{
+						if (isset($perms[$dir]['read']) && $perms[$dir]['read']) 
+						{
+							$tree['dirs'][$dirName] = elFS::tree($dir, null, '', $perms, $default);
+						}
+					}
+					elseif ($default) 
+					{
+						$tree['dirs'][$dirName] = elFS::tree($dir, null, '', $perms, $default);
+					}
+				}
+				
+			}
+			return $tree;
+		}
+	}
+
+	/**
+	 * Возвращает список всех всех вложенных директорий
+	 *
+	 * @param  string  $dir  имя директории
+	 * @return array
+	 **/
+	function tree2list($dir)
+	{
+		$dir    = realpath($dir);
+		if ($dir)
+		{
+			$result = array($dir);
+			if (false!=($list = elFS::ls($dir, EL_FS_ONLY_DIRS)))
+			{
+				foreach ($list as $_dir)
+				{
+					$result = array_merge($result, elFS::tree2list($dir.DIRECTORY_SEPARATOR.$_dir));
+				}
+				
+			}
+			return $result;
+		} 
+	}
+
+	/**
+	 * последовательно создает дерево директории по указанному пути
+	 *
+	 * @param  string  $file  путь
+	 * @param  int     $umask umask
+	 * @return bool
+	 **/
+	function mkdir($dir, $mode=null)
+	{
+		if ( !is_dir($dir) )
+		{
+			$parts = explode(DIRECTORY_SEPARATOR, $dir); 
+			$path  = $parts[0].DIRECTORY_SEPARATOR;
+			$mode = $mode ? $mode : EL_FS_DIRMODE;
+			for ($i=1, $s = sizeof($parts); $i < $s; $i++) 
+			{ 
+				if ( '' != $parts[$i] )
+				{
+					$path .= $parts[$i]; 
+					if ( !is_dir($path) )
+					{
+						
+						if (!@mkdir($path, $mode))
+						{
+							trigger_error(sprintf('Unable to create directory %s', $path));
+							return false;
+						}
+						chmod($path, $mode);
+					}
+					$path .= DIRECTORY_SEPARATOR;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Удаление файла или рекурсивное удаление директории
+	 *
+	 * @param  string  $path  путь к файлу или директории
+	 * @return bool
+	 **/
+	function rm($path)
+	{
+		$path = realpath($path);
+		if (!file_exists($path))
+		{
+			return false;
+		}
+		return is_dir($path) ? elFS::rmdir($path) : @unlink($path);
+	}
+	
+	/**
+	 * рекурсивно удаляет директорию со всеми вложенными директориями и файлами
+	 *
+	 * @param  string  $file  имя директории
+	 * @return bool
+	 **/
+	function rmdir($dir)
+	{
+		$dir = realpath($dir); 
+		if ($dir && is_dir($dir))
+		{
+			if (false != ($list = elFS::ls($dir, 0, false)))
+			{
+				for ($i=0, $s=sizeof($list); $i < $s; $i++) 
+				{ 
+					$path = $dir.DIRECTORY_SEPARATOR.$list[$i]; 
+					if (is_dir($path))
+					{
+						if (!elFS::rmdir($path))
+						{
+							return false;
+						}
+					}
+					elseif (!@unlink($path))
+					{
+						return false;
+					}
+				}
+			}
+			return @rmdir($dir);
+		}
+	}
+	
+	/**
+	 * копирует файл или рекурсивно копирует директорию
+	 * При копировании файла - $target может быть именем файла-приемника или существующей директории
+	 * При копировании директорий если $target не существует, она будет создана
+	 *
+	 * @param  string  $source  имя источника
+	 * @param  string  $target  имя целевой директории или файла
+	 * @param  int     $mode    mode создаваемых директорий
+	 * @return bool
+	 **/
+	function copy($source, $target, $mode=null)
+	{
+		$_source = realpath($source);
+		$mode = $mode ? $mode : EL_FS_DIRMODE;
+		if (!$_source) 
+		{
+			return elFS::_error('File %s does not exists', $source);
+		}
+		
+		if ( is_dir($_source) )
+		{
+			//  target может быть только директорией
+			$_target = realpath($target); 
+			if ( $_target && !is_dir($_target) )
+			{
+				trigger_error(sprintf('%s is not directory', $target), E_USER_WARNING);
+				return false;
+			}
+			elseif (!$_target)
+			{
+				if (!elFS::mkdir($target, $mode))
+				{
+					trigger_error(sprintf('Unable to create directory %s', $target), E_USER_WARNING);
+					return false;
+				}
+				$_target = realpath($target);
+			}
+			if (0 === strpos($_target, $_source))
+			{
+				trigger_error(sprintf('Unable to copy directory %s into heself or into nested directory', $source), E_USER_WARNING);
+				return false;
+			}
+			$_target .= DIRECTORY_SEPARATOR.basename($_source); 
+			if (!is_dir($_target) && !@mkdir($_target, $mode))
+			{
+				trigger_error(sprintf('Unable to create directory %s', $_target), E_USER_WARNING);
+				return false;
+			}
+			$list = elFS::ls($_source);
+			for ($i=0, $s=sizeof($list); $i < $s; $i++) 
+			{ 
+				if ( !elFS::copy($_source.DIRECTORY_SEPARATOR.$list[$i], $_target) )
+				{
+					trigger_error(sprintf('Unable to copy %s to %s', array($_source.DIRECTORY_SEPARATOR.$list[$i], $_target)), E_USER_WARNING);
+					return false;
+				}
+			}
+			return true;
+		}
+		else
+		{
+			//  target может быть директорией или именем файла
+			$target = is_dir($target) ? realpath($target).DIRECTORY_SEPARATOR.basename($_source) : $target;
+			if ( dirname($_source) == realpath(dirname($target)) && basename($_source) == basename($target))
+			{
+				trigger_error(sprintf('Unable to copy file %s into himself', $source), E_USER_WARNING);
+				return false;
+			}
+			if (file_exists($target) && !is_writable($target))
+			{
+				trigger_error(sprintf('File %s has no write permissions', $target), E_USER_WARNING);
+				return false;
+			}
+			return copy($source, $target);
+		}
+	}
+	
+	/**
+	 * перемещает файл или директорию
+	 *
+	 * @param  string  $source  имя источника
+	 * @param  string  $target  имя приемника
+	 * @return bool
+	 **/
+	function move($source, $target, $mode=null)
+	{
+		return elFS::copy($source, $target, $mode) && elFS::rm($source);
+	}
+	
+} // END class
+
+?>

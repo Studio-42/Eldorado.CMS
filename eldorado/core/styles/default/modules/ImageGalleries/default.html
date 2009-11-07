@@ -1,23 +1,27 @@
 <!-- BEGIN IG -->
-<div class="mod-ig-list {cssRowClass}">
-	<div>
-		<h4><a href="{URL}{g_id}/">{g_name}</a></h4>
-		<div class="mod-ig-info mute">
-		<!-- BEGIN IG_IMG_NUM --><div>{m('Images in gallery')}: <span>{num}</span></div><!-- END IG_IMG_NUM -->
-		<!-- BEGIN IG_DATE --><div>{m('Published')}: <span>{date}</span></div><!-- END IG_DATE -->
-		</div>
+<div class="mod-ig-list rounded-5 {cssRowClass}">
+	<!-- BEGIN ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}edit/{g_id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+		<li><a href="{URL}clean/{g_id}/" class="icons clean"  title="{m('Delete all images from gallery')}" onClick="return confirm('{m('Do You really want to delete all images from gallery')}?');"></a></li>
+		<li><a href="{URL}rm/{g_id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete gallery')}?');"></a></li>
+	</ul>
+	<!-- END ADMIN -->
+	<div class="float-right mute gal-info">
+	<!-- BEGIN IG_IMG_NUM --><div>{m('Images in gallery')}: <strong>{num}</strong></div><!-- END IG_IMG_NUM -->
+	<!-- BEGIN IG_DATE --><div>{m('Published')}: <strong>{date}</strong></div><!-- END IG_DATE -->
 	</div>
-	
-	<!-- BEGIN IG_PREV -->
+	<h4><a href="{URL}{g_id}/">{g_name}</a></h4>
+
 	<div class="mod-ig-list-preview">
 		<!-- BEGIN IG_TMB -->
-		<div><a href="{URL}{g_id}/"><img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" /></a></div>
+		<a href="{URL}{g_id}/"><img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" /></a>
 		<!-- END IG_TMB -->
 	</div>
-	<!-- END IG_PREV -->
+
 	<!-- BEGIN IG_COMMENT -->
 	<em>{g_comment}</em>
 	<!-- END IG_COMMENT -->
-	<a href="{URL}{g_id}/" class="readmore">{m('See all photos')}</a>
+	<a href="{URL}{g_id}/" class="link forward2">{m('See all photos')}</a>
 </div>	
 <!-- END IG -->

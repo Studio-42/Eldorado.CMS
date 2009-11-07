@@ -1,20 +1,20 @@
-ul.mod-container { margin:0 0 0.5em 1em; padding:0;	}
-ul.mod-container li {  
-	padding:0.7em 0;
-	margin:0;
-	list-style:none; 
-	zoom:1; /* stupid IE */
+ul.mod-container {
+	padding:0;
+	margin:.5em 0;
+	list-style:none;
 }
-ul.mod-container li a { 
-	padding:0 0 0 1.5em; 
-	background:  url(../../images/arrow.gif) 0 center no-repeat; 
-	font-weight:bold;
+
+ul.mod-container li { 
+	margin-bottom:1em; 
+	zoom:1;
+	padding-left:1.5em;
 }
-.mod-container  blockquote { 
-	margin-bottom:0; 
-	padding:0 0 0 0.5em; 
-	font-size:90%; 
-	font-weight:normal;
+
+ul.mod-container li em { display: block; color:#999;}
+
+div.mod-container-tc {
+	float:left;
+	width:49%;
+	padding:0;
 }
-table.mod-container td { font-weight:bold; }
-table.mod-container blockquote { margin:0; }
+

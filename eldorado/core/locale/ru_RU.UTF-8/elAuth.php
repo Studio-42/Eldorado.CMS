@@ -3,7 +3,7 @@
 //auth form
 $elMsg['Authorization required'] = 'Требуется авторизация';
 $elMsg['Authorization failed']   = 'Ошибка авторизации! Неправильный логин/пароль';
-$elMsg['Wellcome back %s!']      = 'Спасибо, что не забываете нас, %s!';
+$elMsg['Wellcome back %s!']      = 'С возвращением, %s!';
 $elMsg['Good bye %s!']           = 'До свидания, %s!';
 
 $elMsg['Enter']                  = 'Войти';

@@ -138,7 +138,7 @@ class elTSItem extends elCatalogItem
 		{
 		  $this->form->add( new elText('price', m('Price'), $this->price) );
 		}
-		$this->form->add( new elEditor('announce', m('Announce'),    $this->announce, array('rows'=>'300')) );
+		$this->form->add( new elEditor('announce', m('Announce'),    $this->announce, array('class' => 'small')) );
 		$this->form->add( new elEditor('descrip',  m('Description'), $this->descrip) );
 		$this->form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
 	}
@@ -157,7 +157,66 @@ class elTSItem extends elCatalogItem
 	  $msl->setSwitchValue('all');
 	  $this->form->add( $msl );
 	  //$this->form->setRequired('mIDs[]');
-	  $attrs = array('onClick'=>'return popUp(\''.EL_BASE_URL.'/'.EL_URL_POPUP.'/__fm__/'.'\', 500, 400)');
+		elLoadJQueryUI();
+		elAddCss('contextmenu.css', EL_JS_CSS_FILE);
+		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
+		elAddCss('elrtee.css', EL_JS_CSS_FILE);
+		elAddCss('elfinder.css', EL_JS_CSS_FILE);
+		
+		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.cookie.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.form.js', EL_JS_CSS_FILE);
+		elAddJs('ellib/eli18n.js', EL_JS_CSS_FILE);
+		elAddJs('ellib/widgets/eldialogform.js', EL_JS_CSS_FILE);
+		elAddJs('ellib/widgets/jquery.eltree.js', EL_JS_CSS_FILE);
+		elAddJs('ellib/widgets/jquery.elcontextmenu.js', EL_JS_CSS_FILE);
+		elAddJs('elfinder/elfinder.js', EL_JS_CSS_FILE);
+		elAddJs('elfinder/i18n/ru.js', EL_JS_CSS_FILE);
+	
+		$this->form->add(new elHidden('imgURL', '', $this->models[$mID]->img ? EL_BASE_URL.$this->models[$mID]->img : '') );
+		$this->form->add(new elCData('img',  "<a href='#' class='link link-image' id='ishop-sel-img'>".m('Select or upload image file')."</a>"));
+		$this->form->add(new elCData('rm',   "<a href='#' class='link link-delete' id='ishop-rm-img'>".m('Delete image')."</a> "));
+		$this->form->add(new elCheckBox('apply2all', m('Apply changes to all moodels'), 1));
+		$this->form->add(new elCData('prev', "<fieldset id='ishop-sel-prev'><legend>".m('Preview')."</legend></fieldset>"));
+		
+		$js = "
+		$('#ishop-sel-img').click(function(e) {
+			e.preventDefault();
+			$('<div />').elfinder({
+				url  : '".EL_URL."__finder__/', 
+				lang : '".EL_LANG."', 
+				editorCallback : function(url) { $('#imgURL').val(url).trigger('change');}, 
+				dialog : { width : 750, modal : true}});
+		});
+		$('#ishop-rm-img').click(function(e) {
+			e.preventDefault();
+			$('#imgURL').val('').parents('form').submit();
+		});
+		$('#imgURL').bind('change', function() {
+			var p = $('#ishop-sel-prev').empty();
+			if (this.value) {
+				window.console.log();
+				var pw = p.width();
+				var img = $('<img />').attr('src', this.value).load(function() {
+					var w = parseInt($(this).css('width'));
+					if (w>=pw) $(this).css('width', (pw-10)+'px')
+					window.console.log($(this).css('width'))
+				})
+				p.append(img);
+			}
+			// this.value && p.append($('<img />').attr('src', this.value));
+		}).trigger('change');
+		";
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		return;
+	
+		$js = "$('<div />').elfinder({
+			url: '".EL_URL."__finder__/', 
+			dialog : { width : 750, modal : true }, 
+			editorCallback : function(url) { $(':hidden[name=\"imgURL\"]').val(url).trigger('change'); }
+			});\n";
+	
+	  $attrs = array('onClick'=>$js.' return false;');
 	  $this->form->add( new elSubmit('s', m('Select or upload image file'), m('Open file manager'), $attrs) );
 	  $imgURL = $this->models[$mID]->img;
 	  $imgHtml = ' ';
@@ -165,11 +224,20 @@ class elTSItem extends elCatalogItem
 	  {
 	     $imgURL = EL_BASE_URL.$imgURL;
 	     $imgHtml = '<img src="'.$imgURL.'" />';
-	     $this->form->add( new elCheckBox('rm', m('Delete image'), 1, array('onClick'=>'updatePreview(this.checked?1:0);')));
+			$js = "if (this.checked) {
+				var i = $(':hidden[name=\"imgURL\"]');
+				$(':hidden[name=\"imgURLSave\"]').val(i.val());
+				i.val('').trigger('change');
+			} else {
+				var i = $(':hidden[name=\"imgURL\"]');
+				i.val($(':hidden[name=\"imgURLSave\"]').val()).trigger('change');
+			}";
+	     $this->form->add( new elCheckBox('rm', m('Delete image'), 1, array('onClick'=>$js )));
 	  }
-	  $this->form->add( new elHidden('imgURL',     '', $imgURL) );
-	  $this->form->add( new elHidden('imgURLSave', '', $imgURL) );
-	  $this->form->add( new elCData('i', '<div id="imgPrew" align="center">'.$imgHtml.'</div>'));
+		$onupdate = "var p = $('#imgPrev').empty(); var v = $(this).val(); if (v) { p.append($('<img />').attr('src', v)); }";
+	  	$this->form->add( new elHidden('imgURL',     '', $imgURL, array('onchange' => $onupdate)) );
+	  	$this->form->add( new elHidden('imgURLSave', '', $imgURL) );
+	  	$this->form->add( new elCData('i', '<div id="imgPrev" style="text-align:center">'.$imgHtml.'</div>'));
 	}
 
 	function changeModelImage( $mID, $tmbSize )
@@ -183,34 +251,35 @@ class elTSItem extends elCatalogItem
 
 	  $db      = &elSingleton::getObj('elDb');
 	  $data    = $this->form->getValue();
-
-	  unset($data['mIDs'][0]);
-	  if ( !in_array($mID, $data['mIDs']) )
-	  {
-	     $db->query('UPDATE '.$this->tbm.' SET img="" WHERE id='.(int)$mID);
-	  }
-	  if ( empty($data['mIDs']) )
-	  {
-	    return true;
-	  }
-    foreach ($data['mIDs'] as $k=>$v)
-    {
-      $data['mIDs'][$k] = (int)$v;
-    }
-	  $img = '';
-	  if ( !empty($data['imgURL']) )
-	  {
-	     $img    = str_replace(EL_BASE_URL, '', $data['imgURL']);
-	     $tmb    = dirname($img).'/mini_'.basename($img);
-	     $imager = & elSingleton::getObj('elImager');
-	     if (!$imager->copyResized('.'.$img, '.'.$tmb, 100, 100))
-	     {
-	        return elThrow(E_USER_WARNING, $imager->getError());
-	     }
-	  }
-	  $sql = 'UPDATE '.$this->tbm.' SET img=\''.$img.'\' WHERE i_id=\''.$this->ID.'\' AND id IN('.implode(',', $data['mIDs']).')';
-	  $db->query($sql);
-	  return true;
+		$models = empty($data['apply2all']) ? array($mID) : array_keys($this->models);
+		$sql = 'UPDATE '.$this->tbm.' SET img="%s" WHERE id="%d"';
+		if (empty($data['imgURL']))
+		{
+			foreach ($models as $id)
+			{
+				$img = $this->models[$id]->img;
+				if ($img && file_exists('.'.dirname($img).DIRECTORY_SEPARATOR.'mini_'.basename($img)))
+				{
+					@unlink('.'.dirname($img).DIRECTORY_SEPARATOR.'mini_'.basename($img));
+				}
+			}
+			$img = '';
+		}
+		else
+		{
+			$img   = str_replace(EL_BASE_URL, '', $data['imgURL']);
+		    $tmb   = dirname($img).DIRECTORY_SEPARATOR.'mini_'.basename($img);
+			$image = & elSingleton::getObj('elImage');
+			if (!$image->tmb('.'.$img, '.'.$tmb, $tmbSize, ceil($tmbSize/(4/3))))
+			{
+				return elThrow(E_USER_WARNING, $image->error);
+			}
+		}
+		foreach ($models as $id)
+		{
+			$db->query(sprintf($sql, mysql_real_escape_string($img), $id));
+		}
+		return true;
 	}
 
  //**************************************************************************************//
@@ -266,7 +335,7 @@ class elTSItem extends elCatalogItem
 				$this->form->add( new elText('ft['.$ft->ID.']', '', $ft->getItemValue($this->ID)) );
 			}
 		}
-		$url = '<a href="{URL}item_ft/'.$catID.'/'.$this->ID.'/">'.m('Change features list').'</a>';
+		$url = '<a href="{URL}item_ft/'.$catID.'/'.$this->ID.'/" class="link forward2">'.m('Change features list').'</a>';
 		$this->form->add( new elCData('change', $url), array('colspan'=>3) );
 
 		if ($this->form->isSubmitAndValid())

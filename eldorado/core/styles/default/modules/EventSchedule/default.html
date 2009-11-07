@@ -11,18 +11,25 @@
 <!-- BEGIN EVENT -->
 <tr>
     <td class="{cssClass}">
+		
     <h4>{name}</h4>
     <!-- BEGIN EV_ANNOUNCE -->
     <div class="mod-es-announce">{announce}</div>
     <!-- END EV_ANNOUNCE -->
     <!-- BEGIN EV_DETAILS -->  
-       <a class="readmore" href="{URL}details/{ID}/">{m('Read more')}</a>
+       <a class="link forward" href="{URL}details/{ID}/">{m('Read more')}</a>
     <!-- END EV_DETAILS -->
     </td>
     <!-- BEGIN EV_PLACE -->
     <td class="{cssClass}" align="right" width="50">{place}</td>
     <!-- END EV_PLACE -->
     <td class="{cssClass}"> 
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit/{ID}/" class="icons edit" title="{m('Edit')}"></a></li>
+			<li><a href="{URL}rm/{ID}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
     	<span class="mod-es-dates">{begin}</span> - <span class="mod-es-dates">{end}</span>
     </td>
 </tr>
@@ -30,8 +37,8 @@
 </table>
 
 <!-- BEGIN EVENT_COMING -->
-<a class="back" href="{URL}">{m('Coming events')}</a>
+<a class="link back" href="{URL}">{m('Coming events')}</a>
 <!-- END EVENT_COMING -->
 <!-- BEGIN EVENT_LAST -->
-<a class="readmore" href="{URL}last/">{m('Last events')}</a>
+<a class="link forward" href="{URL}last/">{m('Last events')}</a>
 <!-- END EVENT_LAST -->

@@ -1,4 +1,5 @@
 <?php
+elLoadMessages('ModuleAdminDocsCatalog');
 
 class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
 {
@@ -13,12 +14,14 @@ class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
 	  	'rm_group'  => array('m'=>'rmItems',         'g'=>'Actions', 'ico'=>'icoDocGroupRm',   'l'=>'Delete group of documents'),
     	'edit_el'   => array('m'=>'editFormElement', 'g'=>'Actions', 'ico'=>'icoFormElNew',    'l'=>'Create form element', 'c'=>'conf_form'),
     	'rm_el'     => array('m'=>'rmFormElement'),
+		'cross_links'=> array('m' =>'editCrossLinks', 'g'=>'Actions', 'l'=>'Edit linked objects list',            'ico'=>'icoCrosslinks')
 	  );
 
 	var $_mMapConf  = array(
 		'conf'      => array('m'=>'configure',           'l'=>'Configuration',                    'ico'=>'icoConf'),
 		'conf_nav'  => array('m'=>'configureNav',        'l'=>'Configure navigation for catalog', 'ico'=>'icoNavConf'),
 		'conf_form' => array('m'=>'configureResumeForm', 'l'=>'Form constructor',                 'ico'=>'icoFormConstructor'),
+		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'l'=>'Linked objects groups configuration', 'ico'=>'icoCrosslinksConf')
 	);
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
@@ -265,6 +268,28 @@ class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $element->getObjName(), $element->getAttr('flabel')));
 		elLocation(EL_URL.'conf_form');
 	}
+	
+	function editCrossLinks()
+		{
+			$this->_item =  $this->_getItem();
+			if ( !$this->_item->ID )
+			{
+				elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
+					array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
+			}
+			$clm = & $this->_getCrossLinksManager();
+			if (!$clm->editCrossLinks($this->_item))
+			{
+			  $this->_initRenderer();
+			  $this->_rnd->addToContent($clm->formToHtml());
+			}
+			else
+			{
+			  elMsgBox::put( m('Data saved') );
+				elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
+			}
+		}
+	
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
@@ -279,11 +304,11 @@ class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
 		$rnd = &elSingleton::getObj('elTplGridFormRenderer', 3);
 		$this->_form->setRenderer($rnd);
 		$this->_form->setLabel( m('Resume form') );
-
-		$tpl = "<a href=\"".EL_URL."edit_el/1/%d/\">"
-					."<img src=\"{icoEdit}\" title=\"".m('Edit')."\" class=\"icons\" /></a>"
-					."<a href=\"".EL_URL."rm_el/1/%d/\" onClick=\"return confirm('".m('Do You really want to delete ')."?');\">"
-					."<img src=\"{icoDelete}\" title=\"".m('Delete')."\" class=\"icons\" /></a>";
+		$msg = m('Do You really want to delete').'?';
+		$tpl = "<ul class='adm-icons'>
+			<li><a href='".EL_URL."edit_el/1/%d/' class='icons edit' title='".m('Edit')."'></a></li>
+			<li><a href='".EL_URL."rm_el/1/%d/' class='icons delete' onclick='return confirm(\"".$msg."\")'></a></li>
+			</ul>";
 
 		foreach ($this->_fList as $el)
 		{
@@ -327,7 +352,7 @@ class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
     $form->add( new elSelect('itemsCols',    m('Items list view'),      $this->_conf('itemsCols'), $views ) );
     $form->add( new elSelect('itemsSortID',  m('Sort documents by'),    (int)$this->_conf('itemsSortID'), $sort) );
     $form->add( new elSelect('itemsPerPage', m('Number of documents per page'),	$this->_conf('itemsPerPage'), $nums ) );
-    $form->add( new elSelect('displayCatDescrip', m('Display current category description'),
+    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'),
     						$this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
 
     $form->add( new elCData('c1', m('Resume form configuration')), array('cellAttrs'=>'class="formSubheader"') );
@@ -354,17 +379,21 @@ class elModuleAdminVacancyCatalog extends elModuleVacancyCatalog
   	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
   	$form->setLabel( m('Configure navigation for catalog') );
-  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],
-  														$GLOBALS['posNLRTB'], array('onChange'=>'checkNavForm();')) );
+  	$js = "if (this.value != '0') {
+		$(this).parents('tr').eq(0).nextAll('tr').show();
+	} else {
+		$(this).parents('tr').eq(0).nextAll('tr').hide();
+	}";
+
+	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],	$GLOBALS['posNLRTB'], array('onChange'=>$js)) );
   	$form->add( new elText('title', m('Navigation title'), $c['title']) );
-  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'],
-  														array( m('All levels'), 1, 2, 3, 4 )) );
-  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],
-  														$GLOBALS['yn'], array('onChange'=>'checkNavForm();')) );
+  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+	$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
+  	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'], $GLOBALS['yn'], array('onChange'=>$js)) );
   	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
   	$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-  	elAddJs( 'CatalogsAdminCommon.lib.js', EL_JS_CSS_FILE);
-  	elAddJs( 'checkNavForm();', EL_JS_SRC_ONLOAD);
+
+  	elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
   	return $form;
   }
 

@@ -1,5 +1,7 @@
 <?php
 
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elNavPage.class.php';
+
 class elSubModuleMainNav extends elModule
 {
   var $page  = null;
@@ -17,8 +19,7 @@ class elSubModuleMainNav extends elModule
 
   var $_navTypes = array( EL_NAV_TYPE_MAIN => 'One main navigation menu',
                           EL_NAV_TYPE_COMBI => '"Combi" top-level menu + submenu for current page (default)',
-                          EL_NAV_TYPE_JS    => 'One main navigation menu with javascript (Expanding menu)',
-                          EL_NAV_TYPE_USER => 'User defined (local) navigation layout. See documentation for more details'
+                          EL_NAV_TYPE_JS    => 'One main navigation menu with javascript (Expanding menu)'
       );
 
   var $_pathsOpts = array('navPathInSTitle'  => 'Path to current page in window title',
@@ -50,8 +51,8 @@ class elSubModuleMainNav extends elModule
 
   function defaultMethod()
   {
-    $page = & elSingleton::getObj('elNavPage');
-    $menu = $page->getCollection(null, '_left');
+    $page = & new elNavPage();
+    $menu = $page->getCollection(null, '_left'); 
     array_shift($menu);
     $conf = &elSingleton::getObj('elXmlConf');
     $this->_initRenderer();
@@ -169,8 +170,7 @@ class elSubModuleMainNav extends elModule
     $form = &elSingleton::getObj('elForm');
     $form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
     $form->setLabel( sprintf(m('How to display navigation paths on page "%s"'), $page->name) );
-    $form->add( new elCData('c_1', m('This options override common site options for this page only.')),
-    array('cellAttrs'=>'class="form_comments"') );
+    $form->add( new elCData('c_1', m('This options override common site options for this page only.')),  array('cellAttrs'=>'class="form_comments"') );
 
     $options = array_map('m', $this->_pathsOpts);
     $vars    = array_map('m', $this->_pathsVars);
@@ -198,7 +198,7 @@ class elSubModuleMainNav extends elModule
         }
       $conf->save();
       elMsgBox::put( m('Data saved') );
-      elLocation(EL_URL.'page_layout/'.$page->ID.'/');
+      elLocation(EL_URL);
     }
     $this->_initRenderer();
     $this->_rnd->addToContent( $form->toHtml() );
@@ -233,40 +233,29 @@ class elSubModuleMainNav extends elModule
     $this->_pathsOpts = array_map('m', $this->_pathsOpts);
     $this->_pathsVars = array_map('m', $this->_pathsVars);
 
-    $headAttrs = array('cellAttrs'=>' class="formSubheader"') ;
+    $headAttrs = array('cellAttrs'=>' class="form-tb-sub"') ;
     $form->add( new elCData('h_1', m('Site navigation type')), $headAttrs );
     $type = (int)$this->_conf('navType');
 
-    if (!elSingleton::incLib('lib/elSiteRender.lib.php') || ! function_exists('elrndnavlocal'))
-    {
-      unset($this->_navTypes[EL_NAV_TYPE_USER]);
-    }
+	$js = "var r = $('#subMenuPos').parents('tr').eq(0); if (this.value == 1) { r.hide().next('tr').hide().next('tr').hide(); }	else if (this.value == 2) { r.show().next('tr').show().next('tr').show(); }	else { r.show().next('tr').hide().next('tr').hide(); }";
+	$form->add(new elSelect('navType', m('Site navigation type'), $type, $this->_navTypes, array('onchange'=>$js)));
 
-    $form->add( new elRadioButtons('navType', '', $type, $this->_navTypes, array('onChange'=>'checkNavType(this.value)')) );
-    $form->setRequired('navType');
+    $form->add( new elSelect('mainMenuPos', m('Main menu position on page'), $this->_conf('mainMenuPos'),  $GLOBALS['posLRT']) );
 
-    $form->add( new elSelect('mainMenuPos', m('Main menu position on page'),
-                              $this->_conf('mainMenuPos'),  $GLOBALS['posLRT']) );
+    $form->add( new elSelect('mainMenuUseIcons', m('Display pages icons in main navigation menu'), (int)$this->_conf('mainMenuUseIcons'),  $GLOBALS['yn']) );
 
-    $form->add( new elSelect('mainMenuUseIcons', m('Display pages icons in main navigation menu'),
-                             (int)$this->_conf('mainMenuUseIcons'),  $GLOBALS['yn']) );
-
-    $form->add( new elSelect('subMenuPos', m('Submenu position on page'),
-                             $this->_conf('subMenuPos'),  $GLOBALS['posLRT'], array('onChange'=>'checkSubMenuParam(2, this.value)')) );
-    $form->add( new elSelect('subMenuUseIcons', m('Display pages icons in submenu navigation menu'),
-                             (int)$this->_conf('subMenuUseIcons'),  $GLOBALS['yn']) );
-    $form->add( new elSelect('subMenuDisplParent', m('Display parent page name before submenu navigation menu'),
-                             (int)$this->_conf('subMenuDisplParent'),  $GLOBALS['yn']) );
+    $form->add( new elSelect('subMenuPos', m('Submenu position on page'), $this->_conf('subMenuPos'),  $GLOBALS['posLRT'], array('onChange'=>'checkSubMenuParam(2, this.value)')) );
+    $form->add( new elSelect('subMenuUseIcons', m('Display pages icons in submenu navigation menu'),  (int)$this->_conf('subMenuUseIcons'),  $GLOBALS['yn']) );
+    $form->add( new elSelect('subMenuDisplParent', m('Display parent page name before submenu navigation menu'),  (int)$this->_conf('subMenuDisplParent'),  $GLOBALS['yn']) );
 
     $form->add( new elCData('h_2', m('How to display navigation paths')), $headAttrs );
-    $form->add( new elCData('c_1', m('There are common options for whole site. And any of them can be overriden by curent page option.')),
-                            array('cellAttrs'=>'class="form_comments"') );
+    $form->add( new elCData('c_1', m('There are common options for whole site. And any of them can be overriden by curent page option.')) );
     foreach ( $this->_pathsOpts as $opt=>$l )
     {
       $form->add( new elSelect($opt, $l, (int)$this->_conf($opt),  $this->_pathsVars ) );
     }
 
-    elAddJs('checkNavType('.$type.')', EL_JS_SRC_ONLOAD);
+    elAddJs("$('#navType').trigger('change');", EL_JS_SRC_ONREADY);
     return  $form;
   }
 

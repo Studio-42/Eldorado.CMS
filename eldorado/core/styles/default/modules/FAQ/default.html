@@ -2,6 +2,13 @@
 <ul class="mod-faq">
 	<li>
 		<div class="clearfix">
+			<!-- BEGIN CAT_ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}cat_edit/{cid}/"   class="icons edit"     title="{m('Edit')}"></a></li>
+				<li><a href="{URL}quest_sort/{cid}/" class="icons sort-num" title="{m('Questions sorting')}"></a></li>
+				<li><a href="{URL}cat_rm/{cid}/"     class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END CAT_ADMIN -->
 			<h4>{cNum}. {cname}</h4> 
 		</div>
 		<!-- BEGIN FAQ_CAT_QUEST_LIST -->
@@ -10,12 +17,22 @@
 			<li>
 				<div class="clearfix">
 					
-				
+					<!-- BEGIN ADMIN -->
+					<ul class="adm-icons">
+						<li><a href="{URL}quest_edit/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+						<li><a href="{URL}quest_rm/{id}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END ADMIN -->
 					<h5>
 						{cNum}.{qNum}
 						<a href="#" class="mod-faq-q">{question}</a>
 					</h5>
-					
+					<!-- BEGIN FQ_NOTPUBL -->
+					[{m('Not published')}]
+					<!-- END FQ_NOTPUBL -->
+					<!-- BEGIN FQ_NOANSW -->
+					[{m('Not answered')}]
+					<!-- END FQ_NOANSW -->
 					<div class="mod-faq-answ hide"><p><em>{answer}</em></p></div>
 				</div>
 			</li>
@@ -27,8 +44,8 @@
 <!-- END FAQ_CAT -->
 	
 <div class="mod-faq-askaquestion">
-	<a href="#" class="mail" onclicks="$(this).siblings('div').toggleClass('hide'); return false;"><strong>{m('Ask a question')}</strong></a> 
-	<div class="hide">{questForm}</div>
+	<a href="#" class="link mail" onclicks="$(this).siblings('div').toggleClass('hide'); return false;"><strong>{m('Ask a question')}</strong></a> 
+	<div class="hide rounded-5" style="border:1px solid #ccc">{questForm}</div>
 </div>
 
 <script type="text/javascript" charset="utf-8">

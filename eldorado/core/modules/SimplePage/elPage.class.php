@@ -1,16 +1,16 @@
 <?php
 
-class elPage extends elMemberAttribute
+class elPage extends elDataMapping
 {
-  var $tb       = 'el_page';
+  var $_tb      = 'el_page';
   var $ID       = 0;
   var $content  = '';
   var $_objName = 'Simple page';
 
-  function makeForm()
+  function _makeForm()
   {
-    parent::makeForm();
-    $this->form->add( new elEditor('content', '', $this->content) );
+    parent::_makeForm();
+    $this->_form->add( new elEditor('content', '', $this->content) );
   }
 
   function _initMapping()

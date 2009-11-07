@@ -14,32 +14,26 @@ class elDateSelector extends elFormContainer
                       'footer'  => ''
                       );
 	var $_dateTimeFormat = false;
+	var $_yearMin = 0;
+	var $_yearMax = 0;
 
   function __construct($name=null, $label=null, $value=null, $attrs=null, $offsetLeft=1, $offsetRight=2, $dtFormat=false)
   {
     parent::__construct($name, $label, $attrs);
     $this->_dateTimeFormat = (bool)$dtFormat;
-    $this->setValue( is_numeric($value) ? $value : time() );
 
-    $d = range(0, 31); unset($d[0]); $d = array_map('elFormatDateTimeArrays', $d);
-    $m = range(0, 12); unset($m[0]); $m = array_map('elFormatDateTimeArrays', $m);
-    
-    $y = array();
-    $curYear = date('Y');
-    for ( $i=$curYear-$offsetLeft, $max=$curYear+$offsetRight; $i <= $max; $i++ )
-    {
-      $y[$i] = $i;
-    }
-    $this->IDs['day']   = $this->add( new elSelect($this->getName().'[day]',   '', $this->value['day'],   $d) ); 
-    $this->IDs['month'] = $this->add( new elSelect($this->getName().'[month]', '', $this->value['month'], $m) );
-    $this->IDs['year']  = $this->add( new elSelect($this->getName().'[year]',  '', $this->value['year'],  $y) );
+    $this->_yearMin = (int)$offsetLeft * -1;
+	$this->_yearMax = (int)$offsetRight;
+
+	if (is_numeric($value) && ($value != 0)) // this is hack, if we generate new elDateSelector with value=0 (e.g. modules/News)
+	    $this->setValue($value);
+	else
+		$this->setValue(time());
+
+    $this->IDs['date']     = $this->add( new elText($this->getName().'__date__', '', $this->value['date'], array('size' => 10)) );
     if ( $this->_dateTimeFormat )
     {
-    	$h = array_map('elFormatDateTimeArrays', range(0, 23));
-    	$i = array_map('elFormatDateTimeArrays', range(0, 59));	
-    	$this->IDs['hour'] = $this->add( new elSelect($this->getName().'[hour]', '', $this->value['hour'], $h) );
-    	$this->IDs['min']  = $this->add( new elSelect($this->getName().'[min]',  '', $this->value['min'],  $i) );
-    	
+    	$this->IDs['time'] = $this->add( new elText($this->getName().'__time__', '', $this->value['time'], array('size' => 10)) );
     }
   }
 
@@ -50,11 +44,8 @@ class elDateSelector extends elFormContainer
 
   function setValue( $value )
   {
-    $this->value = array('day'   => date('j', $value),
-                         'month' => date('n', $value),
-                         'year'  => date('Y', $value),
-                         'hour'  => $this->_dateTimeFormat ? date('H', $value) : 0,
-                         'min'   => $this->_dateTimeFormat ? date('i', $value) : 0
+    $this->value = array('date' => date('Y-m-d', $value),
+                         'time' => $this->_dateTimeFormat ? date('H:i', $value) : 0
                          );
   }
 
@@ -73,14 +64,15 @@ class elDateSelector extends elFormContainer
 
   function toHtml()
   {
+	elLoadJQueryUI();
+	elAddJs('$("#'.$this->getName().'__date__").datepicker({dateFormat: $.datepicker.ISO_8601, firstDay: 1, minDate: \''.$this->_yearMin.'Y\', maxDate: \''.$this->_yearMax.'Y\', changeYear: true })', EL_JS_SRC_ONREADY);
     $html = '';
-    $html .= $this->childs[0]->toHtml().".\n";
-    $html .= $this->childs[1]->toHtml().".\n";
-    $html .= $this->childs[2]->toHtml()."&nbsp;\n";
+    $html .= $this->childs[0]->toHtml()."&nbsp;\n";
     if ( $this->_dateTimeFormat )
     {
-    	$html .= $this->childs[3]->toHtml().":\n";
-    	$html .= $this->childs[4]->toHtml()."\n";
+		elAddJs('jquery.timepicker.js', EL_JS_CSS_FILE);
+		elAddJs('$("#'.$this->getName().'__time__").timepicker()', EL_JS_SRC_ONREADY);
+    	$html .= $this->childs[1]->toHtml()."\n";
     }
     return $html;
   }
@@ -97,25 +89,41 @@ class elDateSelector extends elFormContainer
   function getValue()
   {
     $this->_fetchValue();
-    return  mktime($this->value['hour'],$this->value['min'],0,$this->value['month'], $this->value['day'], $this->value['year']);
+	if ( $this->_dateTimeFormat )
+		return strtotime($this->value['date'] . ' ' . $this->value['time']);
+	else
+		return strtotime($this->value['date']);
   }
 
   function selfValidate( &$errors, $args )
   {
     $this->_fetchValue();
-    if ( !checkdate($this->value['month'], $this->value['day'], $this->value['year']) )
+		
+	list($year, $month, $day) = explode('-', $this->value['date'], 3);
+	// elPrintR($year);
+	// elPrintR($month);
+	// elPrintR($day);
+	
+    if ( !checkdate($month, $day, $year) )
     {
       $errors[$this->getID()] = $args[2];
       $this->setValue(time());
       return false;
     }
-    return true;
-  }
-}
 
-function elFormatDateTimeArrays($num)
-{
-	return 10 <= $num ? $num : '0'.$num;
+	if ( $this->_dateTimeFormat )
+	{
+		if (!preg_match('/^\d{2}\:\d{2}$/', $this->value['time']))
+		{
+			$errors[$this->getID()] = $args[2];
+	      	$this->setValue(time());
+			return false;
+		}
+	}
+    		
+	return true;
+
+  }
 }
 
 ?>

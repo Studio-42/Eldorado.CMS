@@ -40,6 +40,12 @@ class elPlugin
 		$this->_args = $args;
 	}
 
+	function findSources($module)
+	{
+		$nav = & elSingleton::getObj('elNavigator'); 
+		return $nav->findByModule($module);
+	}
+
 	/**
 	 * Set plugin activity status
 	 * On, Off or Disable

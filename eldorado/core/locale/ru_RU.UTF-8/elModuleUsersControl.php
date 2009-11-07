@@ -15,6 +15,8 @@ $elMsg['Do you realy want to delete user']      = 'Удалить пользов
 $elMsg['User "%s" was deleted']                 = 'Пользователь "%s" удален';
 $elMsg['Create user']                           = 'Новый пользователь';
 $elMsg['Create group']                          = 'Новая группа';
+$elMsg['Apply filter'] = 'Применить фильтр';
+$elMsg['Clean filter'] = 'Сбросить фильтр';
 
 // confidure profile
 $elMsg['Configuration of user profile']         = 'Настройка профайла пользователя';

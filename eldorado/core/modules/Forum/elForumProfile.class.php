@@ -291,8 +291,8 @@ class elForumProfile extends elDataMapping
 
 		$db = & elSingleton::getObj('elDb');
 		$db->query( sprintf('UPDATE %s SET avatar="%s" WHERE uid="%d" LIMIT 1', $this->_tb, $filename, $this->UID));
-		$img = & elSingleton::getObj('elImager');
-		$img->copyResized('./storage/avatars/'.$filename, './storage/avatars/mini-'.$filename, $miniDim, $miniDim);
+		$img = & elSingleton::getObj('elImage');
+		$img->tmb('./storage/avatars/'.$filename, './storage/avatars/mini-'.$filename, $miniDim, $miniDim);
 		
 		return array('', $filename, ceil($_FILES['avatar']['size']/1024), $nfo[0].'x'.$nfo[1]);
 	}

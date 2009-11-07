@@ -1,9 +1,17 @@
 <?php
-class elIGImage extends elMemberAttribute
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elImage.class.php';
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFileInfo.class.php';
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFS.class.php';
+
+class elIGImage extends elDataMapping
 {
-	var $_uniq     = 'i_id';
+	var $_id     = 'i_id';
 	var $_objName  = 'Image';
-	var $tmbMaxSize = 125;
+	var $_error    = '';
+	var $pageID    = 0;	
+	var $dir       = '';
+	var $sizes     = array();
+	var $tmbMaxWidth = 150;
 	var $ID        = 0;
 	var $galID     = 0;
 	var $file      = '';
@@ -22,159 +30,160 @@ class elIGImage extends elMemberAttribute
 	var $height4   = 0;
 	var $width5    = 0;
 	var $height5   = 0;
-
 	var $widthTmb  = 0;
 	var $heightTmb = 0;
 	var $sortNdx   = 0;
 	var $crTime    = 0;
 	var $mTime     = 0;
+	
 
-	var $wm        = '';
-	var $wmPos     = EL_IG_WMPOS_BR;
-	var $imager    = null;
-	
-	function getSrc($sizeNdx)
-	{
-		if ('tmb' === $sizeNdx )
-		{
-			return $GLOBALS['igURL'].'tmb/'.$this->file;
-		}
-		if ( $sizeNdx > 0 && !empty($GLOBALS['igImgSizes'][$sizeNdx]) )
-		{
-			return $GLOBALS['igURL'].$GLOBALS['igImgSizes'][$sizeNdx].'/'.$this->file;
-		}
-		return $GLOBALS['igURL'].$this->file;
-	}
-	
 	function editAndSave( $params=null )
 	{
-		$this->makeForm( $params );
-		if ( !$this->form->isSubmitAndValid() )
+		$this->_makeForm( $params );
+		if ( !$this->_form->isSubmitAndValid() )
 		{
 			return false;
 		}
 
-		$uploader = & $this->form->get('upl_file');
+		$uploader = & $this->_form->get('upl_file');
 
 		if ( $uploader->isUploaded() )
 		{
-			$file = $params['rename'] ? md5(microtime()).'.'.$uploader->getExt() : $uploader->getFileName();
-			if ( !$uploader->moveUploaded($file, $GLOBALS['igDir']) )
+			$filename = $params['rename'] ? md5(microtime()).'.'.$uploader->getExt() : $uploader->getFileName();
+			$file     = $this->dir.'original'.DIRECTORY_SEPARATOR.$filename;
+			if ( !$uploader->moveUploaded($filename, $this->dir.'original'.DIRECTORY_SEPARATOR) )
 			{
-				
-				return $this->form->pushError('upl_file', sprintf(m('Can not upload file "%s"'), $uploader->getFileName()) );
+				elLoadMessages('Errors');
+				return $this->_form->pushError('upl_file', sprintf(m('Can not upload file "%s"'), $uploader->getFileName()) );
 			}
-			if ( $this->wm )
+			
+			// if ( $this->wm )
+			// {
+			// 	if (!$this->_setWatermark($GLOBALS['igDir'].$file))
+			// 	{
+			// 		elThrow(E_USER_WARNING, 'Could not add watermark to image');
+			// 	}
+			// }
+
+			if ( !$this->setImgFile($file, $params['wm'], $params['wmpos']) )
 			{
-				if (!$this->_setWatermark($GLOBALS['igDir'].$file))
-				{
-					elThrow(E_USER_WARNING, 'Could not add watermark to image');
-				}
-			}
-			if ( !$this->setImgFile($file) )
-			{
-				@unlink($GLOBALS['igDir'].$file);
-				return $this->form->pushError('upl_file', sprintf( m('File "%s" is not an image or has unsupported type'), $uploader->getFileName()));
+//				@unlink($file);
+				return $this->_form->pushError('upl_file', $this->_error);
 			}
 			
 		}
 		
-		$this->setAttrs( $this->form->getValue() );
+		$this->attr($this->_form->getValue());
 		
 		return $this->save();
 	}
 
-	function makeForm( $params )
+	function _makeForm( $params )
 	{
-		parent::makeForm();
-		$gID = $this->getUniqAttr() ? $this->getAttr('i_gal_id') : $params['gID'];
-		$this->form->add( new elSelect('i_gal_id', m('Gallery'), $gID, $params['gList']) );
-		$this->form->add( new elText(  'i_name',   m('Name'),   $this->name) );
+		parent::_makeForm();
+		$gID = $this->ID ? $this->galID : $params['gID'];
+		$this->_form->add( new elSelect('i_gal_id', m('Gallery'), $gID, $params['parents']) );
 
-		$uploader = & new elImageUploader('upl_file', m('Image'), $this->file ? $this->getSrc(0) : '' );
+		$uploader = & new elImageUploader('upl_file', m('Image'), $this->file ? EL_IG_URL.$this->pageID.'/tmb/'.rawurlencode($this->file) : '' );
 		$uploader->setReplaceMode(true);
-		$this->form->add( $uploader );
-		if (!$this->getAttr('i_file'))
+		$this->_form->add( $uploader );
+		if (!$this->file)
 		{
-			$this->form->setRequired('upl_file');
+			$this->_form->setRequired('upl_file');
 		}
-		$this->form->add( new elTextArea( 'i_comment', m('Comment'), $this->getAttr('i_comment'), 
-																			array('rows'=>4, 'maxlength'=>255)) );
+		$this->_form->add( new elText('i_name', m('Name'), $this->name) );
+		$this->_form->add( new elTextArea('i_comment', m('Comment'), $this->comment, array('rows'=>4, 'maxlength'=>256)) );
 	}
 
-	function setImgFile($file)
+
+	function setImgFile($file, $wm, $wmpos)
 	{
-		//$_imager = & elSingleton::getObj('el_imager');
-		$this->initImager();
-		$path   = realpath($GLOBALS['igDir'].$file);
-		
-		if (false == (list($origW, $origH) = $this->imager->getInfo($path)) )
+		if (false == ($s = elFileInfo::isWebImage($file)))
 		{
-			return elThrow(E_USER_WARNING, $this->__imager->getError());
+			elLoadMessages('Errors');
+			$this->_error = sprintf(m('File "%s" is not an image or has unsupported type'), basename($file));
+			return false;
 		}
-		// remove old file
-		if ( $this->file )
+
+		$this->attr( array('i_width_0' => $s[0], 'i_height_0' => $s[1]));
+
+		if (!elFS::mkdir($this->dir.'tmb'))
 		{
-			$this->rmFile($this->file);
+			elLoadMessages('Errors');
+			$this->_error = sprintf(m('Could not create directory %s'), $dir.'tmb');
+			return false;
 		}
-		$this->setAttr('i_file',      $file);
-		$this->setAttr('i_file_size', ceil(filesize($path)/1024) );
-		$this->setAttr('i_width_0',   $origW);
-		$this->setAttr('i_height_0',  $origH);
+
+		$_image = elSingleton::getObj('elImage');
+		$h = ceil($this->tmbMaxWidth/(4/3));
 		
-		// make thumbnail
-		if ( false == (list($tmbW, $tmbH) = $this->imager->makeTmb($path, 'tmb', $this->tmbMaxSize, $this->tmbMaxSize)) )
+		if (!$_image->tmb($file, $this->dir.'tmb', $this->tmbMaxWidth, $h, true))
 		{
-			elThrow(E_USER_WARNING, $this->__imager->getError());
-			list($tmbW, $tmbH) = $this->imager->calcTmbSize($origW, $origH, $this->tmbMaxSize, $this->tmbMaxSize);
+			$this->_error = $_image->error;
+			return false;
 		}
-		$this->setAttr('i_width_tmb',  $tmbW);
-		$this->setAttr('i_height_tmb', $tmbH);
-		
-		// make scaled copies
-		for ( $i=1, $s=sizeof($GLOBALS['igImgSizes']); $i<$s; $i++ )
+		$this->attr(array('i_width_tmb' => $this->tmbMaxWidth, 'i_height_tmb' => $h));
+
+		if ($wm)
 		{
-			list($tmbW, $tmbH) = explode('x', $GLOBALS['igImgSizes'][$i]);
-			if ( false == (list($prevW, $prevH) = $this->imager->makeTmb($path, $GLOBALS['igImgSizes'][$i], $tmbW, $tmbH)) )
+			$_image->watermark($file, $this->dir.'wm'.DIRECTORY_SEPARATOR.$wm, $wmpos);
+		}
+
+		for ($i=1, $sz=sizeof($this->sizes); $i<$sz; $i++)
+		{
+			$_dir = $this->dir.$this->sizes[$i].DIRECTORY_SEPARATOR; 
+			if (!elFS::mkdir($_dir))
 			{
-				elThrow(E_USER_WARNING, $this->imager->getError());
-				list($prevW, $prevH) = $this->imager->calcTmbSize($origW, $origH, $tmbW, $tmbH);
-			}	
-			$this->setAttr('i_width_'.$i,  $prevW);
-			$this->setAttr('i_height_'.$i, $prevH);
+				elLoadMessages('Errors');
+				$this->_error = sprintf(m('Could not create directory %s'), $_dir);
+				return false;
+			}
+			list($_w, $_h) = explode('x', $this->sizes[$i]);
+			list($w, $h)   = $_image->calcTmbSize($s[0], $s[1], $_w, $_h);
+
+			if (!$_image->tmb($file, $_dir, $w, $h))
+			{
+				$this->_error = $_image->error;
+				return false;
+			}
+			$this->attr(array('i_width_'.$i => $w, 'i_height_'.$i => $h));
 		}
+		$this->attr(array('i_file' => basename($file), 'i_file_size' => filesize($file)/1024));
+		$this->ID && $this->file && $this->file != basename($file) && $this->rmFile();
 		return true;
 	}
 
-	function updateTmb( $tmbSize )
+	function updateTmb()
 	{
-		if ($tmbSize > 0 && ($tmbSize<>$this->getAttr('i_width_tmb') || $tmbSize<>$this->getAttr('i_height_tmb')) )
+		$_image = elSingleton::getObj('elImage');
+		$h = ceil($this->tmbMaxWidth/(4/3));
+		
+		if (!$_image->tmb($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file, $this->dir.'tmb', $this->tmbMaxWidth, $h, true))
 		{
-			$path   = realpath($GLOBALS['igDir'].$this->getAttr('i_file'));
-			$this->initImager();
-			
-			if ( false == (list($tmbW, $tmbH) = $this->imager->makeTmb($path, 'tmb', $tmbSize, $tmbSize)) )
-			{
-				elThrow(E_USER_WARNING, $this->imager->getError());
-				list($tmbW, $tmbH) = $this->imager->calcTmbSize($w, $h, $tmbSize, $tmbSize);
-			}
-			$this->setAttr('i_width_tmb',  $tmbW);
-			$this->setAttr('i_height_tmb', $tmbH);
-			return true;
+			$this->_error = $_image->error;
+			return false;
 		}
-		return false;
+		$this->attr(array('i_width_tmb' => $this->tmbMaxWidth, 'i_height_tmb' => $h));
+		return $this->save();
 	}
-	
+
+	function rmFile()
+	{
+		file_exists($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file);
+		file_exists($this->dir.'tmb'.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.'tmb'.DIRECTORY_SEPARATOR.$this->file);		
+		foreach ($this->sizes as $s)
+		{
+			file_exists($this->dir.$s.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.$s.DIRECTORY_SEPARATOR.$this->file);		
+		}
+	}
+
 	function delete()
 	{
-		if (!$this->ID)
+		if ($this->ID)
 		{
-			return;
+			$this->rmFile();
+			parent::delete();
 		}
-		$this->rmFile( $this->getAttr('i_file') );
-		$db = & $this->_getDb();
-		$db->query('DELETE FROM '.$this->tb.' WHERE i_id=\''.$this->ID.'\'');
-		$db->optimizeTable($this->tb);
 	}
 
 	function _initMapping()
@@ -211,119 +220,13 @@ class elIGImage extends elMemberAttribute
 	{
 		if ( !$this->ID )
 		{
-			$this->setAttr('i_crtime', time());
+			$this->attr('i_crtime', time());
 		}
-		$this->setAttr('i_mtime', time());
+		$this->attr('i_mtime', time());
 		return parent::_attrsForSave();
 	}
 
-	function initImager()
-	{
-		if (!$this->imager)
-		{
-			$this->imager = & elSingleton::getObj('elImager');
-		}
-	}
-	
-	function rmFile($file)
-	{
-		// remove original
-		$path = realpath($GLOBALS['igDir'].$file); 
-		if ( is_file($path) && !@unlink($path) )
-		{
-			elThrow(E_USER_WARNING, 'Could not delete file "%s"', $path);
-		}
-		// remove thumbnail
-		$path = realpath($GLOBALS['igDir'].'tmb/'.$file); 
-		if ( is_file($path) && !@unlink($path) )
-		{
-			elThrow(E_USER_WARNING, 'Could not delete file "%s"', $path);
-		}
-		// remove all scaled copies
-		for ( $i=1, $s=sizeof($GLOBALS['igImgSizes']); $i<$s; $i++ )
-		{
-			$path = realpath($GLOBALS['igDir'].$GLOBALS['igImgSizes'][$i].'/'.$file);
-			if ( is_file($path) && !@unlink($path) )
-			{	
-				elThrow(E_USER_WARNING, 'Could not delete file "%s"', $path);
-			}
-		}
-	}
-	
-	function _setWatermark($file)
-	{
-		if ( !function_exists('imagecreatefromjpeg') )
-		{
-			return false;
-		}
-		$fc = array(
-					1 => 'imagecreatefromgif',
-					2 => 'imagecreatefromjpeg',
-					3 => 'imagecreatefrompng'
-					);
-		$fs = array(
-					1 => 'imagegif',
-					2 => 'imagejpeg',
-					3 => 'imagepng'
-					);
-		
-		$s = getimagesize($file);
-		if ( empty($fc[$s[2]]) )
-		{
-			return false;
-		}
-		$f     = $fc[$s[2]];
-		$fSave = $fs[$s[2]];
-		$orig  = $f($file);
-		
-		$s = getimagesize($this->wm);
-		if ( empty($fc[$s[2]]) )
-		{
-			return false;
-		}
-		$f  = $fc[$s[2]];
-		$wm = $f($this->wm);
-		
-		$wOrig = imagesx( $orig );
-		$hOrig = imagesy( $orig );
-		$wWm   = imagesx( $wm );
-		$hWm   = imagesy( $wm );
-		
-		switch ($this->wmPos)
-		{
-			case EL_IG_WMPOS_TL:
-				$x = $y = 0;
-				break;
-			case EL_IG_WMPOS_TR:
-				$x = $wOrig - $wWm;
-				$y = 0;
-				break;
-			case EL_IG_WMPOS_C:
-				$x = ($wOrig - $wWm)/2;
-				$y = ($hOrig - $hWm)/2;
-				break;
-			case EL_IG_WMPOS_BL:
-				$x = 0;
-				$y = $hOrig - $hWm;
-				break;
-			default:
-				$x = $wOrig - $wWm;
-				$y = $hOrig - $hWm;
-				
-		}
-		
-		
-		$out = imagecreatetruecolor($wOrig, $hOrig);
-		imagealphablending($out, TRUE);
-		
-		imagecopy($out, $orig, 0, 0, 0, 0, $wOrig, $hOrig);
-		imagecopy($out, $wm, $x, $y, 0, 0, $wWm, $hWm);
-		$fSave($out, $file, 100);
-		imagedestroy($out);
-		imagedestroy($wm);
-		imagedestroy($orig);
-		return true;
-	}
+
 	
 }
 ?>

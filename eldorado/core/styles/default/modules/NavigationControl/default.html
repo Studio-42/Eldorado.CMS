@@ -6,14 +6,14 @@
 			<th>{m('Path')}</th>
 			<th>{m('Module')}</th>
 			<th>{m('Visible')}</th>
-			<th>{m('Access')}</th>
+			<th colspan="2">{m('Access')}</th>
 		</tr>
 	</thead>  
 	<tbody>
 		<!-- BEGIN MPAGE -->
 	  	<tr id="node-{id}"{parent}>
 	    	<th style="text-align:center">
-	    		<a href="#" onclick="return popUp('{POPUP_URL}icons/{id}/', 400, 200);" title="{m('Upload new icons or set to default')}"><img src="{ico_main}" /></a>
+	    		<a href="#" onclick="return popUp('{POPUP_URL}icons/{id}/', 400, 200);" title="{m('Upload new icons or set to default')}"><img src="{ico_main}" width="16" height="16" /></a>
 	    	</th>
 	    	<td class="navpage">
 	      		<a href="{url}">{name}</a>
@@ -25,10 +25,21 @@
 	    	<td>{module} </td>
 	    	<td>{visible}</td>
 	    	<td>{perm}</td>
+	    	<td class="admin" style="width:170px;">
+				<!-- BEGIN ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}edit/{id}/"        class="icons edit"   title="{m('Edit')}"></a></li>
+					<li><a href="{URL}up/{id}/"          class="icons up"     title="{m('Move up')}"></a></li>
+					<li><a href="{URL}down/{id}/"        class="icons down"   title="{m('Move down')}"></a></li>
+					<li><a href="{URL}page_layout/{id}/" class="icons conf"   title="{m('How to display navigation paths on page')}"></a></li>
+					<li><a href="{URL}del/{id}/"         class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete page')} `{name}`?');"></a></li>
+				</ul>
+				<!-- END ADMIN -->
+	    	</td>
 	  	</tr>
 	  	<!-- END MPAGE -->
 	</tbody>
 </table>
 <script type="text/javascript" charset="utf-8">
-	$().ready(function() { $("#nav-list").treeTable( {indent:17} );	});
+	$().ready(function() { $("#nav-list").treeTable( {indent:17, initialState : 'expanded'} ); });
 </script>

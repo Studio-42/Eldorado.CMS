@@ -45,8 +45,12 @@ class elMsgBox
     {
       if ( isset($this->queues[$label]) )
 	{
-	  $this->queues[$label][] = $msg;
-	  //$_SESSION[$this->_prefix.$label] = $this->queues[$label];
+		$key = crc32($msg);
+		if (sizeof($this->queues[$label]) > 50)
+		{
+			$this->queues[$label] = array_slice($this->queues[$label], 0, 50);
+		}
+	  $this->queues[$label][$key] = $msg;
 	}
 
     }

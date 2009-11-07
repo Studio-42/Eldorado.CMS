@@ -1,0 +1,138 @@
+<div id="mod-meta">
+	<div>
+		<a href="#" class="icons edit float-right" name="1_0_0"></a>
+		<span>{m('Whole site')}</span>
+	</div>
+	<ul>
+		<!-- BEGIN META_PAGE -->
+		<li>
+			<a href="#" class="icons edit float-right" name="{id}"></a>
+			<!-- BEGIN CHILD --> <span>{name}</span> <!-- END CHILD -->
+			<!-- BEGIN PARENT --> <a href="#" id="{id}" class="el-collapsed">{name}</a> <!-- END PARENT -->
+		</li>
+		<!-- END META_PAGE -->
+	</ul>
+</div>
+
+<style type="text/css" media="screen">
+	.el-dialogform table { border-bottom:1px solid #ccc;}
+	.el-dialogform table input, .el-dialogform table textarea { width: 100%;}
+</style>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		function toggle(e) {
+			e.preventDefault();
+			var self = $(this);
+			var ul   = self.parent('li').children('ul').eq(0);
+			self.toggleClass('el-expanded');
+			if (ul.length) {
+				ul.slideToggle();
+			} else {
+				var id = $(this).attr('id');
+				$.ajax({
+					url      : '{URL}meta/',
+					type     : 'post',
+					dataType : 'json',
+					data     : { action : 'childs', id : id },
+					error    : function(h, e, t) { alert('{m('Request failed')}' + (e||t)) },
+					success  : function(data) {
+						if (data.error) {
+							return alert(data.error);
+						}
+
+						var parent = self.parent('li');
+						var ul = $('<ul />').appendTo(parent).hide();
+						$.each(data, function() {
+							var li = $('<li />').append($('<a />').attr('href', '#').attr('name', this.id).addClass('icons edit float-right')).appendTo(ul);
+							if (this.has_childs==1) {
+								li.append($('<a />').attr('href', '#').attr('id', this.id).addClass('el-collapsed').append(this.name));
+							} else {
+								li.append($('<span/>').append(this.name));
+							}
+						});
+						ul.slideDown();
+					}
+				});
+			}
+		}
+		
+		function editMeta(e) {
+			e.preventDefault();
+
+			var self = $(this);
+
+			var d = new elDialogForm({
+				submit : null,
+				dialog : {
+					title : "{m('Meta tags')} : "+self.next('span,a').text(),
+					width : 470,
+					buttons : {}
+				},
+				ajaxForm : {
+					url : '{URL}meta/',
+					dataType : 'json',
+					beforeSubmit : function() { d.showSpinner("{m('Sending data')}").option('buttons', {}); },
+					error    : function(h, e, t) { d.showError(e||t, true).option('buttons', {Ok : function() { d.close() }}); },
+					success  : function(data) {
+						
+						if (data.error) {
+							return d.showError(data.error, true).option('buttons', {Ok : function() { d.close() }});
+						}
+						d.showMessage(data.message, true).option('buttons', {Ok : function() { d.close() }});
+
+					}
+				}
+			});
+			d.showSpinner("{m('Reciving data')}").open();
+			
+			$.ajax({
+				url      : '{URL}meta/',
+				type     : 'post',
+				dataType : 'json',
+				data     : { action : 'meta', id : self.attr('name') },
+				error    : function(h, e, t) { d.showError(e||t); },
+				success  : function(data) {
+
+					if (data.error) {
+						return d.showError(data.error).option('buttons', {Ok : function() { d.close() }});
+					}
+					d.hideSpinner();
+					d.append($('<input type="hidden" />').attr('name', 'action').val('update'))
+						.append($('<input type="hidden" />').attr('name', 'id').val(self.attr('name')))
+						.append($('<input type="hidden" />').attr('name', 'meta[name][]').val('title'))
+						.append(['title&nbsp;&nbsp;&nbsp;&nbsp;', $('<input type="text" />').attr('name', "meta[value][]").val(data.title||'')], false, true)
+						.table();
+					for (var name in data) {
+						if (name != 'title') {
+							
+							d.append(["{m('Name')}", $('<input type="text" />').attr('name', 'meta[name][]').val(name)], false, true)
+								.append(["{m('Value')}", $('<textarea name="meta[value][]" />').val(data[name]||'').attr('rows', 4)], false, true);
+						}
+					}
+					
+					var add = $('<div />')
+									.append($('<span />').addClass('ui-icon ui-icon-circle-plus').css({'float' : 'left', 'margin-right' : '.3em'}))
+									.append("{m('New tag')}")
+									.css('cursor', 'pointer')
+									.click(function(e) {
+										d.append(["Tag", $('<input type="text" />').attr('name', 'meta[name][]')], false, true)
+										.append(["{m('Value')}", $('<textarea name="meta[value][]" />').attr('rows', 4)], false, true)
+									});
+					d.append(add);
+					
+					d.option('buttons', {
+						Cancel : function() { d.close(); },
+						Ok     : function() { d.form.trigger('submit'); }
+						});
+				}
+			})
+		}
+		
+		$('#mod-meta a.edit').live('click', editMeta);
+		
+		$('#mod-meta a.el-collapsed').live('click', toggle);
+		
+	});
+	
+</script>

@@ -12,6 +12,6 @@ $elMsg['Full name'] = 'Фамилия Имя Отчество';
 $elMsg['Phone'] = 'Телефон';
 $elMsg['Resume text'] = 'Текст резюме';
 $elMsg['Attach file'] = 'Вложить файл';
-$elMsg['You should fill "resume text" field or send resume as attached file'] = 'Зполните поле "Текст резюме" или отправьте резюме во вложенном файле';
+$elMsg['You should fill "resume text" field or send resume as attached file'] = 'Заполните поле "Текст резюме" или отправьте резюме во вложенном файле';
 $elMsg['Dear %s. Your message was delivered!'] = 'Уважаемый/ая %s. Ваше сообщение получено.';
 ?>

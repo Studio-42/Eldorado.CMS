@@ -1,9 +1,25 @@
-<div class="item mod-ishop-item rounded-5">
-	
+<div class="item mod-ishop-item rounded-5 ">
+	<!-- BEGIN ITEM_ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+		<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image" title="{m('Change item image')}"></a></li>
+		<li><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+	</ul>
+	<!-- END ITEM_ADMIN -->
 	<h2>{name}</h2>
 	<div class="mod-ishop-item-content clearfix">
+		<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
+      	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->
+      	<!-- BEGIN IS_ITEM_MNFTM -->
+      	<div class="mod-ishop-mnf">
+		<!-- BEGIN IS_IMNF --><strong>{mnf}</strong> {country}<!-- END IS_IMNF --> 
+		<!-- BEGIN IS_ITM --><strong>{tm}</strong><!-- END IS_ITM -->
+		</div>
+      	<!-- END IS_ITEM_MNFTM -->
 		<!-- BEGIN IS_ITEM_ORDER -->
+		
 		<form action="{URL}__icart__/add/{catID}/{id}/" method="post">
+			
 			<div class="rounded-3 mod-ishop-cart">
 		     	<table>
 		       		<tr>
@@ -18,26 +34,15 @@
 		         		</td>
 		         		<!-- END IP_ORDER -->
 		         		<td>
-							<input type="submit" class="form-submit" value="{m('Buy now')}" />
+							<input type="submit" value="{m('Buy')}" class="form-submit" />
 						</td>
 		       		</tr>
 		     	</table>
 			</div>
 		</form>
       	<!-- END IS_ITEM_ORDER -->
-	
-		<!-- BEGIN ITEM_IMG -->
-		<a href="#" onclick="return popUp('{POPUP_URL}img/{catID}/{id}/', {w}, {h})"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
-  		<!-- END ITEM_IMG -->
-
-		<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
-      	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->
-      	<!-- BEGIN IS_ITEM_MNFTM -->
-      	<div class="mod-ishop-mnf">
-		<!-- BEGIN IS_IMNF --><strong>{mnf}</strong> {country}<!-- END IS_IMNF --> 
-		<!-- BEGIN IS_ITM --><strong>{tm}</strong><!-- END IS_ITM -->
-		</div>
-      	<!-- END IS_ITEM_MNFTM -->
+	</div>
+	<div class="mod-ishop-item-content clearfix">
 		<!-- BEGIN ITEM_IMG_TOP -->
       	<div class="mod-ishop-iimg-center">
         	<a href="#" onclick="return popUp('{POPUP_URL}img/{catID}/{id}/', {w}, {h})"><img src="{src}" alt="{alt}" /></a>
@@ -51,7 +56,9 @@
         	<!-- END IP_TOP -->
       	</div>
       	<!-- END IS_IPROPS_TOP -->
-
+		<!-- BEGIN ITEM_IMG -->
+		<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
+  		<!-- END ITEM_IMG -->
       	{content} 
 
 	</div>
@@ -90,27 +97,13 @@
         <!-- END IP_BOTTOM -->
  	</div>
     <!-- END IS_IPROPS_BOTTOM -->
+
+	{LINKED_OBJS}
 	
-	<!-- BEGIN LINKED_OBJS -->
-	<!-- BEGIN LOBJS_GROUP -->
-	<div class="rounded-top-5 crosslinks-group">
-		<div class="rounded-top-5 ">
-			<span href="#" class="el-collapsed">{name}</span>
-		</div>
-		<ul class="hide">
-			<!-- BEGIN LOBJ -->
-			<li><a href="{url}">{name}</a></li>
-			<!-- END LOBJ -->
-		</ul>
-	</div>
-	<!-- END LOBJS_GROUP -->
-	<!-- END LINKED_OBJS -->
 </div>
+
 <script type="text/javascript" charset="utf-8">
-	$().ready( function() {
-		$('.crosslinks-group .el-collapsed').click( function() {
-			$(this).toggleClass('el-expanded');
-			$(this).parent().siblings('ul').slideToggle('slow');
-		});
-	});
+	if ($.fn.fancybox) {
+		$("a[rel='fancy-tour']:has(img)").fancybox(); 
+	}
 </script>

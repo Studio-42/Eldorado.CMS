@@ -13,13 +13,17 @@ class elRndLinksCatalog extends elCatalogRenderer
 	{
 		for ($i=0,$s=sizeof($items); $i<$s; $i++)
 		{
-			$vars = $items[$i]->toArray();
-			$vars['cssRowClass'] = $i%2 ? 'strip-odd' : 'strip-ev';
-			$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM', $vars, 1);
-			if ( !empty($vars['url']) )
+			$data = $items[$i]->toArray();
+			$data['cssRowClass'] = $i%2 ? 'strip-odd' : 'strip-ev';
+			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
+			if ( !empty($data['url']) )
       		{
-        		$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM.OC_URL', array('url'=>$vars['url']), 2);
+        		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.URL', array('url'=>$data['url']), 3);
       		}
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
+			}
 		}
 	}
 
@@ -32,21 +36,25 @@ class elRndLinksCatalog extends elCatalogRenderer
 	function _rndItemsTwoColumns($items)
 	{
 		$rowCnt = 0;
-		for ($i=1, $s = sizeof($items); $i<=$s; $i++ )
+		for ($i=0, $s = sizeof($items); $i<$s; $i++ )
 		{
-			if ( $i%2  )
+			$data = $items[$i]->toArray();
+			$data['cssLastClass'] = 'col-last';
+			if (!($i%2))
 			{
-				$cssRowClass = ++$rowCnt%2 ? 'strip-ev' : 'strip-odd';
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW', array('cssRowClass'=>$cssRowClass), 1);
+				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s-1 ? 'invisible' : '');
+				$this->_te->assignBlockVars('ITEMS_TWOCOL', $var);
+				$data['cssLastClass'] = '';
 			}
-			$vars = $items[$i-1]->toArray();
-			$vars['cssRowClass']  = $cssRowClass;
-			$vars['cssLastClass'] = $i%2 ? '' : 'col-last';
-			$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM', $vars, 2 );
-			if ( !empty($vars['url']) )
+			$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM', $data, 1 );
+			if ( !empty($data['url']) )
       		{
-        		$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW.T_ITEM.TC_URL', array('url'=>$vars['url']), 3);
+        		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.URL', array('url'=>$data['url']), 3);
       		}
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
+			}
 		}
 		
 	}

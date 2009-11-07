@@ -1,8 +1,5 @@
 <?php
-/**
- * ver. 1.1
- *
- */
+
 define('EL_NAV_TYPE_MAIN',       1);
 define('EL_NAV_TYPE_COMBI',      2);
 define('EL_NAV_TYPE_JS',         3);
@@ -20,17 +17,16 @@ class elSiteRenderer
 	var $_nav    = null;
 	var $_te     = null; //template engine
 	var $_tpls   = array(
-						EL_WM_NORMAL => 'normal.html',
-						EL_WM_POPUP  => 'popup.html',
-						EL_WM_PRNT   => 'print.html'
-						);
+		EL_WM_NORMAL => 'normal.html',
+		EL_WM_POPUP  => 'popup.html'
+		);
 
 	var $_columns = array(
-						EL_POS_LEFT   => 'LEFT_COLUMN',
-						EL_POS_RIGHT  => 'RIGHT_COLUMN',
-						EL_POS_TOP    => 'TOP_COLUMN',
-						EL_POS_BOTTOM => 'BOTTOM_COLUMN'
-						);
+		EL_POS_LEFT   => 'LEFT_COLUMN',
+		EL_POS_RIGHT  => 'RIGHT_COLUMN',
+		EL_POS_TOP    => 'TOP_COLUMN',
+		EL_POS_BOTTOM => 'BOTTOM_COLUMN'
+		);
 
   var $_mainMenuPos = array(
     EL_POS_TOP   => array('MAIN_MENU_POS_TOP', 'MAIN_MENU_TOP', 'mainMenuTop.html', '_rndMenuHoriz'),
@@ -44,8 +40,6 @@ class elSiteRenderer
     EL_POS_RIGHT => array(EL_POS_RIGHT,       'MENU_RIGHT',   'menuRight.html',  '_rndMenuVert')
   );
 
-
-
 	var $_msgTpls = array(
 						EL_MSGQ   => 'messages.html',
 						EL_WARNQ  => 'warning.html',
@@ -55,9 +49,9 @@ class elSiteRenderer
 
 	var $_miscTpl = array(
 		'search' => array(
-			EL_POS_LEFT  => array('SEARCH_FORM_LEFT',  'common/search/searchFormLeft.html', 1),
-			EL_POS_RIGHT => array('SEARCH_FORM_RIGHT', 'common/search/searchFormLeft.html', 1),
-			EL_POS_TOP   => array('SEARCH_FORM_TOP',   'common/search/searchFormTop.html',  0)
+			EL_POS_LEFT  => array('SEARCH_FORM_LEFT',  'common/search/left.html', 1),
+			EL_POS_RIGHT => array('SEARCH_FORM_RIGHT', 'common/search/right.html', 1),
+			EL_POS_TOP   => array('SEARCH_FORM_TOP',   'common/search/top.html',  0)
 			),
 		'icart' => array(
 			EL_POS_LEFT  => array('ICART_LEFT',  'common/ICart/left.html', 1),
@@ -150,7 +144,6 @@ class elSiteRenderer
 
 	function display( $timer)//, $userName, $userAuthed, $regAuth )
 	{
-		$this->_renderIcons();
 		$this->_renderMessages();
 		if ( EL_WM == EL_WM_NORMAL )
 		{
@@ -205,7 +198,11 @@ class elSiteRenderer
 			if (false != ($stID = $this->_conf->findGroup('module', 'GAStat')) )
 			{
 				$code = $this->_conf->get('webPropertyId', $stID);
-				$this->_te->assignBlockVars('GASTAT_COUNTER', array('webID'=>$code));
+				if ($code)
+				{
+					$this->_te->assignBlockVars('GASTAT_COUNTER', array('webID'=>$code));
+				}
+				
 			}
 		}
 		$this->_renderJs();
@@ -227,17 +224,7 @@ class elSiteRenderer
 		$this->_te->assignVars('bodyCssClass', $class);
 	}
 
-	function _renderIcons()
-	{
-		foreach( $GLOBALS['elIcons'] as $k=>$v )
-		{
-			if ( $k )
-			{
-				$this->_te->assignVars('ico'.$k, $GLOBALS['elIconsURL'].$v); 
-			}
-		}
-		
-	}
+
 
 	/**
   * render search form in position according to config
@@ -284,9 +271,9 @@ class elSiteRenderer
 		}
 		foreach ($GLOBALS['jsScripts'][EL_JS_CSS_FILE] as $js)
 		{
-			if (false != ($jsURL = $this->_jsURL($js)))
+			if (file_exists(EL_DIR_CORE.'js/'.$js))
 			{
-				$this->_te->assignBlockVars('JS_LINK', array('js' => $jsURL) );
+				$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/core/js/'.$js) );
 			}
 		}
 	}
@@ -298,10 +285,26 @@ class elSiteRenderer
 
 	function _renderCss()
 	{
+		$str = '&f[]=layout.css&f[]=styling.css&f[]=normal.css';
 		foreach ($GLOBALS['css'] as $css)
 		{
-			$this->_te->assignBlockVars(EL_JS_CSS_FILE == $css['t'] ? 'CSS_LINK' : 'CSS', array('css'=>$css['src']));
+			if (EL_JS_CSS_FILE == $css['t'])
+			{
+				if (strstr($css['src'], 'ui-themes'))
+				{
+					$this->_te->assignBlockVars('CSS_LINK', array('css'=>$css['src']));
+				}
+				else
+				{
+					$str .= '&f[]='.$css['src'];
+				}
+			}
+			else
+			{
+				$this->_te->assignBlockVars('CSS', array('css'=>$css['src']));
+			}
 		}
+		$this->_te->assignBlockVars('CSS_COMBO', array('args' => $str));
 	}
 
 	function _renderMessages()
@@ -321,6 +324,7 @@ class elSiteRenderer
 		if ( !empty($msgs) )
 		{
 			$this->_te->setFile('SYS_MESSAGES', 'common/messages.html');
+			$ats = & elSingleton::getObj('elATS');
 			foreach ( $msgs as $queue )
 			{
 				if ( $msg = $msgBox->fetchToString($queue) )
@@ -330,7 +334,7 @@ class elSiteRenderer
 						$b = EL_MSGQ == $queue ? 'SYS_MESSAGES.SYS_MSG' : 'SYS_MESSAGES.SYS_WARN';
 						$this->_te->assignBlockVars( $b, array('msg'=>nl2br($msg)) );
 					}
-					elseif ( $this->_te->isBlockExists('SYS_DEBUG') )
+					elseif ( $ats->allow(EL_WRITE) && $this->_te->isBlockExists('SYS_DEBUG') )
 					{
 						$this->_te->assignBlockVars('SYS_DEBUG', array('msg'=>nl2br($msg)) );
 					}
@@ -429,8 +433,7 @@ class elSiteRenderer
 	          {
 	            $pos = EL_POS_LEFT;
 	          }
-	          $param      = $this->_subMenuPos[$pos]; 
-	          //$m          = $this->_subMenuPos[$pos][3];
+	          $param      = $this->_mainMenuPos[$pos]; 
 	          $parentName = $this->_conf->get('subMenuDisplParent', 'layout') ? $this->_nav->getPageName($page['id']) : '';
 	          $this->{$param[3]}($subPages, $param[0], $param[1], $param[2], (int)$this->_conf->get('subMenuUseIcons', 'layout'), $parentName);
             break;
@@ -464,13 +467,16 @@ class elSiteRenderer
 		{
 			$this->_rndAddMenu( $aMenus[EL_ADD_MENU_BOT], EL_ADD_MENU_BOT, $this->_conf->get('addMenuBottom', 'layout'));
 		}
+	//	echo EL_ADD_MENU_SIDE;
 		if ( !empty($aMenus[EL_ADD_MENU_SIDE]) )
 		{
 			foreach ( $aMenus[EL_ADD_MENU_SIDE] as $menu )
 			{
+				// elPrintR($menu);
 				if (! empty($menu['pages']) )
 				{
-					$param = $this->_subMenuPos[$menu['pos']]; //elPrintR($param);
+					
+					$param = $this->_mainMenuPos[$menu['pos']]; //elPrintR($param);
 					$this->{$param[3]}($menu['pages'], $param[0], $param[1], $param[2], (int)$this->_conf->get('subMenuUseIcons', 'layout'), $menu['name']);
 				}
 				
@@ -610,22 +616,22 @@ class elSiteRenderer
 
 	function _rndMenuVert($pages, $pos, $varName, $file, $icons, $parentName=null)
 	{
-		//elPrintR($pages);
-    if (!$pages)
-    {
-      return;
-    }
-    $GLOBALS['parseColumns'][$pos] = true;
+		// elPrintR($pages); echo $varName;
+    	if (!$pages)
+    	{
+      		return;
+    	}
+    	$GLOBALS['parseColumns'][$pos] = true;
 
-    $this->_te->setFile($varName, 'menus/'.$file);
-    $curPageID = $this->_nav->getCurrentPageID();
+    	$this->_te->setFile($varName, 'menus/'.$file);
+    	$curPageID = $this->_nav->getCurrentPageID();
 
-    if ($parentName)
-    {
-      $this->_te->assignBlockVars('VMENU.VM_PARENT', array('parentName'=>$parentName), 1);
-    }
-	$i = 0;
-    foreach ( $pages as $one )
+    	if ($parentName)
+    	{
+      		$this->_te->assignBlockVars('VMENU.VM_PARENT', array('parentName'=>$parentName), 1);
+    	}
+		$i = 0;
+    	foreach ( $pages as $one )
 		{
 			if ($curPageID != $one['id'])
 			{
@@ -650,6 +656,7 @@ class elSiteRenderer
 			$this->_te->assignBlockVars($block, $one, 1);
 			if ( $icons )
 			{
+				// elPrintR($one);
 				$this->_te->assignBlockVars($blockIco, $one, 3);
 			}
 		}
@@ -668,13 +675,14 @@ class elSiteRenderer
 	  	{
 	    	$pos = EL_POS_LEFT;
 	  	}
-	  	$param     = $this->_mainMenuPos[$pos];
+	  	$param     = $this->_mainMenuPos[$pos]; 
 	  	$vert      = EL_POS_TOP != $pos;
 		$pages     = $this->_nav->getPages(0, 0, true, true);
 		$showIcons = $this->_conf->get('mainMenuUseIcons', 'layout');
 		$icoURL    = $this->_conf->get('mainMenuUseIcons', 'layout')
 			? EL_BASE_URL.'/'.EL_DIR_STORAGE_NAME.'/pageIcons/' 
 			: '';
+
 		$curPageID = $this->_nav->getCurrentPageID();
 		$html = "";
 		$level = 1;
@@ -689,13 +697,23 @@ class elSiteRenderer
 				$html .= str_repeat("\n</ul></li>\n", $level-$p['level']);
 			}
 			
-			$cssClass = $curPageID == $p['id'] ? 'nav-top-current ' : '';
+			$cssClass = '';
 			if (!$vert && 1==$p['level'])
 			{
-				$cssClass .= 'top';
+				$cssClass = 'toplevel';
+				$cssClass .= $curPageID == $p['id'] ? ' nav-top-current ' : '';
+				$cssClass = 'class="'.$cssClass.'"';
 			} 
-			$html .= "<li".($cssClass ? ' class="'.$cssClass.'"' : '').">";
-			$html .= '<a href="'.$p['url'].'">'.($icoURL ? '<img src="'.$icoURL.$p['ico_add_menu_top'].'"  />' : '').$p['name']."</a>";
+			
+			$ico = '';
+			if ($icoURL)
+			{
+				$data = $this->_nav->getPage($p['id']);
+				$ico = '<img src="'.$icoURL.$data['ico_main'].'" width="16" height="16" style="margin-right:5px" />';
+			}
+			
+			$html .= "<li ".$cssClass.">";
+			$html .= '<a href="'.$p['url'].'">'.$ico.$p['name']."</a>";
 			if ( !$p['has_childs'] )
 			{
 				$html .= "</li>\n";
@@ -703,10 +721,9 @@ class elSiteRenderer
 			
 			$level = $p['level'];
 		}
-		$cssClass = $vert ? 'elnav-vert' : 'elnav';
-		$html = "<div class=\"clearfix\">\n<ul id=\"nav-js\" class=\"".$cssClass."\">\n".$html."</ul>\n</div>\n";
-		
-		
+		$cssClass = $vert ? 'el-menu-vert' : 'el-menu-horiz';
+		$html = "\n<ul class=\"".$cssClass."\">\n".$html."</ul>\n";
+
     	if (EL_POS_TOP == $pos)
     	{
 			$this->_te->assignBlockVars($param[0]);
@@ -719,9 +736,10 @@ class elSiteRenderer
     	$this->_te->assignVars($param[1], $html);
 
 		
-		elAddJs('jquery.elnavmenu.js', EL_JS_CSS_FILE);
-		elAddJs('$("#nav-js").elnavmenu(); ', EL_JS_SRC_ONREADY);
-		elAddCss('elnavmenu.css');
+		elAddJs('ellib/jquery.elmenu.js', EL_JS_CSS_FILE);
+		$js = $vert ? '$(".el-menu-vert").elmenu({orientation : "vertical"}); ' : '$(".el-menu-horiz").elmenu({orientation : "horizontal", deltaY : 12}); ';
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		elAddCss('elmenu.css');
 	}
 
 
@@ -832,15 +850,15 @@ class elSiteRenderer
 			switch ($navPathInSTitle)
 			{
 				case EL_NAV_PATH_FIRST_PAGE:
-					$siteTitle .= ' :: '.$sPath[0]['name'];
+					$siteTitle .= ' / '.$sPath[0]['name'];
 					break;
 				case EL_NAV_PATH_LAST_PAGE:
-					$siteTitle .= ' :: '.$sPath[sizeof($sPath)-1]['name'];
+					$siteTitle .= ' / '.$sPath[sizeof($sPath)-1]['name'];
 					break;
 				case EL_NAV_PATH_FULL:
 					foreach ($sPath as $page )
 					{
-						$siteTitle .= ' :: '.$page['name'];
+						$siteTitle .= ' / '.$page['name'];
 					}
 			}
             
@@ -849,16 +867,16 @@ class elSiteRenderer
             {
                 case EL_NAV_PATH_FIRST_PAGE:
                     $page       = array_shift($pPath);
-                    $siteTitle .= ' :: '.$page['name'];
+                    $siteTitle .= ' / '.$page['name'];
                     break;
                 case EL_NAV_PATH_LAST_PAGE:
                     $page       = array_pop($pPath);
-                    $siteTitle .= ' :: '.$page['name'];
+                    $siteTitle .= ' / '.$page['name'];
                     break;
                 case EL_NAV_PATH_FULL:
                     foreach ($pPath as $page )
                     {
-                        $siteTitle .= ' :: '.$page['name'];
+                        $siteTitle .= ' / '.$page['name'];
                     }
             }
             if ( !empty($GLOBALS['appendPageTitle']) )

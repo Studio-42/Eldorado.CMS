@@ -153,11 +153,13 @@ class elForm extends elFormElement
 
   function pushError( $elName, $errMsg )
   {
+		elLoadMessages('Errors');
     $this->validator->errors[$this->_nameMapping($elName)] = $errMsg;
   }
 
 	function getErrors()
 	{
+		elLoadMessages('Errors');
 		return $this->validator->errors;
 	}
 
@@ -243,7 +245,7 @@ class elForm extends elFormElement
    */
   function getValue( $slashed=false)
   {
-    $values = array();
+    $values = array(); $slashed=false;
     foreach ($this->inputs as $id=>$input)
     {
       if ( !is_null($val = $this->inputs[$id]->getValue()) )

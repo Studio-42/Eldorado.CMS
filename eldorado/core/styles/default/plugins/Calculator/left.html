@@ -1,0 +1,73 @@
+<div class="pl-calc plugins">
+<!-- BEGIN PL_CALC_INLINE -->	
+	<!-- BEGIN CALC -->
+	<div class="calc-inline rounded-5">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{url}" class="icons edit" title="{m('Edit')}" ></a></li>
+		</ul>
+		<!-- END ADMIN -->
+	
+		<h5>{name}</h5>
+
+		<div class="pl-calc-content plugins-content">
+			<form>
+				<div class="calc-error hide">{m('Error! Probably invalid data was entered')}</div>
+				<div class="calc-result-place hide"><em class="calc-result-msg"></em><strong class="calc-result"></strong> </div>
+				<input type="hidden" name="formula" value="{formula}" />
+				<input type="hidden" name="unit" value="{unit}" />
+				<input type="hidden" name="dtype" value="{dtype}" />
+				<!-- BEGIN PL_CALC_VAR -->
+				<div class="pl-calc-variable">
+					<span class="err"></span>
+					<label>{title}</label>
+					{input_field}
+				</div>
+				<!-- END PL_CALC_VAR -->		
+				<div class="pl-calc-submit clearfix"><input type="submit" value="{m('Calculate')}" class="form-submit" /></div>
+			</form>
+		</div>
+	</div>
+	<!-- END CALC -->
+	<script type="text/javascript" charset="utf-8">
+		$().ready(function() {
+			$('.pl-calc-content form').elplcalculator({
+				resultMsg : "{m('Result:')}",
+				errMsg    : "{m('Error! Probably invalid data was entered')}"
+			});
+		});
+	</script>
+<!-- END PL_CALC_INLINE -->
+
+<!-- BEGIN PL_CALC_DIALOG -->
+
+	<!-- BEGIN CALC -->
+	<div class="calc-dialog rounded-5">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{url}" class="icons edit" title="{m('Edit')}" ></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<a href="{URL}__pl__/Calculator/{id}/" class="pl-calc-dialog">{name}</a>
+	</div>
+	<!-- END CALC -->
+	<script type="text/javascript" charset="utf-8">
+		$().ready(function() {
+			$('a.pl-calc-dialog').elplcalculator({
+				type       : 'dialog', 
+				resultMsg  : "{m('Result:')}",
+				errMsg     : "{m('Error! Probably invalid data was entered')}",
+				loadErrMsg : "{m('Data transfer error')}",
+				spinner    : "{m('Loading...')}"
+			});
+		});
+	</script>
+	
+	
+	
+	
+<!-- END PL_CALC_DIALOG -->
+
+</div>
+
+

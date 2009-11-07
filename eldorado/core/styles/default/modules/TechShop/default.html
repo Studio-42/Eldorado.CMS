@@ -5,232 +5,266 @@
 
 <!-- BEGIN CATS_ONECOL -->
 <ul class="cats-onecol">
-	<!-- BEGIN O_CAT -->
-	<li style="padding-left:{! ({level}-1)*1.7 !}em;" class="clearfix {cssRowClass} ">
-		<div>
-			<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-			<div class="cat-descrip">{descrip}</div>
-			<div class="ie-clear"></div>
-		</div>
+	<!-- BEGIN CAT -->
+	<li style="padding-left:{! ({level})*1.7 !}em;" class="clearfix {cssRowClass} ">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit_cat/{catID}/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+			<li><a href="{URL}up/{catID}/{id}/"       class="icons up"       title="{m('Move up')}"></a></li>
+			<li><a href="{URL}down/{catID}/{id}/"     class="icons down"     title="{m('Move down')}"></a></li>
+			<li><a href="{URL}rm_cat/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
+		{descrip}
+		<div class="ie-clear"></div>
 	</li>
-	<!-- END O_CAT -->
+	<!-- END CAT -->
 </ul>
 <!-- END CATS_ONECOL -->
 
 <!-- BEGIN CATS_TWOCOL -->
-<div class="cats-twocol">
-	<!-- BEGIN ROW -->
-	<div class="grid stretch {cssRowClass}">	
-		<!-- BEGIN T_CAT -->
-		<div class="col-49 {cssLastClass} rounded-5">
-			<div class="col-content">
-				<ul class="clearfix">
-					<li class="clearfix">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a>
-						<div class="cat-descrip">{descrip}</div>
-					</li>
-					<!-- BEGIN SUBCATS -->
-					<!-- BEGIN SUBCAT -->
-					<li class="clearfix" style="margin-left:{! ({level}-1)*1.7 !}em;">
-						<a href="{URL}{id}/" class="{cssClass}">{name}</a> 
-						<div class="cat-descrip clearfix">{descrip}</div>
-					</li>
-					<!-- END SUBCAT -->
-					<!-- END SUBCATS -->
-					
-				</ul>
-			</div>
+<div class="nicegrid-50 rounded-7 {cssRowClass} cats-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN CAT -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit_cat/{catID}/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+				<li><a href="{URL}up/{catID}/{id}/"       class="icons up"       title="{m('Move up')}"></a></li>
+				<li><a href="{URL}down/{catID}/{id}/"     class="icons down"     title="{m('Move down')}"></a></li>
+				<li><a href="{URL}rm_cat/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<a href="{URL}{id}/" class="cat-title">{name}</a>
+			{descrip}
+			<!-- BEGIN SUB_CATS -->
+			<ul>
+				<!-- BEGIN SUB_CAT -->
+				<li style="clear:right">
+					<!-- BEGIN ADMIN2 -->
+					<ul class="adm-icons">
+						<li><a href="{URL}edit_cat/{catID}/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+						<li><a href="{URL}up/{catID}/{id}/"       class="icons up"       title="{m('Move up')}"></a></li>
+						<li><a href="{URL}down/{catID}/{id}/"     class="icons down"     title="{m('Move down')}"></a></li>
+						<li><a href="{URL}rm_cat/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END ADMIN2 -->
+					<a href="{URL}{id}/" class="cat-title">{name}</a> 
+					{descrip}
+				</li>
+				<!-- END SUB_CAT -->
+			</ul>
+			<!-- END SUB_CATS -->
 		</div>
-		<!-- BEGIN CDELIM --><div class="col-1"></div> <!-- END CDELIM -->
-		<!-- END T_CAT -->
-	</div>			
-	<!-- END ROW -->
+		<!-- END CAT -->
+		<div class="clear"></div>
+	</div>
 </div>
 <!-- END CATS_TWOCOL -->
 
 <!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
 
 <form action="{URL}compare/" method="get">
-
+	
 <!-- BEGIN ITEMS_ONECOL -->
 <ul class="items-onecol">
-	<!-- BEGIN O_ITEM -->
-	<li class="{cssRowClass} clearfix" style="">
-		<h4><a href="{URL}item/{catID}/{id}/">{code} {name}</a></h4>
-		<div class="item-announce clearfix">
-			<!-- BEGIN O_ITEM_COMP -->
-			<div class="mod-tshop-check">
-				<div>
-					<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
-				</div>
+	<!-- BEGIN ITEM -->
+	<li class="{cssRowClass} clearfix">
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}edit_item/{catID}/{id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{URL}edit_model/{catID}/{id}/" class="icons create" title="{m('New model')}"></a></li>
+			<li><a href="{URL}set_ft/{catID}/{id}/"     class="icons ft-set" title="{m('Set features')}"></a></li>
+			<li><a href="{URL}rm_item/{catID}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+		<!-- BEGIN COMPARE -->
+		<div class="mod-tshop-check">
+			<div>
+				<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
 			</div>
-			<!-- END O_ITEM_COMP -->
-			<!-- BEGIN OI_MNF -->
-			<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
-			<!-- END OI_MNF -->
-			<!-- BEGIN OI_PRICE -->
-			<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
-			<!-- END OI_PRICE -->
-			{announce} 
-			<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
-		
-			<!-- BEGIN OI_ANN -->
-	   		<div class="rounded-3 mod-tshop-fts">
-	         <!-- BEGIN OI_ANN_FT -->
-	            <div class="mod-tshop-ft">
-					<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
-					<div class="mod-tshop-ft-name">{name} {unit}</div>
-				</div>
-	            <!-- END OI_ANN_FT -->
-	         </div>
-			<!-- END OI_ANN -->
 		</div>
-		<!-- BEGIN OI_MOD_ROW -->
+		<!-- END COMPARE -->
+		<!-- BEGIN MNF -->
+		<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
+		<!-- END MNF -->
+		<!-- BEGIN PRICE -->
+		<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
+		<!-- END PRICE -->
+		<table><tr><td>{announce}</td></tr></table>
+		<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
+		
+		<!-- BEGIN ANN -->
+   		<div class="rounded-3 mod-tshop-fts">
+         <!-- BEGIN ANN_FT -->
+            <div class="mod-tshop-ft">
+				<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
+				<div class="mod-tshop-ft-name">{name} {unit}</div>
+			</div>
+            <!-- END ANN_FT -->
+         </div>
+		<!-- END ANN -->
+		
+		<!-- BEGIN MOD_ROW -->
 		<div class="rounded-top-5 mod-tshop-models">
 
 			<input type="submit" value="{m('Compare selected')}" class="float-right form-submit " style="display:none" />
 
 			<div class="rounded-top-5 mod-tshop-models-head">
-				<span class="el-collapsed">{m('Show/hide models list')}</span>
+				<a href="#" class="el-collapsed">{m('Show/hide models list')}</a>
 			</div>
 		
 			<div class="mod-tshop-models-list hide">
-				<!-- BEGIN OI_MODEL -->
+				<!-- BEGIN MODEL -->
 				<div class="mod-tshop-model">
 					
 					<div class="mod-tshop-check">
 						<label for="m-{id}">{m('Select for compare')}</label> <input type="checkbox" name="m[{id}]" id="m-{id}" value="1" />
 					</div>
-			
+					<!-- BEGIN MODEL_ADMIN -->
+					<ul class="adm-icons">
+						<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"     class="icons edit"   title="{m('Edit')}"></a></li>
+						<li><a href="{URL}edit_model_img/{catID}/{i_id}/{id}/" class="icons image"  title="{m('Set image')}"></a></li>
+						<li><a href="{URL}rm_model/{catID}/{i_id}/{id}/"       class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END MODEL_ADMIN -->
 				   	<h5><span>{code}</span> {name}</h5>
 		
-					<!-- BEGIN OI_MODEL_PRICE -->
+					<!-- BEGIN MODEL_PRICE -->
 				    <div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
-				    <!-- END OI_MODEL_PRICE -->
+				    <!-- END MODEL_PRICE -->
 		
 					<div class="clearfix">
-						<!-- BEGIN OI_MODEL_IMG -->
-						<div class="mod-tshop-model-img float-right"><a href="" onClick="return popUp('{POPUP_URL}mod_img/{m_id}/', 500, 500)"><img src="{tmb}" /></a></div>
-					    <!-- END OI_MODEL_IMG -->
-						<!-- BEGIN OIM_ANN -->
+						<!-- BEGIN MODEL_IMG -->
+						<div class="mod-tshop-model-img float-right">
+							<a href="{target}" rel="fancy-tour"><img src="{tmb}" /></a></div>
+					    <!-- END MODEL_IMG -->
+						<!-- BEGIN MODEL_ANN -->
 						<div class="rounded-3 mod-tshop-fts floatbox">
-	                		<!-- BEGIN OIM_ANN_FT -->
+	                		<!-- BEGIN MODEL_ANN_FT -->
 							<div class="mod-tshop-ft clearfix">
 								<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
 								<div class="mod-tshop-ft-name">{name} {unit}</div>
 							</div>
-	                		<!-- END OIM_ANN_FT -->
+	                		<!-- END MODEL_ANN_FT -->
 						</div>
-						<!-- END OIM_ANN -->
+						<!-- END MODEL_ANN -->
 					</div>
 		   		</div>
-		   		<!-- END OI_MODEL -->
+		   		<!-- END MODEL -->
 			</div>
 		</div>
-		<!-- END OI_MOD_ROW -->
+		<!-- END MOD_ROW -->
 	</li>
-	<!-- END O_ITEM -->
+	<!-- END ITEM -->
 </ul>
-<div class="mod-tshop-button-compare"><input type="submit" value="{m('Compare selected')}" class="form-submit" /></div>
 <!-- END ITEMS_ONECOL -->
 
 <!-- BEGIN ITEMS_TWOCOL -->
-
-<div class="items-twocol">
-
-	<!-- BEGIN IROW -->
-	<div class="grid stretch {cssRowClass} ">
-		
-	    <!-- BEGIN T_ITEM -->
-		<div class="col-50 {cssLastClass}">
-			<div class="col-content">
-
-				<h4><a href="{URL}item/{catID}/{id}/">{code} {name}</a></h4>
-				<div class="item-announce clearfix">
-					<!-- BEGIN T_ITEM_COMP -->
-					<div class="mod-tshop-check">
-						<div>
-							<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
-						</div>
-					</div>
-					<!-- END T_ITEM_COMP -->
-					<!-- BEGIN TI_MNF -->
-					<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
-					<!-- END TI_MNF -->
-					<!-- BEGIN TI_PRICE -->
-					<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
-					<!-- END TI_PRICE -->
-					{announce} 
-					<div><a href="{URL}item/{catID}/{id}/" class="readmore">{m('Read more')}</a></div>
-
-					<!-- BEGIN TI_ANN -->
-			   		<div class="rounded-3 mod-tshop-fts">
-			         <!-- BEGIN TI_ANN_FT -->
-			            <div class="mod-tshop-ft">
-							<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
-							<div class="mod-tshop-ft-name">{name} {unit}</div>
-						</div>
-			            <!-- END TI_ANN_FT -->
-			         </div>
-					<!-- END TI_ANN -->
+<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+		<!-- BEGIN ITEM -->
+		<div class="grid-25-content{cssLastClass} ">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}edit_item/{catID}/{id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{URL}edit_model/{catID}/{id}/" class="icons create" title="{m('New model')}"></a></li>
+				<li><a href="{URL}set_ft/{catID}/{id}/"     class="icons ft-set" title="{m('Set features')}"></a></li>
+				<li><a href="{URL}rm_item/{catID}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
+			<!-- BEGIN COMPARE -->
+			<div class="mod-tshop-check">
+				<div>
+					<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
 				</div>
-				<!-- BEGIN TI_MOD_ROW -->
-				<div class="rounded-top-5 mod-tshop-models">
-
-					<input type="submit" value="{m('Compare selected')}" class="float-right form-submit " style="display:none" />
-
-					<div class="rounded-top-5 mod-tshop-models-head">
-						<span class="el-collapsed">{m('Show/hide models list')}</span>
-					</div>
-
-					<div class="mod-tshop-models-list hide">
-						<!-- BEGIN TI_MODEL -->
-						<div class="mod-tshop-model">
-							
-							<div class="mod-tshop-check">
-								<label for="m-{id}">{m('Select for compare')}</label> <input type="checkbox" name="m[{id}]" id="m-{id}" value="1" />
-							</div>
-
-						   	<h5><span>{code}</span> {name}</h5>
-
-							<!-- BEGIN TI_MODEL_PRICE -->
-						    <div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
-						    <!-- END TI_MODEL_PRICE -->
-
-							<div class="clearfix">
-								<!-- BEGIN TI_MODEL_IMG -->
-								<div class="mod-tshop-model-img float-right"><a href="" onClick="return popUp('{POPUP_URL}mod_img/{m_id}/', 500, 500)"><img src="{tmb}" /></a></div>
-							    <!-- END TI_MODEL_IMG -->
-								<!-- BEGIN TIM_ANN -->
-								<div class="rounded-3 mod-tshop-fts floatbox">
-			                		<!-- BEGIN TIM_ANN_FT -->
-									<div class="mod-tshop-ft clearfix">
-										<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
-										<div class="mod-tshop-ft-name">{name} {unit}</div>
-									</div>
-			                		<!-- END TIM_ANN_FT -->
-								</div>
-								<!-- END TIM_ANN -->
-							</div>
-				   		</div>
-				   		<!-- END TI_MODEL -->
-					</div>
-				</div>
-				<!-- END TI_MOD_ROW -->
 			</div>
+			<!-- END COMPARE -->
+			<!-- BEGIN MNF -->
+			<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
+			<!-- END MNF -->
+			<!-- BEGIN PRICE -->
+			<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
+			<!-- END PRICE -->
+			<table><tr><td>{announce}</td></tr></table>
+			<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
+
+			<!-- BEGIN ANN -->
+	   		<div class="rounded-3 mod-tshop-fts">
+	         <!-- BEGIN ANN_FT -->
+	            <div class="mod-tshop-ft">
+					<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
+					<div class="mod-tshop-ft-name">{name} {unit}</div>
+				</div>
+	            <!-- END ANN_FT -->
+	         </div>
+			<!-- END ANN -->
+
+			<!-- BEGIN MOD_ROW -->
+			<div class="rounded-top-5 mod-tshop-models">
+
+				<input type="submit" value="{m('Compare selected')}" class="float-right form-submit " style="display:none" />
+
+				<div class="rounded-top-5 mod-tshop-models-head">
+					<a href="#" class="el-collapsed">{m('Show/hide models list')}</a>
+				</div>
+
+				<div class="mod-tshop-models-list hide">
+					<!-- BEGIN MODEL -->
+					<div class="mod-tshop-model">
+
+						<div class="mod-tshop-check">
+							<label for="m-{id}">{m('Select for compare')}</label> <input type="checkbox" name="m[{id}]" id="m-{id}" value="1" />
+						</div>
+						<!-- BEGIN MODEL_ADMIN -->
+						<ul class="adm-icons">
+							<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"    class="icons edit"   title="{m('Edit')}"></a></li>
+							<li><a href="{URL}edit_model_img/{catID}/{i_id}/{id}/" class="icons image"  title="{m('Set image')}"></a></li>
+							<li><a href="{URL}rm_model/{catID}/{i_id}/{id}/"       class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+						</ul>
+						<!-- END MODEL_ADMIN -->
+					   	<h5><span>{code}</span> {name}</h5>
+
+						<!-- BEGIN MODEL_PRICE -->
+					    <div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
+					    <!-- END MODEL_PRICE -->
+
+						<div class="clearfix">
+							<!-- BEGIN MODEL_IMG -->
+							<div class="mod-tshop-model-img float-right"><a href="{target}" rel="fancy-tour"><img src="{tmb}" /></a></div>
+						    <!-- END MODEL_IMG -->
+							<!-- BEGIN MODEL_ANN -->
+							<div class="rounded-3 mod-tshop-fts floatbox">
+		                		<!-- BEGIN MODEL_ANN_FT -->
+								<div class="mod-tshop-ft clearfix">
+									<div class="mod-tshop-ft-val float-right">...&nbsp;{value}</div>
+									<div class="mod-tshop-ft-name">{name} {unit}</div>
+								</div>
+		                		<!-- END MODEL_ANN_FT -->
+							</div>
+							<!-- END MODEL_ANN -->
+						</div>
+			   		</div>
+			   		<!-- END MODEL -->
+				</div>
+			</div>
+			<!-- END MOD_ROW -->
 		</div>
-	    <!-- BEGIN IDELIM -->  <!-- END IDELIM -->
-	  	<!-- END T_ITEM -->
+	<!-- END ITEM -->
+	<div class="clear"></div>
 	</div>
-	<!-- END IROW -->
 </div>
-<div class="mod-tshop-button-compare"><input type="submit" value="{m('Compare selected')}" class="form-submit" /></div>
+
 <!-- END ITEMS_TWOCOL -->
 
-<!-- BEGIN TS_PRICE_DOWNL --><div class="mod-tshop-pricelist"><a class="link-xls" href="{URL}price/">{m('Download price list')}</a></div><!-- END TS_PRICE_DOWNL -->
+<!-- BEGIN TS_COMPARE --><div class="mod-tshop-button-compare"><input type="submit" value="{m('Compare selected')}" class="form-submit" /></div><!-- END TS_COMPARE -->
+
+<!-- BEGIN TS_PRICE_DOWNL --><div class="mod-tshop-pricelist"><a class="link xls" href="{URL}price/">{m('Download price list')}</a></div><!-- END TS_PRICE_DOWNL -->
 
 </form>
-
 </div>
 {PAGER}
 
@@ -249,7 +283,8 @@
 				);
 				
 			$('.mod-tshop .el-collapsed').click( 
-				function() { 
+				function(e) {
+					e.preventDefault(); 
 					$(this).parent().siblings('div').slideToggle('slow'); 
 					$(this).toggleClass('el-expanded'); 
 					return false;
@@ -257,4 +292,7 @@
 				);
 			}
 		 );
+		if ($.fn.fancybox) {
+			$("a[rel='fancy-tour']:has(img)").fancybox(); 
+		}
 </script>

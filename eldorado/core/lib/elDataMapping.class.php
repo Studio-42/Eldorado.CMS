@@ -18,7 +18,7 @@ class elDataMapping
 	function __construct( $attr=null, $tb=null, $id=null )
 	{
 		$this->tb($tb);
-		$this->id($id ? $id : 'id');
+		$this->id($id ? $id : $this->_id);
 		$this->attr($attr);
 	}
 	
@@ -27,6 +27,11 @@ class elDataMapping
 		$this->tb($tb);
 		$this->id($id);
 		$this->attr($attr);
+	}
+	
+	function getObjName()
+	{
+		return m($this->_objName);
 	}
 	
 	function tb($tb=null)
@@ -46,7 +51,7 @@ class elDataMapping
 	
 	function attr($attr=null, $val=null)
 	{
-		$map = $this->_memberMapping();
+		$map = $this->_memberMapping(); 
 		if (is_null($attr))
 		{
 			$ret = array();
@@ -71,6 +76,9 @@ class elDataMapping
 	
 	function idAttr($val=null)
 	{
+		// echo get_class($this).' ';
+		// echo $this->__id__.' '.'<br>';
+		// elPrintR($this);
 		return is_null($val) ? $this->{$this->__id__} : $this->{$this->__id__} = $val;
 	}
 	
@@ -129,7 +137,7 @@ class elDataMapping
 	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null)
 	{
 		$db  = & elSingleton::getObj('elDb');
-		$sql = sprintf('SELECT %s FROM %s %s %s', 
+		$sql = sprintf('SELECT %s FROM %s %s %s %s', 
 			$onlyFields && $onlyFields ? $this->_id.', '.$onlyFields : $this->attrsToString(), 
 			$this->_tb, 
 			$clause ? 'WHERE '.$clause : '', 
@@ -144,7 +152,15 @@ class elDataMapping
 		$db->query($sql);
 		while ($r = $db->nextRecord())
 		{
-			$ret[ $assoc ? $r[$this->_id] : null] = $this->copy($r);
+			if ($assoc) 
+			{
+				$ret[$r[$this->_id]] = $this->copy($r);
+			} 
+			else 
+			{
+				$ret[] = $this->copy($r);
+			} 
+//			$ret[ $assoc ? $r[$this->_id] : null] = $this->copy($r);
 		}
 		return $ret;
 	}
@@ -164,11 +180,10 @@ class elDataMapping
 		{
 			$this->attr( $this->_form->getValue() );
 			$isNew = !(bool)$this->idAttr();
-			if ( $this->_save() )
+			if ( $this->save() )
 			{
 				return $this->_postSave($isNew, $params);
 			}
-			//return $this->save() && $this->_postSave();
 		}
 	}
 
@@ -181,6 +196,38 @@ class elDataMapping
 		return $this->_form->toHtml();
 	}
 
+	function save()
+	{
+		$db   = & elSingleton::getObj('elDb');
+		$vals = $this->_attrsForSave();
+		if ( !$vals[$this->_id] )
+		{
+			unset($vals[$this->_id]);
+			$sql  = 'INSERT INTO '.$this->_tb.'('.implode(',', array_keys($vals)).') VALUES '.'(\''.implode('\',\'', $vals).'\')';
+		}
+		else
+		{
+			$sql = 'UPDATE '.$this->_tb.' SET ';
+			foreach ( $vals as $k=>$v)
+			{
+				if ( $k != $this->_id )
+				{
+					$sql .= $k.'=\''.$v.'\',';
+				}
+			}
+			$sql = substr($sql, 0, -1).' WHERE '.$this->_id.'=\''.$vals[$this->_id].'\' LIMIT 1';
+		}
+
+		if ( !$db->query($sql) )
+		{
+			return false;
+		}
+		if ( !$this->{$this->__id__} )
+		{
+			$this->idAttr( $db->insertID() );
+		}
+		return true;
+	}
 	
 	
 	function delete( $ref=null )
@@ -201,6 +248,13 @@ class elDataMapping
 			}
 		}
 	}
+
+	function deleteAll()
+	{
+		$db = & elSingleton::getObj('elDb');
+		return $db->query('TRUNCATE TABLE '.$this->_tb);
+	}
+
 	/********************************************/
 	/**                PRIVATE                 **/
 	/********************************************/	
@@ -232,41 +286,9 @@ class elDataMapping
 	
 	function _attrsForSave()
 	{
-		return $this->attr();
+		return array_map('mysql_real_escape_string', $this->attr());
 	}
 	
-	function _save()
-	{
-		$db   = & elSingleton::getObj('elDb');
-		$vals = array_map('mysql_real_escape_string', $this->_attrsForSave());
-		if ( !$vals[$this->_id] )
-		{
-			unset($vals[$this->_id]);
-			$sql  = 'INSERT INTO '.$this->_tb.'('.implode(',', array_keys($vals)).') VALUES '.'(\''.implode('\',\'', $vals).'\')';
-		}
-		else
-		{
-			$sql = 'UPDATE '.$this->_tb.' SET ';
-			foreach ( $vals as $k=>$v)
-			{
-				if ( $k != $this->_id )
-				{
-					$sql .= $k.'=\''.$v.'\',';
-				}
-			}
-			$sql = substr($sql, 0, -1).' WHERE '.$this->_id.'=\''.$vals[$this->_id].'\' LIMIT 1';
-		}
-
-		if ( !$db->query($sql) )
-		{
-			return false;
-		}
-		if ( !$this->{$this->__id__} )
-		{
-			$this->idAttr( $db->insertID() );
-		}
-		return true;
-	}
 	
 	function _postSave($isNew, $params=null)
 	{

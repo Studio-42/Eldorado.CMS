@@ -1,0 +1,19 @@
+<form name="mf" action="{BASE_URL}__search__/" method="GET">
+	<input type="hidden" name="_form_" value="search" />
+	<table class="form-tb">
+		<thead>
+		<tr>
+	    	<th style="line-height:2em;"><div class="icons find float-left" style="width:20px;height:20px"></div> {m('Find on site')}</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>
+				<a href="#" onclick="document.forms.mf.submit(); return false;" class="icons find float-right" title="{m('Find')}"></a>
+				<input type="text" name="sstr" id="search-str" size="17" />
+				
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</form>

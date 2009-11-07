@@ -13,12 +13,27 @@ class elRndPluginsControl extends elModuleRenderer
 				$this->_te->assignBlockVars('PLUGIN.PL_STATE_DISABLE', null , 1);
 				continue;
 			}
-			$block = 'on' == $one['status'] ? 'PLUGIN.PL_STATE_ON' : 'PLUGIN.PL_STATE_OFF';
-
-			$this->_te->assignBlockVars($block, $one, 1);
-			if ( $one['hasConf'] )
+			
+			if ($this->_admin)
 			{
-				$this->_te->assignBlockVars('PLUGIN.PL_CONF', $one, 1);
+				$data = array('name' => $one['name']);
+				if ('on' == $one['status'])
+				{
+					$data['action'] = 'off';
+					$data['title']  = m('Switch plugin off');
+					$data['class']  = 'switch-on';
+				}
+				else
+				{
+					$data['action'] = 'on';
+					$data['title']  = m('Switch plugin on');
+					$data['class']  = 'switch-off';
+				}
+				$this->_te->assignBlockVars('PLUGIN.PL_STATE', $data, 1);
+				if ( $one['hasConf'] )
+				{
+					$this->_te->assignBlockVars('PLUGIN.PL_CONF', $one, 1);
+				}
 			}
 		}
 	}

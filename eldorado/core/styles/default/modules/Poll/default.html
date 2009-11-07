@@ -4,13 +4,13 @@
 	<!-- BEGIN POLL -->
 	<li class="clearfix">
 		<!-- BEGIN POLL_ACTIONS -->
-	    <div class="admin-icons">
+	    <ul class="adm-icons">
 		    <!-- BEGIN POLL_EDIT -->
-		    <a href="{URL}edit/{id}/"><img src="{icoPollEdit}" title="{m('Edit')}" /></a>
-		    <a href="{URL}close/{id}/" onclick="return confirm('{m('Do You really want to complete this poll')}?');"><img src="{icoLock}" title="{m('Complete')}" /></a>
+			<li style="border:none;padding:0"><a href="{URL}edit/{id}/"  class="icons edit"></a></li>
+			<li style="border:none;padding:0"><a href="{URL}close/{id}/" class="icons lock" onClick="return confirm('{m('Do You really want to complete this poll')}?');"></a></li>
 		    <!-- END POLL_EDIT -->
-		    <a href="{URL}rm/{id}/" onclick="return confirm('{m('Do You really want to delete')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
-	    </div>
+			<li style="border:none;padding:0"><a href="{URL}rm/{id}/"    class="icons delete" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+	    </ul>
 	    <!-- END POLL_ACTIONS -->  
 
 		<h4><span>{pnum}.</span> {name}</h4>
@@ -49,6 +49,6 @@
 	</li>
 	<!-- END POLL -->
 </ul>
-<!-- BEGIN TO_APOLL_LINK --><a class="back" href="{URL}">{m('Open polls')}</a><!-- END TO_APOLL_LINK -->
-<!-- BEGIN TO_CPOLL_LINK --><a class="readmore" href="{URL}completed/">{m('Completed polls')}</a><!-- END TO_CPOLL_LINK -->
+<!-- BEGIN TO_APOLL_LINK --><a class="link back" href="{URL}">{m('Open polls')}</a><!-- END TO_APOLL_LINK -->
+<!-- BEGIN TO_CPOLL_LINK --><a class="link forward" href="{URL}completed/">{m('Completed polls')}</a><!-- END TO_CPOLL_LINK -->
 

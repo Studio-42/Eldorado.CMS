@@ -1,0 +1,38 @@
+ul.el-tree, ul.el-tree * {
+	list-style-type: none;
+	margin: 0;
+	padding: 0 0 0 0;
+}
+ul.el-tree li {
+	padding: 1px 0 0 0; 
+	cursor: default;
+	white-space:nowrap;
+}
+ul.el-tree li ul {
+	padding: 0 0 0 16px;
+	margin: 0;
+}
+ul.el-tree a, a.el-tree-root { 
+	display:inline-block;
+	cursor: default;
+	padding:0px 10px 0px 3px;
+	margin:0;
+	-moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px;
+}
+
+.el-tree-dummy {
+	width: 16px; height: 16px;
+	float:left;
+}
+.el-tree-collapsed {
+	background:url(style/images/collapsed.gif) 0 2px no-repeat;
+}
+.el-tree-expanded {
+	background:url(style/images/expanded.gif) 0 2px no-repeat;
+}
+.el-tree-selected {
+	background: #9bbcd5;
+	
+}
+
+.el-tree-hover  {}

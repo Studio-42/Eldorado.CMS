@@ -4,10 +4,10 @@
 	<!-- END PL_IB_NAME -->
 	
     <!-- BEGIN PL_IB_EDIT -->
-    <div class="admin-icons">
-		<a href="#" onclick="return popUp( '{POPUP_URL}__pl__/{name}/edit/{id}/', 700, 500);"><img src="{icoEdit}" title="{m('Edit')}" /></a>
-		<a href="{EL_URL}__pl__/{name}/rm/{id}/" onclick="return confirm('{m('Do You really want to delete ')}?');"><img src="{icoDelete}" title="{m('Delete')}" /></a>
-	</div>
+	<ul class="adm-icons">
+		<li><a href="#" class="icons edit" onclick="return popUp( '{POPUP_URL}__pl__/{name}/edit/{id}/', 700, 500);" title="{m('Edit')}" ></a></li>
+		<li><a href="{EL_URL}__pl__/{name}/rm/{id}/" class="icons delete"  title="{m('Delete')}" onclick="return confirm('{m('Do You really want to delete ')}?');"></a></li>
+	</ul>
 	<!-- END PL_IB_EDIT -->
 
 	<div class="pl-info-content plugins-content">{content}</div>

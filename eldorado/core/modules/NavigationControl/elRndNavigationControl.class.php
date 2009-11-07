@@ -2,12 +2,9 @@
 
 class elRndNavigationControl extends elModuleRenderer
 {
-  var $_tpls    = array('meta'    => 'adminMetaList.html',
-                        'menuAdd' => 'menuAdd.html',
+  var $_tpls    = array('meta'    => 'meta.html',
+                        'menuAdd' => 'add-menu.html',
                         'modules' => 'modules.html');
-
-  var $_admTpls = array('meta'    => 'adminMetaList.html',
-                        'menuAdd' => 'adminMenuAdd.html' );
 
   function render( $menu, $modList, $parentsID )
   {
@@ -34,8 +31,11 @@ class elRndNavigationControl extends elModuleRenderer
       $page['url']      = $nav->getPageURL($page['id']);
 		$page['parent'] = $parentsID[$p->ID]>1 ? ' class="child-of-node-'.$parentsID[$p->ID].'"' : '';
 
-      $this->_te->assignBlockVars('MPAGE', $page);
-
+      	$this->_te->assignBlockVars('MPAGE', $page);
+		if ($this->_admin)
+		{
+			$this->_te->assignBlockVars('MPAGE.ADMIN', array('id' => $page['id'], 'name' => $page['name']), 1);
+		}
       if ( $page['redirect_url'] )
       {
         $URL = strlen($page['redirect_url']) <= 25
@@ -48,7 +48,7 @@ class elRndNavigationControl extends elModuleRenderer
 
 
   function rndMenusAdd( $aMenus, $statTop, $statBot )
-  { //elPrintR($aMenus);
+  { 
     $this->_setFile('menuAdd');
 
     $data = array('mTopID'      => EL_ADD_MENU_TOP,
@@ -56,6 +56,12 @@ class elRndNavigationControl extends elModuleRenderer
                   'menuTopStat' => $statTop,
                   'menuBotStat' => $statBot); 
     $this->_te->assignVars($data);
+
+	if ($this->_admin)
+	{
+		$this->_te->assignBlockVars('ADD_MENU_TOP_ADMIN', $data);
+		$this->_te->assignBlockVars('ADD_MENU_BOT_ADMIN', $data);
+	}
 
     if ( empty($aMenus[EL_ADD_MENU_TOP]) )
     {
@@ -97,38 +103,40 @@ class elRndNavigationControl extends elModuleRenderer
                       'dest'=>implode('<br />', $menu->dst),
                       'source'=>implode('<br />', $menu->src));
         $this->_te->assignBlockVars('ADD_SIDE_MENUS.ADD_SIDE_MENU', $data);
+		if ($this->_admin)
+		{
+			$this->_te->assignBlockVars('ADD_SIDE_MENUS.ADD_SIDE_MENU.ADMIN', $data, 2);
+		}
       }
     }
 
   }
 
-  function rndMeta($tree)
-  {
-    $this->_setFile('meta');
-    foreach($tree as $page)
-    {
-      $this->_te->assignBlockVars('NC_META', $page);
-      $b = $page['has_childs'] ? 'NC_META.NC_META_CTRL' : 'NC_META.NC_META_CTRL_NO';
-      $this->_te->assignBlockVars($b, $page, 1);
+	function rndMeta($tree)
+	{
+		$this->_setFile('meta');
 
-    }
-  }
+		foreach($tree as $page)
+		{
+			$this->_te->assignBlockVars('META_PAGE', $page);
+			$this->_te->assignBlockVars('META_PAGE.'.($page['has_childs'] ? 'PARENT' : 'CHILD'), $page, 1);
+		}
+	}
   
-  function rndModules($modules, $locked)
-  {
-	elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
-    $this->_setFile('modules');
-    foreach ($modules as $one)
-    {
-      $one['usedMsg'] = $one['used'] ? m('Yes') : m('No');
-      $this->_te->assignBlockVars('SYS_MODULE', $one);
-      if ( $this->_admin && !in_array($one['module'], $locked) && !$one['used'] )
-      {
-        $this->_te->assignBlockVars('SYS_MODULE.MODRM', $one, 1);
-      }
-    }
-    
-  }
+	function rndModules($modules, $locked)
+	{
+		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+		$this->_setFile('modules');
+		foreach ($modules as $one)
+		{
+			$one['usedMsg'] = $one['used'] ? m('Yes') : m('No');
+			$this->_te->assignBlockVars('SYS_MODULE', $one);
+			if ( $this->_admin && !in_array($one['module'], $locked) && !$one['used'] )
+			{
+			 $this->_te->assignBlockVars('SYS_MODULE.MODRM', $one, 1);
+			}
+		}
+	}
 
 }
 

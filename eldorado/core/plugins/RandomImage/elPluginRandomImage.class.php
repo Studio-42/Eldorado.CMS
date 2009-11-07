@@ -130,8 +130,8 @@ class elPluginRandomImage extends elPlugin
 	 */
 	function conf()
 	{
-		$conf = & elSingleton::getObj('elXmlConf');
-		$srcs = $conf->findGroup('module', 'ImageGalleries', true);
+		
+		$srcs = $this->findSources('ImageGalleries');
 		if (!$srcs)
 		{
 			elThrow(E_USER_ERROR, 'There are no one data source of required type was found!', null, EL_URL);
@@ -150,7 +150,7 @@ class elPluginRandomImage extends elPlugin
 			foreach ($srcs as $src)
 			{
 				if (!empty($data['src_'.$src]))
-				{//elPrintR($data); exit;
+				{
 					$params[$src] = array();
 					$params[$src]['title'] = $data['title_'.$src];
 					$params[$src]['url']   = $data['url_'.$src];
@@ -160,9 +160,9 @@ class elPluginRandomImage extends elPlugin
 					$params[$src]['view']  = (int)$data['view_'.$src];
 					$params[$src]['pos']   = $data['pos_'.$src];
 					$params[$src]['pages'] = $data['pages_'.$src];
-					//elPrintR($params);
 				}
 			}
+			$conf = & elSingleton::getObj('elXmlConf');
 			$conf->dropGroup('plugin'.$this->name);
 			$conf->makeGroup('plugin'.$this->name, $params);
 			$conf->save();

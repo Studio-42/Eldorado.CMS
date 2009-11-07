@@ -1,5 +1,11 @@
 <div class="mod-tshop-mnf">
+	<!-- BEGIN MNF_ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}edit_mnf/{id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+		<li><a href="{URL}rm_mnf/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+	</ul>
+	<!-- END MNF_ADMIN -->
 	<h2>{name} ({country})</h2>
-	<a href="{URL}mnf_items/{id}/" class="readmore">{m('All this manufacturer items')}</a>
-	<div class="mod-tshop-mnf-descrip">{descrip}</div>
+	<div><a href="{URL}mnf_items/{id}/" class="link forward2">{m('All this manufacturer items')}</a></div>
+	{descrip}
 </div>

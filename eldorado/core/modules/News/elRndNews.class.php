@@ -33,14 +33,14 @@ class elRndNews extends elModuleRenderer
 		$this->_setFile('one');
 		$data = array(
 		    'id'      => $news->ID,
-		    'title'   => $news->getAttr('title'),
+		    'title'   => $news->attr('title'),
 		    'content'=> $news->getContent(),
 		    'topicLinkText' => !empty($this->_conf['topicLinkText']) ? $this->_conf['topicLinkText'] : m('Go back to news topics')
 		  );
 		$this->_te->assignVars( $data );
 		if (false != ($format = $this->_getDateFormat()))
 		{
-		  $this->_te->assignBlockVars('NEWS_DATE', array('date' => date($format, $news->getAttr('published'))));
+		  $this->_te->assignBlockVars('NEWS_DATE', array('date' => date($format, $news->attr('published'))));
 		}
 		if ( $this->_admin )
 		{
@@ -79,62 +79,64 @@ class elRndNews extends elModuleRenderer
 	{
     foreach ( $newsList as $one )
 		{
-		  $data = array(
-		    'id'      => $one->ID,
-		    'title'   => $one->getAttr('title'),
-		    'announce'=> $one->getAttr('announce'),
-		  );
+		  	$data = array(
+		    	'id'      => $one->ID,
+			    'title'   => $one->attr('title'),
+			    'announce'=> $one->attr('announce'),
+				);
 			$this->_te->assignBlockVars( 'NEWS_OC.NEWS', $data, 1 );
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('NEWS_OC.NEWS.NEWS_ADMIN', array('id' => $one->ID), 2);
+			}
 			if ( $dFormat )
 			{
-			  $this->_te->assignBlockVars('NEWS_OC.NEWS.NDATE', array('date'=>date($dFormat, $one->getAttr('published'))), 2 );
+			  $this->_te->assignBlockVars('NEWS_OC.NEWS.DATE', array('date'=>date($dFormat, $one->attr('published'))), 2 );
 			}
 			if ( ($one->hasContent()) && $linkText )
 			{
 			  $data = array('id'=>$one->ID, 'detailLinkText'=>$linkText);
-				$this->_te->assignBlockVars('NEWS_OC.NEWS.NDETAIL', $data, 2 );
+				$this->_te->assignBlockVars('NEWS_OC.NEWS.DETAIL', $data, 2 );
 			}
 		}
 	}
 
 	function _rndTwoColumns($newsList, $dFormat, $linkText)
 	{
-    $c = $r = 0;
-    foreach ( $newsList as $one )
-    {
-      $data = array(
-		    'id'      => $one->ID,
-		    'title'   => $one->getAttr('title'),
-		    'announce'=> $one->getAttr('announce'),
-		  );
-		  if ($c++%2)
-		  {
-		    $block = 'NEWS_TC.NROW.TNEWS_RIGHT';
-		    $dateBlock = $block.'.R_NDATE';
-		    $linkBlock = $block.'.R_NDETAIL';
-		    $level = 2;
-		  }
-		  else
-		  {
-		    $block = 'NEWS_TC.NROW.TNEWS_LEFT';
-		    $dateBlock = $block.'.L_NDATE';
-		    $linkBlock = $block.'.L_NDETAIL';
-		    $level = 1;
-		    $r++;
-
-		  }
-		  $data['oddRow'] = $r%2 ? 1 : 0;
-      $this->_te->assignBlockVars($block, $data, $level);
-      if ( $dFormat )
+		$i =0;
+		$rowCnt = 1;
+		foreach ( $newsList as $one )
+		{
+			$data = array(
+			    'id'      => $one->ID,
+			    'title'   => $one->attr('title'),
+			    'announce'=> $one->attr('announce'),
+				'cssLastClass' => 'col-last',
+				
+				  );
+			if (!($i++%2)) 
 			{
-			  $this->_te->assignBlockVars($dateBlock, array('date'=>date($dFormat, $one->getAttr('published'))), 3 );
+				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == sizeof($newsList) ? 'invisible' : '');
+				$this->_te->assignBlockVars('NEWS_TC', $var);
+				$data['cssLastClass'] = '';
+			}
+				
+			$this->_te->assignBlockVars('NEWS_TC.NEWS', $data, 1);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('NEWS_TC.NEWS.NEWS_ADMIN', array('id' => $one->ID), 2);
+			}
+			if ( $dFormat )
+			{
+			  $this->_te->assignBlockVars('NEWS_TC.NEWS.DATE', array('date'=>date($dFormat, $one->attr('published'))), 3 );
 			}
 			if ( ($one->hasContent()) && $linkText )
 			{
-			  $data = array('id'=>$one->ID, 'detailLinkText'=>$linkText);
-				$this->_te->assignBlockVars($linkBlock, $data, 3 );
+			  	$data = array('id'=>$one->ID, 'detailLinkText'=>$linkText);
+				$this->_te->assignBlockVars('NEWS_TC.NEWS.DETAIL', $data, 3 );
 			}
-    }
+		}
+		
 	}
 
 
@@ -170,7 +172,11 @@ class elRndNews extends elModuleRenderer
     return '';
 	}
 
-
+	function _setFile($h='', $t='', $whiteSpace=false)
+  	{
+		$tpl = isset($this->_tpls[$h]) ? $this->_tpls[$h] : $this->_defTpl;
+	    $this->_te->setFile($t ? $t : 'PAGE', $this->_dir.$tpl, $whiteSpace );
+	}
 
 }
 ?>

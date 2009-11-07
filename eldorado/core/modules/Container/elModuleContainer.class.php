@@ -29,12 +29,13 @@ class elModuleContainer extends elModule
     foreach ($childs as $one )
     {
       $pages[] = array( 
-					'name'    => $one['name'],
-                  	'descrip' => ($descrip ? $one['page_descrip'] : ''),
-	                'url'     => $one['url'],
-	                'level'   => $one['level'],
-                  	'ico'     => $one['ico_main']
-                	);
+		'id'      => $one['id'],
+		'name'    => $one['name'],
+		'descrip' => ($descrip ? $one['page_descrip'] : ''),
+        'url'     => $one['url'],
+        'level'   => $one['level'],
+        'ico'     => $one['ico_main']
+		);
     }
     $this->_initRenderer();
     $this->_rnd->render( $pages );

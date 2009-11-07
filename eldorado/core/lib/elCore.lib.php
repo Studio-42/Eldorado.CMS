@@ -35,7 +35,9 @@ function elLoadMessages( $group )
 				define ('EL_MYSQL_CHARSET',         'utf8');
 				$GLOBALS['EL_CURRENCY_LIST'] = array(
 				'USD'=>array('$',    'доллары США', '.', ','),
-				'RUR'=>array('руб.', 'российские рубли', ',', '.'));
+				'EUR'=>array('€', 'евро', ',', '.'),
+				'RUR'=>array('руб.', 'российские рубли', ',', '.'),
+				'UAH'=>array('грн.', 'украинские гривны', ',', '.'));
 			}
 		}
 
@@ -64,26 +66,6 @@ function elLoadMessages( $group )
 function m($key)
 {
 	return !empty($GLOBALS['elMsg'][$key]) ? $GLOBALS['elMsg'][$key] : $key;
-}
-
-function elLoadIconsConf()
-{
-	global $elIcons, $elIconsURL;
-	if ( empty($elIcons) )
-	{
-		$elIconsURL = EL_BASE_URL.'/style/icons/';
-		include_once(EL_DIR_STYLES.'icons/icons.conf.php');
-	}
-}
-
-function elGetIconURL($label)
-{
-	if (empty($GLOBALS['elIcons']))
-	{
-		elLoadIconsConf();
-	}
-	$ico = !empty($GLOBALS['elIcons'][$label]) ? $GLOBALS['elIcons'][$label] : $GLOBALS['elIcons']['Default'];
-	return $GLOBALS['elIconsURL'].$ico;
 }
 
 function elCleanCache()
@@ -180,6 +162,7 @@ function elDebug($msg)
 	if ( !isset($debug) )
 	{
 		$conf  = &elSingleton::getObj('elXmlConf');
+		$ats = elSingleton::getObj('elATS');
 		$debug = (int)$conf->get('debug', 'common');
 		if ( $debug )
 		{
@@ -205,14 +188,12 @@ function elDebug($msg)
 
 function elHalt()
 {
-	$html = file_get_contents('./style/halt.html');
-	$repl = array(array('{URL}', '{VER}', '{NAME}', '{DEBUG}'), array(EL_BASE_URL, EL_VER, EL_NAME, '')) ;
-	if (empty($html))
-	{
-		$html = '<html><body><h1 style="color:red;" align="center">SYSTEM ERROR!</h1><center><img src="{URL}/core/logo.gif" /><br />Eldorado CMS Core version: {VER} {NAME}</center><hr />{DEBUG}</body></html>';
-	}
+	$html = '<html><body><h1 style="color:red;text-align:center">SYSTEM ERROR!</h1>
+		<img src="{URL}/core/logo.gif" style="margin:1em auto" />
+		<p>Eldorado CMS Core version: {VER} {NAME}</p>
+		<hr />{DEBUG}</body></html>';
 
-	if ( !empty($_GET['debug']) ) //$conf->get('debug', 'common') )
+	if ( !empty($_GET['debug']) ) 
 	{
 		$msg  = & elSingleton::getObj('elMsgBox');
 		$repl[1][3] .= "<b>Messages:</b> <br />".nl2br($msg->fetchToString(EL_MSGQ))."  <br />";
@@ -260,7 +241,7 @@ function elLoadJQueryUI()
 }
 
 function elAddCss($file, $type=EL_JS_CSS_FILE)
-{//echo $file.'<br>';
+{
 	$key = crc32($file);
 	if ( !isset($GLOBALS['css'][$key]) )
 	{
@@ -340,20 +321,6 @@ function elGetCurrencyInfo()
 	return $currInfo;
 }
 
-function elGetStatConf()
-{
-	$conf = &elSingleton::getObj('elXmlConf');
-
-	$sconf = array('sql_type' => 'mysql');
-	$sconf['sql_db']       = $conf->get('db', 'db');
-	$sconf['sql_username'] = $conf->get('user', 'db');
-	$sconf['sql_password'] = $conf->get('pass', 'db');
-	$sock = $conf->get('sock', 'db');
-	$host = $conf->get('host', 'db').(!empty($sock) ? ':'.$sock : '');
-	$sconf['sql_serverip'] = $host;
-	return $sconf;
-}
-
 
 function getPluginsManageList()
 {
@@ -376,9 +343,9 @@ function getPluginsManageList()
 	{ 
 		$status = 'on' == $r['status'] ? m('On') : m('Off');
 		$pls[] = array(
-			'url'=>$URL.'pl_conf/'.$r['name'].'/',
-			'label'=>$r['label'].' ('.$status.')',
-			'ico' => 'icoPlugin'.$r['name']
+			'url'  => $URL.'pl_conf/'.$r['name'].'/',
+			'label'=> $r['label'].' ('.$status.')',
+			'ico'  => 'icoPlugin'.$r['name']
 			);
 	}
 	return $pls;
@@ -389,8 +356,9 @@ function getPluginsCtlPageID()
 	static $pID = null;
 	if (!isset($pID))
 	{
-		$conf = & elSingleton::getObj('elXmlConf');
-		$pID = $conf->findGroup('module', 'PluginsControl');
+		$nav = &elSingleton::getObj('elNavigator');
+		$page = $nav->pageByModule('PluginsControl');
+		$pID = $page['id'];
 	}
 	return $pID;
 }
@@ -432,117 +400,6 @@ function elRange($start, $stop, $step, $exclude=null)
   return $range;
 }
 
-function elMimeContentType($file)
-{
-  return elGetMimeContentType($file);
-/**
-  static $mimeFunc  = '';
-  static $mimeFuncs = array('php');//, 'sysLinux', 'sysBSD');
-  if (!$mimeFunc)
-  {
-    foreach ($mimeFuncs as $f)
-    {
-      if (elTestMime($f))
-      {
-        $ok = $f;
-        break;
-      }
-    } echo $ok;
-    $mimeFunc = isset($ok) ? $ok : 'el';
-  }
-echo $file.'<br>';
-  switch ($mimeFunc)
-  {
-    case 'php':
-      return mime_content_type($file);
-      break;
-    case 'sysLinux':
-      return exec('file -ib '.escapeshellarg($file));
-      break;
-
-    case 'sysBSD':
-      return exec('file -Ib '.escapeshellarg($file));
-      break;
-
-    default:
-      return elGetMimeContentType($file);
-  }
-**/
-}
-
-function elGetMimeContentType($file)
-{
-  static $mimeList = array(
-    'txt'  => 'plain/text',
-    'php'  => 'text/php',
-    'html' => 'text/html',
-    'rtf'  => 'text/rtf',
-    'xml'  => 'text/xml',
-    'gz'   => 'application/x-gzip',
-    'tgz'  => 'application/x-gzip',
-    'bz2'  => 'application/x-bzip2',
-    'bz'   => 'application/x-bzip2',
-    'tbz'  => 'application/x-bzip2',
-    'zip'  => 'application/x-zip',
-    'rar'  => 'application/x-rar',
-    'jpg'  => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'gif'  => 'image/gif',
-    'png'  => 'image/png',
-    'tif'  => 'image/tif',
-    'psd'  => 'image/psd',
-    'pdf'  => 'application/pdf',
-    'doc'  => 'application/msword',
-    'xls'  => 'application/msexel',
-	'exe'  => 'application/octet-stream'
-    );
-
-    if ( false !== ($p = strrpos($file, '.') ) )
-    {
-      $ext = substr($file, $p+1);
-      return !empty($mimeList[$ext]) ? $mimeList[$ext] : $mimeList['txt'];
-    }
-    return $mimeList['exe'];
-}
-
-function elTestMime($type)
-{
-  $file = './core/logo.jpg';
-  $mime = 'image/jpeg';
-  $test = ''; 
-  if ('php' == $type)
-  {
-    if ( !function_exists('mime_content_type'))
-    {
-      return false;
-    }
-    $test = mime_content_type($file);
-  }
-  elseif ('sysLinux' == $type)
-  {
-    $test = @exec('file -ib '.escapeshellarg($file));
-  }
-  elseif ('sysBSD' == $type)
-  {
-    $test = @exec('file -Ib '.escapeshellarg($file));
-  }
-  return $mime == $test;
-}
-
-function elCheckAltTitleField($tb)
-{
-	$db =  &elSingleton::getObj('elDb');
-	if ( !$db->isFieldExists($tb, 'altername') )
-	{
-		$db->query("ALTER TABLE  `".$tb."` ADD  `altername` varchar(256) ");	
-	}
-}
-
-function elSetAlterTitle($alt)
-{
-	$nav = & elSingleton::getObj('elNavigator');
-	$nav->setReplaceAltTitle($alt);
-}
 
 function elDisplayCaptcha($str)
 {

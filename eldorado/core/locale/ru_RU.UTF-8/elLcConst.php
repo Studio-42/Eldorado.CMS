@@ -7,7 +7,9 @@ define ('EL_MYSQL_TIME_FORMAT',     '%H:%i');
 define ('EL_MYSQL_DATETIME_FORMAT', '%d.%m.%Y %H:%i');
 define ('EL_MYSQL_CHARSET',         'utf8');
 $GLOBALS['EL_CURRENCY_LIST'] = array( 'USD'=>array('$',    'доллары США', '.', ','),
-                                      'RUR'=>array('руб.', 'российские рубли', ',', '.'));
+									  'EUR'=>array('€', 'евро', ',', '.'),
+                                      'RUR'=>array('руб.', 'российские рубли', ',', '.'),
+ 									  'UAH'=>array('грн.', 'украинские гривны', ',', '.'));
 
 $GLOBALS['EL_CHARSETS'] = array(
   'UTF-8'  => 'Unicode (UTF-8)',

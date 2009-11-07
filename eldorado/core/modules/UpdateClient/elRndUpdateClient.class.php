@@ -13,7 +13,7 @@ class elRndUpdateClient extends elModuleRenderer
 		  'lastCheck'    => !empty($this->_conf['checkVerTs'])   ? date(EL_DATETIME_FORMAT, $this->_conf['checkVerTs']) : m('Unknown')
 		  );
 		$this->_te->assignVars( $data );
-		if ( $worksOK && !empty($this->_conf['serverURL']) && !empty($this->_conf['licenseKey']) )
+		if ( $this->_admin && $worksOK && !empty($this->_conf['licenseKey']) )
 		{
 		  $this->_te->assignBlockVars('UC_CHECK_VER');
 		  if ( !empty($this->_conf['availableVer']) && EL_VER <> $this->_conf['availableVer'])
@@ -44,7 +44,7 @@ class elRndUpdateClient extends elModuleRenderer
 		  {
 		    $this->_te->assignBlockVars('UC_LOGREC.UC_VER_CHANGELOG', array('id'=>$rec->ID), 1);
 		  }
-		  if ( !empty($rec->backupFile) )
+		  if ( $this->_admin && !empty($rec->backupFile) )
 		  {
 		    $this->_te->assignBlockVars('UC_LOGREC.UC_VER_DOWNGRADE', array('id'=>$rec->ID), 1);
 		  }

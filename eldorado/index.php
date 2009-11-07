@@ -1,9 +1,9 @@
 <?php
-// ELdorDO
+
 session_name('ELSID');
 session_set_cookie_params( 60*60*24*30 );
 session_start();
-// Eldorado
+
 
 /**
  * Site base URL
@@ -18,25 +18,25 @@ session_start();
 
  /** site root directory
  */
-define ('EL_DIR',       './');
+define ('EL_DIR',       '.'.DIRECTORY_SEPARATOR);
 
 /**
  * Core directory (may be placed outside site root directory)
  */
-define ('EL_DIR_CORE',  './core/');
+define ('EL_DIR_CORE',  EL_DIR.'core'.DIRECTORY_SEPARATOR);
 
 /**
  * Other paths
  */
 define ('EL_DIR_STORAGE_NAME',  'storage');
-define ('EL_DIR_STORAGE',       EL_DIR.EL_DIR_STORAGE_NAME.'/');
+define ('EL_DIR_STORAGE',       EL_DIR.EL_DIR_STORAGE_NAME.DIRECTORY_SEPARATOR);
 
-define ('EL_DIR_STYLES',      EL_DIR.'style/');
-define ('EL_DIR_BACKUP',      EL_DIR.'backup/');
-define ('EL_DIR_CACHE',       EL_DIR.'cache/');
-define ('EL_DIR_LOG',         EL_DIR.'log/');
-define ('EL_DIR_TMP',         EL_DIR.'tmp/');
-define ('EL_DIR_CONF',        EL_DIR.'conf/');
+define ('EL_DIR_STYLES',      EL_DIR.'style'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_BACKUP',      EL_DIR.'backup'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_CACHE',       EL_DIR.'cache'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_LOG',         EL_DIR.'log'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_TMP',         EL_DIR.'tmp'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_CONF',        EL_DIR.'conf'.DIRECTORY_SEPARATOR);
 
 /**
  * errors processing conf
@@ -54,7 +54,9 @@ include_once(EL_DIR_CORE.'common.php');
 $core = & new elCore;
 
 $core->load();
+
 $core->run();
+ 
 
 
 ?>

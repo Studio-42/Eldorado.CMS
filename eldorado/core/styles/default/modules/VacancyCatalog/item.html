@@ -2,7 +2,15 @@
 	<table class="nice full">
 		<thead>
 		<tr>
-			<th colspan="2" scope="col">{name}</th>
+			<th colspan="2" scope="col">
+				<!-- BEGIN ITEM_ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}edit_item/{catID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+					<li><a href="{URL}rm_item/{catID}/{id}/"   class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				</ul>
+				<!-- END ITEM_ADMIN -->
+				{name} 
+			</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -24,27 +32,8 @@
 	   </tr>
 		</tbody>
 	</table>
-	<a href="{URL}send/{catID}/{id}/" class="mail">{m('Send resume on this vacancy')}</a>
-	<!-- BEGIN LINKED_OBJS -->
-	<!-- BEGIN LOBJS_GROUP -->
-	<div class="rounded-top-5 crosslinks-group">
-		<div class="rounded-top-5 ">
-			<span href="#" class="el-collapsed">{name}</span>
-		</div>
-		<ul class="hide">
-			<!-- BEGIN LOBJ -->
-			<li><a href="{url}">{name}</a></li>
-			<!-- END LOBJ -->
-		</ul>
-	</div>
-	<!-- END LOBJS_GROUP -->
-	<!-- END LINKED_OBJS -->
+	{descrip}
+	<a href="{URL}send/{catID}/{id}/" class="link mail">{m('Send resume on this vacancy')}</a>
+	{LINKED_OBJS}
+	
 </div>
-<script type="text/javascript" charset="utf-8">
-$().ready( function() {
-	$('.crosslinks-group .el-collapsed').click( function() {
-		$(this).toggleClass('el-expanded');
-		$(this).parent().siblings('ul').slideToggle('slow');
-	});
-});
-</script>

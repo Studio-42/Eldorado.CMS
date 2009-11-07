@@ -4,9 +4,10 @@ elLoadMessages('ModuleAdminDocsCatalog');
 class elModuleAdminTechShop extends elModuleTechShop
 {
 	var $_mMapAdmin = array(
+		'mnfs'       => array('m' => 'displayManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list'),
+		'edit_mnf'   => array('m'=>'editManufacturer', 'g'=>'Actions', 'ico'=>'icoMnfNew',       'l'=>'New manufacturer'   ),
 		'edit_cat'   => array('m'=>'editCat',          'g'=>'Actions', 'ico'=>'icoCatNew',       'l'=>'New category', 'apUrl'=>1),
 		'edit_item'  => array('m'=>'editItem',         'g'=>'Actions', 'ico'=>'icoGoodNew',      'l'=>'New item',     'apUrl'=>1),
-		'edit_mnf'   => array('m'=>'editManufacturer', 'g'=>'Actions', 'ico'=>'icoMnfNew',       'l'=>'New manufacturer',   ),
 		'sort_items' => array('m'=>'sortItems',        'g'=>'Actions', 'ico'=>'icoSortAlphabet', 'l'=>'Sort items in current category' ),
 		'edit_model' => array('m'=>'editModel'),
 		'edit_model_img' => array('m'=>'editModelImage'),
@@ -19,7 +20,6 @@ class elModuleAdminTechShop extends elModuleTechShop
 		'rm_model'   => array('m' => 'rmModel'),
 		'rm_ftg'     => array('m' => 'rmFtGroup'),
 		'rm_ft'      => array('m' => 'rmFt'),
-		
 		'ftg'        => array('m' => 'displayFtList',   'g'=>'Actions', 'ico'=>'icoFtList',        'l'=>'Features list' ),
 		'edit_ftg'   => array('m' =>'editFtGroup',      'g'=>'Actions', 'ico'=>'icoFtGroupNew',    'l'=>'New features group'),
 		'edit_ft'    => array('m' =>'editFt',           'g'=>'Actions', 'ico'=>'icoFtNew',         'l'=>'New feature'),
@@ -65,7 +65,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 
 
 
-function uploadPrice()
+	function uploadPrice()
   {
     $form = & $this->_makeUploadPriceForm();
 
@@ -302,7 +302,7 @@ function uploadPrice()
 	      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array(m('Model'), $mID), EL_URL.$this->_cat->ID);
 	   }
 
-	   if (!$this->_item->changeModelImage($mID, $this->_conf(modelsTmbSize)))
+	   if (!$this->_item->changeModelImage($mID, $this->_conf('modelsTmbSize')))
 	   {
 	      $this->_initRenderer();
 	      return $this->_rnd->addToContent( $this->_item->formToHtml() );
@@ -633,17 +633,20 @@ function uploadPrice()
 	function &_makeMNavForm($c)
 	{
 	   $form = &parent::_makeConfForm();
-     $form->add( new elSelect('pos', m('Display manufacturers navigation'), isset($c['pos']) ? $c['pos'] : '',
-		    $GLOBALS['posNLRTB'], array('onChange'=>'checkTechShopMNavForm();')) );
-		 $p = & new elMultiSelectList('pids', m('Pages'), !empty($c['pids']) ? $c['pids'] : null,
-		    elGetNavTree('+', m('Whole site')));
-		 $p->setSwitchValue(1);
-     $form->add( $p );
-     $form->add( new elSelect('view', m('Navigation view'), isset($c['view']) ? (int)$c['view'] : 1,
-        array( 1=>m('Complite list'), 0=>m('Only title') ) ) );
-     $form->add( new elText('title', m('Title'), isset($c['title']) ? $c['title'] : '') );
+	
+		$js = "if (this.value != '0') {
+			$(this).parents('tr').eq(0).nextAll('tr').show();
+		} else {
+			$(this).parents('tr').eq(0).nextAll('tr').hide();
+		}";
+	    $form->add( new elSelect('pos', m('Display manufacturers navigation'), isset($c['pos']) ? $c['pos'] : '', $GLOBALS['posNLRTB'], array('onChange'=>$js)) );
+		$p = & new elMultiSelectList('pids', m('Pages'), !empty($c['pids']) ? $c['pids'] : null,  elGetNavTree('+', m('Whole site')));
+		$p->setSwitchValue(1);
+	    $form->add( $p );
+	    $form->add( new elSelect('view', m('Navigation view'), isset($c['view']) ? (int)$c['view'] : 1,    array( 1=>m('Complite list'), 0=>m('Only title') ) ) );
+	    $form->add( new elText('title', m('Title'), isset($c['title']) ? $c['title'] : '') );
+		elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
 
-     elAddJs( 'checkTechShopMNavForm();', EL_JS_SRC_ONLOAD);
 	   return $form;
 	}
 
@@ -661,25 +664,19 @@ function uploadPrice()
 		$sort = array(m('By name'), m('By publish date') );
 		$form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $sort) );
 		$nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
-		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'),
-		            $this->_conf('itemsPerPage'), $nums ) );
+		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $nums ) );
 		$nums = range(0, 15); unset($nums[0], $nums[1], $nums[2]);
-    $form->add( new elSelect('modelsInRow', m('Number of models in row'), (int)$this->_conf('modelsInRow'),
-      $nums) );
-		$form->add( new elSelect('displayCatDescrip', m('Display current category description'),
-		            $this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
-		$form->add( new elSelect('displayManufact', m('Display manufacturer info in items'),
-		            $this->_conf('displayManufact'), $GLOBALS['yn']) );
+    	$form->add( new elSelect('modelsInRow', m('Number of models in row'), (int)$this->_conf('modelsInRow'),  $nums) );
+		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'), $this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
+		$form->add( new elSelect('displayManufact', m('Display manufacturer info in items'),  $this->_conf('displayManufact'), $GLOBALS['yn']) );
 
 
-    $form->add( new elSelect('eshopFunc', m('E-shop functions'), $this->_conf('eshopFunc'),
-      array(m('Disabled'), m('Only display prices'), m('Enabled')), array('OnChange'=>'checkTechShopConfForm(this.value)')  ) );
-    //$freeze = $this->_conf('eshopFunc') ? false : true;
-    $form->add( new elSelect('pricePrec', m('Price format'), (int)$this->_conf('pricePrec'),
-      array( m('Integer'), 2=>m('Double, two signs after dot'))) );
-    $form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
-		elAddJs('checkTechShopConfForm('.intval($this->_conf('eshopFunc')).' )', EL_JS_SRC_ONLOAD);
-    return $form;
+    	$form->add( new elSelect('eshopFunc', m('E-shop functions'), $this->_conf('eshopFunc'), array(m('Disabled'), m('Only display prices'), m('Enabled')), 
+			array('OnChange'=>'if (this.value == \'0\') { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').hide() } else { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').show() }')  ) );
+    	$form->add( new elSelect('pricePrec', m('Price format'), (int)$this->_conf('pricePrec'),  array( m('Integer'), 2=>m('Double, two signs after dot'))) );
+	    $form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
+		elAddJs("$('#eshopFunc').trigger('change');", EL_JS_SRC_ONLOAD);
+	    return $form;
 	}
 
 
@@ -705,16 +702,24 @@ function uploadPrice()
 		$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
 		$form->setLabel( m('Configure navigation for catalog') );
-		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],
-		  $GLOBALS['posNLRTB'], array('onChange'=>'checkNavForm();')) );
+		
+
+		$js = "if (this.value != '0') {
+			$(this).parents('tr').eq(0).nextAll('tr').show();
+		} else {
+			$(this).parents('tr').eq(0).nextAll('tr').hide();
+		}";
+		
+		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],  $GLOBALS['posNLRTB'], array('onChange'=>$js)) );
 		$form->add( new elText('title', m('Navigation title'), $c['title']) );
 		$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
-		$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],
-		  $GLOBALS['yn'], array('onChange'=>'checkNavForm();')) );
+		$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
+		$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],  $GLOBALS['yn'], array('onChange'=>$js)) );
 		$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
 		$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-		elAddJs( 'CatalogsAdminCommon.lib.js', EL_JS_CSS_FILE);
-		elAddJs( 'checkNavForm();', EL_JS_SRC_ONLOAD);
+
+		elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
+
 		return $form;
 	}
 
@@ -769,15 +774,12 @@ function uploadPrice()
     {
       if (!empty($iCodes[$one[0]]))
       { 
-        //echo "ITEM - ".$one[0].' = '.$one[2]."<br />";
         $db->query( sprintf($sql, $tbi, (float)str_replace(',','.',$one[2]),$one[0]));
         $iUpd += $db->affectedRows();
       }
       elseif (!empty($mCodes[$one[0]]))
       {
-        //echo "MODEL - ".$one[0].' - '.$one[2]."<br />";
        $db->query( sprintf($sql, $tbm, (float)str_replace(',','.',$one[2]),$one[0]) );
-       // echo sprintf($sql, $tbm, (float)str_replace(',','.',$one[2]),$one[0]).'<br />';
         $mUpd += $db->affectedRows();
       }
       else

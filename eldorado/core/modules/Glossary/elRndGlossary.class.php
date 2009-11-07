@@ -28,6 +28,10 @@ class elRndGlossary extends elModuleRenderer
 			$this->_te->assignBlockVars('GLOSS.GLOSS_ENTRY', $entry);
 			$block = $entry['url'] ? 'GLOSS.GLOSS_ENTRY.GLOSS_WORD_URL' : 'GLOSS.GLOSS_ENTRY.GLOSS_WORD';
 			$this->_te->assignBlockVars($block, $entry, 2);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('GLOSS.GLOSS_ENTRY.ADMIN', array('id' => $entry['id']), 3);
+			}
 		}
 	}
 }

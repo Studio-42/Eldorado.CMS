@@ -1,0 +1,63 @@
+<!-- BEGIN FORUM -->
+<!-- BEGIN TOP_FORUM -->
+<div class="mod-forum-fl-top rounded-top-5">
+	<!-- BEGIN TF_ADMIN -->
+	<ul class="adm-icons">
+		<li><a href="{URL}edit/{forum_current_cat_id}/{id}/"      class="icons edit"   title="{m('Edit')}"></a></li>
+		<li><a href="{URL}rm/{forum_current_cat_id}/{id}/"        class="icons lock"   title="{m('Forum permissions')}"></a></li>		
+		<li><a href="{URL}move_up/{forum_current_cat_id}/{id}/"   class="icons up"     title="{m('Move up')}"></a></li>
+		<li><a href="{URL}move_down/{forum_current_cat_id}/{id}/" class="icons down"   title="{m('Move fown')}"></a></li>
+		<li><a href="{URL}rm/{forum_current_cat_id}/{id}/"        class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+	</ul>
+	<!-- END TF_ADMIN -->
+	<a href="{URL}{id}/" title="{msg}" class="mod-forum-fl-top-ico"><img src="{STYLE_URL}images/pixel.gif" width="1" height="32"  /></a>
+	<a href="{URL}{id}/" class="mod-forum-fl-top-name"><strong>{name}</strong></a>
+</div>
+<!-- END TOP_FORUM -->
+<div class="mod-forum-fl-wrapper">
+	
+	<div class="mod-forum-fl-border">
+		<table class="mod-forum-fl">
+			<tbody>
+				<!-- BEGIN SUBFORUM -->
+				<tr>
+					<td class="mod-forum-fl-ico first"><a href="{URL}{id}/" title="{msg}"><img src="{ico}" /></a></td>
+					<td class="mod-forum-fl-name">
+					<a href="{URL}{id}/"> <strong>{name}</strong></a>
+					<div>{descrip}</div>
+					<!-- BEGIN SUBFORUMS -->
+					<ul>
+						<!-- BEGIN SUBFORUM2 -->
+						<li class="{cssClass}"><a href="{URL}{id}/" title="{msg}">{name}</a></li>
+						<!-- END SUBFORUM2 -->
+					</ul>
+					<!-- END SUBFORUMS -->
+				</td>
+				<td class="mod-forum-fl-num">
+					{m('Topics')}: {num_topics}<br />
+					{m('Posts')}: {num_posts}
+				</td>
+				<td class="last">
+					<!-- BEGIN LAST_POST -->
+					{m('Last reply in')}: <a href="{URL}topic/{id}/{topic_id}/last/#{last_post_id}" class="link forward">{subject}</a> <br />
+					{date} {m('by')}: <a href="{URL}profile/{author_uid}/" class="link link-user">{author_name}</a>  
+					<!-- END LAST_POST -->
+				</td>
+				<!-- BEGIN F_ADMIN -->
+				<td class="mod-forum-fl-admin last" style="width:60px;padding:0">
+					<ul class="adm-icons" style="margin:0">
+						<li style="padding:0;"><a href="{URL}edit/{forum_current_cat_id}/{id}/"      class="icons edit"   title="{m('Edit')}"></a></li>
+						<li style="padding:0;"><a href="{URL}rm/{forum_current_cat_id}/{id}/"        class="icons lock"   title="{m('Forum permissions')}"></a></li>		
+						<li style="padding:0;"><a href="{URL}move_up/{forum_current_cat_id}/{id}/"   class="icons up"     title="{m('Move up')}"></a></li>
+						<li style="padding:0;"><a href="{URL}move_down/{forum_current_cat_id}/{id}/" class="icons down"   title="{m('Move fown')}"></a></li>
+						<li style="padding:0;"><a href="{URL}rm/{forum_current_cat_id}/{id}/"        class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+				</td>
+				<!-- END F_ADMIN -->
+			</tr>
+			<!-- END SUBFORUM -->	
+			</tbody>
+		</table>
+	</div>
+</div>
+<!-- END FORUM -->

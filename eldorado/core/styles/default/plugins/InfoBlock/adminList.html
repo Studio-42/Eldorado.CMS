@@ -6,7 +6,7 @@
 		<th>{m('Name')}</th>
 		<th>{m('Position')}</th>
 		<th>{m('Pages')}</th>
-		<th class="admin"><a href="{URL}pl_conf/{pluginName}/edit/" title="{m('Create')}"><img src="{icoEdit}" /></a></th>
+		<th class="admin"><a href="{URL}pl_conf/{pluginName}/edit/" class="icons create float-right" title="{m('Create')}"></a></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -17,9 +17,10 @@
 		<td>{position}</td>
 		<td>{pages}</td>
 		<td class="admin">
-			<a href="{URL}pl_conf/{pluginName}/edit/{id}/"  title="{m('Edit')}"><img src="{icoEdit}" class="icons" /></a>
-			<a href="{URL}pl_conf/{pluginName}/rm/{id}/" onClick="return confirm('{m('Do You really want to delete ')}');">
-				<img src="{icoDelete}" title="{m('Delete')}" alt="{m('Delete')}" class="icons" /></a>
+			<ul class="adm-icons">
+				<li><a href="{URL}pl_conf/{pluginName}/edit/{id}/"  class="icons edit"  title="{m('Edit')}" ></a></li>
+				<li><a href="{URL}pl_conf/{pluginName}/rm/{id}/" class="icons delete"  title="{m('Delete')}" onclick="return confirm('{m('Do You really want to delete ')}?');"></a></li>
+			</ul>
 		</td>
 	</tr>
 	<!-- END IB -->

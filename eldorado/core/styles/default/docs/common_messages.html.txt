@@ -1,0 +1,6 @@
+common/messages.html - системные сообщения и сообщения об ошибках
++ Блок SYS_MESSAGES
+	+ Блок SYS_MSG - сообщения
+		- {msg}
+	+ Блок SYS_WARN - ошибки
+		- {msg}

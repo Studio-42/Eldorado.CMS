@@ -1,5 +1,12 @@
 <?php
 
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elTSItem.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elTSModel.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elTSManufacturer.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elTSFeaturesGroup.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elTSFeature.class.php';
+
 define ('EL_TS_CAT',   1);
 define ('EL_TS_ITEM',  2);
 define ('EL_TS_MODEL', 3);
@@ -61,14 +68,6 @@ class elTSFactory
 			$this->_tb[$k] = sprintf($tb, $this->pageID);
 		}
 		$this->_db = & elSingleton::getObj('elDb');
-		
-		$ver = explode('.', EL_VER);
-		if ( $ver[1] <= 7 && $ver[2] <= 7)
-		{
-			elCheckAltTitleField($this->_tb['tbm']);
-			
-		}
-		
 	}
 
 	function create( $hndl, $ID=0 )
@@ -77,21 +76,16 @@ class elTSFactory
 		{
 			return null;
 		}
+		$c = $this->_classes[$hndl]['name'];
+		$this->_objs[$hndl] = new $c();
 
-		if ( !empty($this->_objs[$hndl]) )
+		$tbs = $this->_classes[$hndl]['tbs'];
+		for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
 		{
-			$this->_objs[$hndl]->cleanAttrs();
+			$member = ($i==0) ? 'tb' : $tbs[$i];
+			$this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
 		}
-		else
-		{
-			$this->_objs[$hndl] = elSingleton::getObj($this->_classes[$hndl]['name']);
-			$tbs = $this->_classes[$hndl]['tbs'];
-			for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
-			{
-				$member = ($i==0) ? 'tb' : $tbs[$i];
-				$this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
-			}
-		}
+
 		$this->_objs[$hndl]->setUniqAttr((int)$ID);
 		if ($this->_objs[$hndl]->ID && !$this->_objs[$hndl]->fetch())
 		{
@@ -159,18 +153,6 @@ class elTSFactory
 
 			if (!empty($iWModels))
 			{
-//			   $sql = 'SELECT i.id, m.id AS mid, ft.name, ft.unit, ftv.value FROM '
-//			         .$this->_tb['tbi'].'    AS i, '
-//			         .$this->_tb['tbm'].'    AS m, '
-//			         .$this->_tb['tbft'].'   AS ft, '
-//			         .$this->_tb['tbft2m'].' AS ftv, '
-//			         .$this->_tb['tbftg'].'  AS g '
-//			         .'WHERE i.id IN ('.implode(',', array_keys($iWModels)).') '
-//			         .'AND m.i_id=i.id '
-//			         .'AND ftv.m_id=m.id AND ftv.is_announced=\'1\' AND ft.id=ftv.ft_id AND g.id=ft.gid '
-//			         .'ORDER BY i.id, m.name, '
-//					   .'IF(g.sort_ndx>0,  LPAD(g.sort_ndx,  4, "0"), "9999"), g.name,'
-//					   .'IF(ft.sort_ndx>0, LPAD(ft.sort_ndx, 4, "0"), "9999"), ft.name';
 				  $sql = 'SELECT i.id, m.id AS mid, ft.name, ft.unit, IF(ftv.is_split="0", ftv.value, ftv2.value) AS value FROM '
 			         .$this->_tb['tbi'].'    AS i, '
 			         .$this->_tb['tbm'].'    AS m, '
@@ -312,7 +294,7 @@ class elTSFactory
 						.$this->_tb['tbi'].' AS i LEFT JOIN '.$this->_tb['tbmnf'].' AS m '
 						.'ON m.id=i.mnf_id '
 						.'WHERE i.id IN ('.implode(',', $iIDs).') AND c.i_id=i.id '
-						.'ORDER BY i.code, i.name';
+						.'GROUP BY i.id ORDER BY i.code, i.name';
 			$this->_db->query($sql);
 			$list = array_merge($list, $this->_db->queryToArray($sql));
 		}

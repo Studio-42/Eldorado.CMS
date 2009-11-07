@@ -6,12 +6,12 @@ class elModuleMailFormator extends elModule
 	var $_rcptList = array(); //recipients list
 	var $_form     = null;
 	var $_conf     = array(
-												'formLabel'  => '',
-												'selectRcpt' => 0,
-												'rcptIDs'    => array(),
-												'subject'    => '',
-												'replyMsg'   => ''
-												);
+			'formLabel'  => '',
+			'selectRcpt' => 0,
+			'rcptIDs'    => array(),
+			'subject'    => '',
+			'replyMsg'   => ''
+			);
 	var $_tpl = "%s: %s\n";
 	var $_tplSt = "--- %s ---\n";
 	var $_ec = null;  //emails collection object
@@ -42,7 +42,7 @@ class elModuleMailFormator extends elModule
 			return $this->_rnd->addToContent( $this->_form->toHtml() );
 		}
 
-		$data  = $this->_form->getValue(); //elPrintR($data);
+		$data  = $this->_form->getValue(); 
 		$msg   = '';
 		$dir   = $this->_getTmpDir();
 		$files = array();
@@ -67,13 +67,13 @@ class elModuleMailFormator extends elModule
 			{
 				$msg .= sprintf($this->_tpl, $el->label, implode(', ', $data[$el->ID]));
 			}
-			else
+			elseif ('captcha' != $el->type)
 			{
 				$msg .= sprintf($this->_tpl, $el->label, $data[$el->ID]);
 			}
 		}
-		//echo nl2br($msg);
 		$rcptList = $this->_conf('selectRcpt') ? array($data['rcpt']) : $this->_rcptList;
+		
 		if ( false == ($subj = $this->_conf('subject')))
 		{
 			$subj = m('Message from site');
@@ -102,11 +102,14 @@ class elModuleMailFormator extends elModule
 	function _send( $rcptList, $subj, $msg, $files )
 	{
 		$postman = & elSingleton::getObj('elPostman');
-		$postman->newMail($this->_ec->getDefault(), null, $subj, $msg);
-		foreach ( $rcptList as $rcptID )
-		{
-			$postman->setTo($this->_ec->getEmailByID($rcptID));
+		$to = array();
+		foreach ( $rcptList as $rcptID ) {
+			$addr = $this->_ec->getEmailByID($rcptID);
+			if ($addr) {
+				$to[] = $addr;
+			}
 		}
+		$postman->newMail($this->_ec->getDefault(), $to ? $to : $this->_ec->getDefault(), $subj, $msg);
 		if (!empty($files))
 		{
 			foreach($files as $f)
@@ -131,6 +134,7 @@ class elModuleMailFormator extends elModule
 			$label = m('Send message');
 		}
 		$this->_form->setLabel( $label );
+
 		if ( $this->_conf('selectRcpt') )
 		{
 			$this->_form->add( new elSelect('rcpt', m('Select recipient'), null, $this->_rcptList));
@@ -153,9 +157,10 @@ class elModuleMailFormator extends elModule
 	function _onInit()
 	{
 		$this->_ec = & elSingleton::getObj('elEmailsCollection');
-		if ( !$this->_conf('selectRcpt') && false != ($rIDs = $this->_conf('rcptIDs')) && is_array($rIDs) )
+
+		if ( !empty($this->_conf['rcptIDs']) && is_array($this->_conf['rcptIDs']) )
 		{
-			foreach ($rIDs as $ID)
+			foreach ($this->_conf['rcptIDs'] as $ID)
 			{
 				if ( $this->_ec->isEmailExists($ID) )
 				{
@@ -163,6 +168,7 @@ class elModuleMailFormator extends elModule
 				}
 			}
 		}
+		
 		if ( empty($this->_rcptList) )
 		{
 			$this->_rcptList = $this->_ec->getLabels();

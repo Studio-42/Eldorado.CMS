@@ -1,0 +1,97 @@
+<?php
+//operations
+$elMsg['Actions']                            = 'Дії';
+$elMsg['Help']                               = 'Допомога';
+$elMsg['Documentation index']                = 'Зміст документації';
+$elMsg['Module documentation']               = 'Документація модуля';
+$elMsg['On']                                 = 'Вкл';
+$elMsg['Off']                                = 'Выкл';
+$elMsg['Plugins']                            = 'Доп. модули';
+$elMsg['Plugins control']                    = 'Налаштування доп. модулей';
+$elMsg['Create']                             = 'Створити';
+$elMsg['Edit']                               = 'Редагувати';
+$elMsg['Delete']                             = 'Видалити';
+$elMsg['Move up']                            = 'На початок';
+$elMsg['Move down']                          = 'Вниз';
+$elMsg['Configure']                          = 'Установки';
+$elMsg['Configure import']                   = 'Установки імпорту данних';
+$elMsg['Configuration']                      = 'Установки';
+$elMsg['Delete image']                       = 'Видалити зображення';
+$elMsg['Upload image']                       = 'Завантажити зображення';
+$elMsg['User manual']                        = 'Керівництво користувача';
+//operation messages
+$elMsg['Create object "%s"']                 = 'Створити новий об&rsquo;єкт "%s"';
+$elMsg['Edit object "%s"']                   = 'Редагувати об&rsquo;єкт "%s"';
+$elMsg['Object "%s" "%s" was deleted']       = 'об&rsquo;єкт "%s" "%s" видалений';
+$elMsg['%s "%s" was deleted']                = '%s "%s" видалений';
+$elMsg['Configuration was saved']            = 'Установки збережені у файлі конфігурації';
+$elMsg['Do You really want to delete ']      = 'Хочете видалити';
+$elMsg['Do You really want to delete page']  = 'Хочете видалити сторінку';
+$elMsg['There are no one records was found'] = 'Не знайдено жодного запису';
+//permissions
+$elMsg['Undefined']                          = 'Невизначено';
+$elMsg['Read only']                          = 'Тільки читання';
+$elMsg['Read/write']                         = 'Читання / запис';
+$elMsg['Full control']                       = 'Повний контроль';
+//misc
+$elMsg['Description'] 					= 'Опис'; 
+$elMsg['Content'] 						= 'Зміст'; 
+$elMsg['Title']							 = 'Назва'; 
+$elMsg['Name'] 							= 'Назва'; 
+$elMsg['Label']							 = 'Мітка'; 
+$elMsg['Announce'] = 'Анонс'; 
+$elMsg['Default value'] = 'Значення за замовчуванням'; 
+$elMsg['Use default'] = 'Використовувати значення за замовчуванням'; 
+$elMsg['Use as default'] = 'Використовувати за замовчуванням'; 
+$elMsg['default'] = 'за замовчуванням'; 
+$elMsg['Position'] = 'Розташування'; 
+$elMsg['left'] = 'ліворуч'; 
+$elMsg['right'] = 'праворуч'; 
+$elMsg['top'] = 'зверху'; 
+$elMsg['bottom'] = 'знизу'; 
+$elMsg['On the top'] = 'Зверху'; 
+$elMsg['On the left'] = 'Ліворуч'; 
+$elMsg['On the right'] = 'Справа'; 
+$elMsg['Whole site'] = 'Весь сайт'; 
+$elMsg['Use alternative template'] = 'Використовувати альтернативний шаблон';
+//modules names
+$elMsg['Simple page']                        = 'Сторінка';
+//import/export
+$elMsg['Data import configuration'] = 'Налаштування імпорту даних'; 
+$elMsg['Data export configuration'] = 'Налаштування експорту даних';
+$elMsg['Export parameter'] = 'Параметр експорту'; 
+$elMsg['Use data import'] = 'Дозволити імпорт даних'; 
+$elMsg['Import URL'] = 'Адреса джерела даних (URL)'; 
+$elMsg['Import parameter may contains serveral values delimited by "6"'] = 'Поле параметр імпорту може містити кілька значень розділених ","'; 
+$elMsg['Import parameter'] = 'Параметр імпорту'; 
+$elMsg['Import KEY'] = 'Ключ імпорту'; 
+$elMsg['Automaticaly import period (days)'] = 'Період автоматичного імпорту даних (дні)'; 
+$elMsg['Last time import'] = 'Дата останнього імпорту'; 
+$elMsg['Use data export'] = 'Дозволити експорт даних'; 
+$elMsg['Export KEY'] = 'Ключ експорту';
+$elMsg['Use cURL functions to fetch data from URL'] = 'Використовувати функції cURL для доступу до віддалених файлів'; 
+$elMsg['Import error! Could not get data from% s '] =' Помилка імпорту даних! Не вдалося отримати дані з% s '; 
+$elMsg['Import error! Error message is:% s '] =' Помилка імпорту даних! Повідомлення про помилку:% s '; 
+$elMsg['Import error! Recieved data has invalid structure! '] =' Помилка імпорту даних! Отримані дані мають некоректну структуру! '; 
+$elMsg['Export does not allowed'] = 'Експорт заборонено'; 
+$elMsg['Invalid import key'] = 'Неправильний ключ імпорту';
+$elMsg['Module does not support export']     = 'Модуль не підтримує експорт даних';
+$elMsg['Template is loading']                = 'Завантажується шаблон';
+$elMsg['Warning! Incorrect changes in some templates may crash Your site!'] = 'Увага! Чи не коректні зміни деяких шаблонів можуть стати причиною непрацездатності сайту!';
+$elMsg['Show/hide files list']               = 'Показати / приховати список файлів';
+$elMsg['Display file last modify date']      = 'Показувати дату зміни файлу';
+$elMsg['Display download counter']           = 'Показувати лічильник скачувань';
+$elMsg['Linked objects groups configuration']          = 'Налаштування груп пов&rsquo;язаних об&rsquo;єктів';
+$elMsg['You may set linked objects groups names']      = 'Ви можете встановити нові імена для груп зв&rsquo;язаних об&rsquo;єктів';
+$elMsg['Objects from page "%s"']                       = 'Група об&rsquo;єктів з розділу "%s"';
+$elMsg['Edit linked objects list']                     = 'Змінити список пов&rsquo;язаних об&rsquo;єктів';
+$elMsg['Edit linked object for "%s"']                  = 'Змінити список пов&rsquo;язаних об&rsquo;єктів для "%s"';
+$elMsg['Linked objects groups view']                   = 'Вид групп связанных объектов';
+$elMsg['All groups collapsed']                         = 'Все группы свернуты';
+$elMsg['First group expanded']                         = 'Первая группа развернута';
+$elMsg['All groups expanded']                          = 'Все группы развернуты';
+$elMsg['Spam protection']                              = 'Захист від спаму';
+$elMsg['Captcha: image with code and input field']     = 'CAPTCHA: зображення з кодом і текстове поле';
+$elMsg['Do You really want to delete all items from this category?'] = 'Бажаєте видалити всі об&rsquo;єкти з категорії?';
+$elMsg['All items from category "%s" was removed']     = 'Всі об&rsquo;єкти з категорії "%s" були видалені';
+?>

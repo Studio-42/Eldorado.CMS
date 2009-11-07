@@ -6,7 +6,10 @@ class elRndIShop extends elCatalogRenderer
   var $_tpls    = array(
 						'item'   => 'item.html',
 						'img'    => 'itemImg.html',
-						'search' => 'searchForm.html'
+						'search' => 'search-form.html',
+						'mnfs'  => 'mnfs.html',
+						'types' => 'types.html',
+						'sConf' => 'search-conf.html'
 						);
   var $_admTpls = array(
 						'item'  => 'adminItem.html',
@@ -118,8 +121,18 @@ class elRndIShop extends elCatalogRenderer
 
   function renderItem( $item, $linkedObjs=null )
 	{
-		$this->_setFile( 'item' );
+		elAddJs('jquery.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.js', EL_JS_CSS_FILE);
+		elAddCss('fancybox.css');
+		
+		$this->_setFile('item');
 		$this->_te->assignVars( $item->toArray() );
+		
+		if ($this->_admin)
+		{
+			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
+		}
 		
 		if ($item->img)
 		{
@@ -128,6 +141,7 @@ class elRndIShop extends elCatalogRenderer
 		  $vars = array(
 		    'id' => $item->ID,
 		    'src' => $item->getTmbURL('c'),
+			'target' => EL_BASE_URL.$item->img,
 		    'alt'=>htmlspecialchars($item->name),
 		    'w'=>120+$s[0],
 		    'h'=>150+$s[1]
@@ -229,13 +243,6 @@ class elRndIShop extends elCatalogRenderer
 		$this->_rndLinkedObjs($linkedObjs);
 	}
 
-  function rndItemImg($item)
-  {
-	elAddCss('moduleIShop.css', EL_JS_CSS_FILE);
-    $this->_setFile( 'img' );
-    $this->_te->assignVars( array('name'=>$item->name, 'src'=>EL_BASE_URL.$item->img) );
-
-  }
 
   function rndTypes($types)
   {
@@ -289,21 +296,25 @@ class elRndIShop extends elCatalogRenderer
 	 **/
 	function _rndItemsOneColumn($items)
 	{
-		$i = 0; 
+		$i = 0;
 		foreach ($items as $item)
-		{ 
-	  		$vars = $item->toArray();
-	  		$vars['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
-	  		$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM', $vars, 1);
-	  		if ( $this->_conf('displayCode'))
+		{
+			$data = $item->toArray();
+			$data['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
+			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
+			if ($this->_admin)
+			{
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id'], 'type_id' => $data['type_id']), 2);
+			}
+			if ( $this->_conf('displayCode'))
 	  		{
-				$this->_te->assignBlockVars( 'ITEMS_ONECOL.O_ITEM.OI_CODE', array('code'=>$item->code), 2 );
+				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.CODE', array('code'=>$item->code), 2 );
 	  		}
-	  		if ( $item->price > 0 )
+			if ( $item->price > 0 )
 	  		{
-				$this->_te->assignBlockVars( 'ITEMS_ONECOL.O_ITEM.OI_PRICE', array('id'  => $item->ID, 'price'=>$item->price), 2 );
+				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.PRICE', array('id'  => $item->ID, 'price'=>$item->price), 2 );
 	  		}
-	  		if ($item->img)
+			if ($item->img)
 	  		{
 				$vars = array(
 		 			'id'  => $item->ID,
@@ -311,23 +322,23 @@ class elRndIShop extends elCatalogRenderer
 		 			'pos' => EL_POS_RIGHT == $this->_conf('tmbListPos') ? 'right' : 'left',
 		 			'alt' => htmlspecialchars($item->name)
 		 			);
-				$this->_te->assignBlockVars( 'ITEMS_ONECOL.O_ITEM.OI_IMG', $vars, 2 );
+				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.IMG', $vars, 2 );
 	  		}
-	  		if ( !empty($this->_conf['mnfNfo']) )
+			if ( !empty($this->_conf['mnfNfo']) )
 	  		{
 				$vars = array('mnf'=>$item->mnf, 'country'=>$item->mnfCountry, 'tm'=>$item->tm);
 				if (EL_IS_USE_MNF == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
 	   			{
-		  			$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM.OI_MNF_TM.OI_MNF', $vars, 3);
+		  			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MNF_TM.MNF', $vars, 3);
 				}
 				if (EL_IS_USE_TM == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
 				{
-		  			$this->_te->assignBlockVars('ITEMS_ONECOL.O_ITEM.OI_MNF_TM.OI_TM', $vars, 3);
+		  			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MNF_TM.TM', $vars, 3);
 				}
 	  		}
-	  		if ( false != ($props = $item->getAnnProperties()) )
+			if ( false != ($props = $item->getAnnProperties()) )
 	  		{
-				$this->_te->assignBlockFromArray('ITEMS_ONECOL.O_ITEM.OC_ANN_PROPS.OC_ANN_PROP', $props, 3);
+				$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.ANN_PROPS.ANN_PROP', $props, 3);
 	  		}
 		}
   	}
@@ -340,32 +351,31 @@ class elRndIShop extends elCatalogRenderer
 	 **/
 	function _rndItemsTwoColumns($items)
 	{
-		$rowCnt = $i = 1;
+		// elPrintR($this->_conf);
+		$rowCnt = $i = 0;
+		$s = sizeof($items);
 		foreach ($items as $item)
 		{
-			$cssLastClass = 'col-last';
-			if ( ($i++)%2  )
+			$data = $item->toArray();
+			$data['cssLastClass'] = 'col-last';
+			if (!($i++%2))
 			{
-				$cssLastClass = '';
-				$cssRowClass  = $rowCnt++%2 ? 'strip-ev' : 'strip-odd';
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW', array('cssRowClass'=>$cssRowClass), 1);
+				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s ? 'invisible' : '');
+				$this->_te->assignBlockVars('ITEMS_TWOCOL', $var);
+				$data['cssLastClass'] = '';
 			}
-			$vars = $item->toArray();
-			$vars['cssRowClass']  = $cssRowClass;
-			$vars['cssLastClass'] = $cssLastClass;
-			$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM', $vars, 2 );
-			if (!($i%2))
+			$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM', $data, 1 );
+			if ($this->_admin)
 			{
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW.T_ITEM.IDELIM', null, 3);
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id'], 'type_id' => $data['type_id']), 2);
 			}
-			
 			if ( $this->_conf('displayCode'))
 			{
-			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM.TI_CODE', array('code'=>$item->code), 3 );
+			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.CODE', array('code'=>$item->code), 2 );
 			}
 			if ( $item->price > 0 )
 			{
-			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM.TI_PRICE', array('price'=>$item->price), 3 );
+			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$item->price), 2 );
 			}
 			if ($item->img)
 			{
@@ -375,23 +385,23 @@ class elRndIShop extends elCatalogRenderer
 			   		'pos' => EL_POS_RIGHT == $this->_conf('tmbListPos') ? 'right' : 'left',
 			   		'alt' => htmlspecialchars($item->name)
 			   		);
-			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.IROW.T_ITEM.TI_IMG', $vars, 3 );
+			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.IMG', $vars, 2);
 			}
 			if ( !empty($this->_conf['mnfNfo']) )
             {
               	$vars = array('mnf'=>$item->mnf, 'country'=>$item->mnfCountry, 'tm'=>$item->tm);
               	if (EL_IS_USE_MNF == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
               	{
-                	$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW.T_ITEM.TI_MNF_TM.TI_MNF', $vars, 4);
+                	$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MNF_TM.MNF', $vars, 3);
               	}
               	if (EL_IS_USE_TM == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
               	{
-                	$this->_te->assignBlockVars('ITEMS_TWOCOL.IROW.T_ITEM.TI_MNF_TM.TI_TM', $vars, 4);
+                	$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MNF_TM.TM', $vars, 3);
               	}
             }
 			if ( false != ($props = $item->getAnnProperties()) )
             {
-				$this->_te->assignBlockFromArray('ITEMS_TWOCOL.IROW.T_ITEM.TC_ANN_PROPS.TC_ANN_PROP', $props, 4);
+				$this->_te->assignBlockFromArray('ITEMS_TWOCOL.ITEM.ANN_PROPS.ANN_PROP', $props, 3);
             }
 		}
 	}

@@ -119,6 +119,10 @@ class elModule
    */
 	var $_smPath = '';
 
+	var $_css = true;
+	
+	var $_jslib = false;
+
 	/**
    * @param  bool  does default method except arguments from URL
    * used by core to 404 error emulation
@@ -158,7 +162,7 @@ class elModule
 		{
 			$this->_mh = '';
 		}
-		if (EL_WM == EL_WM_NORMAL)
+		if ($this->_css)
 		{
 		  elAddCss('modules/'.$this->name.'.css');
 		}
@@ -359,8 +363,8 @@ class elModule
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 
 		$form->setLabel( m('Data import configuration'));
-		$form->add( new elSelect('import',    m('Use data import'),  (int)$this->_conf('import'), $GLOBALS['yn'],
-										 array('onChange'=>'checkImportForm();')) );
+		$js = 'var r = $(this).parents("tr").eq(0).nextAll("tr"); if (this.value>0) { r.show(); } else { r.hide(); }';
+		$form->add( new elSelect('import', m('Use data import'), (int)$this->_conf('import'), $GLOBALS['yn'], array('onchange'=>$js)) );
 		$form->add( new elText('importURL',   m('Import URL'),       $this->_conf('importURL')) );
 		$form->add( new elCData('c1',         m('Import parameter may contains serveral values delimited by ","')) );
 		$form->add( new elText('importParam', m('Import parameter'), $this->_conf('importParam')) );
@@ -379,7 +383,7 @@ class elModule
 		$iDate = $this->_conf('importTS') ? date(EL_DATETIME_FORMAT, $this->_conf('importTS')) : m('Never');
 		$form->add( new elText('i-d', m('Last time import'), $iDate, null, true));
 		$form->setElementRule('importURL', 'http_url', false);
-		elAddJs( 'checkImportForm();', EL_JS_SRC_ONLOAD);
+		elAddJs('$("#import").trigger("change");', EL_JS_SRC_ONREADY);
 		if ( !$form->isSubmitAndValid() )
 		{
 			$this->_initRenderer();
@@ -409,12 +413,12 @@ class elModule
 
 	function configureExport()
 	{
-		elAddJs( 'importExportAdmin.lib.js', EL_JS_CSS_FILE );
 		$form = & elSingleton::getObj( 'elForm', 'moduleConf' );
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 		$form->setLabel( m('Data export configuration'));
-		$form->add( new elSelect('export',    m('Use data export'),  (int)$this->_conf('export'), $GLOBALS['yn'],
-							array('onChange'=>'checkExportForm();')) );
+		
+		$js = 'var r = $(this).parents("tr").eq(0).next("tr"); if (this.value>0) { r.show(); } else { r.hide(); }';
+		$form->add( new elSelect('export', m('Use data export'), (int)$this->_conf('export'), $GLOBALS['yn'], array('onchange'=>$js)) );
 		$form->add( new elText('exportKEY',   m('Export KEY'),       $this->_conf('exportKEY')) );
 		elAddJs( 'checkExportForm();', EL_JS_SRC_ONLOAD);
 		if ( $form->isSubmitAndValid() )
@@ -427,6 +431,7 @@ class elModule
 			elMsgBox::put( m('Data saved'));
 			elLocation( EL_URL );
 		}
+		elAddJs("$('#export').trigger('change');", EL_JS_SRC_ONREADY);
 		$this->_initRenderer();
 		$this->_rnd->addToContent( $form->toHtml() );
 	}
@@ -485,7 +490,10 @@ class elModule
 	{
 		elLoadMessages('Module'.$this->name);
 		$this->_loadConf();
-		elAddJs( $this->name.'.lib.js', EL_JS_CSS_FILE );
+		if ($this->_jslib)
+		{
+			elAddJs( $this->name.'.lib.js', EL_JS_CSS_FILE );
+		}
 	}
 
 	/**
@@ -497,7 +505,6 @@ class elModule
 		elLoadMessages('ModuleAdmin'.$this->name);
 		include_once 'elCoreAdmin.lib.php';
 		$this->_initNormal();
-
 
 		if ( !$this->_hasImportedData() )
 		{

@@ -11,32 +11,32 @@ class elSubModuleCommonControl extends elModule
 	var $_prnt   = false;
 	var $_confID = 'common';
 	var $_conf   = array(
-	'siteName'      => 'Eldorado V3 new site',
-	'owner'         => '',
-	'contacts'      => '',
-	'phones'        => '',
-	// 'cacheAllow'    => 0,
-	'gzOutputAllow' => 1,
-	'debug'         => 0,
-	'timer'         => 1,
-	'locale'        => 'en',
-	'imgURL'        => ''
+		'siteName'      => 'ELDORADO.CMS',
+		'owner'         => '',
+		'contacts'      => '',
+		'phones'        => '',
+		'jsCacheTime'   => 24,
+		'gzOutputAllow' => 1,
+		'debug'         => 0,
+		'timer'         => 1,
+		'locale'        => 'en',
+		'imgURL'        => ''
 	);
 
 	/**
    * array site common config
    */
 	var $_params = array(
-	'siteName'      => array('label'=>'Site name',              'val'=>'', 'int'=>0),
-	'owner'         => array('label'=>'Site owner',             'val'=>'', 'int'=>0),
-	'contacts'      => array('label'=>'Contacts information',   'val'=>'', 'int'=>0),
-	'phones'        => array('label'=>'Phones',                 'val'=>'', 'int'=>0),
-	// 'cacheAllow'    => array('label'=>'Allow cache',            'val'=>'', 'int'=>1),
-	'gzOutputAllow' => array('label'=>'Compress output',        'val'=>'', 'int'=>1),
-	'debug'         => array('label'=>'Display debug messages', 'val'=>'', 'int'=>1),
-	'timer'         => array('label'=>'Display working time',   'val'=>'', 'int'=>1),
-	'locale'        => array('label'=>'Interface language',     'val'=>'', 'int'=>0),
-	'currency'      => array('label'=>'Currency',     					'val'=>'', 'int'=>0)
+	'siteName'      => array('label'=>'Site name',                          'val'=>'', 'int'=>0),
+	'owner'         => array('label'=>'Site owner',                         'val'=>'', 'int'=>0),
+	'contacts'      => array('label'=>'Contacts information',               'val'=>'', 'int'=>0),
+	'phones'        => array('label'=>'Phones',                             'val'=>'', 'int'=>0),
+	'jsCacheTime'   => array('label'=>'Js and css file cache time (hours)', 'val'=>'', 'int'=>0),
+	'gzOutputAllow' => array('label'=>'Compress output',                    'val'=>'', 'int'=>1),
+	'debug'         => array('label'=>'Display debug messages',             'val'=>'', 'int'=>1),
+	'timer'         => array('label'=>'Display working time',               'val'=>'', 'int'=>1),
+	'locale'        => array('label'=>'Interface language',                 'val'=>'', 'int'=>0),
+	'currency'      => array('label'=>'Currency',     				        'val'=>'', 'int'=>0)
 	);
 
 	var $_lc = array();
@@ -78,6 +78,11 @@ class elSubModuleCommonControl extends elModule
 					$curr[$c] = $val[1];
 				}
 				$form->add( new elSelect($k, $v['label'], $this->_currInfo['currency'], $curr) );
+			}
+			elseif ('jsCacheTime' == $k)
+			{
+				$time = array(0, 1, 2, 3, 6, 12, 24);
+				$form->add( new elSelect($k, $v['label'], (int)$this->_conf[$k], array(0, 1, 2, 3, 6, 12, 24), null, false, false) );
 			}
 			elseif ( !$v['int'] )
 			{
@@ -142,7 +147,11 @@ class elSubModuleCommonControl extends elModule
 				$this->_currInfo            = elGetCurrencyInfo();
 				$this->_params[$k]['val']   = $this->_currInfo['currencyName'];
 			}
-
+			elseif('jsCacheTime' == $k)
+			{
+				$this->_params[$k]['label'] = m($this->_params[$k]['label']);
+				$this->_params[$k]['val']   = $this->_conf[$k];
+			}
 		}
 	}
 

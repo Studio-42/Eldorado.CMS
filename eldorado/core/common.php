@@ -17,7 +17,6 @@ $paths = EL_DIR_CORE.'lib/:'
 
 ini_set('include_path', '.:'.$paths);
 
-
 /**
  * Site pages permissions
  */
@@ -36,10 +35,8 @@ define ('EL_DEBUGQ', 3);
  * Window modes and url suffixes
  */
 define ('EL_WM_NORMAL', 1);
-//define ('EL_WM_PRNT',   2);
 define ('EL_WM_POPUP',  3);
 define ('EL_WM_XML',    4);
-//define ('EL_URL_PRNT',  '_print_');
 define ('EL_URL_POPUP', '_popup_');
 define ('EL_URL_XML',   '_xml_');
 
@@ -101,9 +98,17 @@ $GLOBALS['_elPlugins_'] = array();
  * common.lib.js
  * file with the same name as current module
  */
-$GLOBALS['jsScripts'] = array();
-
-$GLOBALS['css']       = array();
+$GLOBALS['_js_'] = array(
+	EL_JS_CSS_FILE    => array('jquery.js', 'common.min.js'),
+	EL_JS_CSS_SRC     => array(),
+	EL_JS_SRC_ONLOAD  => array(),
+	EL_JS_SRC_ONREADY => array()
+	);
+$GLOBALS['_css_']       = array(
+	'ui-theme'     => '',
+	EL_JS_CSS_FILE => array('layout.css', 'styling.css', 'normal.css'),
+	EL_JS_CSS_SRC  => array()
+	);
 /**
  * Array contains current path inside page
  * Dont use directly. Use elAppendToPagePath() func
@@ -113,7 +118,6 @@ $GLOBALS['pagePath'] = array();
 
 include_once EL_DIR_CORE.'lib/elCore.class.php';
 include_once EL_DIR_CORE.'lib/elCore.lib.php';
-// include_once EL_DIR_CORE.'lib/elSingleton.class.php';
 include_once EL_DIR_CORE.'lib/elMsgBox.class.php';
 include_once EL_DIR_CORE.'lib/elModule.class.php';
 include_once EL_DIR_CORE.'lib/elModuleRenderer.class.php';
@@ -145,5 +149,5 @@ if ( ini_get('magic_quotes_gpc') )
 }
 
 elLoadMessages('Common');
-//elLoadIconsConf();
+
 ?>

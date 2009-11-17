@@ -174,16 +174,16 @@ class elPluginManagerCalculator {
 	
 	
 	function _displayCalculator($calc) {
-		//elPrintR($calc);
 		elLoadJQueryUI();
-		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
-		elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.form.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.validate.min.js', EL_JS_CSS_FILE);
-		elAddJs('el.lib.validate-methods.js', EL_JS_CSS_FILE);
-		if (EL_LANG != 'en') {
-			elAddJs('i18n/jquery.validate/messages_'.EL_LANG.'.js', EL_JS_CSS_FILE);
+		elAddCss('eldialogform.css',              EL_JS_CSS_FILE);
+		elAddJs('eldialogform.min.js',            EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js',         EL_JS_CSS_FILE);
+		elAddJs('jquery.form.min.js',             EL_JS_CSS_FILE);
+		elAddJs('jquery.validate.min.js',         EL_JS_CSS_FILE);
+		elAddJs('jquery.validate.add-methods.js', EL_JS_CSS_FILE);
+		if (EL_LANG != 'en') 
+		{
+			elAddJs('i18n/jquery.validate.'.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
 
 		$rnd   = & elSingleton::getObj('elTE');
@@ -192,10 +192,10 @@ class elPluginManagerCalculator {
 		$data['dtype'] = $data['dtype'] == 'int' ? m('Integer') : m('Double');
 		
 		$rnd->assignVars($data);
-		$rnd->assignVars('calc_edit_json', elJSON::encode(array('cid'=>$data['id'], 'action' => 'edit')));
+		$rnd->assignVars('calc_edit_json',    elJSON::encode(array('cid'=>$data['id'], 'action' => 'edit')));
 		$rnd->assignVars('formula_edit_json', elJSON::encode(array('cid'=>$data['id'], 'action' => 'formula_edit')));
-		$rnd->assignVars('calc_rm_json', elJSON::encode(array('cid'=>$data['id'], 'action' => 'rm')));		
-		$rnd->assignVars('var_edit_json', elJSON::encode(array('cid'=>$data['id'], 'action' => 'var_edit')));		
+		$rnd->assignVars('calc_rm_json',      elJSON::encode(array('cid'=>$data['id'], 'action' => 'rm')));		
+		$rnd->assignVars('var_edit_json',     elJSON::encode(array('cid'=>$data['id'], 'action' => 'var_edit')));		
 		
 		$var = new elPcVar();
 		$vars = $var->collection(false, false, 'cid='.$calc->ID, 'sort_ndx, id');
@@ -214,7 +214,7 @@ class elPluginManagerCalculator {
 	}
 	
 	function _displayAll() {
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		$c = & new elPcCalculator();
 		$calcList = $c->collection(true); 
 		$rnd   = & elSingleton::getObj('elTE');

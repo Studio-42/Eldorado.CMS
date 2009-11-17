@@ -1,9 +1,8 @@
 
-
 function checkOrderDepend(itemID, propID, propValue)
 {
-  url = elURL + '_xml_/depend/'+itemID+'/'+propID+'/'+propValue+'/'; 
-  loadXMLDoc(url);
+  // url = elURL + '_xml_/depend/'+itemID+'/'+propID+'/'+propValue+'/'; 
+  // loadXMLDoc(url);
 	$.ajax({
 		url      : elURL + '_xml_/depend/'+itemID+'/'+propID+'/'+propValue+'/',
 		dataType : 'xml',

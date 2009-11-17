@@ -24,7 +24,14 @@ class elBBcodeEditor extends elFormInput
 	$groups = $bbcode->getGroups();
 	
 	elAddJs('jquery.elBBcodeEditor.js', EL_JS_CSS_FILE);
-	elAddJs("$('div.bbeditor').elBBcodeEditor()", EL_JS_SRC_ONREADY);
+	$js = '
+		var opts = {
+			i18n : typeof(eli18n) == "function" && forum && forum.i18n && forum.i18n.'.EL_LANG.' ? new eli18n({textdomain : "forum", messages : {forum : forum.i18n.'.EL_LANG.'}}) : null,
+			lang : "'.EL_LANG.'"
+		};
+		$("div.bbeditor").elBBcodeEditor(opts);
+	';
+	elAddJs($js, EL_JS_SRC_ONREADY);
 	
 	$html = '<div class="bbeditor">';
 	$i = 1;
@@ -37,7 +44,7 @@ class elBBcodeEditor extends elFormInput
 			if ('text' != $name || 'color' != $bb)
 			{
 				
-				$html .= '<div class="bb-button rounded-3"><a href="javascript:void(0)" class="bb-'.$bb.'" meta="'.$bb.'"></a></div>';
+				$html .= '<div class="bb-button rounded-3"><a href="#" class="bb-'.$bb.'" meta="'.$bb.'"></a></div>';
 			}
 			else
 			{

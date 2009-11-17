@@ -15,6 +15,7 @@ $elMsg['Display working time']                          = 'Показывать 
 $elMsg['Interface language']                            = 'Язык интерфейса и кодировка';
 $elMsg['Currency']                                      = 'Валюта';
 $elMsg['Edit site common configuration']                = 'Изменить общие настройки сайта';
+$elMsg['Js and css file cache time (hours)']            = 'Время кэширования css и javascript (часы)';
 $elMsg['Image in site header'] = 'Изображение в "шапке" сайта';
 $elMsg['Action on image'] = 'Действия над изображением';
 $elMsg['Upload image'] = 'Загрузить изображение';

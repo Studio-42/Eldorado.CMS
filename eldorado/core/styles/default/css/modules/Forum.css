@@ -17,7 +17,7 @@ div.mod-forum-top table td.last table a.user-name {
 	font-size:110%;
 }
 div.mod-forum-top table td.last table a.logout { 
-	background:url(style/images/icons2.png) right -1432px no-repeat; 
+	background:url(../../images/icons2.png) right -1432px no-repeat; 
 	padding: 3px 0 0 20px; 
 	height:16px; 
 	font-size:9px;
@@ -56,13 +56,13 @@ div.mod-forum-pager table td .pager a.current {  background:#a7c1d2; }
 	background-repeat:no-repeat;
 	}
 .mod-forum-button a:hover       { background-color:#eee; }
-.mod-forum-button-post-new a    { background-image: url(style/images/icons2.png); background-position:-2px -1994px; }
-.mod-forum-button-post-reply a  { background-image: url(style/images/icons2.png); background-position:-2px -2022px;}
-.mod-forum-button-post-edit a   { background-image: url(style/images/icons2.png); background-position:-2px -25px; }
-.mod-forum-button-post-rm a     { background-image: url(style/images/icons2.png); background-position:-2px -1478px; }
-.mod-forum-button-post-lock a   { background-image: url(style/images/icons2.png); background-position:-2px -1194px; }
-.mod-forum-button-post-attach a { background-image: url(style/images/icons2.png); background-position:-2px -1358px;}
-.mod-forum-button-post-stick a  { background-image: url(style/images/icons2.png); background-position:-2px -2048px; }
+.mod-forum-button-post-new a    { background-image: url(../../images/icons2.png); background-position:-2px -1994px; }
+.mod-forum-button-post-reply a  { background-image: url(../../images/icons2.png); background-position:-2px -2022px;}
+.mod-forum-button-post-edit a   { background-image: url(../../images/icons2.png); background-position:-2px -25px; }
+.mod-forum-button-post-rm a     { background-image: url(../../images/icons2.png); background-position:-2px -1478px; }
+.mod-forum-button-post-lock a   { background-image: url(../../images/icons2.png); background-position:-2px -1194px; }
+.mod-forum-button-post-attach a { background-image: url(../../images/icons2.png); background-position:-2px -1358px;}
+.mod-forum-button-post-stick a  { background-image: url(../../images/icons2.png); background-position:-2px -2048px; }
 
 /* дивы - обертки списков форумoв, топиков, постов */
 div.mod-forum-fl-wrapper, 
@@ -131,8 +131,8 @@ td.mod-forum-fl-admin div     { white-space:nowrap;}
 .mod-forum-fl ul              { margin:.5em 0; padding:0; }
 .mod-forum-fl ul li           { display:inline; margin:0; padding:0 .8em; }
 
-li.mod-forum-level3-noread    { background:url(style/images/forum/forums/level3-noread.gif) 0 50% no-repeat;}
-li.mod-forum-level3-read      { background:url(style/images/forum/forums/level3-read.gif) 0 50% no-repeat;}
+li.mod-forum-level3-noread    { background:url(../../images/forum/forums/level3-noread.gif) 0 50% no-repeat;}
+li.mod-forum-level3-read      { background:url(../../images/forum/forums/level3-read.gif) 0 50% no-repeat;}
 
 /*  список топиков  */
 td.mod-forum-tl-ico         { background:#a7c1d2; width:24px; text-align:center; }
@@ -174,7 +174,7 @@ div.mod-forum-attach div {
 	margin:0 .2em;
 	}
 div.mod-forum-attach div span { font-size:90%; }
-#attach-progress { height:30px; text-align:center; background:url(style/images/loading.gif) 50% 50% no-repeat;}
+#attach-progress { height:30px; text-align:center; background:url(../../images/loading.gif) 50% 50% no-repeat;}
 /* bb-codes */
 p.bb-left      { text-align:left; float:left; }
 p.bb-right     { text-align:right; float:right; }
@@ -209,8 +209,8 @@ td.mini-avatar                   { width:50px; text-align:center; }
 td.mini-avatar img               { border:1px solid #fff;}
 td.user-status                   { width:50px; }
 td.user-status div               { width:50px; height:22px; background-position: center; background-repeat:no-repeat; }
-td.user-status div.online        { background-image:url(style/images/forum/users/online.png);}
-td.user-status div.offline       { background-image:url(style/images/forum/users/offline.png);}
+td.user-status div.online        { background-image:url(../../images/forum/users/online.png);}
+td.user-status div.offline       { background-image:url(../../images/forum/users/offline.png);}
 td.user-site                     { width:55px; text-align:center; }
 td.reg-date                      { width: 120px; }
 td.posts-num                     { width:50px; text-align:center; font-weight:bold;}
@@ -233,13 +233,13 @@ span.status-online  { color: green; }
 span.status-offline { color:#bbb; }
 
 /* ссылки в профайле */
-a.user-edit  { background-image:url(style/images/icons2.png); background-position:-2px -1869px;}
-a.user-passwd  { background-image:url(style/images/icons2.png); background-position:-2px -1939px;}
-a.user-rm    { background-image:url(style/images/icons2.png); background-position:-2px -1480px;}
-a.moderator  { background-image:url(style/images/icons2.png); background-position:-2px -619px;}
-a.avatar-rm  { background-image:url(style/images/icons2.png); background-position:-2px -1480px;}
-a#up-av-link { background-image:url(style/images/icons2.png); background-position:-2px -1408px;}
-a.pm         { background:url(style/images/icons2.png) -2px -2075px no-repeat;}
+a.user-edit  { background-image:url(../../images/icons2.png); background-position:-2px -1869px;}
+a.user-passwd  { background-image:url(../../images/icons2.png); background-position:-2px -1939px;}
+a.user-rm    { background-image:url(../../images/icons2.png); background-position:-2px -1480px;}
+a.moderator  { background-image:url(../../images/icons2.png); background-position:-2px -619px;}
+a.avatar-rm  { background-image:url(../../images/icons2.png); background-position:-2px -1480px;}
+a#up-av-link { background-image:url(../../images/icons2.png); background-position:-2px -1408px;}
+a.pm         { background:url(../../images/icons2.png) -2px -2075px no-repeat;}
 
 /* bbcode editor */
 div.bbeditor          { padding-top:.5em; margin-top:.5em; border-top:1px solid #eee; }
@@ -251,7 +251,7 @@ div.bb-group {
 	-moz-display:-moz-inline-stack; 
 	height:30px;  
 	padding:0 7px 0 4px;
-	background:url(style/images/forum/bbcode-editor/separator.gif) right 50% no-repeat;
+	background:url(../../images/forum/bbcode-editor/separator.gif) right 50% no-repeat;
 }
 div.bb-group select        { height:12px; }
 div.bb-group select option { background:#ccc;}
@@ -264,7 +264,7 @@ div.bb-button, div.bb-sel {
 div.bb-button {  
 	width:20px;
 	border:1px solid #ccc; 
-	background:url(style/images/forum/bbcode-editor/bg.gif) repeat-x;
+	background:url(../../images/forum/bbcode-editor/bg.gif) repeat-x;
 	}
 div.bb-sel { padding-top:1px; }
 /* кнопка */
@@ -272,7 +272,7 @@ div.bb-button a {
 	background-repeat:no-repeat;
 	display:block;
 	width:20px;height:20px;  
-	background-image: url(style/images/forum/bbcode-editor/bbcodes.png); 
+	background-image: url(../../images/forum/bbcode-editor/bbcodes.png); 
 	background-repeat:no-repeat;
 	zoom:1;
 	cursor:default;
@@ -312,7 +312,7 @@ div.bb-smiley img { margin:0 4px 0 5px;}
 	font-size:120%; 
 	border:1px solid #ccc; 
 	text-align:center; 
-	background:url(style/images/loading.gif) center center no-repeat;
+	background:url(../images/loading.gif) center center no-repeat;
 }
 
 

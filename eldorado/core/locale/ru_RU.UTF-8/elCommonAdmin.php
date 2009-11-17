@@ -19,6 +19,7 @@ $elMsg['Configuration']                      = 'Настройки';
 $elMsg['Delete image']                       = 'Удалить изображение';
 $elMsg['Upload image']                       = 'Загрузить изображение';
 $elMsg['User manual']                        = 'Руководство пользователя';
+$elMsg['and %d more']                        = 'и еще %d';
 //operation messages
 $elMsg['Create object "%s"']                 = 'Создать новый объект "%s"';
 $elMsg['Edit object "%s"']                   = 'Редактировать объект "%s"';

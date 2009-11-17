@@ -1,0 +1,32 @@
+{FILTER}
+
+<!-- BEGIN LIST -->
+<table class="grid-tb tablesorter" id="orders">
+	<thead>
+		<tr>
+			<th>{m('ID')}</th>
+			<th>{m('Full Name')}</th>
+			<th>{m('Email')}</th>
+			<th>{m('Created')}</th>
+			<th>{m('Modify')}</th>
+			<th>{m('Status')}</th>
+			<th style="text-align: right; padding-right: 20px;">{m('Total')}</th>
+		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN ORDER -->
+		<tr onclick="location.href='{URL}show/{id}/';" {color}>
+			<td><a href="{URL}show/{id}">{id}</a></td>
+			<td>{full_name}</td>
+			<td>{email}</td>
+			<td>{crtime}</td>
+			<td>{mtime}</td>
+			<td>{m('{state}')}</td>
+			<td style="text-align: right;">{total}</td>
+		</tr>
+		<!-- END ORDER -->
+	</tbody>
+</table>
+<!-- END LIST -->
+
+{PAGER}

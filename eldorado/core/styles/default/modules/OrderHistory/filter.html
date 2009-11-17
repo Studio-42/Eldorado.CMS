@@ -1,0 +1,28 @@
+<table style="margin-bottom: 20px;" id="search">
+	<tr>
+		<th style="width: 60px;">{m('ID')}</th>
+		<th style="width: 170px;">{m('Search')}</th>		
+		<th>{m('Date')}</th>
+	</tr>
+	<tr>
+		<td>
+			<form action="{URL}show/" method="POST">
+				<!-- BEGIN PERIOD -->
+				<input type="text"   size="5" name="id" id="id" />
+				<!-- END PERIOD -->
+			</form>
+		</td>
+		<form action="{URL}" method="POST">
+		<!-- BEGIN PERIOD -->
+		<td>
+			<input type="text"   size="20" name="search_name" value="{search_name}" />
+		</td>
+		<td>
+			<input type="text"   size="10" name="period_begin" id="period_begin" value="{period_begin}" />
+			<input type="text"   size="10" name="period_end"   id="period_end"   value="{period_end}" />
+			<input type="submit" name="submit" value="{m('Search')}" />
+		</td>
+		<!-- END PERIOD -->
+		</form>
+	</tr>
+</table>

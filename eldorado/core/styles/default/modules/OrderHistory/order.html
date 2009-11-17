@@ -1,0 +1,94 @@
+<!-- BEGIN ORDER -->
+<ul class="adm-icons">
+	<li style="padding:0;border:none"><a href="{URL}edit/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+</ul>
+<h3 style="margin-bottom: 8px;">{m('Customer info')}</h3>
+<table class="nice full">
+	<tr{color}>
+		<td style="width: 150px;">{m('ID')}</td>
+		<td><a href="{URL}show/{id}">{id}</a></td>
+	</tr>
+	<tr>
+		<td>{m('Full Name')}</td>
+		<td>{full_name}</td>
+	</tr>
+	<tr>
+		<td>{m('Created')}</td>
+		<td>{crtime}</td>
+	</tr>
+	<tr>
+		<td>{m('Modify')}</td>
+		<td>{mtime}</td>
+	</tr>
+	<tr>
+		<td>{m('Status')}</td>
+		<td>
+			<form action="{URL}status/{id}" method="POST">
+				<select name="status" ID="status" onchange="javascript:this.form.submit();">
+					<!-- BEGIN STATUS -->
+					<option value="{status}"{selected}>{m('{status}')}</option>
+					<!-- END STATUS -->
+				</select>
+			</form>
+		</td>
+	</tr>
+	<tr>
+		<td>{m('Email')}</td>
+		<td>{email}</td>
+	</tr>
+	<tr>
+		<td>{m('Phone')}</td>
+		<td>{phone}</td>
+	</tr>
+	<tr>
+		<td>{m('Address')}</td>
+		<td>{address}</td>
+	</tr>
+	<tr>
+		<td>{m('Comment')}</td>
+		<td>{comments}</td>
+	</tr>
+</table>
+<ul class="adm-icons">
+	<li style="padding:0;border:none"><a href="{URL}items/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+</ul>
+<h3 style="margin-bottom: 8px;">{m('Order')}</h3>
+<table class="grid-tb">
+	<thead>
+		<tr>
+			<th>{m('Code')}</th>
+			<th>{m('Name')}</th>
+			<th>{m('Description')}</th>
+			<th style="text-align: right;">{m('Quantity')}</th>
+			<th style="text-align: right;">{m('Price')}</th>
+			<th style="text-align: right;">{m('Sum')}</th>
+		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN ITEM -->
+		<tr {color}>
+			<td>{code}</td>
+			<td>{name}</td>
+			<td>{props}</td>
+			<td style="text-align: right;">{qnt}</td>
+			<td style="text-align: right;">{price}</td>
+			<td style="text-align: right;">{subtotal}</td>
+		</tr>
+		<!-- END ITEM -->
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4">{m('Discount')}</td>
+			<td style="text-align: right;">{discount}</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4">{m('Delivery')}</td>
+			<td style="text-align: right;">{delivery_price}</td>
+		</tr>
+		<tr>
+			<th style="text-align: right;" colspan="5">{m('Total')}</th>
+			<th style="text-align: right;">{total}</th>
+		</tr>
+	</tbody>
+</table>
+<!-- END ORDER -->

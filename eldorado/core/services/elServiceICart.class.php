@@ -349,11 +349,13 @@ class elServiceICart extends elService
     {
         $this->_initRenderer();
         $addr = array();
+        $addrField = array();
         foreach ($this->_addrNfo as $k=>$v)
         {
-            $addr[] = array('label'=>m($this->_uProfSkel[$k]['label']), 'value'=>$v);
+            $addr[]      = array('label'=>$this->_uProfSkel[$k]['label'], 'value'=>$v);
+            $addrField[] = array('label'=>$this->_uProfSkel[$k]['field'], 'value'=>$v);
         }
-		$orderID  = $this->_iCart->compliteOrder($addr, 0);
+		$orderID  = $this->_iCart->compliteOrder($addrField, 0);
         $msg      = $this->_rnd->getSummaryRnd( $this->_iCart->getItems(), $this->_getDeliveryNfo(), $this->_getSummaryAmount(), $addr, false, $orderID );
         $subj     = sprintf(m('Order from %s'), EL_BASE_URL );
         $emails   = & elSingleton::getObj('elEmailsCollection');

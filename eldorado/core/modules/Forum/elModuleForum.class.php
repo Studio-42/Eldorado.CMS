@@ -1,4 +1,6 @@
 <?php
+elAddJs('eli18n.min.js', EL_JS_CSS_FILE);
+elAddJs('i18n/forum.ru.js', EL_JS_CSS_FILE);
 
 class elModuleForum extends elModule
 {

@@ -70,7 +70,7 @@ class elDateSelector extends elFormContainer
     $html .= $this->childs[0]->toHtml()."&nbsp;\n";
     if ( $this->_dateTimeFormat )
     {
-		elAddJs('jquery.timepicker.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.timepicker.min.js', EL_JS_CSS_FILE);
 		elAddJs('$("#'.$this->getName().'__time__").timepicker()', EL_JS_SRC_ONREADY);
     	$html .= $this->childs[1]->toHtml()."\n";
     }

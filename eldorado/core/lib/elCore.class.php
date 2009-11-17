@@ -3,7 +3,7 @@
 /**
  * Core version and name
  */
-define ('EL_VER',  '3.9.0');
+define ('EL_VER',  '3.9.1');
 define ('EL_NAME', 'Kioto');
 
 class elCore
@@ -66,34 +66,12 @@ class elCore
 			define('EL_WM',     EL_WM_NORMAL);
 			define('EL_WM_URL', EL_URL);
 		}
-		elAddJs('jquery.js',     EL_JS_CSS_FILE);
-		elAddJs('common.lib.js', EL_JS_CSS_FILE);
-		elAddJs('el.lib.js',     EL_JS_CSS_FILE);
-		elAddJs('var elBaseURL="'.EL_BASE_URL.'/"; var elURL="'.EL_URL.'";'); 
 	}
-
-
 
 	function run()
 	{
-		
 		$conf = & elSingleton::getObj('elXmlConf');
 		$isCart = 'EShop' == $this->mName && !empty($this->ars[0]) && 'order' == $this->args[0];
-		if ( !( $conf->get('cacheAllow', 'common') && !$this->ats->allow(EL_WRITE) && empty($_POST) ) || $isCart )
-		{
-			$this->cacheAllow = false;
-		}
-		else
-		{
-			$this->cacheAllow = true;
-			$this->cacheObj   = & elSingleton::getObj( 'elCache' );
-			$this->cacheID    = md5( $this->pageID
-						.'|'.implode(',', $this->args)
-						.'|'.$this->ats->getUserID()
-						.'|'.($_GET ? implode('&', $_GET) : '') );
-			$this->cacheContent = $this->cacheObj->get($this->cacheID, EL_WM );
-
-		}
 
 		if ( EL_WM_XML == EL_WM )
 		{
@@ -101,9 +79,7 @@ class elCore
 		}
 		else
 		{
-			$this->_outputHTML( $conf->get('gzOutputAllow'),
-								$conf->get('timer') ? utime() - $this->_ts : '',
-								'n' != $conf->get('searchFormPosition', 'layout') );
+			$this->_outputHTML( $conf->get('gzOutputAllow'), $conf->get('timer') ? utime() - $this->_ts : '');
 			$period = $conf->get('auto', 'backup');
 			if ($period && time()-$period*86400 > $conf->get('ts', 'backup'))
 			{
@@ -139,7 +115,7 @@ class elCore
 		// special requests - processed by core
 		if ( isset($this->args[0]) && isset($this->_srvMap[$this->args[0]]) )
 		{
-			$this->rnd             = & elSingleton::getObj('elSiteRenderer');
+			$this->rnd = & elSingleton::getObj('elSiteRenderer');
 			$this->rnd->prepare( implode('/', $this->args), false );
 			return $this->_service();
 		}
@@ -162,9 +138,9 @@ class elCore
 		if ($this->ats->allow(EL_WRITE))
 		{
 			elLoadJQueryUI();
-			elAddCss('el-menu-float.css',     EL_JS_CSS_FILE);
-			elAddJs('jquery.cookie.js',       EL_JS_CSS_FILE);
-			elAddJs('ellib/jquery.elmenu.js', EL_JS_CSS_FILE);
+			elAddCss('elmenu-float.css',     EL_JS_CSS_FILE);
+			elAddJs('elcookie.min.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.elmenu.min.js', EL_JS_CSS_FILE);
 		}
 
 		$class = 'elModule'.$this->mName;
@@ -222,47 +198,32 @@ class elCore
 	}
 
 
-	function _outputHTML( $compress=true, $timer=0, $sherlock=false )
+	function _outputHTML( $compress=true, $timer=0 )
 	{
 		$this->rnd             = & elSingleton::getObj('elSiteRenderer');
 		$this->rnd->userName   = $this->ats->isUserAuthed() ? $this->ats->user->getFullName() : '';
 		$this->rnd->isRegAllow = $this->ats->isUserRegAllow();
 		$this->rnd->adminMode  = $this->ats->allow(EL_WRITE);
 
-		if ( $this->cacheAllow && $this->cacheContent )
+		if ( EL_WM_NORMAL == EL_WM )
 		{
-			$this->rnd->renderFromCache($this->cacheContent);
+		   elSingleton::loadPlugins($this->pageID);
+		}
+
+		if ( $this->_loadModule() )
+		{
+			$this->rnd->prepare( implode('/', $this->args) );
+			$this->module->run();
+			$this->module->stop();
 		}
 		else
 		{
-			if ($sherlock)
-			{
-				elAddJs('ServiceSherlock.lib.js', EL_JS_CSS_FILE);
-			}
-			if ( EL_WM_NORMAL == EL_WM )
-			{
-			   elSingleton::loadPlugins($this->pageID);
-			}
-
-			if ( $this->_loadModule() )
-			{
-				$this->rnd->prepare( implode('/', $this->args) );
-				$this->module->run();
-				$this->module->stop();
-			}
-			else
-			{
-				$this->rnd->prepare( implode('/', $this->args), false );
-			}
-
-			elSingleton::unloadPlugins();
-
-			$this->rnd->render( $this->cacheAllow );
-			if ( $this->cacheAllow )
-			{
-				$this->cacheObj->save($this->cacheID, $this->rnd->getContent(), EL_WM );
-			}
+			$this->rnd->prepare( implode('/', $this->args), false );
 		}
+
+		elSingleton::unloadPlugins();
+
+		$this->rnd->render();
 
 		if ( !headers_sent()  )
 		{

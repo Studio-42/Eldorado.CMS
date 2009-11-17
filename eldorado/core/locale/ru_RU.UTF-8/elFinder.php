@@ -3,6 +3,7 @@
 * Messages for Finder module
 * lang = ru, charset = UTF-8
 */
+$elMsg['File name']                                           = 'Имя файла';
 $elMsg['Back']                                                = 'Назад';
 $elMsg['Reload']               							      = 'Обновить';
 $elMsg['Select file']             							  = 'Выбрать файл';
@@ -28,7 +29,7 @@ $elMsg['Name']                                                = 'Имя';
 $elMsg['Size']                                                = 'Размер';
 $elMsg['Kind']                                                = 'Тип';
 $elMsg['Directory']                                           = 'Папка';
-$elMsg['read']                                                = 'чтение';
+$elMsg['read ']                                                = 'чтение';
 $elMsg['write']                                               = 'запись';
 $elMsg['read write']                                          = 'чтение/запись';
 $elMsg['Modified']                                            = 'Изменен';

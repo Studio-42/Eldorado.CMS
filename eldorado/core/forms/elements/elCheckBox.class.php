@@ -141,125 +141,17 @@ class elCheckBoxesGroup extends elFormInput
 
 class elMultiSelectList extends elCheckBoxesGroup
 {
-	var $tpl   = array(
-	'header'  => '<div id="msl_%s">',
-	'footer'  => '</div>',
-	'element' => "<input%s%s name=\"%s\" id=\"%s\" value=\"%s\" /><label for='%s'>%s</label><br />\n",
-	'hidden'  => '<input type="hidden" name="%s" id="%s" value="%s" />',
-	'switch'  => '<div style="border:1px solid #555;padding:1px 7px;font-size:16px;font-weight:bold;color:#444;cursor:default;text-align:center"
-	 							onClick="return mslControl(\'%s\', %d);" title="%s">%s</div>',
-  'res' => '<table width="100%%" border="0" id="%sResultView" style="border:none">
-            <tr><td width="14" style="border:none;vertical-align:top">%s</td>
-            <td style="border:none" id="%sResult">%s</td></tr></table>',
-  'sel' => '<table width="100%%" border="0" id="%sSelect" style="display:none">
-            <tr><td width="14" style="border:none;vertical-align:top">%s</td>
-            <td style="border:none">%s</td></tr></table>',
-  'val' => 'div'
-           	);
+
   var $events  = array( 'addToForm' => 'onAddToForm',
                         'submit'    => 'onSubmit',
                         'validate'  => 'selfValidate');
 
   var $_switchValue = null;
 
-  function elMultiSelectList($name=null, $label=null, $value=null, $opts=null, $attrs=null, $frozen=false, $use_keys=true, $vTpl='div')
-  {
-    parent::__construct($name, $label, $value, $opts, $attrs, $frozen, $use_keys);
-    $this->tpl['val'] = $vTpl;
-  }
-
   function setSwitchValue($v)
   {
     $this->_switchValue = $v;
   }
-
-	function onAddToForm( &$form )
-	{
-		$form->registerInput($this);
-		$js = 'function mslControl(id, size) {
-			r = document.getElementById(id+"ResultView");
-			s = document.getElementById(id+"Select");
-
-			if (r.style.display == "")
-			{
-				r.style.display = "none";
-				s.style.display = "";
-			}
-			else
-			{
-				r.style.display = "";
-				s.style.display = "none";
-
-				res = document.getElementById(id+"Result");
-
-				len = res.childNodes.length;
-				for (i=0; i<len;i++)
-				{
-					res.removeChild( res.firstChild );
-				}
-
-				for (i=0;i<size;i++)
-				{
-					e = document.getElementById(id+"["+i+"]");
-					if (e.checked)
-					{
-						h = document.getElementById("hid_"+id+"["+i+"]");
-						n = document.createElement("'.$this->tpl['val'].'");
-						n.appendChild( document.createTextNode(h.value+"; ") );
-						res.appendChild(n);
-					}
-				}
-
-				if (!res.firstChild)
-				{
-					n = document.createElement("div");
-					n.appendChild( document.createTextNode("'.m('No selected values').'" ) );
-					res.appendChild(n);
-				}
-			}
-
-			return false;} ';
-
-		if (!is_null($this->_switchValue))
-		{
-		  $js .= "\n";
-		  $js .= 'function mslCheckValue(checkbox)
-		  {
-        switchValue = "'.$this->_switchValue.'";
-        s = document.getElementById("msl_'.str_replace('[]', '', $this->getName()).'");
-        len = s.childNodes.length; //alert(len);
-
-		    if (checkbox.value == switchValue )
-		    {
-		      if (checkbox.checked)
-		      {
-            for (i=0;i<len;i++)
-            {
-              if (s.childNodes[i].tagName == "INPUT" && s.childNodes[i].getAttribute("type") == "checkbox"
-                  && s.childNodes[i].value!=checkbox.value )
-              {
-                s.childNodes[i].checked = true;
-              }
-            }
-          }
-		    }
-		    else
-		    {
-          for (i=0;i<len;i++)
-          {
-            if (s.childNodes[i].tagName == "INPUT" && s.childNodes[i].getAttribute("type") == "checkbox"
-              && s.childNodes[i].value==switchValue )
-            {
-              s.childNodes[i].checked = false;
-              return;
-            }
-          }
-		    }
-		  }';
-		}
-
-		$form->addJsSrc($js);
-	}
 
 	function toHtml()
 	{
@@ -278,24 +170,62 @@ class elMultiSelectList extends elCheckBoxesGroup
 				$res .= '<'.$this->tpl['val'].'>'.$this->opts[$v].'; </'.$this->tpl['val'].'>';
 			}
 		}
-    if (!is_null($this->_switchValue))
-    {
-      $this->setAttr('onClick', 'mslCheckValue(this)');
-    }
-		$sw1 = 	sprintf($this->tpl['switch'], $name, $size, m('Open list of values'), '+');
-		$sw2 = 	sprintf($this->tpl['switch'], $name, $size, m('Close list of values'), '&ndash;');
-
-		$html  = sprintf($this->tpl['res'], $name, $sw1, $name, $res);
-		$html .= sprintf($this->tpl['sel'], $name, $sw2, parent::toHtml());
-
+		$html = '';
+		
+		$html = '<div class="multiselect">
+			<a href="#" class="el-collapsed"></a> <span>here</span>
+			<div class="rounded-5 multiselect-opts" style="display:none">';
 		$i = 0;
-    foreach ( $this->opts as $val=>$label )
-    {
-    	$id = 'hid_'.$name.'['.$i.']';
-      $html .= sprintf($this->tpl['hidden'], $id, $id, $label );
-      $i++;
-    }
+		foreach ($this->opts as $val=>$label)
+		{
+			// echo "$val $label<br>";
+			$checked = !empty($values[$val]) ? 'checked="on"' : '';
+			$switch = !is_null($this->_switchValue) && $this->_switchValue == $val ? ' switch="on"' : '';
+			$html .= '<label><input type="checkbox" name="'.$name.'['.($i++).']" value="'.$val.'" '.$checked.$switch.' />'.$label.'</label>';
+		}
+		
+		$html .= '</div></div>';
 
+		$js = '
+		$(".multiselect-opts").find(":checkbox[switch]").change(function() {
+			var c = $(this).parent().siblings("label").children(":checkbox");
+			if ($(this).attr("checked")) {
+				c.attr("disabled", "on");
+			} else {
+				c.removeAttr("disabled");
+			}
+		}).trigger("change");
+		
+		$(".multiselect").mouseleave(function() {
+			if ($(this).children(".multiselect-opts").css("display") == "block") {
+				$(this).children("a.el-collapsed").eq(0).trigger("click");
+			}
+		}).children("a.el-collapsed").click(function(e) {
+			e.preventDefault;
+			e.stopPropagation();
+			if (!this.prepared) {
+				this.prepared = true;
+				$(this).parents().each(function() {
+					if ($(this).css("overflow") == "hidden") {
+						$(this).css("overflow", "visible");
+					}
+				});
+			}
+			$(this).toggleClass("el-expanded").siblings(".multiselect-opts").eq(0).slideToggle();
+			return false;
+		}).end().find(":checkbox").change(function(e) {
+			window.console.log("change")
+			var s = [];
+			$(this).parents(".multiselect-opts").find(":checkbox[checked]").each(function() {
+				!$(this).attr("disabled") && s.push($.trim($(this).parent().text().replace(/\+\s/g, "")))
+			}).end().parent().children("span").text(s.length>0 ? s.slice(0, 3).join("; ") : "'.m('No selected values').'")
+			if (s.length > 3) {
+				$(this).parents(".multiselect").children("span").append( " '.m('and %d more').'".replace("%d", s.length-3) );
+			}
+		}).eq(0).trigger("change");
+		
+		';
+		elAddJs($js, EL_JS_SRC_ONREADY);
 		return $html;
 	}
 

@@ -168,22 +168,48 @@ class elMFElement extends elMemberAttribute
     $fileMaxSize[75] = 75;
     $fileMaxSize[100] = 100;
     $sort     = range( 1, $maxSortNdx );
-    $onChange = array('onChange'=>'checkMFType()');
     $comValue = m('For drop-down menu, checkboxes and radio switch enter one value per line. For date selector enter date in format dd.mm.yyyy');
     $comOpts  = m('For drop-down menu, checkboxes and radio switch enter one value per line');
     $this->form->add( new elSelect('fsort',     m('Element position'),(int)$this->getAttr('fsort'), $sort, null, null, false) );
-    $this->form->add( new elSelect('ftype',     m('Element type'),    $this->getAttr('ftype'), $types, $onChange));
+    $this->form->add( new elSelect('ftype',     m('Element type'),    $this->getAttr('ftype'), $types));
     $this->form->add( new elText('flabel',      m('Element name'),    $this->getAttr('flabel')));
     $this->form->add( new elCData('c_value',    $comValue));
     $this->form->add( new elTextArea('fvalue',  m('Default value'),   $this->getAttr('fvalue'), array('rows'=>7)) );
     $this->form->add( new elCData('c_opts',     $comOpts));
     $this->form->add( new elTextArea('fopts',   m('Value variants'),  $this->getAttr('fopts'), array('rows'=>7)));
-    $this->form->add( new elSelect('fvalid_all',m('Value type'),      $this->getAttr('fvalid'), $valid, $onChange) );
-    $this->form->add( new elSelect('fvalid_sel',m('Value type'),      $this->getAttr('fvalid'), $validSel, $onChange) );
+    $this->form->add( new elSelect('fvalid_all',m('Value type'),      $this->getAttr('fvalid'), $valid) );
+    $this->form->add( new elSelect('fvalid_sel',m('Value type'),      $this->getAttr('fvalid'), $validSel) );
     $this->form->add( new elText('ferror',      m('Error message'),   $this->getAttr('ferror')));
     $this->form->add( new elSelect('fsize',     m('Max file size (Mb)'),   $this->getAttr('fsize'), $fileMaxSize) );
 
-    elAddJs('checkMFType();', EL_JS_SRC_ONLOAD);
+
+	$f = '
+		$("#ftype").change(function() {
+			var r = $(this).parents("tr").eq(0);
+			r.next("tr").show().nextAll("tr").hide();
+			switch(this.value) {
+				case "text":
+					$("#row_c_value, #row_fvalue, #row_fvalid_all, #row_ferror").show();
+					break;
+				case "textarea":
+					$("#row_c_value, #row_fvalue, #row_fvalid_sel, #row_ferror").show();
+					break;
+				case "file":
+					$("#row_fvalid_sel, #row_ferror, #row_fsize").show();
+					break;
+				case "select":
+				case "checkbox":
+				case "radio":
+				case "date":
+					$("#row_c_value, #row_fvalue, #row_c_opts, #row_fopts, #row_fvalid_sel, #row_ferror").show()
+					break;
+				default:
+					r.next("tr").show().nextAll("tr").hide();
+			}
+		}).trigger("change");
+	
+	';
+    elAddJs($f, EL_JS_SRC_ONREADY);
   }
 
 

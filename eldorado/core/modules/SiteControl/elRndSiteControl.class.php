@@ -2,7 +2,7 @@
 
 class elRndSiteControl extends elModuleRenderer
 {
-  var $_tpls    = array('emails'=>'emails.html');
+  var $_tpls = array('emails'=>'emails.html');
 
   // ********************  PUBLIC METHODS  ************************ //
 

@@ -16,19 +16,6 @@
   .clearfix { display: block; }      /* ... für IE5,IE6,IE7 */
   * html .clearfix { height: 1%; }   /* ... für IE5 + IE6/Win | hasLayout aktivieren */
 
-  /*.floatbox { width:100%; }*/
-
-  /*------------------------------------------------------------------------------------------------------*/
-
-  /**
-   * (en) Special class for oversized content element
-   * (de) Spezielle Klasse für übergroße Inhaltselemente
-   *
-   * @workaround
-   * @affected   IE 5.x/Win, IE6
-   * @css-for    IE 5.x/Win, IE6
-   * @valid      yes
-   */
 
   .slidebox {
     position:relative;

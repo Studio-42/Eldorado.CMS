@@ -2,12 +2,10 @@
 
 include_once EL_DIR_CORE.'lib/elPlugin.class.php';
 include_once EL_DIR_CORE.'plugins/Calculator/elPcCalculator.class.php';
-//include_once EL_DIR_CORE.'plugins/Calculator/elPcCalculationType.class.php';
 include_once EL_DIR_CORE.'plugins/Calculator/elPcVar.class.php';
 
 class elPluginCalculator extends elPlugin
 {
-	
 	var $_db  = null;
 	var $_rnd = null;
 	var $_posNfo = array(
@@ -34,15 +32,13 @@ class elPluginCalculator extends elPlugin
 		}
 		
 		// elPrintR($calcs);
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('plugin.calculator.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.validate.min.js', EL_JS_CSS_FILE);
 		if (EL_LANG != 'en') 
 		{
-			elAddJs('i18n/jquery.validate/messages_'.EL_LANG.'.js', EL_JS_CSS_FILE);
+			elAddJs('i18n/jquery.validate.'.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
-		
-		elAddJs('calculator.js', EL_JS_CSS_FILE);
-		
 		
 		$rnd = & elSingleton::getObj('elTE');
 		$ats = & elSingleton::getObj('elATS');
@@ -83,7 +79,7 @@ class elPluginCalculator extends elPlugin
 			else 
 			{
 				elLoadJQueryUI();
-				elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
+				elAddJs('eldialogform.min.js', EL_JS_CSS_FILE);
 				elAddCss('eldialogform.css',      EL_JS_CSS_FILE);
 				$rnd->assignBlockVars('PL_CALC_DIALOG.CALC', $calc, 1);
 				if ($editable) 

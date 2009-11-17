@@ -115,7 +115,7 @@ em,i     { font-style: italic; }
 textarea, pre,  kbd, samp, var, tt { font:1.15em 'monaco', 'andale mono', 'lucida console', monospace; line-height:1.35em; }
 pre, code, kbd, 
 tt, samp, var  { font-size: 100%; }
-pre, code      { color: #07d74b; }
+pre, code      { color: #666; }
 pre            { line-height: 1.5em; margin: 0 0 .1em 0; }
 kbd, samp, var { color: #666; }
 var            { font-style: italic; }
@@ -145,49 +145,10 @@ table.form-tb thead th img { margin:0 .5em;}
 table.form-tb tfoot td  { text-align:center; }
 table.form-tb tfoot td input, 
 .form-submit            { /*padding:2px 3px; margin:0 .25em; border:none; font-weight:bold; font-size:95%;*/ zoom:1; }
-.form-errors            { padding-left:3em; line-height:2em; background: url('style/images/icons2.png') -3px -1961px no-repeat;}
+.form-errors            { padding-left:3em; line-height:2em; background: url('../images/icons2.png') -3px -1961px no-repeat;}
 .form-tb-sub            { font-weight:bold; text-align:center; border-bottom:1px solid #ccc; }
 .form-req, .form-errors { color:red; }
 table.form-tb label { margin: .3em; display:inline-block;}
-
-fieldset_ { 
-	padding: 1em 1em; 
-	margin: 0 0 1.5em 0; 
-	border: 1px solid #777; 
-	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;
-}
-
-legend_ { 
-	padding: .1em 1em; 
-	font-weight: bold; 
-	border: 1px solid #ccc; 
-}
-
-/*form.form-fset fieldset { 
-	padding: 1em 4em; 
-	margin: 0 0 1.5em 0; 
-	border: 1px solid #000; 
-}
-form.form-fset legend { 
-	padding: .1em 1.5em; 
-	font-weight: bold; 
-	font-size: 1.2em; 
-	border: 1px solid #ccc; 
-	background:#eee;
-	margin:1em 0 1em 3em;
-
-}
-form.form-fset label.label { float:left;  width:25%;  font-weight: bold; }
-form.form-fset div.row { border-bottom:1px solid #eee;  padding:.5em 0;}
-form.form-fset div.row div { display:inline-block; }
-form.form-fset div.row div label { display:block; margin:0 0 .5em; padding:0;}
-form.form-fset div.row div div   { display:block; }
-form.form-fset div.row input, 
-form.form-fset div.row textarea { width: 60%; }
-form.form-fset div.row div input, 
-form.form-fset div.row div textarea { width: auto; }
-form.form-fset p  { padding:.7em 0;}
-form.form-fset hr { border-bottom: 2px solid #eee; padding:0; }*/
 
 /***************  ссылки  ************************/
 
@@ -249,17 +210,42 @@ table.nice tbody tr:hover td { background: #f2f2f2; }
 /*******************************************************/
 /****             Админская часть                   ****/
 /*******************************************************/
+
+div.multiselect { 
+	position:relative;
+/*	height:22px;*/
+	padding:3px 0;
+/*	border:1px solid #ccc;*/
+}
+div.multiselect .multiselect-opts { 
+	padding: 3px 7px; 
+	position:absolute; 
+	z-index:1000; 
+	width:60%;
+	height:250px; 
+	overflow:auto;
+	background:#fff;
+	border:1px solid #ccc;
+}
+div.multiselect label { 
+	display:block; 
+	padding:1px 0; 
+	border-bottom:1px solid #ccc;
+	white-space:nowrap;
+}
+div.multiselect label input { margin-right:.7em; }
+
 /** Заголовок с табами (контрольный центр)  **/
 div.tab, div.title-tabs-path { position:relative; border:1px solid #ccc; zoom:1; }
 div.tab { 
 	margin:0 .1em 0 0;
 	padding:.5em 1em;
 	display:inline-block;
-	background:#ccc url(style/images/tab.gif) top repeat-x; 
+	background:#ccc url(../images/tab.gif) top repeat-x; 
 	border-bottom:none; 
 	z-index:2;
 }
-div.tab-a {	background:#eee url(style/images/tab-a.gif) top repeat-x; }
+div.tab-a {	background:#eee url(../images/tab-a.gif) top repeat-x; }
 div.tab a { font-weight:bold; color:#222; }
 div.tab a, div.tab a:hover { text-decoration:none; }
 div.tab:hover { background:#eee; }
@@ -274,7 +260,7 @@ div.tabs-pane { margin-top:.3em; }
 /* админская табл */
 table.grid-tb { width:99%; border:1px solid #ccc; position:relative; margin:0.5em 0 .5em 2px; }
 table.grid-tb td, table.grid-tb th { border-bottom:1px solid #ccc; padding:.5em; }
-table.grid-tb thead th { background:#eee url(style/images/grid-tb-head.png) top repeat-x;  }
+table.grid-tb thead th { background:#eee url(../images/grid-tb-head.png) top repeat-x;  }
 table.grid-tb tbody th { background:#eee;}
 table.grid-tb tbody tr:hover { background:#f5f5f5; }
 table.grid-tb thead td, table.grid-tb td.sub { background:#f5f5f5; font-size:90%; font-weight:bold; }
@@ -282,15 +268,15 @@ table.grid-tb td.admin, table.grid-tb th.admin { text-align:right; white-space:n
 
 /* таблица с сортировкой */
 table.tablesorter thead .header { 
-	background-image:url(style/images/asc-desc.gif); 
+	background-image:url(../images/asc-desc.gif); 
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
 }
-table.tablesorter thead .headerSortUp   { background-image:url(style/images/asc.gif); }
-table.tablesorter thead .headerSortDown { background-image:url(style/images/desc.gif); }
+table.tablesorter thead .headerSortUp   { background-image:url(../images/asc.gif); }
+table.tablesorter thead .headerSortDown { background-image:url(../images/desc.gif); }
 table.tablesorter thead tr th           { background: #eee; }
-/* таблица-дерево (новигация) */
+/* таблица-дерево (нaвигация) */
 .treeTable tr td .expander {
   background-position: left center;
   background-repeat: no-repeat;
@@ -299,10 +285,10 @@ table.tablesorter thead tr th           { background: #eee; }
   zoom: 1; 
 }
 .treeTable tr.collapsed td .expander {
-  background-image: url(style/images/collapsed.gif);
+  background-image: url(../images/collapsed.gif);
 }
 .treeTable tr.expanded td .expander {
-  background-image: url(style/images/expanded.gif);
+  background-image: url(../images/expanded.gif);
 }
 .admin-icons { float: right; display:inline; border:none; margin-left:  1em; margin-bottom: 0.15em; text-align:right;}
 
@@ -316,13 +302,13 @@ table.tablesorter thead tr th           { background: #eee; }
 	background-repeat:no-repeat;
 }
 
-.msg  {background: #eeffee url(style/images/message.gif) 7px center no-repeat; color: #040; border: 2px #448844 solid; }
-.warn { border-color:red; background: #fee url(style/images/warning.gif) 7px center no-repeat; color:#ff0000; border: 2px #844 solid;}
+.msg  {background: #eeffee url(../images/message.gif) 7px center no-repeat; color: #040; border: 2px #448844 solid; }
+.warn { border-color:red; background: #fee url(../images/warning.gif) 7px center no-repeat; color:#ff0000; border: 2px #844 solid;}
 
 
 .debug { 
 	margin:5px 7px; 
-	background:#000 url(style/images/debug.gif) 7px 12px no-repeat; 
+	background:#000 url(../images/debug.gif) 7px 12px no-repeat; 
 	padding:7px 12px; 
 	line-height:1.2em; 
 	color:#fff;
@@ -389,7 +375,7 @@ ul.adm-icons li a {
 
 .icons {
 	-moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px;
-	background:url(style/images/icons2.png) 0 0 no-repeat;
+	background:url(../images/icons2.png) 0 0 no-repeat;
 }
 
 a.icons {
@@ -434,10 +420,10 @@ a.icons {
 .user-group-edit { background-position: -3px -1914px; }
 .print           { background-position:-3px -1505px; }
 
-a.el-collapsed {padding: 0 0 0 20px;background:url(style/images/icons2.png) -4px -1829px no-repeat;}
-a.el-expanded {padding: 0 0 0 20px; background:url(style/images/icons2.png) -4px -1846px no-repeat;}
+a.el-collapsed {padding: 0 0 0 20px;background:url(../images/icons2.png) -4px -1829px no-repeat;}
+a.el-expanded {padding: 0 0 0 20px; background:url(../images/icons2.png) -4px -1846px no-repeat;}
 
-a.link { background:url(style/images/links.png) 0 0 no-repeat; line-height:2em; padding: 3px 19px 3px 0;}
+a.link { background:url(../images/links.png) 0 0 no-repeat; line-height:2em; padding: 3px 19px 3px 0;}
 
 a.forward   { background-position: right -18px;}
 a.forward2  { background-position: 0 -21px;  padding: 0 0 0 19px;}
@@ -451,11 +437,11 @@ a.xls       { background-position: right -145px; }
 a.link-user { background-position: 0 -234px; padding: 0 0 0 17px;}
 a.link-image     { background-position: 0 -275px; padding: 0 0 0 25px;}
 a.link-delete     { background-position: 0 -255px; padding: 0 0 0 25px;}
-a.link-close {padding: 2px 25px 2px 0; line-height:22px; background:url(style/images/icons2.png) right -1477px no-repeat;}
+a.link-close {padding: 2px 25px 2px 0; line-height:22px; background:url(../images/icons2.png) right -1477px no-repeat;}
 
 a[href $='.pdf'], a[href $='.doc'], a[href $='.xls'] {line-height:2em; padding: 3px 17px 3px 0;}
-a[href $='.pdf'] { background: transparent url(style/images/links.png) right -210px no-repeat;}
-a[href $='.doc'] { background: transparent url(style/images/links.png) right -126px no-repeat;}
-a[href $='.xls'] { background: transparent url(style/images/links.png) right -146px no-repeat;}
+a[href $='.pdf'] { background: transparent url(../images/links.png) right -210px no-repeat;}
+a[href $='.doc'] { background: transparent url(../images/links.png) right -126px no-repeat;}
+a[href $='.xls'] { background: transparent url(../images/links.png) right -146px no-repeat;}
 
 

@@ -192,10 +192,8 @@ class elModuleImageGalleries extends elModule
 		{
 			unset($this->_mMap['img']);
 			
-			elAddJs('jquery.js', EL_JS_CSS_FILE);
-			elAddJs('jquery.pngFix.pack.js', EL_JS_CSS_FILE);
-			elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
-			elAddJs('jquery.fancybox.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 			elAddCss('fancybox.css');
 		}
 	}

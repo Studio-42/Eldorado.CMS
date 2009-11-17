@@ -6,6 +6,7 @@ class elModuleSimplePage extends elModule
 	var $_mMapAdmin       = array('edit'=>array('m'=>'edit', 'ico'=>'icoEdit', 'l'=>'Edit', 'g'=>'Actions') );
 	var $_mMapConf        = array();
 	var $_defMethodNoArgs = true;
+	var $_css             = false;
 
 	function defaultMethod()
 	{

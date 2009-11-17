@@ -128,7 +128,7 @@ class elBBCode
 			//$str = str_replace("</li>\n", '</li>', $str);
 		}
 		return $str;
-		return !empty($this->_regexp['patterns']) ? preg_replace($this->_regexp['patterns'], $this->_regexp['replacement'], $str) : $str;
+		// return !empty($this->_regexp['patterns']) ? preg_replace($this->_regexp['patterns'], $this->_regexp['replacement'], $str) : $str;
 	}
 	
 	function getGroups()

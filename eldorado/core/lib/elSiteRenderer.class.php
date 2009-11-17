@@ -98,13 +98,18 @@ class elSiteRenderer
 	var $userName    = '';
 	var $isRegAllow  = false;
 	var $adminMode   = false;
+	var $_isAdmin    = false;
+	var $_jsCacheTime = 0;
 
 	function elSiteRenderer()
 	{
 		$this->_te        = &elSingleton::getObj('elTE');
 		$this->_conf      = &elSingleton::getObj('elXmlConf');
+		$ats              = & elSingleton::getObj('elATS');
+		$this->_isAdmin   = $ats->allow(EL_WRITE);
 		$this->_nav       = &elSingleton::getObj('elNavigator');
 		$this->_curPageID = $this->_nav->getCurrentPageID();
+		$this->_jsCacheTime = (int)$this->_conf->get('jsCacheTime', 'common')*60*60;
 	}
 
 	function prepare( $argsStr, $rndModule=true )
@@ -160,7 +165,7 @@ class elSiteRenderer
 		$this->_te->fprint('main');
 	}
 
-	function render( $forCache=false )
+	function render()
 	{
 		$this->_te->assignVars('owner',    $this->_conf->get('owner',    'common') );
 		$this->_te->assignVars('contacts', $this->_conf->get('contacts', 'common') );
@@ -182,13 +187,6 @@ class elSiteRenderer
 			$this->_renderSearchForm();
 
             $this->_te->assignBlockFromArray('META', $meta );
-			if ($forCache)
-			{
-				$this->_renderUserInfo( true );
-				$this->_renderShoppingCart( true );
-				$this->_renderColumns();
-			}
-
 			$cntFile = EL_DIR_CONF.'counters.html';
 			if ( !$this->adminMode && is_readable($cntFile) )
 			{
@@ -224,8 +222,6 @@ class elSiteRenderer
 		$this->_te->assignVars('bodyCssClass', $class);
 	}
 
-
-
 	/**
   * render search form in position according to config
   **/
@@ -245,66 +241,124 @@ class elSiteRenderer
 	  	{
 	    	$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/style/style.js') );
 	  	}
-		if (!empty($GLOBALS['jsScripts'][EL_JS_SRC_ONREADY]))
+		$GLOBALS['_js_'][EL_JS_CSS_FILE] = array_unique($GLOBALS['_js_'][EL_JS_CSS_FILE]);
+		
+		if (false !== ($dnum = array_search('eldialogform.js', $GLOBALS['_js_'][EL_JS_CSS_FILE])))
 		{
-			$js = implode(";\n", $GLOBALS['jsScripts'][EL_JS_SRC_ONREADY]);
-			if ( $this->_te->isBlockExists('ONREADY') )
+			if (in_array('elfinder.min.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]) || in_array('elrtefinder.full.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]))
 			{
-				$this->_te->assignBlockVars('ONREADY', array('js'=>$js));
+				unset($GLOBALS['_js_'][EL_JS_CSS_FILE][$dmun]);
+			}
+		}
+		// elPrintR($GLOBALS['_js_'][EL_JS_CSS_FILE]);
+		
+		$cache = '';
+		if (!$this->_isAdmin || !$this->_conf->get('debug', 'common'))
+		{
+			$file = crc32(implode('|', $GLOBALS['_js_'][EL_JS_CSS_FILE])).'.js';
+			$path = EL_DIR_CACHE.$file;
+			if (file_exists($path) && time() - filemtime($path) < $this->_jsCacheTime)
+			{
+				// echo 'js cache';
+				$cache = $file;
 			}
 			else
 			{
-				$this->_te->assignVars('PAGE', '<script type="text/javascript">$().ready( function() { '.$js.' } );</script>', 1);
+				$content = '';
+				foreach($GLOBALS['_js_'][EL_JS_CSS_FILE] as $jsfile)
+				{
+					// echo $jsfile.' '.(filesize(EL_DIR_CORE.'js'.DIRECTORY_SEPARATOR.$jsfile)/1024).'<br>';
+					$content .= trim(file_get_contents(EL_DIR_CORE.'js'.DIRECTORY_SEPARATOR.$jsfile))."\n";
+				}
+				if (false != ($fp = fopen(EL_DIR_CACHE.$file, 'w')))
+				{
+					fwrite($fp, $content);
+					fclose($fp);
+					$cache = $file;
+				}
 			}
 		}
-		if (!empty($GLOBALS['jsScripts'][EL_JS_SRC_ONLOAD]))
+		
+		if ($cache)
 		{
-			$js = '<script type="text/javascript"> window.onload = function() {'.implode(';', $GLOBALS['jsScripts'][EL_JS_SRC_ONLOAD]).' };</script>';
-			$this->_te->assignVars('PAGE', $js, 1);
+			$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/cache/'.$cache) );
 		}
-		if (!empty($GLOBALS['jsScripts'][EL_JS_CSS_SRC]) )
+		else
 		{
-			foreach ($GLOBALS['jsScripts'][EL_JS_CSS_SRC] as $js)
-			{
-				$this->_te->assignBlockVars('JS', array('js' => $js));
-			}
-		}
-		foreach ($GLOBALS['jsScripts'][EL_JS_CSS_FILE] as $js)
-		{
-			if (file_exists(EL_DIR_CORE.'js/'.$js))
+			foreach ($GLOBALS['_js_'][EL_JS_CSS_FILE] as $js)
 			{
 				$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/core/js/'.$js) );
 			}
 		}
+		
+		if (!empty($GLOBALS['_js_'][EL_JS_SRC_ONLOAD]))
+		{
+			$js = '<script type="text/javascript"> window.onload = function() {'.implode(";\n", $GLOBALS['_js_'][EL_JS_SRC_ONLOAD]).' };</script>';
+			$this->_te->assignVars('PAGE', $js, 1);
+		}
+		if (!empty($GLOBALS['_js_'][EL_JS_SRC_ONREADY]))
+		{
+			$this->_te->assignBlockVars('ONREADY', array('js'=>implode("\n", $GLOBALS['_js_'][EL_JS_SRC_ONREADY])));
+		}
+		
+		if (!empty($GLOBALS['_js_'][EL_JS_CSS_SRC]))
+		{
+			$this->_te->assignVars('global_js', implode("\n", $GLOBALS['_js_'][EL_JS_CSS_SRC]));
+		}
 	}
 
-	function _jsURL( $f )
-	{
-	  return file_exists(EL_DIR_CORE.'js/'.$f) ? EL_BASE_URL.'/core/js/'.$f : null;
-	}
 
 	function _renderCss()
 	{
-		$str = '&f[]=layout.css&f[]=styling.css&f[]=normal.css';
-		foreach ($GLOBALS['css'] as $css)
+		if (!empty($GLOBALS['_css_']['ui-theme']))
 		{
-			if (EL_JS_CSS_FILE == $css['t'])
+			$this->_te->assignBlockVars('CSS_LINK', array('css'=>EL_BASE_URL.'/style/css/'.$GLOBALS['_css_']['ui-theme']));
+		}
+		
+		$GLOBALS['_css_'][EL_JS_CSS_FILE]   = array_unique($GLOBALS['_css_'][EL_JS_CSS_FILE]); 
+		$GLOBALS['_css_'][EL_JS_CSS_FILE][] = 'print.css';
+		// elPrintR($GLOBALS['_css_'][EL_JS_CSS_FILE]);
+		$cache = '';
+		if (!$this->_isAdmin || !$this->_conf->get('debug', 'common'))
+		{
+			$file = crc32(implode('|', $GLOBALS['_css_'][EL_JS_CSS_FILE])).'.css';
+			// $dir  = EL_DIR_STYLES.'css-cache';
+			$path = EL_DIR_CACHE.$file;
+			if (file_exists($path) && time() - filemtime($path) < $this->_jsCacheTime)
 			{
-				if (strstr($css['src'], 'ui-themes'))
-				{
-					$this->_te->assignBlockVars('CSS_LINK', array('css'=>$css['src']));
-				}
-				else
-				{
-					$str .= '&f[]='.$css['src'];
-				}
+				// echo 'cache css';
+				$cache = $file;
 			}
 			else
 			{
-				$this->_te->assignBlockVars('CSS', array('css'=>$css['src']));
+				$content = '';
+				foreach ($GLOBALS['_css_'][EL_JS_CSS_FILE] as $cssfile)
+				{
+					$content .= trim(str_replace("\t", '', str_replace("\n", "", file_get_contents(EL_DIR_STYLES.'css'.DIRECTORY_SEPARATOR.$cssfile))))."\n";
+				}
+				if (false != ($fp = fopen($path, 'w')))
+				{
+					fwrite($fp, str_replace(array('../../images', '../images'), EL_BASE_URL.'/style/images', $content));
+					fclose($fp);
+					$cache = $file;
+				}
 			}
 		}
-		$this->_te->assignBlockVars('CSS_COMBO', array('args' => $str));
+		
+		if ($cache)
+		{
+			$this->_te->assignBlockVars('CSS_LINK', array('css' => EL_BASE_URL.'/cache/'.$cache));
+		}
+		else
+		{
+			foreach ($GLOBALS['_css_'][EL_JS_CSS_FILE] as $file)
+			{
+				if (file_exists(EL_DIR_STYLES.'css'.DIRECTORY_SEPARATOR.$file))
+				{
+					$this->_te->assignBlockVars('CSS_LINK', array('css'=>EL_BASE_URL.'/style/css/'.$file));
+				}
+			}
+		}
 	}
 
 	function _renderMessages()

@@ -215,10 +215,17 @@ function utime ()
 
 function elAddJs($js, $type=EL_JS_CSS_SRC)
 {
-	$key = crc32($js);
-	if ( !isset($GLOBALS['jsSrcipts'][$type][$key]) )
+	if ($type == EL_JS_CSS_FILE)
 	{
-		$GLOBALS['jsScripts'][$type][$key] = $js;
+		$GLOBALS['_js_'][EL_JS_CSS_FILE][] = $js;
+	}
+	else
+	{
+		$key = crc32($js);
+		if ( !isset($GLOBALS['_js_'][$type][$key]) )
+		{
+			$GLOBALS['_js_'][$type][$key] = $js;
+		}
 	}
 }
 
@@ -226,28 +233,42 @@ function elLoadJQueryUI()
 {
 	static $loaded = false;
 	if (!$loaded)
-	{
+	{ 
 		$conf = & elSingleton::getObj('elXmlConf');
 		$theme = $conf->get('jQUITheme', 'layout');
 		if (!$theme || !is_dir('./style/css/ui-themes/'.$theme))
 		{
 			$theme = 'Cupertino';
 		}
-		elAddCss('ui-themes/'.$theme.'/ui.all.css', EL_JS_CSS_FILE);
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery-ui.js', EL_JS_CSS_FILE);
+		$GLOBALS['_css_']['ui-theme'] = 'ui-themes/'.$theme.'/ui.all.css';
+		if (sizeof($GLOBALS['_js_'][EL_JS_CSS_FILE]) > 2)
+		{
+			array_shift($GLOBALS['_js_'][EL_JS_CSS_FILE]);
+			array_shift($GLOBALS['_js_'][EL_JS_CSS_FILE]);
+			array_unshift($GLOBALS['_js_'][EL_JS_CSS_FILE], 'common.min.js');
+			array_unshift($GLOBALS['_js_'][EL_JS_CSS_FILE], 'jquery-ui.js');
+			array_unshift($GLOBALS['_js_'][EL_JS_CSS_FILE], 'jquery.js');
+		}
+		else
+		{
+			$GLOBALS['_js_'][EL_JS_CSS_FILE][] = 'jquery-ui.js';
+		}
 		$loaded = true;
 	}
 }
 
 function elAddCss($file, $type=EL_JS_CSS_FILE)
 {
-	$key = crc32($file);
-	if ( !isset($GLOBALS['css'][$key]) )
+	if (EL_JS_CSS_FILE == $type)
 	{
-		if (EL_JS_CSS_SRC == $type || file_exists(EL_DIR_STYLES.'css/'.$file))
+		$GLOBALS['_css_'][EL_JS_CSS_FILE][] = $file;
+	}
+	else
+	{
+		$key = crc32($file);
+		if (!isset($GLOBALS['_css_'][EL_JS_CSS_SRC][$key]))
 		{
-			$GLOBALS['css'][$key] = array('src'=>$file, 't'=>$type);
+			$GLOBALS['_css_'][EL_JS_CSS_SRC][$key] = $file;
 		}
 	}
 }

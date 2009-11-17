@@ -183,7 +183,7 @@
 				}
 			},
 			dialog : {
-				width : 400,
+				width : 500,
 				title : "{m('Formula')}"
 			}
 		});
@@ -196,7 +196,6 @@
 			data     : {action: 'formula_data', cid : cid},
 			success  : function(data) {self.makeForm(data)},
 			error    : function(r, e) { self.dialog.showError("{m('Data transfer error')}: "+e); }
-			
 		});
 		
 		this.makeForm = function(data) {
@@ -262,7 +261,6 @@
 				return
 			} else if ($(this).metadata().action == 'formula_edit') {
 				return new editFormula($(this).metadata().cid);
-				return
 			}
 		
 			if ($(this).metadata().action.indexOf('rm') == -1 || confirm('{m('Do You really want to delete')}?')) {

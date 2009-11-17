@@ -20,6 +20,7 @@ $elMsg['Action on image']                               = 'Дії над зоб�
 $elMsg['Upload image']                                  = 'Завантажити зображення';
 $elMsg['Delete image']                                  = 'Видалити зображення';
 $elMsg['No image']                                      = 'Зображення відсутнє';
+$elMsg['Js and css file cache time (hours)']            = 'Время кэширования css и javascript (часы)';
 //layout
 $elMsg['Layout configuration']                          = 'Установки розмітки';
 $elMsg['Login form position']                           = 'Позиція форми для авторизації';

@@ -47,9 +47,9 @@ class elSubModuleMetaTags extends elModule
 		}
 		
 		elLoadJQueryUI();
-		elAddJs('jquery.form.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
-		elAddJs('ellib/widgets/eldialogform.js', EL_JS_CSS_FILE);
+		elAddJs('eldialogform.min.js', EL_JS_CSS_FILE);
 		
 		$this->_initRenderer();
 		$this->_rnd->rndMeta( $this->_getNodes(0) ); 

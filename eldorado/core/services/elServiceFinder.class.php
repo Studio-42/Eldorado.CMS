@@ -2,6 +2,7 @@
 include_once EL_DIR_CORE.'lib/elFS.class.php';
 include_once EL_DIR_CORE.'lib/elFileInfo.class.php';
 include_once EL_DIR_CORE.'lib/elJSON.class.php';
+include_once EL_DIR_CORE.'lib/elImage.class.php';
 include_once EL_DIR_CORE.'lib/elFinder.class.php';
 
 elLoadMessages('Finder');
@@ -43,7 +44,6 @@ class elServiceFinder extends elService
 			'defaults' => array(
 				'read' => true,
 				'write' => true,
-				'rm' => true
 				)
 			);
 

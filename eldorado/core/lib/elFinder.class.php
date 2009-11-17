@@ -1,5 +1,10 @@
 <?php
-include_once dirname(__FILE__).'/elImage.class.php';
+
+if (function_exists('mb_internal_encoding'))
+{
+	mb_internal_encoding('UTF-8');
+}
+
 
 class elFinder {
 	
@@ -11,6 +16,7 @@ class elFinder {
 		'dirUmask'  => 0777,
 		'tplDir'    => '',       
 		'tplName'   => 'FILEMANAGER',
+		'lang'      => 'en',
 		'tmbDir'    => '.tmb',
 		'tmbSize'   => 48,
 		'mimetypes' => array(),
@@ -18,22 +24,17 @@ class elFinder {
 		'role'      => 'user',
 		'defaults' => array(
 			'read'  => true,
-			'write' => false,
-			'rm'    => false
+			'write' => false
 			),
 		'perms' => array()
 		);
 		
-	var $_views = array('list', 'ismall', 'ibig');
-	var $_te = null;
+	var $_views      = array('list', 'ismall', 'ibig');
+	var $_te         = null;
 	var $_translator = null;
-	var $_img = null;
-	var $_imglib = '';
-	/**
-	 * undocumented class variable
-	 *
-	 * @var string
-	 **/
+	var $_img        = null;
+	var $_imglib     = '';
+	
 	var $_mimetypes = array(
 		'directory'                     => 'Directory',
 		'text/plain'                    => 'Plain text',
@@ -113,7 +114,7 @@ class elFinder {
 			$this->_allowed[] = $this->_fileKind($m);
 		}
 		$this->_allowed = array_unique($this->_allowed);
-		$this->_image = & new elImage();
+		$this->_image = new elImage();
 	}
 		
 	function elFinder($opts=array()) 
@@ -124,6 +125,11 @@ class elFinder {
 	function setTE(&$te) 
 	{
 		$this->_te = & $te;
+	}
+	
+	function setTranslator($tr)
+	{
+		$this->_translator = $tr;
 	}
 		
 	function autorun() 
@@ -423,7 +429,7 @@ class elFinder {
 			{
 				$this->_jsonError('File does not exists');
 			}
-			if ($rm && !$this->_isAllowed($src, 'rm')) 
+			if ($rm && !$this->_isAllowed($source,  'write')) 
 			{
 				$this->_jsonError('Access denied');
 			}
@@ -467,7 +473,7 @@ class elFinder {
 		} 
 		if (!$this->_isAllowed($current, 'read')
 		||  !$this->_isAllowed($current, 'write')
-		||  !$this->_isAllowed($current, 'rm'))
+		)
 		{
 			$this->_jsonError('Access denied.');
 		}
@@ -596,6 +602,7 @@ class elFinder {
 	{
 		$this->_te();
 		$this->_te->setFile($this->_options['tplName'], $this->_options['tplDir'].DIRECTORY_SEPARATOR.'default.html');
+		
 		$this->_rndTree();
 		$this->_rndDir($this->_options['root']);
 		$this->_te->parse($this->_options['tplName'], null, false, true, true);
@@ -610,7 +617,7 @@ class elFinder {
 	 **/
 	function _rndTree()
 	{
-		$tree = $this->_tree(); 
+		$tree = $this->_tree();
 		$this->_te();
 		$this->_te->setFile('FM_TREE', $this->_options['tplDir'].DIRECTORY_SEPARATOR.'tree.html');
 		$this->_te->assignVars('tree', $this->_tree2htmllist($tree['dirs']));
@@ -633,8 +640,34 @@ class elFinder {
 		$filesNum  = 0;
 		$filesSize = 0;
 		$cnt        = 0;
-		$wrap     = 'ismall' == $view ? 12  : 19;
+		$wrap       = 'ismall' == $view ? 12  : 17;
 		$this->_te->setFile('FM_CONTENT', $this->_options['tplDir'].DIRECTORY_SEPARATOR.('list' == $view ? 'list.html' : 'icons.html'));
+		$this->_te->assignVars(array(
+			'Name'   => $this->_translate('Name'),
+			'Access' => $this->_translate('Access'),
+			'Date modified' => $this->_translate('Date modified'),
+			'Size' => $this->_translate('Size'),
+			'Kind' => $this->_translate('Kind'),
+			'Back' => $this->_translate('Back'),
+			'Reload' => $this->_translate('Reload'),
+			'Select file' => $this->_translate('Select file'),
+			'Open' => $this->_translate('Open'),
+			'Rename' => $this->_translate('Rename'),
+			'Edit text document' => $this->_translate('Edit text document'),
+			'Delete' => $this->_translate('Delete'),
+			'Get info' => $this->_translate('Get info'),
+			'Create directory' => $this->_translate('Create directory'),
+			'Upload files' => $this->_translate('Upload files'),
+			'Copy' => $this->_translate('Copy'),
+			'Cut' => $this->_translate('Cut'),
+			'Paste' => $this->_translate('Paste'),
+			'View as big icons' => $this->_translate('View as big icons'),
+			'View as small icons' => $this->_translate('View as small icons'),
+			'View as list' => $this->_translate('View as list'),
+			'Toggle view of actions results dialogs' => $this->_translate('Toggle view of actions results dialogs'),
+			'Help'  => $this->_translate('Help'),
+			'Files' => $this->_translate('Files')
+			));
 		$this->_te->assignVars('view', $view);
 		$cwd = elFileInfo::info($path);
 		$p   = str_replace($this->_options['root'], '', $path);
@@ -648,7 +681,7 @@ class elFinder {
 			'postMaxSize' => ini_get('post_max_size'),
 			'allowed'     => implode(', ', $this->_allowed)
 			);
-		
+		// echo $path.' '.$this->_isAllowed($path, 'write').'<br>';
 		if (!$cwd['read'])
 		{
 			$this->_te->assignVars('info', elJSON::encode($info));
@@ -656,7 +689,6 @@ class elFinder {
 			return $this->_te->getVar('FM_CONTENT');
 		}
 		$content = elFS::lsall($path); 
-
 		foreach ($content as $item)
 		{
 			if ('directory' != $item['mimetype'] || $this->_isAllowed($item['path'], 'read'))
@@ -666,22 +698,28 @@ class elFinder {
 				} else {
 					$item['icon_class'] = $this->_cssClass($item['mimetype']);
 				}
-				$read  = $item['read'] && $this->_isAllowed($item['path'], 'read') ? 'read' : '';
-				$write = $item['write'] && $this->_isAllowed($item['path'], 'write') ? 'write' : '';
+				$read  = $item['read']  ? 'read' : '';
 				$item['disabled'] = !$read ? 'disabled' : '';
-				$item['type'] = ('directory' == $item['mimetype'] ? 'dir' : ($item['icon_class'] == 'image' ? 'image' : 'file'))
-					.'-'.($read ? 'r' :'').($write ? 'w' :'');
 				
-				if (false !== strpos($item['mimetype'], 'text') && $item['mimetype'] != 'text/rtf' && $item['mimetype'] != 'text/rtfd') {
-					$item['type'] .= ' text';
-				}
+				
 				
 				if ('directory' != $item['mimetype']) 
 				{
 					$info['filesNum']++;
 					$info['filesSize'] += $item['size'];
+					$write = $item['write'] && $info['write'] ? 'write' : '';
+				}
+				else
+				{
+					$write = $item['write'] && $this->_isAllowed($item['path'], 'write') ? 'write' : '';
 				}
 				
+				$item['type'] = ('directory' == $item['mimetype'] ? 'dir' : ($item['icon_class'] == 'image' ? 'image' : 'file'))
+					.'-'.($read ? 'r' :'').($write ? 'w' :'');
+				if (false !== strpos($item['mimetype'], 'text') && $item['mimetype'] != 'text/rtf' && $item['mimetype'] != 'text/rtfd') {
+					$item['type'] .= ' text';
+				}
+					
 				if ('list' == $view)
 				{
 					$item['rowClass'] = ($cnt++%2) ? 'odd' : '';
@@ -788,7 +826,9 @@ class elFinder {
 	 **/
 	function _wrapFileName($name, $wrap)
 	{
-		return strlen($name) > $wrap ? substr($name, 0, intval($wrap-3)).'...'.substr($name, -3) : $name;
+		return function_exists('mb_substr') 
+			? (mb_strlen($name) > $wrap ? mb_substr($name, 0, intval($wrap-3)).'...'.mb_substr($name, -3) : $name)
+			: (strlen($name) > $wrap ? substr($name, 0, intval($wrap-3)).'...'.substr($name, -3) : $name);
 	}
 	
 	/**
@@ -892,7 +932,7 @@ class elFinder {
 	
 	function _te() {
 		if (!$this->_te) {
-			$this->_te = & new elTE();
+			$this->_te = new elTE();
 		}
 	}
 	
@@ -903,7 +943,11 @@ class elFinder {
 	 **/
 	function _tree()
 	{
-		return elFS::tree($this->_options['root'], $this->_options['acl'], $this->_options['role'], $this->_options['perms'], $this->_options['defaults']['read']);
+		return elFS::tree($this->_options['root'], 
+						$this->_options['acl'], 
+						$this->_options['role'], 
+						$this->_options['perms'], 
+						$this->_options['defaults']['read']);
 	}	
 		
 	function _isAllowed($f, $act) 
@@ -946,9 +990,12 @@ class elFinder {
 	
 	function _translate($msg) {
 		return m($msg);
-		return $this->_translator ? $this->_translator->translate($msg) : m($msg);
+		// return $this->_translator ? $this->_translator->translate($this->_options['lang'], $msg) : $msg;
 	}
 	
 }
+
+
+
 
 ?>

@@ -29,7 +29,7 @@
 	<div>errors</div>
 </div>
 {POST_FORM}
-<script type="text/javascript" charset="utf-8" src="{BASE_URL}core/js/jquery.dump.js"></script>
+
 <script type="text/javascript" charset="utf-8">
 	$().ready( function() {
 		$('form input[name="preview"]').click( function() {
@@ -43,10 +43,7 @@
 			$(this).toggleClass('el-expanded').next('div').slideToggle();
 			return false
 		});
-		
-		
-		//alert( $('form :submit#s1').attr('name'))
-		
+				
 		$('form#mfelforumpost :submit#s1').click( function() {
 			
 			var f = $('form#mfelforumpost :file').val();

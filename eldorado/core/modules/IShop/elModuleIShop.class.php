@@ -14,6 +14,7 @@ class elModuleIShop extends elModule
   var $_factory   = null;
   var $_cat       = null;
   var $_item      = null;
+	var $_jslib     = true;
   var $_mMap      = array('item' => array('m'=>'viewItem'), 'img'=>array('m' => 'displayItemImg') );
   var $_conf      = array(
   	'deep'              => 0,

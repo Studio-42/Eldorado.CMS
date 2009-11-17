@@ -273,8 +273,7 @@ class elRndForum extends elModuleRenderer
 		if ($allowAttach)
 		{
 			elLoadJQueryUI();
-			elAddJs('jquery.form.js', EL_JS_CSS_FILE);
-			elAddJs('jquery.dump.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 			$this->_te->assignBlockVars('POST_ATTACH_JS');
 		}
 
@@ -357,7 +356,7 @@ class elRndForum extends elModuleRenderer
 			$this->_te->assignBlockVars('PROFILE_ACTIONS.PASSWD', $data, 1);
 			$this->_te->assignBlockVars('PROFILE_ACTIONS.UPL_AVATAR', $data, 1);
 			elLoadJQueryUI();
-			elAddJs('jquery.form.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 			$this->_te->assignBlockVars('UPLOAD_AVATAR_JS');
 			$this->_te->assignVars('avatar_type_msg', m('Image must be in jpg, gif or png format'));
 			$this->_te->assignVars('avatar_size_msg', sprintf(m('Image file size must be less or equal then %d Kb'), $this->_conf['avatarMaxFileSize']));

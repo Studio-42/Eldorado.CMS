@@ -9,8 +9,8 @@
 .pl-rndimg-title h5 { text-align:center;}
 
 .pl-rndimg li div.card { margin:0 14px; padding:7px; border:2px solid #eee; background:#fff }
-.pl-rndimg li div.card-bot {  height:21px; background:url('style/images/design/rndimg-bottom.png') 25px 0 no-repeat;}
-.pl-rndimg li div.card-bot-l { height:21px; background: url('style/images/design/rndimg-bottom-l.png') 0 right no-repeat; margin-right:15px;}
+.pl-rndimg li div.card-bot {  height:21px; background:url('../../images/design/rndimg-bottom.png') 25px 0 no-repeat;}
+.pl-rndimg li div.card-bot-l { height:21px; background: url('../../images/design/rndimg-bottom-l.png') 0 right no-repeat; margin-right:15px;}
 
 .pl-rndimg-horiz { text-align:center; }
 

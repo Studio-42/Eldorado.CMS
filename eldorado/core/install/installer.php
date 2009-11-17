@@ -423,7 +423,6 @@ class elInstaller {
 		$ht = "RewriteEngine On                                                                
 		RewriteBase  ".$path."                                                   
 		RewriteRule ^conf\/(.*)\.(sql|xml) index.php [NS,F]    
-		RewriteRule ^combo\.php(.*) combo.php$1 [L]                                
 		RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]                              
 		RewriteRule (.*)\.(php|phtml) index.php [L]                                  
 		RewriteRule ^storage(.*)  storage$1 [L]                                         
@@ -453,12 +452,7 @@ class elInstaller {
 			fclose($fp);
 		}
 		
-		
 		if (!copy($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'index.php', $this->_rootDir.'index.php'))
-		{
-			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complite installation.');
-		}
-		if (!copy($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'combo.php', $this->_rootDir.'combo.php'))
 		{
 			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complite installation.');
 		}

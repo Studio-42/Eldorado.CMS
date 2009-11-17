@@ -94,7 +94,10 @@
 </div>
 <script type="text/javascript" charset="utf-8">
 	$().ready( function() {
-		el.utils.langDomain('forum');
+		// el.utils.langDomain('forum');
+		
+		var i18n = new eli18n({textdomain : "forum", messages : {forum : forum.i18n[el_lang]}});
+
 		// ajax form
 		$('div#attach-dialog form')
 			.ajaxForm( { dataType:'json', beforeSubmit: attachProgress, success: attachResult} )
@@ -103,13 +106,13 @@
 		// attach file
 		$('div.mod-forum-button-post-attach a').click( function() {
 			$('#attach-dialog').data('url', $(this).attr('meta')); 
-			attachDialog(el.utils.translate('Attach file'), '', '', 'send', $(this).attr('href'))
+			attachDialog(i18n.translate('Attach file'), '', '', 'send', $(this).attr('href'))
 			return false;
 		});	
 		// remove attachment
 		$('a.attach-rm').click( function() {
 			$('#attach-dialog').data('url', $(this).attr('meta'));
-			attachDialog(el.utils.translate('Delete attachment'), el.utils.translate('Do You realy want to delete file?'), '', 'yesno', $(this).attr('href'));
+			attachDialog(i18n.translate('Delete attachment'), i18n.translate('Do You realy want to delete file?'), '', 'yesno', $(this).attr('href'));
 			return false;
 		} );
 		
@@ -148,7 +151,7 @@
 									url      : acturl,
 									dataType : "json",
 									success  : function(data) { attachDialog('', data.result, data.error, 'ok') },
-									error    : function()     { attachDialog('', '', el.utils.translate('Data transfer error'), 'ok') }
+									error    : function()     { attachDialog('', '', i18n.translate('Data transfer error'), 'ok') }
 								}
 							);
 						},
@@ -169,7 +172,7 @@
 			
 			if (jqForm && !$(jqForm[0]).children(':file').val())
 			{
-				$('#attach-result').show().children('p').addClass('warning').text(el.utils.translate('Please, select file to attach to post'));
+				$('#attach-result').show().children('p').addClass('warning').text(i18n.translate('Please, select file to attach to post'));
 				return false
 			}
 			attachDialog(); 
@@ -190,7 +193,6 @@
 			});
 		
 			$('td.mod-forum-post-msg img').each( function() {
-				
 				if ( $(this).attr('width')>{maxPostImgSize} ) {
 					$(this).attr('width', {maxPostImgSize})
 				}

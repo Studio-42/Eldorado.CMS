@@ -1,7 +1,13 @@
 <?php
 
 // TODO delete all cache on webPropertyId change
-
+/**
+ * Google Analytics Statistics Module
+ *
+ * @package elModuleGAStat
+ * @author Troex Nevelin
+ * @version 1.1
+ */
 class elModuleGAStat extends elModule
 {
 	var $_mMap = array(
@@ -173,13 +179,35 @@ class elModuleGAStat extends elModule
 	var $_periodHuman;
 	var $dateType = 'm';
 	var $_sharedRndMembers = array('reportDates', 'dateType');
-	
+
+	function __construct()
+	{ // check CURL module and version
+		if (!function_exists('curl_init'))
+		{
+			elThrow(E_USER_WARNING, 'PHP module CURL not installed', null, EL_BASE_URL);
+		}
+		else
+		{
+			$curl = curl_version();
+			if (is_array($curl)) // looks like PHP5
+				$curl = implode(' ', array('libcurl/'.$curl['version'], $curl['ssl_version'], 'zlib/'.$curl['libz_version']));
+			// else PHP4
+			elDebug('CURL: '.$curl);
+			if (!preg_match('/OpenSSL/', $curl))
+				elThrow(E_USER_WARNING, 'PHP module CURL do not support SSL (curl_version: '.$curl.')', null, EL_BASE_URL);
+		}
+	}
+
+	function elModuleGAStat()
+	{
+		$this->__construct();
+	}
+
 	function defaultMethod()
 	{
-		
 		elLocation(EL_URL . 'dashboard');
 	}
-	
+
 	function viewDashboard()
 	{
 		$blocks = array();
@@ -213,7 +241,7 @@ class elModuleGAStat extends elModule
 			return elThrow(E_USER_WARNING, 'GA failed on medium: %s', $this->_analytics->error);		
 		$medium = $this->maxDimensionsData($medium, $type, 3);
 		$legend[$type] = $this->generateDataLegend($medium, $type);
-		
+
 		$this->_initRenderer();
 		$this->_rnd->rndDashboard($siteUsage, $blocks, $legend, $this->_periodHuman, m($this->_reportTypes['dashboard']['title']));
 	}
@@ -337,7 +365,7 @@ class elModuleGAStat extends elModule
 		foreach ($data as $node)
 		{
 			$legend[$node[$this->_reportTypes[$type]['dimensions']]] = array(
-				'name'  => $node[$this->_reportTypes[$type]['dimensions']],
+				'name'  => m($node[$this->_reportTypes[$type]['dimensions']]),
 				'color' => $this->_metricColors[$i]
 				);
 			$i++;
@@ -418,7 +446,6 @@ class elModuleGAStat extends elModule
 				date('Y-m-d', strtotime($this->reportDates[$_POST['report_period']]['start'])),
 				date('Y-m-d', strtotime($this->reportDates[$_POST['report_period']]['end']))	
 			);
-			//elPrintR($period);
 			$user->setPref('ga-period', $period);
 			$user->setPref('ga-period-type', trim($_POST['report_period']));
 			
@@ -429,14 +456,6 @@ class elModuleGAStat extends elModule
 	function _makeURL($reportType)
 	{
 		$report = $this->_reportTypes[$reportType];
-		
-		// if ((substr($this->dateType, -1) == 'y') && ($report['dimensions'] == 'ga:date'))
-		// {
-		// 	$report['dimensions'] = 'ga:week';
-		// 	$report['sort']       = 'ga:week';
-		// 	$this->_reportTypes[$reportType]['dimensions'] = 'ga:week';
-		// 	$this->_reportTypes[$reportType]['sort']       = 'ga:week';			
-		// }
 		$url  = 'https://www.google.com/analytics/feeds/data?';
 		$url .= 'ids=ga:'.$this->_conf('profileId').'&';
 		$url .= 'start-date='.$this->_period[0].'&';
@@ -514,7 +533,6 @@ class elModuleGAStat extends elModule
 					break;
 				}
 			}
-			//elPrintR($data);
 		}
 	}
 	

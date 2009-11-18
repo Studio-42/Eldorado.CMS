@@ -45,6 +45,15 @@ $elMsg['Other reports']  = 'Другие отчёты';
 $elMsg['view report']    = 'просмотреть отчёт';
 
 $elMsg['Statistics is empty'] = 'Нет данных в статистике';
+$elMsg['Config is invalid']   = 'Настройки неверны';
+$elMsg['Auth failed']         = 'Невозможно авторизоваться в GA';
+$elMsg['Could not get profileId'] = 'Невозможно получиться profileId';
+// $elMsg['PHP module CURL not installed'] = 'PHP модуль CURL не установлен';
+$elMsg['organic']    = 'Поисковые системы';
+$elMsg['referral']   = 'Сайты-источники переходов';
+$elMsg['(none)']     = 'Прямой трафик';
+$elMsg['(direct)']   = $elMsg['(none)'];
+$elMsg['(other)']    = 'Другие';
 
 
 

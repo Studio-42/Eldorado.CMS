@@ -5,23 +5,23 @@
  * Google Analytics Statistics Module
  *
  * @package elModuleGAStat
- * @author Troex Nevelin
- * @version 1.1
+ * @version 2.0
+ * @author Troex Nevelin <troex@fury.scancode.ru>
  */
 class elModuleGAStat extends elModule
 {
 	var $_mMap = array(
-		'report' => array('m'=>'viewReport'),
-		'xmlchart' => array('m'=>'getXMLChart'),
-		'dashboard' => array('m'=>'viewDashboard'),
+		'report'     => array('m'=>'viewReport'),
+		'xmlchart'   => array('m'=>'getXMLChart'),
+		'dashboard'  => array('m'=>'viewDashboard'),
 		'set_period' => array('m' => 'setReportPeriod')  
 		);
 	
 	var $_conf = array(
-		'account' => '',
-		'passwd' => '',
+		'account'       => '',
+		'passwd'        => '',
 		'webPropertyId' => '',
-		'profileId' => ''
+		'profileId'     => ''
 		);
 	
 	var $_reportTypes = array(

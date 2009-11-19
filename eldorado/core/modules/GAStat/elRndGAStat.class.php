@@ -18,7 +18,7 @@ class elRndGAStat extends elModuleRenderer
 		'report'     => 'report.html',
 
 		'chartLine'  => 'chartLine.html',
-		'chartPieSmall' => 'chartPieSmall.html',
+		'chartPie'   => 'chartPie.html',
 
 		'dashboard'  => 'dashboard.html',
 		'reportDates'=> 'date-select.html'
@@ -31,13 +31,20 @@ class elRndGAStat extends elModuleRenderer
 		$this->_te->assignVars('period', $period);
 		$this->_te->assignVars('report_name', $reportName);
 		$this->_rndDateSelect();
-		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
 		$this->_setFile($type, 'REPORT');
 		
+		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+		elAddJs('FusionCharts.js', EL_JS_CSS_FILE);
+				
 		if (!empty($chart) && ($chart != ''))
 		{
 			if ($chart == 'line')
 			{
+				elAddJs(
+'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", "748", "250");
+chart.setDataURL("'.EL_URL.'xmlchart/'.$type.'");
+chart.render("chartLine");', EL_JS_SRC_ONREADY);
+				
 				$this->_setFile('chartLine', 'GASTAT_CHART');
 				$this->_te->assignVars('chart_line', $type);
 				$this->_te->assignBlockVars('LEGEND_LINE', array('gastat_legend' => $this->rndLegendVertical($legend)));
@@ -45,13 +52,16 @@ class elRndGAStat extends elModuleRenderer
 			}
 			elseif ($chart == 'pie')
 			{
-				$this->_setFile('chartPieSmall', 'GASTAT_CHART');
-				$this->_te->assignVars('chart_pie_small', $type);
+				elAddJs(
+'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_Pie2D.swf", "ChartId", "270", "250");
+chart.setDataURL("'.EL_URL.'xmlchart/'.$type.'");
+chart.render("chartPie");', EL_JS_SRC_ONREADY);
+
+				$this->_setFile('chartPie', 'GASTAT_CHART');
+				$this->_te->assignVars('chart_pie', $type);
 				$this->_te->assignBlockVars('LEGEND_PIE', array('gastat_legend' => $this->rndLegendVertical($legend)));
 				$this->_te->parse('GASTAT_CHART');
 			}
-			elAddJs('XMLChart.AC_RunActiveContent.js', EL_JS_CSS_FILE);
-			elAddJs('AC_FL_RunContent = 0; DetectFlashVer = 0; var requiredMajorVersion = 9; var requiredMinorVersion = 0; var requiredRevision = 45;');
 		}		
 
 		for ($i=0, $s=sizeof($data); $i<$s; $i++)
@@ -73,21 +83,24 @@ class elRndGAStat extends elModuleRenderer
 		$this->_te->assignVars('report_name', $reportName);
 		$this->_rndDateSelect();
 		
-		elAddJs('XMLChart.AC_RunActiveContent.js', EL_JS_CSS_FILE);
-		elAddJs('AC_FL_RunContent = 0;
-		DetectFlashVer = 0;
-		var requiredMajorVersion = 9;
-		var requiredMinorVersion = 0;
-		var requiredRevision = 45;');
-
-		// TODO howto many charts ?
+		elAddJs('FusionCharts.js', EL_JS_CSS_FILE);
+		
+		elAddJs(
+'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", "748", "250");
+chart.setDataURL("'.EL_URL.'xmlchart/db_visits");
+chart.render("chartLine");', EL_JS_SRC_ONREADY);
 		
 		$this->_setFile('chartLine', 'VISIT_CHART');
 		$this->_te->assignVars('chart_line', 'db_visits');
 		$this->_te->assignVars('visit_legend', $this->rndLegendHorizontal($legend['db_visits']));
 		
-		$this->_setFile('chartPieSmall', 'CHART_MEDIUM');
-		$this->_te->assignVars('chart_pie_small', 'medium');
+		elAddJs(
+'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_Pie2D.swf", "ChartId", "270", "250");
+chart.setDataURL("'.EL_URL.'xmlchart/medium");
+chart.render("chartPie");', EL_JS_SRC_ONREADY);
+
+		$this->_setFile('chartPie', 'CHART_MEDIUM');
+		$this->_te->assignVars('chart_pie', 'medium');
 		$this->_te->assignVars('medium_legend', $this->rndLegendVertical($legend['medium']));
 		//elPrintR($legend);
 		

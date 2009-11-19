@@ -1,117 +1,133 @@
 <?php
-
-// TODO adaptive size for Charts here and in render
-
+/**
+ * XML output for FusionCharts
+ *
+ * @package elModuleGAStat
+ * @author Troex Nevelin <troex@fury.scancode.ru>
+ */
 class XMLChart
 {
 	var $reportTypes;
 	var $metricColors;
 	var $metricNames;
-	
-	function generateChartColors()
-	{
-		$c = '';
-		foreach ($this->metricColors as $color)
-			$c .= '<color>' . $color . '</color>';
-		$c = '<series_color>' . $c . '</series_color>';
-		return $c;
-	}
-	
-	function generateChartData($data, $type)
-	{
-		$ret = '<chart_data>';
 		
-		$ret .= '<row><null/>';
-		for ($i = 0; $i < sizeof($data); $i++)
-		{ 
-			$dim = $this->reportTypes[$type]['dimensions'];
-			if ($dim == 'ga:date') // convert date on the fly
-			{
-				$data[$i][$dim] = date(EL_DATE_FORMAT, strtotime($data[$i][$dim]));
-				$ret .= '<string>' . $data[$i][$dim] . '</string>';
-			}
-			else
-				$ret .= '<string>' . $data[$i][$dim] . '</string>';
-		}
-		$ret .= '</row>';
-		
+	function generateDataset($data, $type, $size)
+	{
+		$c = 0;
+		$r = '';
+		$anchor = ($size > 30 ? 0 : 1);
+		$line = 3;
+		if ($size > 100)
+			$line = 2;
 		foreach ($this->reportTypes[$type]['metrics'] as $metric)
 		{
-			$ret .= '<row><string>' . $metric . '</string>';
-			if ($this->reportTypes[$type]['chart'] == 'line')
-				foreach ($data as $node) 
-					$ret .= '<number label="' . $node[$metric] . ' ' . $this->metricNames[$metric] . '\r'
-						. $node[$this->reportTypes[$type]['dimensions']] . '">'
-						. $node[$metric] . '</number>';
-			else
-				foreach ($data as $node) 
-					$ret .= '<number>' . $node[$metric] . '</number>';
-			
-			$ret .= '</row>';
-		}
-		
-		$ret .= '</chart_data>';
-		
-		return $ret;
+			$color = $this->metricColors[$c];
+			$r .= "\t<!-- ".$metric." -->\n";
+			$r .= "\t<dataset color='".$color."' showAnchors='".$anchor."' alpha='100' lineThickness='".$line."'>\n";
+			foreach ($data as $node)
+			{
+				$r .= "\t\t<set value='".$node[$metric]."' />\n";
+			}
+			$r .= "\t</dataset>\n";
+			$c++;
+		}			
+		return $r;
 	}
 	
-	function generateChartLine($size)
+	function generateSet($data, $type)
 	{
-		$skip = round($size / 6); // 6 - howmany dates it graphs
-		return "<chart_pref line_thickness='4' point_size='0' />"
-			. "<chart_rect x='35' y='5' width='680' height='125' />"
-			. "<chart_grid_h thickness='1' color='000000' type='solid' />"
-			. "<chart_grid_v thickness='0' color='000000' />"
-			. "<chart_guide horizontal='false' vertical='false' radius='4' fill_alpha='0' line_color='000000' line_alpha='100' line_thickness='3' />"
-			. "<chart_label position='cursor' />"
-			. "<legend size='10' bold='false' layout='hide' />"
-			. "<axis_category skip='" . $skip . "' size='10' bold='false' />"
-			. "<axis_value steps='2' size='10' />"
-			. "<chart_transition type='slide_right' delay='0' duration='1' />";
-			// . "<update url='http://localhost/~troex/scancode/cc/gstat/visits/' delay='5' />"
+		$c = 0;
+		$r = '';
+		$metric = $this->reportTypes[$type]['metrics'][0];
+		foreach ($data as $node)
+		{
+			$color = $this->metricColors[$c];
+			list($dim, $title) = explode('=', $node['TITLE']);
+			$r .= "\t<set name='".$title."' value='".$node[$metric]."' color='".$color."' />\n";
+			$c++;
+		}
+		return $r;
+	}
+
+	function generateCategory($data, $size)
+	{
+		$c = '';
+		$e = 30;
+		$i = 0;
+		$skip = 0;
+		if ($size > $e)
+		{
+			$skip = round($size / $e);
+		}
+		foreach ($data as $node)
+		{
+			if ($i >= $skip)
+			{
+				$i = 0;
+				$show = true;
+			}
+			else
+			{
+				$show = false;
+			}
+			list($dim, $title) = explode('=', $node['TITLE']);
+			if ($dim == 'ga:date') // convert date on the fly
+				$title = date(EL_DATE_FORMAT, strtotime($title));
+			$c .= "\t\t<category name='".$title."' showName='".($show ? 1 : 0)."' />\n";
+			$i++;
+		}
+		$r = "\t<categories>\n".$c."\t</categories>\n";
+		return $r;
+	}
+	
+	function generateChartLine()
+	{
+		$graph = "<graph"
+		       . " shadowThickness='4' showShadow='1' shadowXShift='1' shadowYShift='1' shadowColor='000000' shadowAlpha='20'"
+		       . " hoverCapBgColor='FFECAA' hoverCapBorderColor='F47E00'"
+		       . " formatNumberScale='0' decimalPrecision='0' showvalues='0' animation='1'"
+		       . " numdivlines='3' numVdivlines='0' lineThickness='5' rotateNames='1'>\n";
+		return $graph;
 	}
 	
 	function generateChartPie()
 	{
-		return "<chart_pref />"
-			. "<chart_rect x='35' y='25' height='150'/>"
-			. "<chart_grid_h thickness='0' color='000000' />"
-			. "<chart_grid_v thickness='0' color='000000' />"
-			. "<chart_label position='outside' size='10' decimals='1' as_percentage='true' />"
-			. "<legend size='10' bold='false' x='220' layout='hide' />"
-			. "<chart_transition type='scale' delay='0' duration='0.5' />";
-			// . "<series_explode><number>2</number><number>2</number><number>2</number></series_explode>";
-			// . "<update url='http://localhost/~troex/scancode/cc/gstat/visits/' delay='5' />"
+		$graph = "<graph"
+		       . " shadowThickness='6' showShadow='1' shadowXShift='1' shadowYShift='1' shadowColor='000000' shadowAlpha='50'"
+		       . " pieBorderThickness='2' pieBorderAlpha='80' showValues='1' showNames='0' decimalPrecision='0' showPercentageInLabel='1'>\n";
+		return $graph;
 	}
-	
+
 	function generateChart($data, $type)
 	{
-		$chartData = $this->generateChartData($data, $type);
-		$chartType = $this->reportTypes[$type]['chart'];
-		
-		switch ($chartType)
+		$r = '';
+		$graphType = $this->reportTypes[$type]['chart'];
+		switch ($graphType)
 		{
 			case 'line':
-				$chartConf = $this->generateChartLine(sizeof($data));
+				$size      = sizeof($data);
+				$graphConf = $this->generateChartLine();
+				$category  = $this->generateCategory($data, $size);
+				$dataset   = $this->generateDataset( $data, $type, $size);
+				$r         = $graphConf.$category.$dataset;
 				break;
 			case 'pie':
-				$chartConf = $this->generateChartPie();
+				$graphConf = $this->generateChartPie();
+				$set       = $this->generateSet($data, $type);
+				$r         = $graphConf.$set;
 				break;
 			default:
-				$chartConf = '';
+				$graphConf = '';
 				break;
 		}
-		// check $chartConf
-		if (empty($chartConf))
+		if (empty($graphConf))
 			return false;
 		
-		$colors = $this->generateChartColors();
-		// $chartConf .= "<chart_transition type='slide_right' delay='1' duration='1' />";
-		$chartConf .= '<chart_type>' . $chartType . '</chart_type>';
-		$chart = '<chart>' . $chartConf . $colors . $chartData . '</chart>';
+		$r .= "</graph>\n";
 		
-		return $chart;
+		return $r;
 	}
+
 }
 
 ?>

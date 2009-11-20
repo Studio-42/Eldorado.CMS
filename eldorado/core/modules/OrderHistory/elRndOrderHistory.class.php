@@ -31,6 +31,7 @@ class elRndOrderHistory extends elModuleRenderer
 				$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
 			$order['crtime'] = date($date, $order['crtime']);
 			$order['mtime'] = date($date, $order['mtime']);
+			$order['total'] = (int)$order['total'];
 			$this->_te->assignBlockVars('LIST.ORDER', $order, 1);
 		}
 		$this->_rndPager($pager);

@@ -308,8 +308,8 @@ table.tablesorter thead tr th           { background: #eee; }
 
 .debug { 
 	margin:5px 7px; 
-	background:#000 url(../images/debug.gif) 7px 12px no-repeat; 
-	padding:7px 12px; 
+	background:#000 url(../images/debug.gif) 7px 9px no-repeat; 
+	padding:11px 12px; 
 	line-height:1.2em; 
 	color:#fff;
 }

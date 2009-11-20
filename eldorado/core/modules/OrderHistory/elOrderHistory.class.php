@@ -32,12 +32,22 @@ class elOrderHistory extends elDataMapping
 
 	function count($where = null)
 	{
-		$sql  = 'SELECT COUNT(id) AS total FROM '.$this->_tb;
+		$sql  = 'SELECT COUNT(id) AS count FROM '.$this->_tb;
 		$sql .= (!is_null($where) ? ' WHERE '.$where : '');
 		$db   = & elSingleton::getObj('elDb');
 		$db->query($sql);
 		$row = $db->nextRecord();
-		return $row['total'];
+		return $row['count'];
+	}
+	
+	function sumTotal($where = null)
+	{
+		$sql  = 'SELECT SUM(total) AS total FROM '.$this->_tb;
+		$sql .= (!is_null($where) ? ' WHERE '.$where : '');
+		$db   = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		$row = $db->nextRecord();
+		return (int)$row['total'];
 	}
 
 	function updateMtime($id = null)

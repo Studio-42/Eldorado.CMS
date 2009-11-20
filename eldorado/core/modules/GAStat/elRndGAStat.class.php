@@ -41,7 +41,8 @@ class elRndGAStat extends elModuleRenderer
 			if ($chart == 'line')
 			{
 				elAddJs(
-'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", "748", "250");
+'var GAwidth = $("#mc-content").width() - 20;
+var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", GAwidth, "250");
 chart.setDataURL("'.EL_URL.'xmlchart/'.$type.'");
 chart.render("chartLine");', EL_JS_SRC_ONREADY);
 				
@@ -86,7 +87,8 @@ chart.render("chartPie");', EL_JS_SRC_ONREADY);
 		elAddJs('FusionCharts.js', EL_JS_CSS_FILE);
 		
 		elAddJs(
-'var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", "748", "250");
+'var GAwidth = $("#mc-content").width() - 20;
+var chart = new FusionCharts("'.EL_BASE_URL.'/style/images/fusionchart/FCF_MSLine.swf", "ChartId", GAwidth, "250");
 chart.setDataURL("'.EL_URL.'xmlchart/db_visits");
 chart.render("chartLine");', EL_JS_SRC_ONREADY);
 		

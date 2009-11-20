@@ -100,7 +100,7 @@ class XMLChart
 
 	function generateChart($data, $type)
 	{
-		$r = '';
+		$r = '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
 		$graphType = $this->reportTypes[$type]['chart'];
 		switch ($graphType)
 		{
@@ -109,12 +109,12 @@ class XMLChart
 				$graphConf = $this->generateChartLine();
 				$category  = $this->generateCategory($data, $size);
 				$dataset   = $this->generateDataset( $data, $type, $size);
-				$r         = $graphConf.$category.$dataset;
+				$r        .= $graphConf.$category.$dataset;
 				break;
 			case 'pie':
 				$graphConf = $this->generateChartPie();
 				$set       = $this->generateSet($data, $type);
-				$r         = $graphConf.$set;
+				$r        .= $graphConf.$set;
 				break;
 			default:
 				$graphConf = '';

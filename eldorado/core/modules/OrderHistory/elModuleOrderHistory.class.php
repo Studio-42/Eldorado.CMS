@@ -4,18 +4,19 @@
  * Order history, displays data from IShop and TechShop orders
  *
  * @package OrderHistory
- * @version 1.0
+ * @version 1.1
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
 class elModuleOrderHistory extends elModule
 {
 	
 	var $_mMap = array(
-		'show'     => array('m' => 'showOrder'),
-		'user'     => array('m' => 'searchUser'),
-		'edit'     => array('m' => 'editOrder'),
-		'items'    => array('m' => 'editItem'),
-		'status'   => array('m' => 'changeStatus')
+		'show'      => array('m' => 'showOrder'),
+		'user'      => array('m' => 'searchUser'),
+		'edit'      => array('m' => 'editOrder'),
+		'items'     => array('m' => 'editItem'),
+		'status'    => array('m' => 'changeStatus'),
+		'analytics' => array('m' => 'showAnalytics')
 		);
 	
 	var $_conf = array(
@@ -154,6 +155,45 @@ class elModuleOrderHistory extends elModule
 		$this->_updateMtime($id);
 		elMsgBox::put(m('Status changed'));
 		elLocation(EL_URL . 'show/' . $id);
+	}
+
+	function showAnalytics()
+	{
+		$order = & elSingleton::getObj('elOrderHistory');
+		$thisMonthBegin = strtotime(date('Y-m-01'));
+		$graph_count = array();
+		$graph_sum = array();
+		
+		for ($i = 0; $i < 12; $i++)
+		{
+			$monthBegin = strtotime('-'.$i.' month', $thisMonthBegin);
+			$monthEnd   = strtotime('+1 month', $monthBegin) - 1;
+			$monthName  = date('M', $monthBegin);
+			$year = date('Y', $monthBegin);
+
+			$where = 'crtime >= '.$monthBegin.' AND crtime <= '.$monthEnd.' AND state<>"aborted"';
+			$count = $order->count($where);
+			$sum = $order->sumtotal($where);
+
+			$name = m($monthName) . ' ' . $year;
+			$graph_count[$name] = $count;
+			$graph_sum[$name]   = $sum;
+		}
+		
+		$chart  = & elSingleton::getObj('elFusionChart');
+		// type / data / width / height
+
+		$graph  = "<h2>".m('Orders')."</h2>\n";
+		$graph .= $chart->graph('column', array_reverse($graph_count), 700, 300,
+			array('rotateNames' => '1'));
+		
+		$chart->setColors(false);
+		$graph .= "<h2>".m('Income')."</h2>\n";
+		$graph .= $chart->graph('line', array_reverse($graph_sum), 700, 300,
+			array('rotateNames' => '1', 'chartRightMargin' => '40'));
+
+		$this->_initRenderer();
+		$this->_rnd->addToContent($graph);
 	}
 	
 	function _getOrder($id = null, $offset = null, $where = null)

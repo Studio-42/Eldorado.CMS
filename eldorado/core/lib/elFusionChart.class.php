@@ -4,12 +4,12 @@
  * Draw FusionCharts
  *
  * @package elFusionChart
- * @version 0.5
+ * @version 0.6
  * @author Troex Nevelin <troex@fury.scancode.ru>
  */
 class elFusionChart
 {
-	var $colors = array(
+	var $_defaultColors = array(
 		'058dc7', '50b432', 'ed561b', 'edef00',
 		'24cbe5', '64e572', 'ff9655', 'fff263',
 		'6af9c4', 'b2deff', 'ffc880', 'ffffa0',
@@ -26,6 +26,7 @@ class elFusionChart
 	var $xml;
 	var $width  = 480;
 	var $height = 320;
+	var $colors = array();
 	
 	function __construct()
 	{
@@ -66,12 +67,28 @@ class elFusionChart
 		return $r;
 	}
 	
-	function setColors($colors)
+	function setColors($colors = null)
 	{
 		if (isset($colors))
 			$this->colors = $colors;
+		else
+			$this->colors = $this->_defaultColors;
 		$this->xml->colors = $this->colors;
 		return true;
+	}
+	
+	function legendVertical($data)
+	{
+		$pixel = EL_BASE_URL . '/style/images/pixel.gif';
+		$legend = '';
+		$i = 0;
+		foreach ($data as $name => $value) 
+		{
+			$legend .= '<img width="10" height="10" class="rounded-5" style="background-color: #'
+			        .  $this->colors[$i] . ';" src="' . $pixel . '" />&nbsp;' . $name . '<br /><br />';
+			$i++;
+		}
+		return '<div style="margin-left: 50px;">' . $legend . '</div>';
 	}
 }
 
@@ -121,7 +138,6 @@ class elFusionChartXML
 		{
 			if ($this->colors != false)
 				$color = " color='".$this->colors[$c]."'";
-			list($dim, $title) = explode('=', $node['TITLE']);
 			$r .= "\t<set".$color." name='".$name."' value='".$value."' />\n";
 			$c++;
 		}

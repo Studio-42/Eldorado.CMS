@@ -57,4 +57,5 @@ class elOrderHistory extends elDataMapping
 		$this->attr('mtime', time());
 		$this->save();
 	}
+
 }

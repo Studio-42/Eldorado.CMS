@@ -29,3 +29,6 @@ $elMsg['Order #%s not found']= 'Заказ #%s не найден';
 $elMsg['Orders']             = 'Количество заказов';
 $elMsg['Income']             = 'Доход';
 $elMsg['Statistics']         = 'Статистика';
+$elMsg['Other goods']        = 'Другие товары';
+$elMsg['Top selling goods']  = 'Самые продоваемые товары';
+$elMsg['Average order amount']  = 'Сердняя сумма заказа';

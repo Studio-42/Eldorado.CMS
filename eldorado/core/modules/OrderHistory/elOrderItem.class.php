@@ -8,7 +8,13 @@ class elOrderItem extends elDataMapping
 	var $uID      = 0;
 	var $label    = '';
 	var $value    = 0;
-	
+
+	var $code;
+	var $name;
+	var $qnt;
+	var $price;
+	var $props;
+
 	function _initMapping()
 	{
 		return array(
@@ -127,4 +133,38 @@ class elOrderItem extends elDataMapping
 		$items = $this->collection(false, false, 'order_id='.$this->order_id);		
 		return $items;
 	}
+
+	function top10()
+	{
+		$top = array();
+		$qnt = 0;
+		$sum = 0;
+		$sql =
+'SELECT i.name, SUM(i.price) AS sum, SUM(i.qnt) AS qnt, i.price
+FROM el_order_item AS i, el_order AS o
+WHERE i.order_id = o.id AND o.state <> "aborted"
+GROUP BY i.code ORDER BY qnt DESC  LIMIT 12';
+		$db   = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		while ($r = $db->nextRecord())
+		{
+			$qnt += $r['qnt'];
+			$sum += $r['sum'];
+			$name = $r['name'] . ' ('. m('Quantity') . ': '. $r['qnt'] . ', '
+			      . m('Total') . ': '. (int)$r['sum'] . ', '
+			      . m('Price') . ': ' . $r['price'] . ')';
+			$top[$name] = $r['qnt'];
+		}
+		$sql =
+'SELECT SUM(i.price) AS sum, SUM(i.qnt) AS qnt
+FROM el_order_item AS i, el_order AS o
+WHERE i.order_id = o.id AND o.state <> "aborted" LIMIT 1';
+		$db->query($sql);
+		$r = $db->nextRecord();
+		$name = m('Other goods') . ' ('. m('Quantity') . ': '. $r['qnt'] . ', '
+		      . m('Total') . ': '. ($r['sum'] - $sum) . ')';
+		$top[$name] = $r['qnt'] - $qnt;
+		return $top;
+	}
+
 }

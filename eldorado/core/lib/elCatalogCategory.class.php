@@ -114,6 +114,7 @@ class elCatalogCategory extends elMemberAttribute
       if ( !$this->ID )
       {
         //new node
+		$this->_new = true;
         $vals = $this->getAttrs(); unset($vals['id'], $vals['level']);
         return $this->tree->insert( $parentID, $vals );
       }

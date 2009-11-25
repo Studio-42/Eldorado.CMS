@@ -8,6 +8,7 @@ class elMemberAttribute
 	var $_uniq            = 'id';
 	var $_formRndClass    = 'elTplFormRenderer';
 	var $_objName         = 'Object';
+	var $_new             = false;
 
 	function elMemberAttribute( $attrs=null, $tb=null, $uniq=null )
 	{
@@ -248,6 +249,7 @@ class elMemberAttribute
 	{
 		$db   = & $this->_getDb();;
 		$vals = $this->_attrsForSave();
+		$this->_test = 'SAVE';
 
 		if ( !$vals[$this->_uniq] )
 		{
@@ -273,6 +275,7 @@ class elMemberAttribute
 		{
 			if ( !$this->getUniqAttr() )
 			{
+				$this->_new = true;
 				$this->setUniqAttr( $db->insertID() );
 			}
 			return true;

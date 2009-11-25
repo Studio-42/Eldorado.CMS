@@ -86,6 +86,7 @@ class elModuleAdminTechShop extends elModuleTechShop
     }
     list($iUpd, $mUpd, $nFnd, $pRows) = $this->_updatePrice($price);
     elMsgBox::put( sprintf( m('There are %d items and %d models was updated, %d records was not found. Total found %d records in csv file.'), $iUpd, $mUpd, $nFnd, $pRows));
+    elActionLog('Price', 'update', '', '');
     elLocation(EL_URL);
   }
 
@@ -107,6 +108,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($cat, false, $this->_cat->ID, $cat->name);
 			elLocation( EL_URL.$this->_cat->ID );
 		}
 	}
@@ -125,6 +127,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
 				array($cat->getObjName(), $cat->name),	EL_URL.$this->_cat->ID);
 		}
+		elActionLog($cat, 'delete', false, $cat->name);
 		$cat->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
 		elLocation(EL_URL.$this->_cat->ID);
@@ -182,6 +185,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 		else
 		{
+			elActionLog($item, false, $this->_cat->ID.'/'.$item->ID, $item->name);
 			elMsgBox::put( m('Data saved') );
 			if ('mnf' == $this->_arg(2))
 			{
@@ -204,6 +208,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 				array($item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
 		}
+		elActionLog($item, 'delete', $this->_cat->ID, $item->name);
 		$item->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $item->getObjName(), $item->name) );
 		if ('mnf' == $this->_arg(2))
@@ -229,6 +234,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 		else
 		{
+			elActionLog($item, 'sort', $this->_cat->ID, false);
 			elMsgBox::put( m('Data saved') );
 			elLocation(EL_URL.$this->_cat->ID);
 		}
@@ -250,6 +256,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Selected documents was deleted') );
+			elActionLog($item, 'items delete', $this->_cat->ID, $this->_cat->name);
 			elLocation(EL_URL.$this->_cat->ID);
 		}
 	}
@@ -278,11 +285,12 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 		else
 		{
+			elActionLog($model, false, $this->_cat->ID, $model->name);
 			elMsgBox::put( m('Data saved') );
 			if ('mnf' == $this->_arg(2))
-		   {
-		       elLocation(EL_URL.'mnf_items/'.$item->mnfID.'/');
-		    }
+			{
+				elLocation(EL_URL.'mnf_items/'.$item->mnfID.'/');
+			}
 			elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID);
 		}
 	}
@@ -327,6 +335,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 				array($model->getObjName(), $this->_arg(2)),EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID);
 		}
+		elActionLog($model, 'delete', false, $model->name);
 		$this->_item->deleteModel($model);
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $model->getObjName(), $model->name) );
 		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID);
@@ -345,6 +354,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($mnf, false, 'mnfs/', $mnf->name);
 			elLocation(EL_URL.'mnfs/');
 		}
 	}
@@ -362,6 +372,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
 				array($mnf->getObjName(), $mnf->name), EL_URL.'mnfs/');
 		}
+		elActionLog($mnf, 'delete', false, $mnf->name);
 		$mnf->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $mnf->getObjName(), $mnf->name) );
 		elLocation(EL_URL.'mnfs/');
@@ -389,6 +400,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($ftg, false, 'ftg/', $mnf->name);
 			elLocation(EL_URL.'ftg/');
 		}
 	}
@@ -406,6 +418,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
 				array($ftg->getObjName(), $ftg->name), EL_URL.'ftg/');
 		}
+		elActionLog($ftg, 'delete', false, $ftg->name);
 		$ftg->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $ftg->getObjName(), $ftg->name) );
 		elLocation(EL_URL.'ftg/');
@@ -425,6 +438,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 	    $this->_initRenderer();
 	    return $this->_rnd->addToContent( $ftg->formToHtml() );
 	  }
+	elActionLog($ftg, 'sort', 'ftg/', '');
     elMsgBox::put( m('Data saved') );
     elLocation( EL_URL.'ftg/');
 	}
@@ -442,6 +456,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($ft, false, 'ftg/', $ft->name);
 			elLocation(EL_URL.'ftg/');
 		}
 	}
@@ -459,6 +474,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
 				array($ft->getObjName(), $ft->name), EL_URL.'ftg/');
 		}
+		elActionLog($ft, 'delete', false, $ft->name);
 		$ft->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $ft->getObjName(), $ft->name) );
 		elLocation(EL_URL.'ftg/');
@@ -485,7 +501,8 @@ class elModuleAdminTechShop extends elModuleTechShop
 		if ($ftg->sortFeatures() )
 		{
 		  elMsgBox::put( m('Data saved') );
-      elLocation( EL_URL.'ftg/');
+		  elActionLog($ftg, 'sort', 'ftg/', '');
+		  elLocation( EL_URL.'ftg/');
 		}
 		$this->_initRenderer();
 		$this->_rnd->addToContent( $ftg->formToHtml() );
@@ -508,6 +525,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($item, 'set', 'item/'.$this->_cat->ID.'/'.$item->ID, $item->name);
 			elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
 		}
 
@@ -530,6 +548,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		else
 		{
 			elMsgBox::put( m('Data saved') );
+			elActionLog($item, 'set', 'item/'.$this->_cat->ID.'/'.$item->ID, $item->name);
 			elLocation(EL_URL.'set_ft/'.$this->_cat->ID.'/'.$item->ID.'/');
 		}
 

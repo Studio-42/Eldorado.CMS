@@ -27,7 +27,7 @@ class elFusionChart
 	var $width  = 480;
 	var $height = 320;
 	var $colors = array();
-	
+
 	function __construct()
 	{
 		$this->xml = new elFusionChartXML;
@@ -66,7 +66,7 @@ class elFusionChart
 		$r .= "</fusioncharts>\n";
 		return $r;
 	}
-	
+
 	function setColors($colors = null)
 	{
 		if (isset($colors))
@@ -76,13 +76,13 @@ class elFusionChart
 		$this->xml->colors = $this->colors;
 		return true;
 	}
-	
+
 	function legendVertical($data)
 	{
 		$pixel = EL_BASE_URL . '/style/images/pixel.gif';
 		$legend = '';
 		$i = 0;
-		foreach ($data as $name => $value) 
+		foreach ($data as $name => $value)
 		{
 			$legend .= '<img width="10" height="10" class="rounded-5" style="background-color: #'
 			        .  $this->colors[$i] . ';" src="' . $pixel . '" />&nbsp;' . $name . '<br /><br />';

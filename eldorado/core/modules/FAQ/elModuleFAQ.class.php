@@ -41,6 +41,7 @@ class elModuleFAQ extends elModule
 		}
 		if ( $q->editAndSave( array('admin'=>$admin, 'cList'=>$cList) ) )
 		{
+			elActionLog($q, false, '', $q->question);
 			elMsgBox::put($msg);
 			elLocation(EL_URL);
 		}

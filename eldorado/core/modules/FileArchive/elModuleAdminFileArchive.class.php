@@ -42,6 +42,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
     else
     {
       elMsgBox::put( m('Data saved') );
+      elActionLog($cat, false, $this->_cat->ID, $cat->name);
       elLocation( EL_URL.$this->_cat->ID );
     }
   }
@@ -62,6 +63,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
               array($cat->getObjName(),$cat->name),
               EL_URL.$this->_cat->ID);
     }
+	elActionLog($cat, 'delete', false, $cat->name);
     $cat->delete();
     elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
     elLocation(EL_URL.$this->_cat->ID);
@@ -122,6 +124,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
     else
     {
       elMsgBox::put( m('Data saved') );
+      elActionLog($item, false, $this->_cat->ID, $item->name);
       elLocation(EL_URL.$this->_cat->ID);
     }
   }
@@ -135,6 +138,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
   			array($item->getObjName(), $item->ID),
   			EL_URL.$this->_cat->ID);
   	}
+    elActionLog($item, 'delete', $this->_cat->ID, $item->name);
   	$item->delete();
   	elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $item->getObjName(), $item->name) );
   	elLocation(EL_URL.$this->_cat->ID);
@@ -157,6 +161,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
     else
     {
       elMsgBox::put( m('Data saved') );
+	  elActionLog($item, 'sort', $this->_cat->ID, false);
       elLocation(EL_URL.$this->_cat->ID);
     }
   }
@@ -177,6 +182,7 @@ class elModuleAdminFileArchive extends elModuleFileArchive
     else
     {
       elMsgBox::put( m('Selected documents was deleted') );
+	  elActionLog($item, 'items delete', $this->_cat->ID, $this->_cat->name);
       elLocation(EL_URL.$this->_cat->ID);
     }
   }

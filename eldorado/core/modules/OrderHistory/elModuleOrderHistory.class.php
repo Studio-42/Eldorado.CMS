@@ -4,7 +4,7 @@
  * Order history, displays data from IShop and TechShop orders
  *
  * @package OrderHistory
- * @version 1.1
+ * @version 1.2
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
 class elModuleOrderHistory extends elModule

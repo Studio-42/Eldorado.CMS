@@ -115,7 +115,7 @@ $GLOBALS['_css_']       = array(
  */
 $GLOBALS['pagePath'] = array();
 
-
+include_once EL_DIR_CORE.'lib/elActionLog.lib.php';
 include_once EL_DIR_CORE.'lib/elCore.class.php';
 include_once EL_DIR_CORE.'lib/elCore.lib.php';
 include_once EL_DIR_CORE.'lib/elMsgBox.class.php';

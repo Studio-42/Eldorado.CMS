@@ -19,6 +19,7 @@ class elModuleAdminFAQ extends elModuleFAQ
 		if ($cat->editAndSave())
 		{
 			elMsgBox::put(m('Data saved'));
+			elActionLog($cat, false, '', $cat->name);
 			elLocation(EL_URL);
 		}
 		$this->_initRenderer();
@@ -41,10 +42,11 @@ class elModuleAdminFAQ extends elModuleFAQ
 			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
               array($cat->getObjName(), $cat->getAttr('cname')), EL_URL);
 		}
+		elActionLog($cat, 'delete', false, $cat->name);
 		$cat->delete();
 		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'),
-									$cat->getObjName(), $cat->getAttr('cname')) );
-    elLocation(EL_URL);
+			$cat->getObjName(), $cat->getAttr('cname')) );
+		elLocation(EL_URL);
 	}
 
 
@@ -61,16 +63,18 @@ class elModuleAdminFAQ extends elModuleFAQ
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 		  				array($q->getObjName(), $q->getUniqAttr()), EL_URL);
 		}
+		elActionLog($q, 'delete', false, $q->question);
 		$q->delete();
 		$name = substr($q->getAttr('question'), 0, 25).'...';
 		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $q->getObjName(), $name) );
-    elLocation(EL_URL);
+		elLocation(EL_URL);
 	}
 
 	function sortCategories()
 	{
 		$this->_loadCollection();
 		$this->_makeSort($this->_collection);
+		// elActionLog($this->_collection, 'sort', '', false);
 	}
 
 	function sortQuestions()
@@ -88,6 +92,7 @@ class elModuleAdminFAQ extends elModuleFAQ
 		  				$this->_collection[$ID]->getAttr('cname'), EL_URL);
 		}
 		$this->_makeSort($this->_collection[$ID]->quests, false);
+		// elActionLog($this->_collection, 'sort', '', false);
 	}
 
 

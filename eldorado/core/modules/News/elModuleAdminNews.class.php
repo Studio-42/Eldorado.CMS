@@ -28,6 +28,7 @@ class elModuleAdminNews extends elModuleNews
       elMsgBox::put( m('Data saved') );
       $fromItem = $this->_arg(2);
       $URL = $fromItem ? 'read/'.$this->_pageNum.'/'.$news->ID : $this->_pageNum;
+      elActionLog($news, false, $URL, $news->title);
       elLocation( EL_URL.$URL );
     }
   }
@@ -42,6 +43,7 @@ class elModuleAdminNews extends elModuleNews
     }
     $news->delete();
     elMsgBox::put( sprintf( m('Object "%s" "%s" was deleted'), $news->getObjName(), $news->title) );
+	elActionLog($news, 'delete', false, $news->title);
     elLocation( EL_URL.$this->_pageNum );
   }
 

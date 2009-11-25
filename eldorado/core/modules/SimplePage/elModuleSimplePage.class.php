@@ -31,6 +31,7 @@ class elModuleSimplePage extends elModule
 		if ( $this->_page->editAndSave() )
 		{
 			elMsgBox::put(m('Data saved'));
+			elActionLog($this->_page, false, '', $this->_page->content);
 			elLocation(EL_URL);
 		}
 		$this->_initRenderer();

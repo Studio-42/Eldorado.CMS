@@ -31,6 +31,7 @@ class elModuleAdminLinksCatalog extends elModuleLinksCatalog
     else
     {
       elMsgBox::put( m('Data saved') );
+      elActionLog($cat, false, $this->_cat->ID, $cat->name);
       elLocation( EL_URL.$this->_cat->ID );
     }
   }
@@ -51,6 +52,7 @@ class elModuleAdminLinksCatalog extends elModuleLinksCatalog
               array($cat->getObjName(),$cat->name),
               EL_URL.$this->_cat->ID);
     }
+	elActionLog($cat, 'delete', false, $cat->name);
     $cat->delete();
     elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
     elLocation(EL_URL.$this->_cat->ID);
@@ -111,6 +113,7 @@ class elModuleAdminLinksCatalog extends elModuleLinksCatalog
     else
     {
       elMsgBox::put( m('Data saved') );
+      elActionLog($item, false, $this->_cat->ID, $item->name);
       elLocation(EL_URL.$this->_cat->ID);
     }
   }
@@ -124,6 +127,7 @@ class elModuleAdminLinksCatalog extends elModuleLinksCatalog
   			array($item->getObjName(), $item->ID),
   			EL_URL.$this->_cat->ID);
   	}
+    elActionLog($item, 'delete', false, $item->name);
   	$item->delete();
   	elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $item->getObjName(), $item->name) );
   	elLocation(EL_URL.$this->_cat->ID);

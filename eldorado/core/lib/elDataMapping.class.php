@@ -14,6 +14,7 @@ class elDataMapping
 	var $__id__        = 'ID';
 	var $_formRndClass = 'elTplFormRenderer';
 	var $_objName      = 'Object';
+	var $_new          = false;
 	
 	function __construct( $attr=null, $tb=null, $id=null )
 	{
@@ -179,10 +180,10 @@ class elDataMapping
 		if ( $this->_form->isSubmitAndValid() && $this->_validForm() )
 		{
 			$this->attr( $this->_form->getValue() );
-			$isNew = !(bool)$this->idAttr();
+			$this->_new = !(bool)$this->idAttr();
 			if ( $this->save() )
 			{
-				return $this->_postSave($isNew, $params);
+				return $this->_postSave($this->_new, $params);
 			}
 		}
 	}

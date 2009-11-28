@@ -35,6 +35,7 @@ function elActionLog($obj, $act = false, $link = false, $value = false)
 	$elActLog['link'] = EL_URL . $link;
 	$elActLog['value'] = substr(strip_tags($value), 0, 63);
 
+	// TODO update datamapping and memberattributes
 	// $elActLog[''] = ;
 	// $elActLog[''] = ;
 	// $elActLog[''] = ;

@@ -70,6 +70,7 @@ class elCore
 
 	function run()
 	{
+		
 		$conf = & elSingleton::getObj('elXmlConf');
 		$isCart = 'EShop' == $this->mName && !empty($this->ars[0]) && 'order' == $this->args[0];
 
@@ -78,7 +79,8 @@ class elCore
 			return $this->_outputXML();
 		}
 		else
-		{
+		{	
+			// backup
 			$this->_outputHTML( $conf->get('gzOutputAllow'), $conf->get('timer') ? utime() - $this->_ts : '');
 			$period = $conf->get('auto', 'backup');
 			if ($period && time()-$period*86400 > $conf->get('ts', 'backup'))
@@ -94,7 +96,37 @@ class elCore
 				}
 				$conf->save();
 			}
+			
+			// ActionLog
+			$nav = & elSingleton::getObj('elNavigator');
+			$module = $nav->findByModule('ActionLog');
+			$module = $module[0];
+			if ($module > 0)
+			{
+				if (($conf->get('reportNext', $module) < time()) and ($conf->get('reportPeriod', $module) > 0))
+				{
+					$last    = $this->_conf['reportLast'];
+					$next    = $this->_conf['reportNext'];
+					$type    = $this->_conf['reportType'];
+
+					elSingleton::incLib('./modules/ActionLog/elModuleActionLog.class.php', true);
+					$this->module = & elSingleton::getObj('elModuleActionLog');
+					$this->module->init($this->pageID, $this->args, $this->mName, EL_FULL);
+					$this->module->report(
+						$conf->get('reportLast', $module),
+						$conf->get('reportNext', $module),
+						$conf->get('reportType', $module),
+						$conf->get('reportPeriod', $module),
+						$conf->get('reportEmail', $module)
+						);
+					$conf->set('reportLast', time(), $module);
+					$conf->set('reportNext', time() + ($conf->get('reportPeriod', $module) * 86400), $module);
+					$conf->save();
+				}
+				
+			}
 		}
+		
 	}
 
 	// ======================   PRIVATE METHODS ========================= //

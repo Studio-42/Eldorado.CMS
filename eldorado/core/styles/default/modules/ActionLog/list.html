@@ -1,0 +1,26 @@
+<table class="full nice">
+	<tr>
+		<th>ID</th>
+		<th>{m('Module')}</th>
+		<th>{m('User')}</th>
+		<th>{m('Time')}</th>
+		<th>{m('Object')}</th>
+		<th>{m('Action')}</th>
+		<th>{m('Value')}</th>		
+		<th>{m('Link')}</th>
+	</tr>
+	<!-- BEGIN RECORD -->
+	<tr {color}>
+		<td>{id}</td>
+		<td>{module}</td>
+		<td>{user}</td>
+		<td>{time}</td>
+		<td>{m('{object}')}</td>
+		<td>{m('{action}')}</td>
+		<td>{value}</td>		
+		<td><a href="{link}">&rarr;</a></td>
+	</tr>
+	<!-- END RECORD -->
+</table>
+
+{PAGER}

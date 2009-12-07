@@ -1,0 +1,40 @@
+{form}
+<script type="text/javascript" charset="utf-8">
+	$().ready(function(){
+		$(".multiselect-opts").find(":checkbox[name=cats\[0\]]").change(function() {
+			// var c = $(this).parent().siblings("label").children(":checkbox");
+			var c = $(this).nextAll(":checkbox");
+			if ($(this).attr("checked")) {
+				c.attr("disabled", "on");
+			} else {
+				c.removeAttr("disabled");
+			}
+		}).trigger("change");
+	})
+</script>
+<!-- BEGIN RESULT -->
+	<!-- BEGIN FOUND -->
+	<div>
+		{ico}
+		<a href="{posturl}" class="mod-forum-post-subj"><strong>{subject}</strong></a> {m('by')} {author_name}
+		<span class="mod-forum-post-date">({crtime})</span><br />
+		<span style="font-style: italic;">{category}</span><br />
+		{message}<br /><br />
+	</div>
+	<!-- END FOUND -->
+	<!-- BEGIN NEXT -->
+	<a href="#" class="my-next" style="float: right;">{m('More results')} &gt;&gt;</a>
+	<script type="text/javascript" charset="utf-8">
+		$().ready(function(){
+			$('a.my-next').click(function(e){
+				e.preventDefault();
+				$('#MYforumSearch').append('<input type="hidden" name="next" value="{next}">').submit();
+			})
+		})
+	</script>
+	<!-- END NEXT -->
+<!-- END RESULT -->
+
+<!-- BEGIN NOT_FOUND -->
+<h2 style="margin-top: 20px; text-align: center;">{m('Nothing found')}</h2>
+<!-- END NOT_FOUND -->

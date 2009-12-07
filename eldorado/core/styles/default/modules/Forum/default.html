@@ -6,6 +6,7 @@
 				<!-- BEGIN USERS_LINK -->
 				<span style="color:#444">|</span> <a href="{URL}moderators/{forum_current_cat_id}/">{m('Moderators')}</a>
 				<span style="color:#444">|</span> <a href="{URL}users/">{m('Users')}</a>
+				<span style="color:#444">|</span> <a href="{URL}search/">{m('Search')}</a>
 				<!-- END USERS_LINK -->
 			</td>
 			<td class="last">
@@ -62,7 +63,16 @@
 					<a href="{URL}users_by_name/{letter}/"><strong>{letter}</strong></a>
 					<!-- END ULETTER -->
 				<!-- END ULETTERS -->
-				
+				<!-- BEGIN TOPIC_SEARCH -->
+				<div class="mod-forum-button" style="border: 0;">
+				<form method="POST" action="{URL}search/topic/#MYforumSearch">
+					<input name="_form_"   ID="_form_"   value="MYforumSearch" type="hidden" />
+					<input name="flexible" ID="flexible" value="yes"           type="hidden" />
+					<input name="topic"    ID="topic"    value="{topic_id}"    type="hidden" />
+					{m('Search in topic')} <input size="20" name="search" ID="search" value="" type="text" />
+				</form>
+				</div>
+				<!-- END TOPIC_SEARCH -->
 				<!-- BEGIN BUTTON_POST_REPLY -->
 				<div class="mod-forum-button mod-forum-button-post-reply"><a href="{URL}post/{cat_id}/{topic_id}/">{m('Reply')}</a></div>
 				<!-- END BUTTON_POST_REPLY -->

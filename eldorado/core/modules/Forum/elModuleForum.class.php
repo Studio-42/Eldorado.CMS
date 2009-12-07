@@ -46,7 +46,8 @@ class elModuleForum extends elModule
 		'profile_edit'  => array('m' => 'profileEdit'),
 		'reg'           => array('m' => 'profileNew'),
 		'passwd'        => array('m' => 'passwd'),
-		'rules'         => array('m' => 'rules')
+		'rules'         => array('m' => 'rules'),
+		'search'        => array('m' => 'search')
 		);
 		
 	var $_conf = array(
@@ -855,8 +856,44 @@ class elModuleForum extends elModule
 	}
 	
 	
-	
-	
+	/**
+	 * Расширенный поиск по форуму
+	 *
+	 * @return void
+	 * @author Troex Nevelin
+	 **/
+	function search()
+	{
+		$results = false;
+		$next    = 0;
+		$search  = & elSingleton::getObj('elForumSearch');
+		$search->_resultsOnPage = $this->_conf['postsNum'];
+
+		// find correct url post and go to it
+		if ($this->_arg(0) == 'findPost')
+		{
+			$url = $search->findPost($this->_arg(1));
+			if ($url != false)
+				elLocation($url);
+		}
+
+		$search->_cats = $this->_cats;
+		$form = $search->makeForm($this->_cats);
+		if ($form->isSubmitAndValid())
+		{
+			$results = $search->search($form->_submitedData);
+			if (count($results) >= $this->_conf['postsNum'])
+				$next = 1 + (isset($form->_submitedData['next']) ? (int)$form->_submitedData['next'] : 0);
+		}
+
+		$this->_initRenderer();
+		if ($this->_arg(0) == 'topic')
+			$formHtml = '';
+		else
+			$formHtml = $form->toHtml();
+		$this->_rnd->rndSearchResult($results, $next, $formHtml);
+	}
+
 	/**
 	 * Показывает правила форума на текущем языке
 	 *

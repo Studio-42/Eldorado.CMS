@@ -166,4 +166,25 @@ $elMsg['Counts posts in this forum for authors'] = 'Учитывать сооб�
 $elMsg['Edit root forum'] = 'Редактировать корневой форум';
 $elMsg['New forum']       = 'Новый форум';
 
+
+// Search
+$elMsg['Category']               = 'Раздел';
+$elMsg['Search in sub forums? '] = 'Искать в подразделах?';
+$elMsg['Use flexible search ']   = 'Гибкий поиск';
+$elMsg['Search in subjects ']    = 'Искать в темах сообщений';
+$elMsg['Search messages for ']   = 'Искать за';
+
+$elMsg['All time']               = 'всё время';
+$elMsg['Year']                   = 'год';
+$elMsg['Month']                  = 'месяц';
+$elMsg['Week']                   = 'неделю';
+$elMsg['Day']                    = 'день';
+
+$elMsg['More results']           = 'Ещё искать';
+$elMsg['Nothing found']          = 'Ничего не найдено';
+
+$elMsg['Search in topic']        = 'Искать в теме';
+ 
+
+
 ?>

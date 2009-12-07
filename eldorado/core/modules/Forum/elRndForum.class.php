@@ -12,7 +12,8 @@ class elRndForum extends elModuleRenderer
 		'topic'   => 'topic.html',
 		'post'    => 'post.html',
 		'users'   => 'users.html',
-		'profile' => 'profile.html'
+		'profile' => 'profile.html',
+		'search'  => 'search.html'
 		);
 		
 	/**
@@ -335,8 +336,7 @@ class elRndForum extends elModuleRenderer
 			}
 		}
 	}
-	
-	
+		
 	function rndProfile($profile, $forums)
 	{
 		elLoadMessages('UserProfile');
@@ -400,6 +400,25 @@ class elRndForum extends elModuleRenderer
 	{
 		$this->_setFile('post');
 		$this->_te->assignVars('POST_FORM', $form);
+	}
+
+	function rndSearchResult($results, $next, $form)
+	{
+		$this->_setFile('search');
+		$this->_te->assignVars(array('form' => $form));
+		
+		foreach ($results as $r)
+		{
+			// elPrintR($r);
+			$r['crtime'] = date(EL_DATETIME_FORMAT, $r['crtime']);
+			$this->_te->assignBlockVars('RESULT.FOUND', $r, 1);
+		}
+		
+		if ($next > 0)
+			$this->_te->assignBlockVars('RESULT.NEXT', array('next' => $next));
+		
+		if (is_array($results) and (sizeof($results) == 0))
+			$this->_te->assignBlockVars('NOT_FOUND');
 	}
 	
 	/**
@@ -478,6 +497,11 @@ class elRndForum extends elModuleRenderer
 			$this->_te->assignBlockVars('FORUM_TOP_PANEL.BUTTON_POST_REPLY', $data, 1); 
 			$this->_te->assignBlockVars('FORUM_BOT_PANEL.BUTTON_POST_REPLY', $data, 1);
 		}
+		if ('topic' == $context && $this->_acl('view'))
+		{
+			$this->_te->assignBlockVars('FORUM_TOP_PANEL.TOPIC_SEARCH', $data, 1); 
+			// $this->_te->assignBlockVars('FORUM_BOT_PANEL.TOPIC_SEARCH', $data, 1);
+		}		
 		
 		if ($total>1)
 		{

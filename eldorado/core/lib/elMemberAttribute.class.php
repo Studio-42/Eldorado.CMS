@@ -249,7 +249,6 @@ class elMemberAttribute
 	{
 		$db   = & $this->_getDb();;
 		$vals = $this->_attrsForSave();
-		$this->_test = 'SAVE';
 
 		if ( !$vals[$this->_uniq] )
 		{

@@ -14,6 +14,7 @@ class elDataMapping
 	var $__id__        = 'ID';
 	var $_formRndClass = 'elTplFormRenderer';
 	var $_objName      = 'Object';
+	var $_new          = false;
 	
 	function __construct( $attr=null, $tb=null, $id=null )
 	{
@@ -21,7 +22,7 @@ class elDataMapping
 		$this->id($id ? $id : $this->_id);
 		$this->attr($attr);
 	}
-		
+	
 	function getObjName()
 	{
 		return m($this->_objName);
@@ -36,7 +37,7 @@ class elDataMapping
 	{
 		if (!is_null($id))
 		{
-			$map = $this->_memberMapping(); 
+			$map = $this->_memberMapping();
 			$this->__id__ = $map[$this->_id = $id];
 		}
 		return $this->_id;
@@ -69,6 +70,9 @@ class elDataMapping
 	
 	function idAttr($val=null)
 	{
+		// echo get_class($this).' ';
+		// echo $this->__id__.' '.'<br>';
+		// elPrintR($this);
 		return is_null($val) ? $this->{$this->__id__} : $this->{$this->__id__} = $val;
 	}
 	
@@ -97,7 +101,7 @@ class elDataMapping
 	function clean()
 	{
 		$map = $this->_memberMapping();
-		foreach ( $mapping as $a=>$m )
+		foreach ( $map as $a=>$m )
 		{
 			$this->$m = '';
 		}
@@ -169,10 +173,10 @@ class elDataMapping
 		if ( $this->_form->isSubmitAndValid() && $this->_validForm() )
 		{
 			$this->attr( $this->_form->getValue() );
-			$isNew = !(bool)$this->idAttr();
+			$this->_new = !(bool)$this->idAttr();
 			if ( $this->save() )
 			{
-				return $this->_postSave($isNew, $params);
+				return $this->_postSave($this->_new, $params);
 			}
 		}
 	}
@@ -238,12 +242,13 @@ class elDataMapping
 			}
 		}
 	}
-	
+
 	function deleteAll()
 	{
 		$db = & elSingleton::getObj('elDb');
 		return $db->query('TRUNCATE TABLE '.$this->_tb);
 	}
+
 	/********************************************/
 	/**                PRIVATE                 **/
 	/********************************************/	

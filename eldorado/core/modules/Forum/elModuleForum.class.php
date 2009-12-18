@@ -37,6 +37,7 @@ class elModuleForum extends elModule
 		'sticky'        => array('m' => 'sticky'),
 		'lock'          => array('m' => 'lock'),
 		'topic_move'    => array('m' => 'topicMove'),
+		'topic_merge'   => array('m' => 'topicMerge'),
 		'users'         => array('m' => 'usersList'),
 		'users_by_name' => array('m' => 'usersListByName'),
 		'moderators'    => array('m' => 'moderators'),
@@ -855,7 +856,98 @@ class elModuleForum extends elModule
 		$this->_path[] = array('url'=>'profile/'.$profile->UID, 'name'=>m('User profile').' '.$profile->getName());
 	}
 	
-	
+	/**
+	 * Слияние (объединение) тем
+	 *
+	 * @return void
+	 * @author Troex Nevelin
+	 */
+	function topicMerge()
+	{
+		if (!$this->_admin && !$this->_acl('topic_move'))
+		{
+			elThrow(E_USER_WARNING, 'Action not allowed! Reason: %s.', 'Only moderators can move topics', EL_URL.$this->_catID);
+		}
+		
+		$t1 = & $this->_topic((int)$this->_arg(1));
+		$subj1 = $t1->subject;
+		$subj2 = false;
+		$merge_to = false;
+		
+		// elPrintR($t1);
+		
+		if (isset($_POST['merge_to']))
+		{
+			$t2 = & $this->_topic2((int)$_POST['merge_to']);
+			if (isset($t2->ID) and ($t2->ID > 0) and ($t2->ID != $t1->ID))
+			{
+				$subj2 = $t2->subject;
+				$merge_to = $t2->ID;
+				
+				if (isset($_POST['merge']) and ($_POST['merge'] == 'yes'))
+				{
+					$db = &elSingleton::getObj('elDb');
+					
+					// reorder posts 
+					if (isset($_POST['order']) and ($_POST['order'] == 'after'))
+					{
+						$db->query(sprintf('SELECT MAX(crtime) as maxtime FROM %s WHERE topic_id=%d LIMIT 1', $this->_tbp, $t2->ID));
+						$r = $db->nextRecord();
+						$maxtime = $r['maxtime'];
+
+						$sqls = array();
+						$crtime = 0;
+						$db->query(sprintf('SELECT id FROM %s WHERE topic_id=%d AND crtime<=%d', $this->_tbp, $t1->ID, $maxtime));
+						while ($r = $db->nextRecord())
+						{
+							$crtime += 60;
+							$sql = sprintf('UPDATE %s SET crtime=%d WHERE id=%d', $this->_tbp, ($maxtime + $crtime), $r['id']);
+							array_push($sqls, $sql);
+						}
+						foreach ($sqls as $q)
+						{
+							$db->query($q);
+						}
+					}
+
+					$db->query(sprintf('UPDATE %s SET cat_id="%d", topic_id="%d" WHERE topic_id="%d"', $this->_tbp, $t2->catID, $t2->ID, $t1->ID));
+					$postsNum = $db->affectedRows();
+					$topic = & $this->_topic($t1->ID);
+					$topic->delete();
+					
+					$db->query(sprintf('UPDATE %s SET
+						first_post_id=(SELECT MIN(id) FROM %s WHERE topic_id=%d),
+						last_post_id=(SELECT MAX(id) FROM %s WHERE topic_id=%d),
+						num_replies=num_replies+%d WHERE id="%d"',
+						$this->_tbt, $this->_tbp, $t2->ID, $this->_tbp, $t2->ID, $postsNum, $t2->ID));
+					
+					if ($t1->catID != $t2->catID)
+					{
+						$db->query(sprintf('UPDATE %s SET num_posts=num_posts+%d WHERE id=%d', $this->_tbc, $postsNum, $t2->catID));
+						$db->query(sprintf('UPDATE %s SET num_posts=num_posts-%d WHERE id=%d', $this->_tbc, $postsNum, $t1->catID));
+					}
+					elMsgBox::put( sprintf( m('Topic "%s" was moved'), $t1->subject) );
+					elLocation(EL_URL.'topic/'.$t2->catID.'/'.$t2->ID);
+				}
+			}
+			else
+			{
+				elThrow(E_USER_WARNING, 'Topic not found');
+			}
+		}
+
+		// elPrintR($t1);
+		// elPrintR($_POST);
+		
+		// if ($topic->move($this->_db->queryToArray($sql, 'id', 'name')))
+		// {
+		// 	elMsgBox::put( sprintf( m('Topic "%s" was moved'), $topic->subject) );
+		// 	elLocation(EL_URL.$this->_catID.'/'.($pageNum>1 ? $pageNum : ''));
+		// }
+		$this->_initRenderer();
+		$this->_rnd->rndTopicMerge($subj1, $subj2, $merge_to);
+	}
+
 	/**
 	 * Расширенный поиск по форуму
 	 *
@@ -955,6 +1047,23 @@ class elModuleForum extends elModule
 		include_once './core/modules/Forum/elForumTopic.class.php';
 		$topic = & new elForumTopic( array('id'=>$ID) );
 		if ( (!$topic->fetch() || $this->_catID<>$topic->catID) && ($ID || $onlyExists) )
+		{
+			elThrow(E_USER_WARNING, 'Requested topic does not exists', null, EL_URL.$this->_catID);
+		}
+		return $topic;
+	}
+
+	/**
+	 * Возвращает объект-тему (меньше проверок)
+	 *
+	 * @author Troex Nevelin
+	 * @return object
+	 **/
+	function &_topic2($ID, $onlyExists=true)
+	{
+		include_once './core/modules/Forum/elForumTopic.class.php';
+		$topic = & new elForumTopic( array('id'=>$ID) );
+		if (!$topic->fetch())
 		{
 			elThrow(E_USER_WARNING, 'Requested topic does not exists', null, EL_URL.$this->_catID);
 		}

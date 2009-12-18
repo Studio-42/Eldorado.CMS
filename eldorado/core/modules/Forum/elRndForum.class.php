@@ -10,6 +10,7 @@ class elRndForum extends elModuleRenderer
 		'forums'  => 'forums.html',
 		'topics'  => 'topics.html',
 		'topic'   => 'topic.html',
+		'topic_merge' => 'topic_merge.html',
 		'post'    => 'post.html',
 		'users'   => 'users.html',
 		'profile' => 'profile.html',
@@ -421,6 +422,18 @@ class elRndForum extends elModuleRenderer
 			$this->_te->assignBlockVars('NOT_FOUND');
 	}
 	
+	function rndTopicMerge($subj1, $subj2, $merge_to)
+	{
+		$this->_setFile('topic_merge');
+		if (!$subj2)
+			$this->_te->assignBlockVars('STEP1', array('subject' => $subj1));
+		else
+			$this->_te->assignBlockVars('STEP2', array(
+				'subj1' => $subj1,
+				'subj2' => $subj2,
+				'merge_to' => $merge_to));
+	}
+
 	/**
 	 * Перегруженый родительский метод
 	 * Вставляет контент в страницу

@@ -1,0 +1,21 @@
+<!-- BEGIN STEP1 -->
+<form method="post">
+<h3>{m('Topic merge')}</h3>
+{m('Topic')}: <strong>{subject}</strong><br />
+{m('Enter topic ID with witch to merge')}
+<input type="text" name="merge_to" value="" size="4" />
+<input type="submit" value="{m('Continue')} &rarr;" />
+</form>
+<!-- END STEP1 -->
+
+<!-- BEGIN STEP2 -->
+<form method="post">
+<h3>{m('Topic merge')}</h3>
+{m('Messages from topic')} <strong>"{subj1}"</strong> {m('will be moved to topic')} <strong>"{subj2}"</strong>:<br />
+<label><input type="radio" name="order" value="chrono" checked />{m('in chronological order')}</label><br />
+<label><input type="radio" name="order" value="after"  />{m('to the end of the topic')}</label><br />
+<input type="hidden" name="merge_to" value="{merge_to}" />
+<input type="hidden" name="merge" value="yes" />
+<input type="submit" value="{m('Merge')}">
+</form>
+<!-- END STEP2 -->

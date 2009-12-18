@@ -184,7 +184,18 @@ $elMsg['More results']           = 'Ещё искать';
 $elMsg['Nothing found']          = 'Ничего не найдено';
 
 $elMsg['Search in topic']        = 'Искать в теме';
- 
+
+
+// Topic Merge
+$elMsg['Enter topic ID with witch to merge'] = 'Укажите ID темы для объединения';
+$elMsg['Topic not found']         = 'Тема не найдена';
+$elMsg['Topic']                   = 'Тема';
+$elMsg['Topic merge']             = 'Объединение тем';
+$elMsg['Messages from topic']     = 'Сообщения из темы';
+$elMsg['will be moved to topic']  = 'будут перенесены в тему';
+$elMsg['in chronological order']  = 'в хронологическом порядке';
+$elMsg['to the end of the topic'] = 'в конец темы';
+$elMsg['Merge']                   = 'Объединить';
 
 
 ?>

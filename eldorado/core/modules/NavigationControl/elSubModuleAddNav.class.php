@@ -67,6 +67,7 @@ class elSubModuleAddNav extends elModule
   
   function selectPages()
   {
+	
     $mID = (int)$this->_arg();
     if ( EL_ADD_MENU_TOP == $mID )
     {
@@ -80,8 +81,13 @@ class elSubModuleAddNav extends elModule
       $fld = 'in_add_menu_bot';
       $menu = $this->_aMenus[EL_ADD_MENU_BOT];
     }
-
-    $form = & $this->_makeSelectPagesForm( $label, array_keys($menu) );
+	// elPrintR($menu);
+	$pageIDs = array();
+	for ($i=0; $i < sizeof($menu); $i++) { 
+		$pageIDs[] = $menu[$i]['id'];
+	}
+    // $form = & $this->_makeSelectPagesForm( $label, array_keys($menu) );
+	$form = & $this->_makeSelectPagesForm( $label, $pageIDs );
     if ( $form->isSubmitAndValid() )
     {
       $all = $form->getValue();
@@ -121,7 +127,7 @@ class elSubModuleAddNav extends elModule
     $p = &elSingleton::getObj('elNavPage');    
     $pagesList = $p->tree->quickList(); 
     unset($pagesList[1]);
-        
+       // elPrintR($pageIDs);
     $form = & elSingleton::getObj('elForm');
     $form->setLabel( $label );
     $form->setRenderer( elSingleton::getObj('elTplFormRenderer') ); 

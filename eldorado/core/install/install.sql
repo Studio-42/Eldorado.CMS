@@ -1,3 +1,24 @@
+DROP TABLE IF EXISTS `el_action_log`;
+--
+CREATE TABLE IF NOT EXISTS `el_action_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uid` int(11) NOT NULL,
+  `mid` int(11) NOT NULL,
+  `object` varchar(63) COLLATE utf8_bin NOT NULL,
+  `action` varchar(63) COLLATE utf8_bin NOT NULL,
+  `time` int(11) NOT NULL,
+  `link` varchar(255) COLLATE utf8_bin NOT NULL,
+  `value` varchar(63) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+--
+LOCK TABLES `el_amenu` WRITE;
+--
+
+UNLOCK TABLES;
+--
+
+
 DROP TABLE IF EXISTS `el_amenu`;
 --
 CREATE TABLE `el_amenu` (

@@ -40,9 +40,14 @@ function elActionLog($obj, $act = false, $link = false, $value = false)
 	// $elActLog[''] = ;
 	// $elActLog[''] = ;
 
-	$db  = & elSingleton::getObj('elDb');
-	$sql = 'INSERT INTO el_action_log ('.implode(',', array_keys($elActLog)).') VALUES '.'(\''.implode('\',\'', $elActLog).'\')';
-	$db->query($sql);
+	$db = & elSingleton::getObj('elDb');
+	$tb = 'el_action_log';
+	if ($db->isTableExists($tb))
+	{
+		$sql = 'INSERT INTO '.$tb.' ('.implode(',', array_keys($elActLog)).') VALUES '.'(\''.implode('\',\'', $elActLog).'\')';
+		$db->query($sql);
+	}
 
-	elMsgBox::put('elActionLog: '.print_r($elActLog, true));
+	// uncomment for debug use
+	// elMsgBox::put('elActionLog: '.print_r($elActLog, true));
 }

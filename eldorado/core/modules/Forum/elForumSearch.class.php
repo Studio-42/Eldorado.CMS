@@ -114,7 +114,7 @@ class elForumSearch
 		$t = isset($data['topic']) ? $data['topic'] : 0;
 		if ($t > 0)
 		{
-			$w = 'p.id = '.$t;
+			$w = 'p.topic_id = '.$t;
 			array_push($where, $w);			
 		}
 		

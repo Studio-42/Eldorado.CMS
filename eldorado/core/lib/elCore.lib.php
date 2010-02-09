@@ -94,7 +94,14 @@ function elErrorHandler($errno, $msg, $file, $line)
 	}
 	else
 	{
-		elMsgBox::put("$msg [$file; $line]", EL_DEBUGQ);
+		// disable deprecation warnings
+		$deprecated = array(
+			'Assigning the return value of new by reference is deprecated',
+			'Only variables should be assigned by reference',
+			'Only variables should be passed by reference'
+		);
+		if (!(in_array($msg, $deprecated)))
+			elMsgBox::put("$msg [$file; $line]", EL_DEBUGQ);
 	}
 
 	$logMsg = date('[d-m-y H:i:s]') .' ' .$msg . ' [file: '.$file . ' line: '.$line."]\n";

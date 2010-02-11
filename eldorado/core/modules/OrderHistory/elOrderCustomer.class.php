@@ -21,7 +21,7 @@ class elOrderCustomer extends elDataMapping
 			);
   	}
 	
-	function editAndSave()
+	function editAndSave($params = null)
 	{
 		$this->_makeForm();
 		if ($this->_form->isSubmitAndValid() && $this->_validForm())
@@ -39,7 +39,7 @@ class elOrderCustomer extends elDataMapping
 		}
 	}
 	
-	function _makeForm()
+	function _makeForm($params = null)
 	{
 		$a = array();
 		$a = $this->fetchMerged();

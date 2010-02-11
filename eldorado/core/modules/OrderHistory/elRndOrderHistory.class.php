@@ -111,8 +111,6 @@ class elRndOrderHistory extends elModuleRenderer
 	
 	function _rndFilter($period)
 	{
-		if ($period == null)
-			return;
 		elAddJs('$("#period_begin").datepicker({dateFormat: $.datepicker.ISO_8601, firstDay: 1, maxDate: new Date(), numberOfMonths: [1, 2], showButtonPanel: true })', EL_JS_SRC_ONREADY);
 		elAddJs('$("#period_end").datepicker(  {dateFormat: $.datepicker.ISO_8601, firstDay: 1, maxDate: new Date(), numberOfMonths: [1, 2], showButtonPanel: true })', EL_JS_SRC_ONREADY);
 		$this->_setFile('filter', 'FILTER');

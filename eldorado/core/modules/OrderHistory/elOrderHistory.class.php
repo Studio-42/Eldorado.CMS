@@ -32,6 +32,8 @@ class elOrderHistory extends elDataMapping
 
 	function count($where = null)
 	{
+		if (empty($where))
+			$where = null;
 		$sql  = 'SELECT COUNT(id) AS count FROM '.$this->_tb;
 		$sql .= (!is_null($where) ? ' WHERE '.$where : '');
 		$db   = & elSingleton::getObj('elDb');

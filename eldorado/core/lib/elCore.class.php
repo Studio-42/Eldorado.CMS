@@ -3,7 +3,7 @@
 /**
  * Core version and name
  */
-define ('EL_VER',  '3.9.2');
+define ('EL_VER',  '3.9.3');
 define ('EL_NAME', 'Kioto');
 
 class elCore

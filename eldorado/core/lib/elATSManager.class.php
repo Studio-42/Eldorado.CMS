@@ -60,7 +60,7 @@ class elATSManager
     foreach ( $profileSkel as $k=>$v )
     {
     	$label = m($v['label']);
-    	$value = $profile->getAttr($k);
+    	$value = $profile->attr($k);
     	if ('select' == $v['type'])
     	{
 			$opts = array();
@@ -107,8 +107,8 @@ class elATSManager
       	elThrow(E_USER_ERROR, 'Could save user data', '', EL_URL);
       }
 
-      $profile->setUniqAttr( $user->getUniqAttr() );
-      $profile->setAttrs($vals);
+      $profile->idAttr( $user->getUniqAttr() );
+      $profile->attr($vals);
       $profile->save();
 
       if ( $isNewUser )
@@ -294,7 +294,7 @@ class elATSManager
     if ($incProfile)
     {
       $p = $this->_ats->user->getProfile();
-      $fields = array_merge($fields, $p->listAttrs());
+      $fields = array_merge($fields, $p->attrsList());
       $fields = array_unique($fields);
     }
     $sql = 'SELECT '.implode(',',$fields).', email FROM el_user LEFT JOIN el_user_in_group ON uid=user_id WHERE ';

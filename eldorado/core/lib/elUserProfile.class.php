@@ -1,33 +1,23 @@
 <?php
 
-class elUserProfile extends elMemberAttribute
+class elUserProfile extends elDataMapping
 {
-	var $tb          = 'el_user';
+	var $_tb         = 'el_user';
+	var $_id         = 'uid';
 	var $UID         = 0;
-	var $_uniq       = 'uid';
 	var $login       = '';
 	var $email       = '';
-	var $f_name      = '';
-	var $l_name      = '';
-	var $s_name      = '';
-	var $postal_code = '';
-	var $address     = '';
-	var $phone       = '';
-	var $fax         = '';
-	var $company     = '';
-	var $icq_uin     = '';
-	var $web_site    = '';
 
 	function toArray()
 	{
 		$ret = array();
 		$sql = 'SELECT field, label FROM el_user_profile WHERE '
-					.'field IN (\''.implode("','", $this->memberMapping()).'\') ';
+					.'field IN (\''.implode("','", $this->attrsList()).'\') ';
 					//.'ORDER BY sort_ndx, field';
 		$this->db->query($sql);
 		while ($r = $this->db->nextRecord())
 		{
-			$ret[] = array('label'=>m($r['label']), 'value'=>$this->getAttr($r['field']));
+			$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['field']));
 		}
 		return $ret;
 	}
@@ -63,11 +53,11 @@ class elUserProfile extends elMemberAttribute
 		$ats  = & elSingleton::getObj('elATS');
 		$db   = & $ats->getACLDb();
 		$sql  = 'SELECT field, rq, sort_ndx FROM el_user_profile_use WHERE field IN (\''
-					 .implode("','", $this->listAttrs()).'\') ORDER BY sort_ndx, field ';
+					 .implode("','", $this->attrsList()).'\') ORDER BY sort_ndx, field ';
 		$skel = $db->queryToArray($sql, 'field');
 
 		$sql  = 'SELECT field, label, type, opts, rule, is_func FROM el_user_profile WHERE '
-					 .'field IN (\''.implode("','", $this->listAttrs()).'\') ';
+					 .'field IN (\''.implode("','", $this->attrsList()).'\') ';
 		$this->db->query($sql);
 		while ( $r = $this->db->nextRecord() )
 		{
@@ -78,13 +68,15 @@ class elUserProfile extends elMemberAttribute
 
 	function getFullName()
 	{
-		$name = trim($this->getAttr('f_name').' '.$this->getAttr('s_name').' '.$this->getAttr('l_name'));
-		return $name ? $name : $this->getAttr('login');
+		// TODO
+		$name = null;
+		//$name = trim($this->attr('f_name').' '.$this->attr('s_name').' '.$this->attr('l_name'));
+		return $name ? $name : $this->attr('login');
 	}
 
 	function getEmail($format=true)
 	{
-	  return $format ? '"'.$this->getFullName().'"<'.$this->getAttr('email').'>' : $this->getAttr('email');
+	  return $format ? '"'.$this->getFullName().'"<'.$this->attr('email').'>' : $this->attr('email');
 	}
 
 	function _initMapping()

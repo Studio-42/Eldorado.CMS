@@ -68,7 +68,7 @@ class elUser extends elMemberAttribute
 	 if ( $this->UID )
 		{
 			$profile = & $this->getProfile();
-			return $profile->getAttr($attr);
+			return $profile->attr($attr);
 		}
 		return '';
 	}
@@ -78,7 +78,7 @@ class elUser extends elMemberAttribute
 	 if ( $this->UID )
 		{
 			$profile = & $this->getProfile();
-			return $profile->getAttrs();
+			return $profile->attrs();
 		}
 		return array();
 	}
@@ -192,12 +192,12 @@ class elUser extends elMemberAttribute
 		$this->_initProfile();
 		if ( $this->UID )
 		{
-			$this->profile->setUniqAttr($this->UID);
+			$this->profile->idAttr($this->UID);
 			$this->profile->fetch();
 		}
 		else
 		{
-			$this->profile->cleanAttrs();
+			$this->profile->clean();
 		}
 	}
 

@@ -78,7 +78,7 @@ class elUser extends elMemberAttribute
 	 if ( $this->UID )
 		{
 			$profile = & $this->getProfile();
-			return $profile->attrs();
+			return $profile->attr();
 		}
 		return array();
 	}

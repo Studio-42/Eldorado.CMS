@@ -249,6 +249,7 @@ CREATE TABLE `el_module` (
 LOCK TABLES `el_module` WRITE;
 --
 INSERT INTO el_module (module, descrip, multi, search) VALUES ("Container", "Контейнер", "1", "0"), 
+("Directory", "Справочники", "0", "0"),
 ("DocsCatalog", "Каталог документов", "1", "1"), 
 ("EventSchedule", "Расписание событий", "1", "0"), 
 ("FAQ", "Часто Задаваемые Вопросы", "1", "0"), 

@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Order history, displays data from IShop and TechShop orders
+ * OrderHistory admin module
  *
  * @package OrderHistory
- * @version 1.0
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
 class elModuleAdminOrderHistory extends elModuleOrderHistory

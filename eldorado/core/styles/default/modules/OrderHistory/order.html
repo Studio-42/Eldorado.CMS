@@ -1,10 +1,12 @@
 <!-- BEGIN ORDER -->
+<!-- BEGIN ADMIN_EDIT -->
 <ul class="adm-icons">
 	<li style="padding:0;border:none"><a href="{URL}edit/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
 </ul>
+<!-- END ADMIN_EDIT -->
 <h3 style="margin-bottom: 8px;">{m('Customer info')}</h3>
 <table class="nice full">
-	<tr{color}>
+	<tr>
 		<td style="width: 150px;">{m('ID')}</td>
 		<td><a href="{URL}show/{id}">{id}</a></td>
 	</tr>
@@ -20,16 +22,21 @@
 		<td>{m('Modify')}</td>
 		<td>{mtime}</td>
 	</tr>
-	<tr>
+	<tr{color}>
 		<td>{m('Status')}</td>
 		<td>
+			<!-- BEGIN ADMIN_STATUS -->
 			<form action="{URL}status/{id}" method="POST">
 				<select name="status" ID="status" onchange="javascript:this.form.submit();">
-					<!-- BEGIN STATUS -->
+					<!-- BEGIN OPTIONS -->
 					<option value="{status}"{selected}>{m('{status}')}</option>
-					<!-- END STATUS -->
+					<!-- END OPTIONS -->
 				</select>
 			</form>
+			<!-- END ADMIN_STATUS -->
+			<!-- BEGIN STATUS -->
+			{m('{status}')}
+			<!-- END STATUS -->
 		</td>
 	</tr>
 	<tr>
@@ -49,9 +56,12 @@
 		<td>{comments}</td>
 	</tr>
 </table>
+
+<!-- BEGIN ADMIN_ITEMS -->
 <ul class="adm-icons">
 	<li style="padding:0;border:none"><a href="{URL}items/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
 </ul>
+<!-- END ADMIN_ITEMS -->
 <h3 style="margin-bottom: 8px;">{m('Order')}</h3>
 <table class="grid-tb">
 	<thead>

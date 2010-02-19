@@ -1,9 +1,3 @@
-<div style="float: right; margin-right: 15px; margin-top: 10px;">
-	<a href="{URL}analytics/">
-		<img src="{BASE_URL}style/images/pageIcons/stat.png" style="vertical-align: bottom;"/>
-		{m('Statistics')}
-	</a>
-</div>
 {FILTER}
 <!-- BEGIN LIST -->
 <table class="grid-tb tablesorter" id="orders">
@@ -33,5 +27,7 @@
 	</tbody>
 </table>
 <!-- END LIST -->
-
+<!-- BEGIN NOT_FOUND -->
+<h2>{m('No orders found')}</h2>
+<!-- END NOT_FOUND -->
 {PAGER}

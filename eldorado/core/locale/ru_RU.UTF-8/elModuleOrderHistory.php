@@ -31,4 +31,6 @@ $elMsg['Income']             = 'Доход';
 $elMsg['Statistics']         = 'Статистика';
 $elMsg['Other goods']        = 'Другие товары';
 $elMsg['Top selling goods']  = 'Самые продоваемые товары';
-$elMsg['Average order amount']  = 'Сердняя сумма заказа';
+$elMsg['Average order amount'] = 'Сердняя сумма заказа';
+$elMsg['No orders found']    = 'У Вас нет заказов';
+

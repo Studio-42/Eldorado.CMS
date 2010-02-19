@@ -18,43 +18,58 @@ class elRndOrderHistory extends elModuleRenderer
 	function rndOrderList($orders, $pager, $filter)
 	{
 		$this->_setFile('list');
-		$this->_rndFilter($filter);
-		
-		$this->_te->assignBlockVars('LIST');
-		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
-		elAddJs('$("#orders").tablesorter()', EL_JS_SRC_ONREADY);
-		$date = str_replace('Y', 'y', EL_DATETIME_FORMAT);
-		foreach ($orders as $order)
-		{		
-			$order['color'] = 'style="background-color: '.$this->color[$order['state']].';"';
-			if ($order['uid'] > 0)
-				$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
-			$order['crtime'] = date($date, $order['crtime']);
-			$order['mtime'] = date($date, $order['mtime']);
-			$order['total'] = (int)$order['total'];
-			$this->_te->assignBlockVars('LIST.ORDER', $order, 1);
+		if ($this->_admin)
+			$this->_rndFilter($filter);
+
+		if (count($orders) == 0)
+			$this->_te->assignBlockVars('NOT_FOUND');
+		else
+		{
+			$this->_te->assignBlockVars('LIST');
+			elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+			elAddJs('$("#orders").tablesorter()', EL_JS_SRC_ONREADY);
+			$date = str_replace('Y', 'y', EL_DATETIME_FORMAT);
+			foreach ($orders as $order)
+			{
+				$order['color'] = 'style="background-color: '.$this->color[$order['state']].';"';
+				if (($this->_admin) and ($order['uid'] > 0))
+					$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
+				$order['crtime'] = date($date, $order['crtime']);
+				$order['mtime'] = date($date, $order['mtime']);
+				$order['total'] = (int)$order['total'];
+				$this->_te->assignBlockVars('LIST.ORDER', $order, 1);
+			}
+			$this->_rndPager($pager);
 		}
-		$this->_rndPager($pager);
 	}
 
 	function rndOrder($order, $items, $status)
 	{
 		$this->_setFile('order');
 		
-		
 		$order['color'] = ' style="background-color: '.$this->color[$order['state']].';"';
 
-		if ($order['uid'] > 0)
+		if (($this->_admin) and ($order['uid'] > 0))
 			$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
 		$order['crtime'] = date(EL_DATETIME_FORMAT, $order['crtime']);
 		$order['mtime']  = date(EL_DATETIME_FORMAT, $order['mtime']);
 		$this->_te->assignBlockVars('ORDER', $order);
-		foreach ($status as $s)
+		if ($this->_admin)
 		{
-			$a = array('status' => $s);
-			if ($s == $order['state'])
-				$a['selected'] = 'selected';
-			$this->_te->assignBlockVars('ORDER.STATUS', $a, 1);
+			$this->_te->assignBlockVars('ORDER.ADMIN_EDIT',   $order, 1);
+			$this->_te->assignBlockVars('ORDER.ADMIN_ITEMS',  $order, 1);
+			$this->_te->assignBlockVars('ORDER.ADMIN_STATUS', $order, 1);
+			foreach ($status as $s)
+			{
+				$a = array('status' => $s);
+				if ($s == $order['state'])
+					$a['selected'] = 'selected';
+				$this->_te->assignBlockVars('ORDER.ADMIN_STATUS.OPTIONS', $a, 2);
+			}
+		}
+		else
+		{
+			$this->_te->assignBlockVars('ORDER.STATUS', array('status' => $order['state']), 1);
 		}
 
 		foreach ($items as $item)

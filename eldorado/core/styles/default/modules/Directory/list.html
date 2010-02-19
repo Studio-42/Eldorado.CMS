@@ -1,0 +1,22 @@
+<table class="grid-tb">
+	<thead>
+ 		<tr>
+		    <th>{m('Name')}</th>
+			<th colspan="2">{m('Qnt')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN DIR -->
+  		<tr>
+    		<td><a href="#" onClick="return popUp('{POPUP_URL}show/{id}/', 400, 500);" title="{m('Show')}">{label} ({name})</a></td>
+			<td>{count}</td>
+			<td>
+				<ul class="adm-icons">
+					<li><a href="{URL}edit/{id}/"    class="icons edit"  title="{m('Edit')}"></a></li>
+					<li><a href="{URL}delete/{id}/"  class="icons delete"     title="{m('Delete')}" onClick="return confirm('{m('Do you realy want to delete')} `{label}`?');"></a></li>
+				</ul>
+			</td>			
+  		</tr>
+		<!-- END DIR -->
+	</tbody>
+</table>

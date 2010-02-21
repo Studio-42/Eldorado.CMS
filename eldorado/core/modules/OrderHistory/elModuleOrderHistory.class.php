@@ -37,10 +37,11 @@ class elModuleOrderHistory extends elModule
 			elLocation(EL_URL.'show/'.$id);
 		
 		$id = $this->_checkOrderExist();
-		$order = $this->_getOrder($id);
-		$items = $this->_getOrderItem($id);
+		$order    = $this->_getOrder($id);
+		$customer = array_shift($this->_getCustomerNfo(array($id)));
+		$items    = $this->_getOrderItem($id);
 		$this->_initRenderer();
-		$this->_rnd->rndOrder($order, $items, $this->_getStatus());
+		$this->_rnd->rndOrder($order, $customer, $items, $this->_getStatus());
 	}
 
 	function _getOrder($id = null, $offset = null, $where = null)
@@ -53,8 +54,9 @@ class elModuleOrderHistory extends elModule
 			if (!$order->fetch())
 				return false;
 			$o = $order->toArray();
-			$i = $this->_getCustomerNfo(array($id));
-			return array_merge($o, $i[$id]);
+			return $o;
+			//$i = $this->_getCustomerNfo(array($id));
+			//return array_merge($o, $i[$id]);
 		}
 		else // get many
 		{

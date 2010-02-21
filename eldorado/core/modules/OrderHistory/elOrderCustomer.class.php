@@ -41,6 +41,7 @@ class elOrderCustomer extends elDataMapping
 	
 	function _makeForm($params = null)
 	{
+		elLoadMessages('UserProfile');
 		$a = array();
 		$a = $this->fetchMerged();
 		
@@ -96,7 +97,13 @@ class elOrderCustomer extends elDataMapping
 	{
 		if ((!is_array($ids)) and (!is_int($ids)))
 			return false;
-			
+
+		elLoadMessages('UserProfile');
+		$ats       = & elSingleton::getObj('elATS');
+        $user      = & $ats->getUser();
+		$uProfile  = $user->getProfile();
+		$uProfSkel = $uProfile->getSkel();
+
 		if (is_int($ids))
 		{
 			$id = $ids;
@@ -112,17 +119,20 @@ class elOrderCustomer extends elDataMapping
 			{
 				$push = array();
 				$push = $customers[$nfo['order_id']];
-				$push[$nfo['label']] = $nfo['value'];
+				if ($uProfSkel[$nfo['label']]['label'])
+					$push[$uProfSkel[$nfo['label']]['label']] = $nfo['value'];
+				else
+					$push[$nfo['label']] = $nfo['value'];
 				$customers[$nfo['order_id']] = $push;
 			}
 			else
 			{
-				$customers[$nfo['order_id']] = array($nfo['label'] => $nfo['value']);
+				$customers[$nfo['order_id']] = array($uProfSkel[$nfo['label']]['label'] => $nfo['value']);
 			}
 		}
 		foreach ($customers as $id => $c)
 		{
-			$c['full_name'] = implode(' ', array($c['l_name'], $c['f_name'], $c['s_name']));
+			$c['full_name'] = implode(' ', array($c['Last name'], $c['First name'], $c['Second name']));
 			$customers[$id] = $c;
 		}
 		return $customers;

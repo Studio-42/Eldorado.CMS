@@ -11,10 +11,6 @@
 		<td><a href="{URL}show/{id}">{id}</a></td>
 	</tr>
 	<tr>
-		<td>{m('Full Name')}</td>
-		<td>{full_name}</td>
-	</tr>
-	<tr>
 		<td>{m('Created')}</td>
 		<td>{crtime}</td>
 	</tr>
@@ -40,21 +36,15 @@
 		</td>
 	</tr>
 	<tr>
-		<td>{m('Email')}</td>
-		<td>{email}</td>
+		<td>{m('Full Name')}</td>
+		<td>{full_name}</td>
 	</tr>
+	<!-- BEGIN PROFILE -->
 	<tr>
-		<td>{m('Phone')}</td>
-		<td>{phone}</td>
+		<td>{m('{label}')}</td>
+		<td>{value}</td>
 	</tr>
-	<tr>
-		<td>{m('Address')}</td>
-		<td>{address}</td>
-	</tr>
-	<tr>
-		<td>{m('Comment')}</td>
-		<td>{comments}</td>
-	</tr>
+	<!-- END PROFILE -->
 </table>
 
 <!-- BEGIN ADMIN_ITEMS -->

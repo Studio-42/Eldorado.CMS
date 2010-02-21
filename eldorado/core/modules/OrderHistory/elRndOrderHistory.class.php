@@ -43,16 +43,17 @@ class elRndOrderHistory extends elModuleRenderer
 		}
 	}
 
-	function rndOrder($order, $items, $status)
+	function rndOrder($order, $customer, $items, $status)
 	{
 		$this->_setFile('order');
 		
-		$order['color'] = ' style="background-color: '.$this->color[$order['state']].';"';
-
-		if (($this->_admin) and ($order['uid'] > 0))
-			$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
+		$order['color']  = ' style="background-color: '.$this->color[$order['state']].';"';
 		$order['crtime'] = date(EL_DATETIME_FORMAT, $order['crtime']);
 		$order['mtime']  = date(EL_DATETIME_FORMAT, $order['mtime']);
+		$order['full_name'] = $customer['full_name'];
+		if (($this->_admin) and ($order['uid'] > 0))
+			$order['full_name'] .= ' <a href="'.EL_URL.'user/'.$order['uid'].'" style="color: black;"><b>&rarr;</b></a>';
+
 		$this->_te->assignBlockVars('ORDER', $order);
 		if ($this->_admin)
 		{
@@ -72,6 +73,19 @@ class elRndOrderHistory extends elModuleRenderer
 			$this->_te->assignBlockVars('ORDER.STATUS', array('status' => $order['state']), 1);
 		}
 
+		// User profile
+		// TODO not the best solution to use non fixed fields
+		unset($customer['First name']);
+		unset($customer['Second name']);
+		unset($customer['Last name']);
+		unset($customer['full_name']);
+		//elPrintR($customer);
+		foreach ($customer as $l => $v)
+		{
+			$this->_te->assignBlockVars('ORDER.PROFILE', array('label' => $l, 'value' => $v), 1);
+		}
+
+		// Ordered items
 		foreach ($items as $item)
 		{
 			if ($item['qnt'] < 1)

@@ -55,8 +55,6 @@ class elModuleOrderHistory extends elModule
 				return false;
 			$o = $order->toArray();
 			return $o;
-			//$i = $this->_getCustomerNfo(array($id));
-			//return array_merge($o, $i[$id]);
 		}
 		else // get many
 		{
@@ -75,9 +73,9 @@ class elModuleOrderHistory extends elModule
 		
 		$customerNfo = $this->_getCustomerNfo($ids);
 		foreach ($orders as $id => $order)
-		{ // we need only name to display in list
+		{ // TODO we need only name to display in list but again using custom E-mail
 			$order['full_name'] = $customerNfo[$order['id']]['full_name'];
-			$order['email']     = $customerNfo[$order['id']]['email'];
+			$order['email']     = $customerNfo[$order['id']]['E-mail'];
 			$orders[$id] = $order;
 		}
 		unset($customerNfo);

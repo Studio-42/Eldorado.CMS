@@ -100,7 +100,7 @@ class elOrderCustomer extends elDataMapping
 
 		elLoadMessages('UserProfile');
 		$ats       = & elSingleton::getObj('elATS');
-        $user      = & $ats->getUser();
+		$user      = & $ats->getUser();
 		$uProfile  = $user->getProfile();
 		$uProfSkel = $uProfile->getSkel();
 

@@ -2,27 +2,27 @@
 
 class elICart
 {
-    var $_tb          = 'el_icart';
+	var $_tb          = 'el_icart';
 	var $_tbo         = 'el_order';
 	var $_tboi        = 'el_order_item';
 	var $_tboc        = 'el_order_customer';
-    var $_db          = null;
-    var $_SID         = '';
-    var $_UID         = 0;
-    var $_items       = array();
-    var $_itemsLoaded = false;
-    var $_total       = 0;
-    var $_amount      = 0;
-    var $_rnd         = null;
-    var $_conf        = null;
-    var $currInfo     = array(
+	var $_db          = null;
+	var $_SID         = '';
+	var $_UID         = 0;
+	var $_items       = array();
+	var $_itemsLoaded = false;
+	var $_total       = 0;
+	var $_amount      = 0;
+	var $_rnd         = null;
+	var $_conf        = null;
+	var $currInfo     = array(
 		'currency'     => 'USD',
 		'currencySign' => '$',
 		'currencyName' => 'US dollars',
 		'decPoint'     => '.',
 		'thousandsSep' => ','  
-		);
-    
+	);
+
     function elICart()
     {
         $this->_db       = & elSingleton::getObj('elDb');
@@ -251,6 +251,7 @@ class elICart
 		{
 			return false;
 		}
+		// TODO discount
 		$this->_db->query(
 			sprintf('INSERT INTO %s (uid, crtime, mtime, state, amount, delivery_price, total) 
 					VALUES (%d, %d, %d, "%s", "%s", "%s", "%s")', 
@@ -269,7 +270,7 @@ class elICart
 		foreach ($this->_items as $i)
 		{
 			$i['props'] = serialize($i['props']);
-			$this->_db->prepareData( array($orderID, $this->_UID, $i['shop'], $i['id'], $i['m_id'], $i['code'], $i['name'], $i['qnt'], $i['price'], $i['props'], time()) );
+			$this->_db->prepareData( array($orderID, $this->_UID, $i['shop'], $i['i_id'], $i['m_id'], $i['code'], $i['name'], $i['qnt'], $i['price'], $i['props'], time()) );
 		}
 		$this->_db->execute();
 		

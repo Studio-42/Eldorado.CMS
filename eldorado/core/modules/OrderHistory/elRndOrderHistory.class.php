@@ -102,8 +102,23 @@ class elRndOrderHistory extends elModuleRenderer
 			}
 			$item['props'] = $prop;
 			$item['subtotal'] = sprintf('%.2f', $item['qnt'] * $item['price']);
-			// elPrintR($item);
 			$this->_te->assignBlockVars('ORDER.ITEM', $item, 1);
+		}
+
+		// repeat order
+		if (!$this->_admin)
+		{
+			$this->_te->assignBlockVars('ORDER_REPEAT');
+			$i = 0;
+			foreach ($items as $item)
+			{
+				if ($item['qnt'] < 1)
+					continue;
+				$i++;
+				$item['i'] = $i;
+				$item['props'] = htmlspecialchars($item['props']);
+				$this->_te->assignBlockVars('ORDER_REPEAT.ITEM', $item, 1);
+			}
 		}
 	}
 

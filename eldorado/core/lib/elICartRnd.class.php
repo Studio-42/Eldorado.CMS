@@ -213,4 +213,3 @@ class elICartRnd extends elModuleRenderer
     }
 }
 
-?>

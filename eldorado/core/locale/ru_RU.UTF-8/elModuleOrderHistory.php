@@ -31,4 +31,5 @@ $elMsg['Other goods']        = 'Другие товары';
 $elMsg['Top selling goods']  = 'Самые продоваемые товары';
 $elMsg['Average order amount'] = 'Сердняя сумма заказа';
 $elMsg['No orders found']    = 'У Вас нет заказов';
+$elMsg['Repeat order']       = 'Сделать повторый заказ';
 

@@ -22,8 +22,10 @@ class elModuleOrderHistory extends elModule
 	function defaultMethod()
 	{
 		if (!$uid = $this->_checkAuth())
+		{
+			elThrow(E_USER_WARNING, 'Authorization required');
 			return;
-
+		}
 		list($orders, $count) = $this->_getOrder(null, null, 'uid='.(int)$uid);
 		$this->_initRenderer();
 		$this->_rnd->rndOrderList($orders, false, false);
@@ -31,13 +33,19 @@ class elModuleOrderHistory extends elModule
 
 	function showOrder()
 	{
-		// rewrite to full url is POST
+		// rewrite to full url if POST
 		$id = (int)$_POST['id'];
 		if ($id > 0)
 			elLocation(EL_URL.'show/'.$id);
 		
 		$id = $this->_checkOrderExist();
 		$order    = $this->_getOrder($id);
+		if (!$this->_isAllowed())
+			if ($order['uid'] != $this->_checkAuth())
+			{
+				elThrow(E_USER_WARNING, 'You do not have access to page "%s"', 'Order History', EL_URL);
+				return;
+			}
 		$customer = array_shift($this->_getCustomerNfo(array($id)));
 		$items    = $this->_getOrderItem($id);
 		$this->_initRenderer();
@@ -146,12 +154,14 @@ class elModuleOrderHistory extends elModule
 	{
 		$ats = elSingleton::getObj('elATS');
 		if (!$ats->isUserAuthed())
-		{
-			elLoadMessages('Auth');
-			elMsgBox::put(m('Authorization required'));
 			return false;
-		}
 		return $ats->getUserID();
+	}
+
+	function _isAllowed()
+	{
+		$ats = elSingleton::getObj('elATS');
+		return $ats->allow(EL_FULL);
 	}
 
 }

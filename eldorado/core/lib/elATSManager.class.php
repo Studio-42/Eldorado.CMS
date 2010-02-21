@@ -63,11 +63,22 @@ class elATSManager
     	$value = $profile->attr($k);
     	if ('select' == $v['type'])
     	{
-			$opts = array();
-			foreach(explode(',', $v['opts']) as $opt) {
-				$tmp = explode(':', $opt);
-				$opts[$tmp[0]] = m($tmp[1]);
+			if (strpos($v['opts'], 'directory:') == 0)
+			{
+				elSingleton::incLib('modules/Directory/elDirectory.class.php');
+				$dir = new elDirectory();
+				$opts = $dir->getOpts($v['opts']);
 			}
+			else
+			{
+				$opts = array();
+				foreach(explode(',', $v['opts']) as $opt)
+				{
+					$tmp = explode(':', $opt);
+					$opts[$tmp[0]] = m($tmp[1]);
+				}
+			}
+
     		$this->form->add( new elSelect($k, $label, $value, $opts) );
     	}
     	elseif ('textarea' == $v['type'])

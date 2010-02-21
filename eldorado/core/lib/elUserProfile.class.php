@@ -7,6 +7,18 @@ class elUserProfile extends elDataMapping
 	var $UID         = 0;
 	var $login       = '';
 	var $email       = '';
+	var $f_name      = '';
+	var $s_name      = '';
+	var $l_name      = '';
+	var $phone_mobile= '';
+	var $phone_home  = '';
+	var $address_city       = '';
+	var $address_postalcode = '';
+	var $address_metro      = '';
+	var $address_street     = '';
+	var $address_housenum   = '';
+	var $address_housesub   = '';
+	var $address_flat       = '';
 
 	function toArray()
 	{

@@ -97,9 +97,7 @@ class elRndOrderHistory extends elModuleRenderer
 			$prop = '';
 			$props = unserialize($item['props']);
 			foreach ($props as $p)
-			{
 				$prop .= $p[0].': '.$p[1].'<br />';
-			}
 			$item['props'] = $prop;
 			$item['subtotal'] = sprintf('%.2f', $item['qnt'] * $item['price']);
 			$this->_te->assignBlockVars('ORDER.ITEM', $item, 1);

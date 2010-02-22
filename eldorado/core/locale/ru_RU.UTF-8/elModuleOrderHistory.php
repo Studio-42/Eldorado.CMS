@@ -1,4 +1,5 @@
 <?php
+
 $elMsg['Full Name']          = 'ФИО';
 $elMsg['Created']            = 'Создан';
 $elMsg['Modify']             = 'Изменён';
@@ -20,6 +21,11 @@ $elMsg['First name']         = 'Имя';
 $elMsg['Second name']        = 'Отчество';
 $elMsg['Last name']          = 'Фамилия';
 $elMsg['comments']           = $elMsg['Comment'];
+$elMsg['phone']              = 'Телефон';
+$elMsg['postal_code']        = 'Почтовый индекс';
+$elMsg['address']            = 'Адрес';
+$elMsg['Name']               = 'Наименование';
+$elMsg['Options']            = 'Параметры';
 $elMsg['Edit customer info'] = 'Изменить информацию о клиенте';
 $elMsg['Edit order']         = 'Изменить заказ';
 $elMsg['Status changed']     = 'Состояние изменено';
@@ -32,4 +38,5 @@ $elMsg['Top selling goods']  = 'Самые продоваемые товары';
 $elMsg['Average order amount'] = 'Сердняя сумма заказа';
 $elMsg['No orders found']    = 'У Вас нет заказов';
 $elMsg['Repeat order']       = 'Сделать повторый заказ';
-
+$elMsg['Qnt']                = 'Кол-во';
+$elMsg['from']               = 'от';

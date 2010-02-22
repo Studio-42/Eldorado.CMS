@@ -140,14 +140,14 @@ class elICart
 		{
 			return '';
 		}
-        if ( $props )
+        if (is_array($props))
         {
-            foreach ( $props as $pID=>$v )
-            {
+            foreach ($props as $pID => $v)
                 $itemProps[] = array($item->getPropName($pID), $v);
-            } 
+            $pSerial = mysql_real_escape_string(serialize($itemProps));
         }
-        $pSerial = mysql_real_escape_string( serialize($itemProps) );
+        else
+            $pSerial = $props;
         $sqlIns = 'INSERT INTO %s (sid, uid, shop, i_id, code, display_code, name, qnt, price, props, crtime, mtime) '
             .'VALUES (\'%s\', \'%d\', \'IShop\', \'%d\', \'%s\',     %d,     \'%s\', \'1\', \'%s\', \'%s\', \'%d\', \'%d\')';
         $sqlUpd = 'UPDATE %s SET sid=\'%s\', uid=\'%d\', i_id=\'%d\', code=\'%s\', display_code=\'%s\', '

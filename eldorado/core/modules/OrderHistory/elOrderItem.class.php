@@ -9,6 +9,8 @@ class elOrderItem extends elDataMapping
 	var $label    = '';
 	var $value    = 0;
 
+	var $i_id;
+	var $shop;
 	var $code;
 	var $name;
 	var $qnt;
@@ -30,7 +32,7 @@ class elOrderItem extends elDataMapping
 			);
   	}
 
-	function editAndSave()
+	function editAndSave($params = null)
 	{
 		$order = & elSingleton::getObj('elOrderHistory');
 		$order->idAttr($this->order_id);
@@ -79,8 +81,9 @@ class elOrderItem extends elDataMapping
 		return false;
 	}
 	
-	function _makeForm($order)
+	function _makeForm($params = null)
 	{
+		$order = $params;
 		$items = array();
 		$items = $this->fetchMerged();
 		

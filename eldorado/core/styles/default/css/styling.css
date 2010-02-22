@@ -386,39 +386,39 @@ a.icons {
 	text-decoration:none;
 }
 
-.access          { background-position: -3px -1938px; } 
-.album-edit      { background-position: 2px -25px; } 
-.backup-restore  { background-position: -3px -1781px; } 
+.access          { background-position: -3px -1938px; }
+.album-edit      { background-position:  2px -25px;   }
+.backup-restore  { background-position: -3px -1781px; }
 .basket          { background-position: -3px -1550px; }
-.reload          { background-position: -2px -1781px;} 
-.cat-edit        { background-position: -3px -1571px; } 
-.cat-new         { background-position: 2px -483px; } 
-.clean           { background-position: -3px -1637px; } 
-.conf            { background-position: -3px -52px; }
-.create          { background-position: -3px -1164px; } 
-.delete          { background-position: -3px -1382px; } 
+.reload          { background-position: -2px -1781px; }
+.cat-edit        { background-position: -3px -1571px; }
+.cat-new         { background-position:  2px -483px;  }
+.clean           { background-position: -3px -1637px; }
+.conf            { background-position: -3px -52px;   }
+.create          { background-position: -3px -1164px; }
+.delete          { background-position: -3px -1382px; }
 .down            { background-position: -3px -1615px; }
 .find            { background-position: -3px -1455px; }
-.ft-set          { background-position: -3px -1804px; } 
-.edit            { background-position: -3px -26px; }  
-.image           { background-position: -3px -395px; } 
+.ft-set          { background-position: -3px -1804px; }
+.edit            { background-position: -3px -26px;   }
+.image           { background-position: -3px -395px;  }
 .img-edit        { background-position:  2px -1490px; }
-.lock            { background-position: -3px -1194px; } 
-.logout          { background-position: -3px -1430px; } 
+.lock            { background-position: -3px -1194px; }
+.logout          { background-position: -3px -1430px; }
 .move-to         { background-position: -3px -1527px; }
-.ok              { background-position: -3px -620px; } 
+.ok              { background-position: -3px -620px;  }
 .passwd          { background-position: -3px -1938px; }
-.print           { background-position: -3px -1503px; } 
-.sort-num        { background-position: -3px -1031px; } 
-.stick           { background-position: -3px -2048px; } 
-.switch-off      { background-position: -3px -1756px; } 
+.pdf             { background-position: -3px -2096px; }
+.print           { background-position: -3px -1505px; }
+.sort-num        { background-position: -3px -1031px; }
+.stick           { background-position: -3px -2048px; }
+.switch-off      { background-position: -3px -1756px; }
 .switch-on       { background-position: -3px -1733px; }
-.up              { background-position: -3px -1595px; } 
+.up              { background-position: -3px -1595px; }
 .user            { background-position: -3px -1406px; }
 .user-edit       { background-position: -3px -1868px; }
-.user-group      { background-position: -3px -1892px; } 
+.user-group      { background-position: -3px -1892px; }
 .user-group-edit { background-position: -3px -1914px; }
-.print           { background-position:-3px -1505px; }
 
 a.el-collapsed {padding: 0 0 0 20px;background:url(../images/icons2.png) -4px -1829px no-repeat;}
 a.el-expanded {padding: 0 0 0 20px; background:url(../images/icons2.png) -4px -1846px no-repeat;}

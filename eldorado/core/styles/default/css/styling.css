@@ -213,9 +213,7 @@ table.nice tbody tr:hover td { background: #f2f2f2; }
 
 div.multiselect { 
 	position:relative;
-/*	height:22px;*/
 	padding:3px 0;
-/*	border:1px solid #ccc;*/
 }
 div.multiselect .multiselect-opts { 
 	padding: 3px 7px; 
@@ -405,6 +403,7 @@ a.icons {
 .img-edit        { background-position:  2px -1490px; }
 .lock            { background-position: -3px -1194px; }
 .logout          { background-position: -3px -1430px; }
+.money           { background-position: -3px -2117px; }
 .move-to         { background-position: -3px -1527px; }
 .ok              { background-position: -3px -620px;  }
 .passwd          { background-position: -3px -1938px; }

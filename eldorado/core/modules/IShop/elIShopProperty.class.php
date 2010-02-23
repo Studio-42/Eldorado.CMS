@@ -21,9 +21,9 @@ function elIShopParsePropValue($str)
   return preg_replace($reg, sprintf(m('from %s till %s (step %s)'), "\\1", "\\2", "\\3"), $str);
 }
 
-class elIShopProperty extends elMemberAttribute
+class elIShopProperty extends elDataMapping
 {
-  var $tb            = '';
+  var $_tb            = '';
   var $tbpval        = '';
   var $tbp2i         = '';
   var $ID            = 0;
@@ -67,21 +67,20 @@ class elIShopProperty extends elMemberAttribute
   /**
    * Возвращает массив объектов своего класса
    */
-  function getCollection($field=null, $orderBy=null, $offset=0, $limit=0, $where=null )
-  {
-    $coll = parent::getCollection($field, $orderBy, $offset, $limit, $where);
-    if ( !empty($coll) )
-    {
-      $db     = &elSingleton::getObj('elDb');
-      $IDsStr = implode(',', array_keys($coll));
-      $db->query( 'SELECT id, p_id, is_default, value FROM '.$this->tbpval.' WHERE p_id IN ('.$IDsStr.') ORDER BY id' );
-      while ($r = $db->nextRecord())
-      {
-        $coll[$r['p_id']]->values[$r['id']] = array($r['value'], $r['is_default']);
-      }
-    }
-    return $coll;
-  }
+	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
+		$coll = parent::collection(true, true, $clause, $sort, $offset, $limit, $onlyFields);
+		if (!empty($coll)) {
+			$db     = &elSingleton::getObj('elDb');
+		    $IDsStr = implode(',', array_keys($coll));
+		    $db->query( 'SELECT id, p_id, is_default, value FROM '.$this->tbpval.' WHERE p_id IN ('.$IDsStr.') ORDER BY id' );
+		    while ($r = $db->nextRecord())
+		    {
+		    	$coll[$r['p_id']]->values[$r['id']] = array($r['value'], $r['is_default']);
+		    }
+		}
+		return $coll;
+	}
+
 
   /**
    * Возвращает поля объекта в виде массива
@@ -117,7 +116,7 @@ class elIShopProperty extends elMemberAttribute
     if ( EL_IS_PROP_MLIST == $this->type )
     {
       $db = & elSingleton::getObj('elDb');
-      $sql = 'SELECT id FROM '.$this->tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\'';
+      $sql = 'SELECT id FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\'';
       $db->query( $sql );
       return $db->numRows();
     }
@@ -142,15 +141,15 @@ class elIShopProperty extends elMemberAttribute
 
   function editDependance( $iTypeName, $master )
   {
-    parent::makeForm();
+    parent::_makeForm();
     $rnd = & elSingleton::getObj('elTplGridFormRenderer');
     $rnd->addButton( new elSubmit('submit', '', m('Submit')) );
     $rnd->addButton( new elReset('reset', '', m('Drop')) );
-    $this->form->setRenderer( $rnd );
+    $this->_form->setRenderer( $rnd );
     $l = sprintf(m('Item type: %s. Edit properties dependance'), $iTypeName);
-    $this->form->setLabel($l);
-    $this->form->add( new elCData('myname', $this->name), array('class'=>'formSubheader') );
-    $this->form->add( new elCData('two', $master->name), array('class'=>'formSubheader') );
+    $this->_form->setLabel($l);
+    $this->_form->add( new elCData('myname', $this->name), array('class'=>'formSubheader') );
+    $this->_form->add( new elCData('two', $master->name), array('class'=>'formSubheader') );
 
     $mVals = array();
     foreach ( $master->values as $ID=>$v)
@@ -160,14 +159,14 @@ class elIShopProperty extends elMemberAttribute
     $dep = $this->getDependance(); //elPrintR( $dep );
     foreach ( $this->values as $ID=>$v)
     {
-      $this->form->add( new elCData('s_'.$ID, elIShopParsePropValue($v[0])) );
+      $this->_form->add( new elCData('s_'.$ID, elIShopParsePropValue($v[0])) );
       //$vals = !empty($dep[$ID]) ? $dep[$ID] : null;
-      $this->form->add( new elMultiSelectList('mvals['.$ID.']', '', !empty($dep[$ID]) ? $dep[$ID] : null, $mVals, null, false, true, 'span') );
+      $this->_form->add( new elMultiSelectList('mvals['.$ID.']', '', !empty($dep[$ID]) ? $dep[$ID] : null, $mVals, null, false, true, 'span') );
     }
 
-    if ( $this->form->isSubmitAndValid() )
+    if ( $this->_form->isSubmitAndValid() )
     {
-      $data = $this->form->getValue(); //elPrintR($data);
+      $data = $this->_form->getValue(); //elPrintR($data);
       $db   = & elSingleton::getObj('elDb');
       $db->query( 'DELETE FROM '.$this->tbpdep.' WHERE s_id='.$this->ID );
       $db->optimizeTable( $this->tbpdep );
@@ -237,9 +236,9 @@ class elIShopProperty extends elMemberAttribute
    * Создает объект-форму для редактирования своих полей
    *
    */
-  function makeForm( $params )
+  function _makeForm( $params )
   {
-    parent::makeForm();
+    parent::_makeForm();
 
     if ($this->ID)
     {
@@ -253,10 +252,10 @@ class elIShopProperty extends elMemberAttribute
       $this->sortNdx = $maxSortNdx;
     }
 
-    $this->form->setLabel( sprintf( m($lable), $params['itName'] ) );
+    $this->_form->setLabel( sprintf( m($lable), $params['itName'] ) );
     $typesList = & new elSelect('type', m('Property type'), $this->type, null, array('onChange'=>'checkISPropFormAdmin()'));
-    $this->form->add( $typesList );
-    $this->form->add( new elText('name', m('Name'), $this->name) );
+    $this->_form->add( $typesList );
+    $this->_form->add( new elText('name', m('Name'), $this->name) );
 
 
     $attrs = array('rowAttrs'=>'style="display:none"');
@@ -266,26 +265,25 @@ class elIShopProperty extends elMemberAttribute
     {
       $opts[$type] = $v[0];
       $class       = $v[1];
-      $this->form->add( new $class('values'.$type, m('Deault value'), $this->_getValueByType($type), $v[2]), $attrs );
+      $this->_form->add( new $class('values'.$type, m('Deault value'), $this->_getValueByType($type), $v[2]), $attrs );
     }
     $typesList->add( $opts );
 
-    $this->form->add( new elSelect('sort_ndx',     m('Order position'), $this->sortNdx, range(1, $maxSortNdx), null, false, false) );
-    $this->form->add( new elSelect('display_pos',  m('Display position in item card'), $this->displayPos, $GLOBALS['elIShopPropPos']) );
-    $this->form->add( new elSelect('display_name', m('Display property name in item card'), $this->displayName, $GLOBALS['yn'] ) );
-    $this->form->add( new elSelect('is_hidden',    m('Display only in order form'),         $this->isHidden, $GLOBALS['yn'] ) );
-    $this->form->add( new elSelect('is_announced', m('Announce propery in items list'), $this->isAnnounced, $GLOBALS['yn'] ) );
+    $this->_form->add( new elSelect('sort_ndx',     m('Order position'), $this->sortNdx, range(1, $maxSortNdx), null, false, false) );
+    $this->_form->add( new elSelect('display_pos',  m('Display position in item card'), $this->displayPos, $GLOBALS['elIShopPropPos']) );
+    $this->_form->add( new elSelect('display_name', m('Display property name in item card'), $this->displayName, $GLOBALS['yn'] ) );
+    $this->_form->add( new elSelect('is_hidden',    m('Display only in order form'),         $this->isHidden, $GLOBALS['yn'] ) );
+    $this->_form->add( new elSelect('is_announced', m('Announce propery in items list'), $this->isAnnounced, $GLOBALS['yn'] ) );
 
     if (EL_IS_PROP_MLIST == $this->type)
     {
       $db = & elSingleton::getObj('elDb');
-      $sql = $sql = 'SELECT id, name FROM '.$this->tb
-        .' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\' ORDER BY sort_ndx';
-      $dList = array(0=>'none') + $db->queryToArray($sql, 'id', 'name');
-      $this->form->add( new elSelect('depend_id', m('Depend on'), $this->dependID, $dList) );
+      // $sql = 'SELECT id, name FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\' ORDER BY sort_ndx';
+      $dList = array(0=>'none') + $db->queryToArray('SELECT id, name FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\' ORDER BY sort_ndx', 'id', 'name');
+      $this->_form->add( new elSelect('depend_id', m('Depend on'), $this->dependID, $dList) );
     }
 
-    $this->form->setRequired('name');
+    $this->_form->setRequired('name');
 
     elAddJs('checkISPropFormAdmin()', EL_JS_SRC_ONREADY);
 
@@ -376,7 +374,7 @@ class elIShopProperty extends elMemberAttribute
   function delete()
   {
     $db  = &elSingleton::getObj('elDb');
-    $sql = 'UPDATE '.$this->tb.' SET sort_ndx=sort_ndx-1 WHERE '
+    $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx-1 WHERE '
       .'t_id='.intval($this->iTypeID).' AND id<>\''.$this->ID.'\' '
       .'AND sort_ndx>='.intval($this->sortNdx);
     $db->query($sql);
@@ -424,7 +422,7 @@ class elIShopProperty extends elMemberAttribute
   /**
    * Очистка полей объекта
    */
-  function cleanAttrs()
+  function clean()
 	{
 		$mapping = $this->memberMapping();
 		foreach ( $mapping as $attr=>$member )
@@ -462,10 +460,10 @@ class elIShopProperty extends elMemberAttribute
 	 */
   function _validForm()
   {
-    $data = $this->form->getValue(); //echo $data['type'];
+    $data = $this->_form->getValue(); //echo $data['type'];
     $src = $data['values'.$data['type']];
     return EL_IS_PROP_LIST <= $data['type'] && empty($src)
-      ? $this->form->pushError('values'.$data['type'], 'Could not be empty')
+      ? $this->_form->pushError('values'.$data['type'], 'Could not be empty')
       : true;
   }
 
@@ -479,12 +477,12 @@ class elIShopProperty extends elMemberAttribute
   function _postSave()
   {
     $db  = &elSingleton::getObj('elDb');
-    $sql = 'UPDATE '.$this->tb.' SET sort_ndx=sort_ndx+1 WHERE '
+    $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx+1 WHERE '
       .'t_id='.intval($this->iTypeID).' AND id<>\''.$this->ID.'\' '
       .'AND sort_ndx>='.intval($this->sortNdx);
     $db->query($sql);
 
-    $data   = $this->form->getValue();
+    $data   = $this->_form->getValue();
     $src    = $data['values'.$this->type];
     $tplIns = 'INSERT INTO '.$this->tbpval.' (p_id, value, is_default) VALUES (\''.$this->ID.'\', \'%s\', \'%d\')';
     $tplUpd = 'UPDATE '.$this->tbpval.' SET value=\'%s\', is_default=\'%d\' WHERE id=\'%d\'';

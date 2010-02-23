@@ -1,6 +1,6 @@
 <div class="mod-tshop">
 <!-- BEGIN CUR_CAT_DESCRIP -->
-<div class="current-cat-descrip clearfix"><h4>{curCatName}</h4>{curCatDescrip} </div>
+<div class="current-cat-descrip clearfix"><h4>{name}</h4>{descrip} </div>
 <!-- END CUR_CAT_DESCRIP -->
 
 <!-- BEGIN CATS_ONECOL -->
@@ -63,10 +63,10 @@
 </div>
 <!-- END CATS_TWOCOL -->
 
-<!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
+<!-- BEGIN DC_HDELIM --><!-- END DC_HDELIM -->
 
-<form action="{URL}compare/" method="get">
-	
+<form action="{URL}compare/{catID}/" method="get" id="mod-tshop-form">
+
 <!-- BEGIN ITEMS_ONECOL -->
 <ul class="items-onecol">
 	<!-- BEGIN ITEM -->
@@ -81,11 +81,10 @@
 		<!-- END ADMIN -->
 		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
 		<!-- BEGIN COMPARE -->
-		<div class="mod-tshop-check">
-			<div>
-				<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
-			</div>
-		</div>
+		<label class="mod-tshop-compare-model">
+			<input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
+			<a href="#" class="mod-tshop-compare-model-a" title="{m('Select for compare')}"></a>
+		</label>
 		<!-- END COMPARE -->
 		<!-- BEGIN MNF -->
 		<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
@@ -107,10 +106,8 @@
          </div>
 		<!-- END ANN -->
 		
-		<!-- BEGIN MOD_ROW -->
+		<!-- BEGIN MODELS -->
 		<div class="rounded-top-5 mod-tshop-models">
-
-			<input type="submit" value="{m('Compare selected')}" class="float-right form-submit " style="display:none" />
 
 			<div class="rounded-top-5 mod-tshop-models-head">
 				<a href="#" class="el-collapsed">{m('Show/hide models list')}</a>
@@ -119,10 +116,6 @@
 			<div class="mod-tshop-models-list hide">
 				<!-- BEGIN MODEL -->
 				<div class="mod-tshop-model">
-					
-					<div class="mod-tshop-check">
-						<label for="m-{id}">{m('Select for compare')}</label> <input type="checkbox" name="m[{id}]" id="m-{id}" value="1" />
-					</div>
 					<!-- BEGIN MODEL_ADMIN -->
 					<ul class="adm-icons">
 						<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"     class="icons edit"   title="{m('Edit')}"></a></li>
@@ -130,6 +123,13 @@
 						<li><a href="{URL}rm_model/{catID}/{i_id}/{id}/"       class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 					</ul>
 					<!-- END MODEL_ADMIN -->
+					<!-- BEGIN MODEL_COMPARE -->
+					<label class="mod-tshop-compare-model">
+						<input type="checkbox" name="m[{id}]" id="m-{id}" value="1" title="{m('Select for compare')}|here" class="float-left" />
+						<a href="#" class="mod-tshop-compare-model-a" title="{m('Select for compare')}"></a>
+					</label>
+					<!-- END MODEL_COMPARE -->
+					
 				   	<h5><span>{code}</span> {name}</h5>
 		
 					<!-- BEGIN MODEL_PRICE -->
@@ -156,7 +156,7 @@
 		   		<!-- END MODEL -->
 			</div>
 		</div>
-		<!-- END MOD_ROW -->
+		<!-- END MODELS -->
 	</li>
 	<!-- END ITEM -->
 </ul>
@@ -175,14 +175,14 @@
 				<li><a href="{URL}rm_item/{catID}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 			</ul>
 			<!-- END ADMIN -->
-			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
 			<!-- BEGIN COMPARE -->
-			<div class="mod-tshop-check">
-				<div>
-					<label for="i-{id}">{m('Select for compare')}</label> <input type="checkbox" name="i[{id}]" id="i-{id}" value="1" />
-				</div>
-			</div>
+			<label class="mod-tshop-compare-model">
+				<input type="checkbox" name="i[{id}]" id="i-{id}" value="1" title="{m('Select for compare')}" class="mod-tshop-compare-item" />
+				<a href="#" class="mod-tshop-compare-model-a" title="{m('Select for compare')}"></a>
+			</label>
 			<!-- END COMPARE -->
+			
+			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
 			<!-- BEGIN MNF -->
 			<div class="mod-tshop-mnf">{m('Manufacturer')}: <a href="{URL}mnf/{mnf_id}">{mnfName}</a> {mnfCountry}</div>
 			<!-- END MNF -->
@@ -203,22 +203,21 @@
 	         </div>
 			<!-- END ANN -->
 
-			<!-- BEGIN MOD_ROW -->
+			<!-- BEGIN MODELS -->
 			<div class="rounded-top-5 mod-tshop-models">
-
-				<input type="submit" value="{m('Compare selected')}" class="float-right form-submit " style="display:none" />
-
 				<div class="rounded-top-5 mod-tshop-models-head">
-					<a href="#" class="el-collapsed">{m('Show/hide models list')}</a>
+					<a href="#" class="el-collapsed">{m('Show/hide models list')} </a>
 				</div>
 
 				<div class="mod-tshop-models-list hide">
 					<!-- BEGIN MODEL -->
-					<div class="mod-tshop-model">
-
-						<div class="mod-tshop-check">
-							<label for="m-{id}">{m('Select for compare')}</label> <input type="checkbox" name="m[{id}]" id="m-{id}" value="1" />
-						</div>
+					<div class="mod-tshop-model" style="overflow:hidden">
+						<!-- BEGIN MODEL_COMPARE -->
+						<label class="mod-tshop-compare-model">
+							<input type="checkbox" name="m[{id}]" id="m-{id}" value="1" title="{m('Select for compare')}"/>
+							<a href="#" class="mod-tshop-compare-model-a" title="{m('Select for compare')}"></a>
+						</label>
+						<!-- END MODEL_COMPARE -->
 						<!-- BEGIN MODEL_ADMIN -->
 						<ul class="adm-icons">
 							<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"    class="icons edit"   title="{m('Edit')}"></a></li>
@@ -232,7 +231,7 @@
 					    <div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
 					    <!-- END MODEL_PRICE -->
 
-						<div class="clearfix">
+						<div>
 							<!-- BEGIN MODEL_IMG -->
 							<div class="mod-tshop-model-img float-right"><a href="{target}" rel="fancy-tour"><img src="{tmb}" /></a></div>
 						    <!-- END MODEL_IMG -->
@@ -251,7 +250,7 @@
 			   		<!-- END MODEL -->
 				</div>
 			</div>
-			<!-- END MOD_ROW -->
+			<!-- END MODELS -->
 		</div>
 	<!-- END ITEM -->
 	<div class="clear"></div>
@@ -272,16 +271,38 @@
 	$().ready(
 		function() { 
 
-			$('.mod-tshop :checkbox').click( 
-				function() { 
-					var p = $(this).parents('div').eq(2);
-					if ( p.find(':checkbox[checked]').length ) 
-						p.parent().find(':submit').show('slow');
-					else 
-						p.parent().find(':submit').hide('slow')
-					} 
-				);
-				
+			function updateClueTip(c) {
+				if ($('.mod-tshop-compare-model :checkbox:checked').length>1) {
+					c.find('input').removeAttr('disabled').prev().hide();
+				} else {
+					c.find('input').attr('disabled', 'disabled').prev().show();
+				}
+			}
+
+			if ($.fn.cluetip) {
+
+			$('.mod-tshop-compare-model :checkbox').click(function(e) {
+				updateClueTip($('#cluetip'));
+			}).cluetip({
+				splitTitle    : '|',
+				closeText     : "{m('Close')}",
+				closePosition : 'title',
+				sticky        : true,
+				delayedClose  : 9000,
+				height        : 95,
+				clickThrough  : true,
+				onShow        : function(ct, c) {
+					if (!c.children(':input').length) {
+						c.css('text-align', 'center')
+							.append($('<span/>').append("{m('Select at least two of items')}"))
+							.append($('<input type="submit" />').val("{m('Compare selected')}").attr('disabled', 'on').click(function() {
+								$('#mod-tshop-form').submit()
+						}));
+					}
+					updateClueTip(c);
+				}
+			});
+		}
 			$('.mod-tshop .el-collapsed').click( 
 				function(e) {
 					e.preventDefault(); 

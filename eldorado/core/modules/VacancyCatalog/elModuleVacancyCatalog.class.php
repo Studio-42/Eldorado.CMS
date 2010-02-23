@@ -48,12 +48,12 @@ class elModuleVacancyCatalog extends elCatalogModule
 
     if (!$this->_conf('useDefaultForm') && $this->_loadFormElements())
     {
-      $this->_makeNoDefaultForm($this->_item->getAttr('name'));
+      $this->_makeNoDefaultForm($this->_item->name);
       $default = false;
     }
     else
     {
-      $this->_makeDefaultForm($this->_item->getAttr('name'));
+      $this->_makeDefaultForm($this->_item->name);
     }
 
     if (!$this->_form->isSubmitAndValid())
@@ -62,7 +62,7 @@ class elModuleVacancyCatalog extends elCatalogModule
       return $this->_rnd->addToContent( $this->_form->toHtml());
     }
 
-    $subj                 = sprintf(m('Resume on vacancy "%s"'), $this->_item->getAttr('name'));
+    $subj                 = sprintf(m('Resume on vacancy "%s"'), $this->_item->name);
     list($msg, $reply)    = $this->_getMailMsgAndReply( $this->_form->getValue(), $default );
     list($sender, $rcpts) = $this->_getMailAddresses($this->_form->getValue());
     $res = false;

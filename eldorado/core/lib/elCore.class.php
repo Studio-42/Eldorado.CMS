@@ -100,7 +100,7 @@ class elCore
 			// ActionLog
 			$nav = & elSingleton::getObj('elNavigator');
 			$module = $nav->findByModule('ActionLog');
-			$module = $module[0];
+			$module = !empty($module[0]) ? $module[0] : 0;
 			if ($module > 0)
 			{
 				if (($conf->get('reportNext', $module) < time()) and ($conf->get('reportPeriod', $module) > 0))
@@ -206,23 +206,11 @@ class elCore
 
 	function _outputXML()
 	{
-		if ( $this->cacheAllow && $this->cacheContent )
+		if ( !$this->_loadModule() )
 		{
-			$xml = $this->_cacheContent;
+			elLocation(EL_URL);
 		}
-		else
-		{
-			if ( !$this->_loadModule() )
-			{
-				elLocation(EL_URL);
-			}
-			$xml = $this->module->toXML();
-
-			if ($this->cacheAllow )
-			{
-				$this->cacheObj->save($this->cacheID, $xml, EL_WM_XML );
-			}
-		}
+		$xml = $this->module->toXML();
 
 		header('Content-type: text/xml; charset=utf-8');
 		echo $xml;

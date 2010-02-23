@@ -75,6 +75,10 @@ class elDataMapping
 		// echo get_class($this).' ';
 		// echo $this->__id__.' '.'<br>';
 		// elPrintR($this);
+		// if (isset($this->{$this->__id__})) {
+		// 	$this->{$this->__id__} = 0;
+		// }
+		// elPrintR($this);
 		return is_null($val) ? $this->{$this->__id__} : $this->{$this->__id__} = $val;
 	}
 	

@@ -4,17 +4,6 @@ function popUp(url, w, h)
 	return false;
 }
 
-function elInArray(needle, haystack)
-{
-  for (i=0; i<haystack.length; i++)
-  {
-    if (needle == haystack[i])
-    {
-      return true;
-    }
-  }
-  return false;
-}
 
 var searchLocked = false;
 
@@ -24,16 +13,18 @@ function _search(event) {
 		var url  = elBaseURL + '_xml_/__search__/' ; 
 		var data = {_form_ : 'search', sstr: $(this).val()};
 
-		locked = true;
+		searchLocked = true;
 		
 		$.ajax({
 			url      : elBaseURL+'__search__/html/',
 			dataType : 'html',
 			data     : data,
-			error    : function(h, t, e) { locked = false; },
+			error    : function(h, t, e) { searchLocked = false; $('#search-form-top').removeClass('searchProgress'); },
 			success  : function(data) { 
 				var c = $('#main #el-content').fadeOut();
 				var r = $('#main #search-result');
+				$('#search-form-top').removeClass('searchProgress');
+				
 				if (!r.length) {
 					var r = $('<div />')
 						.attr('id', 'search-result')
@@ -42,6 +33,7 @@ function _search(event) {
 						.append($('<div />').addClass('close').click(function(e) {
 							r.fadeOut().children().eq(1).remove();
 							c.fadeIn();
+							$('#search-str').val('');
 						}));
 				} else {
 					r.children().eq(1).remove();
@@ -60,7 +52,7 @@ $().ready( function() {
 		$(this).parent().siblings('ul').slideToggle('slow');
 	});
 	
-	$('#search-ico').click( function(e) {
+	$('#search-icon').click( function(e) {
 		var f = $('#search-form-top');
 		e.stopPropagation();
 		if (f.is(':hidden')) {

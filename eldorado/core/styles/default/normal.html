@@ -46,37 +46,23 @@
 <body class="{bodyCssClass}">
 
 	<div id="body" >
-		<div id="page" class="clearfix debug-rec-" >
+		<div id="page" class="clearfix">
 
-			<!-- begin: #main -->
 			<div id="header">
 				<div id="logo"><a href="{BASE_URL}"><img src="{STYLE_URL}images/design/logo.jpg" /></a> </div>
 				<span class="print">{phones}</span>
-				<div class="ie-clear">&nbsp;</div>
-				
-				<div id="addnavtop">
-					<!-- BEGIN ADD_MENU_TOP_POS -->{ADD_MENU_TOP} <!-- END ADD_MENU_TOP_POS -->
-					<!-- BEGIN USER_INFO_TOP --> {USER_INFO_TOP} <!-- END USER_INFO_TOP -->
-	                <!-- BEGIN AUTH_FORM_TOP --> {AUTH_FORM_TOP} <!-- END AUTH_FORM_TOP -->
-	                <!-- BEGIN ICART_TOP -->{ICART_TOP} <!-- END ICART_TOP -->
-	                <!-- BEGIN SEARCH_FORM_TOP --> {SEARCH_FORM_TOP}<!-- END SEARCH_FORM_TOP -->
-					<div><a href="#" class="icons print" onclick="window.print();return false;" title="{m('Printer friendly version')}"></a></div>
-				</div>
 			</div>
-	    	<!-- end: #main -->
 
-			<div id="navtop" >
-				<!-- BEGIN MAIN_MENU_POS_TOP -->{MAIN_MENU_TOP} <!-- END MAIN_MENU_POS_TOP -->
-				<!-- BEGIN SUB_MENU_POS_TOP --> {SUB_MENU_TOP}  <!-- END SUB_MENU_POS_TOP -->
+			<div id="navtop">
+				{MENU_TOP}
 			</div>
 	   		<!-- begin: #main -->
 			<div id="main">
 				<!-- BEGIN LEFT_COLUMN -->
 				<div id="left">
 					<div id="lc-content" class="clearfix">
-	          			{CAT_MENU_LEFT}
 						{MENU_LEFT}
-						{TS_MMENU_LEFT}
+						{ADD_MENU_LEFT}
 						{ICART_LEFT}
 						{PLUGIN_NEWS_TOPICS_LEFT}
 						{PLUGIN_INFO_BLOCK_LEFT}
@@ -93,9 +79,8 @@
 	      		<div id="right">
 	        		<div id="rc-content" class="clearfix">
 	          			{SEARCH_FORM_RIGHT}
-						{CAT_MENU_RIGHT}
 						{MENU_RIGHT}
-						{TS_MMENU_RIGHT}
+						{ADD_MENU_RIGHT}
 						{ICART_RIGHT}
 						{PLUGIN_NEWS_TOPICS_RIGHT}
 						{PLUGIN_INFO_BLOCK_RIGHT}
@@ -141,22 +126,31 @@
 	      		</div>
 			</div>
 	    	<!-- end: #main -->
+	
 		</div>
 		<!-- end: #page -->
+		
 		</div>
 		
-		<div id="footer" class="debug-rec-" >
-			<div id="navbottom"><!-- BEGIN ADD_MENU_BOTTOM_POS --> {ADD_MENU_BOTTOM} <!-- END ADD_MENU_BOTTOM_POS --></div>
-			<div id="footer-content">
-				<div>{YEAR} &copy; {owner}</div>
-						<span>	<a href="http://www.eldorado-cms.ru">ELDORADO.CMS {elVer} {elName}</a></span>
-				
-				
-			</div>
+		<div id="footer">
+				<div id="footer-content">
+					
+					{YEAR} &copy; {owner}
+					<address>
+						{phones} {contacts}
+					</address>
+					<a href="http://www.eldorado-cms.ru">ELDORADO.CMS {elVer} {elName}</a>
+				</div>
+				{ADD_MENU_BOTTOM}
 		</div>
+		
 	<!-- end: #body -->
 
-    
+	<div id="top-panel">
+		<ul>
+			{AUTH_FORM_TOP}{USER_INFO_TOP}{ADD_MENU_TOP}{ICART_TOP}{SEARCH_FORM_TOP}<li><a href="#" id="print-icon" onclick="window.print();return false;" title="{m('Printer friendly version')}"></a></li>
+		</ul>
+	</div>
 
 
 	<!-- BEGIN COUNTERS -->{COUNTERS}<!-- END COUNTERS -->

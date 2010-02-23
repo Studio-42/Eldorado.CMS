@@ -1,5 +1,11 @@
 <?php
+define('EL_CAT_DESCRIP_NO',      0);
+define('EL_CAT_DESCRIP_IN_LIST', 1);
+define('EL_CAT_DESCRIP_IN_SELF', 2);
+define('EL_CAT_DESCRIP_IN_BOTH', 3);
+
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
+
 class elCatalogModule extends elModule
 {
   var $tbc        = '';
@@ -32,8 +38,7 @@ class elCatalogModule extends elModule
                          $item->getByCategory($this->_cat->ID, $this->_conf('itemsSortID'), $offset, $step),
                          $total,
                          $current,
-                         $this->_cat->getAttr('name'),
-                         $this->_cat->getAttr('descrip')
+                         $this->_cat
                       );
   }
 
@@ -86,13 +91,12 @@ class elCatalogModule extends elModule
   function _getCategory()
   {
 	$cat = new elCatalogCategory();
-    // $cat = elSingleton::getObj( 'elCatalogCategory' );
-    $cat->tb = $this->tbc;
+    $cat->tb($this->tbc);
     $cat->tbi2c = $this->tbi2c;
-    $cat->setUniqAttr( (int)$this->_arg(1) );
+    $cat->idAttr( (int)$this->_arg(1) );
     if ( $cat->ID && !$cat->fetch() )
     {
-    	$cat->cleanAttrs();
+    	$cat->clean();
     }
     return $cat;
   }
@@ -100,12 +104,12 @@ class elCatalogModule extends elModule
   function _getItem()
   {
     $item        = elSingleton::getObj( $this->_itemClass );
-    $item->tb    = $this->tbi;
+    $item->tb($this->tbi);
     $item->tbi2c = $this->tbi2c;
-    $item->setUniqAttr( (int)$this->_arg(1) );
+    $item->idAttr( (int)$this->_arg(1) );
     if ( $item->ID && !$item->fetch() )
     {
-    	$item->cleanAttrs();
+    	$item->clean();
     }
     return $item;
   }
@@ -148,7 +152,7 @@ class elCatalogModule extends elModule
     	$ID = 1;
     }
     $this->_cat = $this->_getCategory();
-    $this->_cat->setUniqAttr( $ID );
+    $this->_cat->idAttr( $ID );
     if ( !$this->_cat->fetch() )
 		{
 			if (1 <> $ID)
@@ -176,15 +180,17 @@ class elCatalogModule extends elModule
     	{
     		unset($this->_mMap['sort'], $this->_mMap['rm_group']);
     	}
-
-		if ('item' != $this->_mh && 'cross_links' != $this->_mh )
-    	{
-      		$this->_removeMethods('cross_links');
-    	}
-    	else
-    	{
-      		$this->_mMap['cross_links']['apUrl'] .= '/'.((int)$this->_arg(1)).'/';
-    	}
+		if (isset($this->_mMap['cross_links'])) {
+			if ('item' != $this->_mh && 'cross_links' != $this->_mh )
+	    	{
+	      		$this->_removeMethods('cross_links');
+	    	}
+	    	else
+	    	{
+	      		$this->_mMap['cross_links']['apUrl'] .= '/'.((int)$this->_arg(1)).'/';
+	    	}
+			
+		}
   }
 
 }

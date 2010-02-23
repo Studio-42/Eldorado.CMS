@@ -155,7 +155,7 @@ class elForumPost extends elDataMapping
 		$rnd->addButton( new elSubmit('preview', '', m('Preview') ));		
 		$this->_form->setRenderer( $rnd );
 		
-		elAddJs('jquery.form.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 	}
 	
 	function _attrsForSave()

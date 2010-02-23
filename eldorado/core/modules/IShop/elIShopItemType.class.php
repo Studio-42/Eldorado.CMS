@@ -1,6 +1,6 @@
 <?php
 
-class elIShopItemType extends elMemberAttribute
+class elIShopItemType extends elDataMapping
 {
   var $tb         = '';
   var $tbp        = '';
@@ -13,23 +13,23 @@ class elIShopItemType extends elMemberAttribute
   var $_objName   = 'Good type';
 
 
-  function getCollection()
-  {
-    $coll    = parent::getCollection();
-    if ( !empty($coll) )
-    {
-      $factory = &elSingleton::getObj('elIShopFactory');
-      $props   = $factory->getProperties();
-      foreach ( $props as $p)
-      {
-        if ( !empty($coll[$p->iTypeID]) )
-        {
-          $coll[$p->iTypeID]->setProperty($p);
-        }
-      }
-    }
-    return $coll;
-  }
+	function collection()
+	{
+		$coll = parent::collection(true, true, null, 'name');
+		if ( !empty($coll) )
+		{
+			$factory = &elSingleton::getObj('elIShopFactory');
+			$props   = $factory->getProperties();
+			foreach ( $props as $p)
+			{
+				if ( !empty($coll[$p->iTypeID]) )
+				{
+					$coll[$p->iTypeID]->setProperty($p);
+				}
+			}
+		}
+		return $coll;
+	}
 
 
   function isPropertyExists($pID)
@@ -71,7 +71,7 @@ class elIShopItemType extends elMemberAttribute
     {
       $factory     = & elSingleton::getObj('elIShopFactory');
       $this->_prop = $factory->getProperty($pID);
-      $this->_prop->setAttr('t_id', $this->ID);
+      $this->_prop->attr('t_id', $this->ID);
     }
     return $this->_prop->editAndSave( array('itName'=>$this->name, 'maxSortNdx'=>sizeof($this->props)) );
   }
@@ -107,14 +107,14 @@ class elIShopItemType extends elMemberAttribute
 
   function formToHtml()
   {
-    return $this->form ? $this->form->toHtml() : ( $this->_prop ? $this->_prop->formToHtml() : '' );
+    return $this->_form ? $this->_form->toHtml() : ( $this->_prop ? $this->_prop->formToHtml() : '' );
   }
 
-  function makeForm()
+  function _makeForm()
   {
-    parent::makeForm();
-    $this->form->add( new elText('name', m('Type name'), $this->name));
-    $this->form->setRequired('name');
+    parent::_makeForm();
+    $this->_form->add( new elText('name', m('Type name'), $this->name));
+    $this->_form->setRequired('name');
   }
 
   function _attrsForSave()

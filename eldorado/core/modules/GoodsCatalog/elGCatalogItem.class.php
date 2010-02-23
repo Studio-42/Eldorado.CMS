@@ -22,17 +22,15 @@ class elGCatalogItem extends elCatalogItem
 	/**
    * Create edit item form object
    */
-	function makeForm( $parents )
+	function _makeForm( $parents )
 	{
-		parent::makeForm( $parents );
-		//$this->form->add( new elMultiSelectList('pids', m('Parent categories'), $this->_getParents(), $parents) );
-		//$this->form->add( new elText('name', m('Name'), $this->name, array('style'=>'width:100%;')) );
-		$this->form->add( new elText('price', m('Price'), $this->price, array('width'=>'20')) );
-		$this->form->add( new elEditor('announce', m('Announce'), $this->announce, array('height'=>'350')) );
-		$this->form->add( new elEditor('content', m('Content'), $this->content) );
-		$this->form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
-		$this->form->setRequired('pids[]');
-		$this->form->setRequired('name');
+		parent::_makeForm( $parents );
+		$this->_form->add( new elText('price', m('Price'), $this->price, array('width'=>'20')) );
+		$this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('height'=>'350')) );
+		$this->_form->add( new elEditor('content', m('Content'), $this->content) );
+		$this->_form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
+		$this->_form->setRequired('pids[]');
+		$this->_form->setRequired('name');
 	}
 
 

@@ -41,7 +41,7 @@ class elModuleFileArchive extends elCatalogModule
 		readfile(EL_DIR.$this->_item->fURL);
 
 		$db = &elSingleton::getObj('elDb');
-		$db->query('UPDATE '.$this->_item->tb.' SET cnt=cnt+1 WHERE id='.$this->_item->ID);
+		$db->query('UPDATE '.$this->_item->tb().' SET cnt=cnt+1 WHERE id='.$this->_item->ID);
 		exit;
 	}
 

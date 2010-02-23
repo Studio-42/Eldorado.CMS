@@ -106,3 +106,14 @@ CREATE TABLE `el_techshop_{pageID}_ft2m` (
   `is_split`     enum('0', '1') NOT NULL default '0',
   PRIMARY KEY  (`m_id`,`ft_id`)
 ) TYPE=MyISAM;
+
+DROP TABLE IF EXISTS `el_techshop_{pageID}_price`;
+CREATE TABLE IF NOT EXISTS `el_techshop_{pageID}_price` (
+  `id` int(3) NOT NULL auto_increment,
+  `i_id` int(3) NOT NULL default '0',
+  `name` varchar(255) collate utf8_bin NOT NULL default '',
+  `comment` tinytext collate utf8_bin NOT NULL,
+  `price` double(12,2) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `i_id` (`i_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;

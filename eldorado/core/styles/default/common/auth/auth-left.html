@@ -1,0 +1,34 @@
+<form action="{URL}__auth__/" method="POST" name="af">
+<input type="hidden" name="_form_" value="elf" />
+<input type="hidden" name="elAutoLogin" value="1" />
+<table class="form-tb auth-form-left">
+	<thead>
+  		<tr>
+    		<th colspan="2"><div class="icons user" style="float:left;margin:0 7px 0 0;border:none"></div> {m('Authorization')}</th>
+  		</tr>
+	</thead>
+	<tbody>
+  		<tr>
+    		<td align="right">Login:</td>
+    		<td><input type="text" name="elLogin" size="12" /></td>
+  		</tr>
+  		<tr>
+    		<td align="right">{m('Password')}:</td>
+    		<td><input type="password" name="elPass" size="12" /> </td>
+  		</tr>
+		<tr>
+			<td colspan="2"><a href="{URL}__passwd__/">{m('Forgot Your password?')}</a></td>
+		</tr>
+		<!-- BEGIN USER_REG -->
+		<tr>
+			<td colspan="2"><a href="{URL}__reg__/">{m('New user registration')}</a></td>
+		</tr>
+		<!-- END USER_REG -->
+	</tbody>
+	<tfoot>
+  		<tr>
+    		<td colspan="2"><input type="submit" value="{m('Log in')}" class="submit" /></td>
+  		</tr>
+	</tfoot>
+</table>
+</form>

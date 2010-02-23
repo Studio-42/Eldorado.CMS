@@ -1,6 +1,6 @@
 <?php
 
-class elTSManufacturer extends elMemberAttribute
+class elTSManufacturer extends elDataMapping
 {
 	var $tbi         = '';
 	var $ID          = 0;
@@ -13,6 +13,11 @@ class elTSManufacturer extends elMemberAttribute
 	var $siteURL     = '';
 	var $_objName    = 'Manufacturer';
 
+	/**
+	 * Return true if this manufacturers has not items
+	 *
+	 * @return boolen
+	 **/
 	function isEmpty()
 	{
 		$db = & elSingleton::getObj('elDb');
@@ -21,20 +26,32 @@ class elTSManufacturer extends elMemberAttribute
 		return !$r['cnt'];
 	}
 
-	function makeForm()
+	/**
+	 * Create form for editing object
+	 *
+	 * @param  array  $params
+	 * @return void
+	 **/
+	function _makeForm($params=null)
 	{
-		parent::makeForm();
+		parent::_makeForm();
 
-		$this->form->add( new elText('name',       m('Name'),     $this->getAttr('name')) );
-		$this->form->add( new elText('country',    m('Country'),  $this->getAttr('country')) );
-		$this->form->add( new elEditor('announce', m('Announce'), $this->getAttr('announce'), array('rows'=>24)));
-		$this->form->add( new elEditor('descrip',  m('Description'), $this->getAttr('descrip')) );
-		$this->form->add( new elText('url',        m('Site URL'), $this->getAttr('url')) );
+		$this->_form->add( new elText('name',       m('Name'),        $this->name) );
+		$this->_form->add( new elText('country',    m('Country'),     $this->country) );
+		$this->_form->add( new elText('url',        m('Site URL'),    $this->siteURL) );
+		$this->_form->add( new elEditor('announce', m('Announce'),    $this->announce, array('rows'=>24)));
+		$this->_form->add( new elEditor('descrip',  m('Description'), $this->descrip) );
+		
 
-		$this->form->setRequired('name');
-		//$this->form->setElementRule('url', 'http_url', false);
+		$this->_form->setRequired('name');
+		$this->_form->setElementRule('url', 'http_url', false);
 	}
 
+	/**
+	 * Data mapping
+	 *
+	 * @return array
+	 **/
 	function _initMapping()
 	{
 		$map = array(

@@ -1,5 +1,16 @@
 <?php
 
+define('EL_TSHOP_FEATURES_IN_LIST_DISABLE', 0);
+define('EL_TSHOP_FEATURES_IN_LIST_ENABLE',  1);
+define('EL_TSHOP_FEATURES_IN_LIST_COMPARE', 2);
+
+define('EL_TS_ISHOP_DISABLED',   0);
+define('EL_TS_ISHOP_ONLY_PRICE', 1);
+define('EL_TS_ISHOP_ENABLED',    2);
+
+define('EL_TS_LOBJ_POS_DEFAULT',  0);
+define('EL_TS_LOBJ_POS_TAB',      1);
+
 include_once(EL_DIR_CORE.'lib/elCatalogModule.class.php');
 
 elAddJs('jquery.js', EL_JS_CSS_FILE);
@@ -31,15 +42,17 @@ class elModuleTechShop extends elCatalogModule
   	'deep'              => 0,
     'catsCols'          => 1,
     'itemsCols'         => 2,
+	'featuresInItemsList' => EL_TSHOP_FEATURES_IN_LIST_COMPARE,
     'itemsSortID'       => 1,
     'itemsPerPage'      => 10,
-    'modelsInRow'       => 5,
     'displayCatDescrip' => 1,
     'modelsTmbSize'     => 100,
-    'eshopFunc'         => 0,
+	'ishop'             => EL_TS_ISHOP_DISABLED,
     'pricePrec'         => 2,
     'priceDownl'        => 0,
-	'displayManufact'   =>1
+	'fakePrice'         => 0,
+	'displayManufact'   => 1,
+	'linkedObjPos'      => EL_TS_LOBJ_POS_TAB
     );
 
   var $_csvSep   = array( array(';', 'Semicolon'), array(',', 'Comma') );
@@ -50,24 +63,22 @@ class elModuleTechShop extends elCatalogModule
 	 *
 	 */
 	function defaultMethod()
-  {
-	
-  	$this->_initCat($this->_arg());
-    $this->_initRenderer();
-    list($total, $current, $offset, $step) = $this->_getPagerInfo( $this->_cat->countItems() );
-    $item = $this->_factory->create(EL_TS_ITEM);
-    $cats = $this->_cat->getChilds( (int)$this->_conf('deep') );
-    $iSort = $this->_conf('itemsSortID');
-    $items = $this->_factory->getItemsFromCategory($this->_cat->ID, $iSort, $offset, $step);
+	{
+		$this->_initCat($this->_arg());
+		$this->_initRenderer();
+		list($total, $current, $offset, $step) = $this->_getPagerInfo( $this->_cat->countItems() );
+		$item = $this->_factory->create(EL_TS_ITEM);
+		$cats = $this->_cat->getChilds( (int)$this->_conf('deep') );
+		$iSort = $this->_conf('itemsSortID');
+		$items = $this->_factory->getItemsFromCategory($this->_cat->ID, $iSort, $offset, $step, $this->_conf('featuresInItemsList'));
 
-    $this->_rnd->render( $cats,
-                         $items,
-                         $total,
-                         $current,
-                         $this->_cat->getAttr('name'),
-                         $this->_cat->getAttr('descrip')
-                      );
-  }
+		$this->_rnd->render( $cats,
+		                     $items,
+		                     $total,
+		                     $current,
+		                     $this->_cat
+		                  );
+	}
 
 
   function downloadPrice()
@@ -91,42 +102,39 @@ class elModuleTechShop extends elCatalogModule
 
 
 	/**
-   * Display selected item details
-   *
-   */
+	* Display selected item details
+	*
+	*/
 	function displayItem()
 	{
-		
-      $this->_initCat($this->_arg());
-      $this->_item = $this->_factory->create(EL_TS_ITEM, $this->_arg(1));
-      if ( !$this->_item->ID )
-      {
-          elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-              array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
-      }
-      
-      $clm = & $this->_getCrossLinksManager();
-      $this->_initRenderer(); 
-      $this->_rnd->renderItem( $this->_item, $clm->getLinkedObjects($this->_item->ID) );
-
+		$this->_initCat($this->_arg());
+		$this->_item = $this->_factory->getItem($this->_arg(1));
+		if ( !$this->_item->ID )
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
+				array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
+		}
+		$clm = & $this->_getCrossLinksManager();
+		$this->_initRenderer(); 
+		$this->_rnd->renderItem( $this->_item, $clm->getLinkedObjects($this->_item->ID) );
 	}
 
 
 	/**
-   * Display list of manufacturers
-   *
-   */
+	* Display list of manufacturers
+	*
+	*/
 	function displayManufacturers()
 	{
 		$this->_mnf = $this->_factory->create(EL_TS_MNF);
 		$this->_initRenderer();
-		$this->_rnd->rndManufacturers( $this->_mnf->getCollection() );
+		$this->_rnd->rndManufacturers( $this->_mnf->collection(false) );
 	}
 
 	/**
-   * Display selected manufacturer details
-   *
-   */
+	* Display selected manufacturer details
+	*
+	*/
 	function displayManufacturer()
 	{
 		$this->_mnf = $this->_factory->create(EL_TS_MNF, $this->_arg());
@@ -137,40 +145,42 @@ class elModuleTechShop extends elCatalogModule
 		}
 		$this->_initRenderer();
 		$this->_rnd->rndManufacturer( $this->_mnf );
-		elAppendToPagePath( array('url'=>'mnfs/',	'name'=>m('Manufacturers')) );
+		elAppendToPagePath( array('url'=>'mnfs/', 'name'=>m('Manufacturers')) );
 	}
 
 	/**
-   * Display list of items produced by selected manufacturer
-   *
-   */
+    * Display list of items produced by selected manufacturer
+    *
+    */
 	function displayManufacturerItems()
 	{
 	  $this->_mnf = $this->_factory->create(EL_TS_MNF, $this->_arg());
 		if ( !$this->_mnf->ID )
 		{
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($this->_mnf->getObjName(), $this->_arg()),	EL_URL.'mnfs/');
+				array($this->_mnf->getObjName(), $this->_arg()), EL_URL.'mnfs/');
 		}
 		$this->_initRenderer();
-		$this->_rnd->rndManufacturerItems( $this->_mnf, $this->_factory->getMnfItems($this->_mnf) );
+		$this->_rnd->rndManufacturerItems($this->_factory->getManufacturerItems($this->_mnf->ID, $this->_conf('featuresInItemsList')) );
 	}
 
 	/**
-   * Display features compare table of selected items
-   *
-   */
+    * Display features compare table of selected items
+    *
+    */
 	function displayCompareTable ()
 	{
+		$this->_initCat($this->_arg());
 		$iIDs = !empty($_GET['i']) && is_array($_GET['i']) ? array_keys($_GET['i']) : null;
 		$mIDs = !empty($_GET['m']) && is_array($_GET['m']) ? array_keys($_GET['m']) : null;
-		if ( !$iIDs && !$mIDs )
-		{
-			elThrow(E_USER_WARNING, 'There are no one item was selected for compare', null, EL_URL);
+		if ( !$iIDs && !$mIDs )	{
+			elThrow(E_USER_WARNING, 'There are no one item was selected for compare', null, EL_URL.$this->_cat->ID);
+		} elseif (count($iIDs)+count($mIDs) == 1) {
+			elThrow(E_USER_WARNING, 'There are no one item was selected for compare', null, EL_URL.$this->_cat->ID);
 		}
-		list($objs, $ftgs) = $this->_factory->getCompare($iIDs, $mIDs); //elPrintR($ftgs);
+		
 		$this->_initRenderer();
-		$this->_rnd->rndCompare( $objs, $ftgs );
+		$this->_rnd->rndCompareTable( $this->_factory->getCompareTable($iIDs, $mIDs));
 
 	}
 
@@ -184,7 +194,7 @@ class elModuleTechShop extends elCatalogModule
   	{
   		return;
   	}
-  	$this->_cat->setUniqAttr( (int)$ID );
+  	$this->_cat->idAttr( (int)$ID );
   	if ( !$this->_cat->fetch() )
 		{
 			if (1 <> $ID)
@@ -194,7 +204,7 @@ class elModuleTechShop extends elCatalogModule
 			}
 			$nav = &elSingleton::getObj('elNavigator');
 			$this->_cat->makeRootNode( $nav->getPageName($this->pageID) );
-			$this->_cat->setUniqAttr( 1 );
+			$this->_cat->idAttr( 1 );
 			if ( !$this->_cat->fetch() )
 			{
 				header('HTTP/1.x 404 Not Found'); 
@@ -204,14 +214,14 @@ class elModuleTechShop extends elCatalogModule
 		$GLOBALS['categoryID'] = $this->_cat->ID;
   }
 
-  function _onInit()
-  {
-     $this->_factory        = & elSingleton::getObj('elTSFactory');
-     $this->_factory->init($this->pageID);
-     $this->_cat            = $this->_factory->create(EL_TS_CAT);
-     $this->_cat->ID        = 1;
-     $GLOBALS['categoryID'] = 1;
-  }
+	function _onInit()
+	{
+		$this->_factory        = & elSingleton::getObj('elTSFactory');
+		$this->_factory->init($this->pageID, $this->_conf);
+		$this->_cat            = $this->_factory->create(EL_TS_CAT);
+		$this->_cat->ID        = 1;
+		$GLOBALS['categoryID'] = 1;
+	}
 
   function _onBeforeStop()
 	{
@@ -231,25 +241,6 @@ class elModuleTechShop extends elCatalogModule
       }
       $mt = &elSingleton::getObj('elMetaTagsCollection'); 
       $mt->init($this->pageID, $this->_cat->ID, ($this->_item) ? $this->_item->ID : 0, $this->_factory->tb('tbc'));
-	}
-
-	function _initRenderer()
-	{
-	  parent::_initRenderer();
-	  if ( 0 < $this->_conf('eshopFunc') )
-	  {
-	    $this->_rnd->setCurrencyInfo(elGetCurrencyInfo(), (int)$this->_conf('pricePrec'));
-	    if ( 1 < $this->_conf('eshopFunc') )
-	    {
-	      $this->_rnd->switchCartOn();
-	    }
-	  }
-
-     elAddJs("var switchOpenLabel=\"".m('Display models list')."\";\n"
-      ."var switchCloseLabel=\"".m('Hide models list')."\";\n"
-      ."var switchOpenClass=\"tsOpen\";\n"
-      ."var switchCloseClass=\"tsClose\";\n"
-      );
 	}
 
   function _arrayToCsv($price)

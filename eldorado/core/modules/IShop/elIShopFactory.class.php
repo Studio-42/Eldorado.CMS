@@ -92,7 +92,7 @@ class elIShopFactory
       }
       $this->_db    = & elSingleton::getObj('elDb');
       $type         = $this->_create(EL_IS_ITYPE);
-      $this->_types = $type->getCollection();
+      $this->_types = $type->collection(); 
       $this->_conf  = $conf;
       
     }
@@ -120,7 +120,7 @@ class elIShopFactory
       function getProperties()
       {
         $prop = $this->_create(EL_IS_PROP);
-        return $prop->getCollection(null, 'sort_ndx');
+        return $prop->collection(true, true, null, 'sort_ndx');
       }
 
       function getItem($ID, $typeID=0)
@@ -170,7 +170,7 @@ class elIShopFactory
       function getMnfs()
       {
         $mnf = $this->_create(EL_IS_MNF);
-        return $mnf->getCollection();
+        return $mnf->collection();
       }
 
       function getTm($ID)
@@ -218,16 +218,16 @@ class elIShopFactory
           $tbs = $this->_classes[$hndl]['tbs'];
           for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
           {
-            $member = ($i==0) ? 'tb' : $tbs[$i];
+            $member = ($i==0) ? '_tb' : $tbs[$i];
             $this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
           }
 
         $obj = $this->_objs[$hndl];
-        $obj->setUniqAttr((int)$ID);
+        $obj->idAttr((int)$ID);
 
         if ($obj->ID && !$obj->fetch())
         {
-          $obj->cleanAttrs();
+          $obj->clean();
         }
 
         return $obj;

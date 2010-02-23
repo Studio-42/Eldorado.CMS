@@ -33,16 +33,16 @@ class elVacancy extends elCatalogItem
   /**
    * Create edit item form object
    */
-  function makeForm( $parents )
+  function _makeForm( $parents )
   {
-    parent::makeForm($parents);
+    parent::_makeForm($parents);
 
-    $this->form->add( new elTextArea('req',        m('Competitor requirements'), $this->req) );
-    $this->form->add( new elTextArea('func',       m('Functions'),               $this->func) );
-    $this->form->add( new elTextArea('cond',       m('Working conditions'),      $this->cond) );
-    $this->form->add( new elTextArea('salary',     m('Salary'),                  $this->salary) );
-    $this->form->add( new elEditor('descrip',      m('Description'),             $this->descrip, array('rows'=>'35', 'height'=>'250px')) );
-    $this->form->add( new elDateSelector('crtime', m('Publish date'),            $this->crTime) );
+    $this->_form->add( new elTextArea('req',        m('Competitor requirements'), $this->req) );
+    $this->_form->add( new elTextArea('func',       m('Functions'),               $this->func) );
+    $this->_form->add( new elTextArea('cond',       m('Working conditions'),      $this->cond) );
+    $this->_form->add( new elTextArea('salary',     m('Salary'),                  $this->salary) );
+    $this->_form->add( new elEditor('descrip',      m('Description'),             $this->descrip, array('rows'=>'35', 'height'=>'250px')) );
+    $this->_form->add( new elDateSelector('crtime', m('Publish date'),            $this->crTime) );
   }
 
 

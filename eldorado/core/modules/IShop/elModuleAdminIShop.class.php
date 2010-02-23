@@ -543,55 +543,55 @@ class elModuleAdminIShop extends elModuleIShop
   {
     $form = &parent::_makeConfForm();
 
-    $form->add( new elSelect('deep', m('How many levels of catalog will open at once'),
-                            $this->_conf('deep'), array( m('All levels'), 1, 2, 3, 4 ) ) );
+	$params = array(
+		'deep' => array( m('All levels'), 1, 2, 3, 4),
+		'view' =>  array( 1=>m('One column'), 2=>m('Two columns')),
+		'sort' => array(
+			EL_IS_SORT_NAME  => m('By name'),
+			EL_IS_SORT_CODE  => m('By code/articul'),
+			EL_IS_SORT_PRICE => m('By price'),
+			EL_IS_SORT_TIME  => m('By publish date')
+			),
+		'mnf' =>  array(
+			m('Do not use'),
+			EL_IS_USE_MNF    => m('Use only manufacturers info'),
+			EL_IS_USE_TM     => m('Use only trade marks info'),
+			EL_IS_USE_MNF_TM => m('Use both - manufacturers and trade marks info')
+			),
+		'nums' => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
+		'imgSize' => array(50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500),
+		'posLR'   => array(EL_POS_LEFT=>m('left'), EL_POS_RIGHT=>m('right')),
+		'posLTR'  => array(EL_POS_LEFT=>m('left'), EL_POS_TOP=>m('top'), EL_POS_RIGHT=>m('right')),
+		'displayCatDescrip' => array(
+			EL_CAT_DESCRIP_NO      => m('Do not display'),
+			EL_CAT_DESCRIP_IN_LIST => m('Only in categories list'),
+			EL_CAT_DESCRIP_IN_SELF => m('Only in category itself'),
+			EL_CAT_DESCRIP_IN_BOTH => m('In list and in category')
+			),
+		'searchPos' => array( m('Only on IShop first page'), m('On all pages') )
+		);
 
-    $views = array( 1=>m('One column'), 2=>m('Two columns'));
+    $form->add( new elSelect('deep', m('How many levels of catalog will open at once'), $this->_conf('deep'), $params['deep'] ) );
+    $form->add( new elSelect('catsCols',  m('Categories list view'), $this->_conf('catsCols'), $params['view'] ) );
+    $form->add( new elSelect('itemsCols', m('Items list view'),      $this->_conf('itemsCols'), $params['view'] ) );
+    $form->add( new elSelect('itemsSortID', m('Sort documents by'),  $this->_conf('itemsSortID'), $params['sort']) );
+    $form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $params['nums'] ) );
+	$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $params['displayCatDescrip']));
+    // $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'), $this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
+    $form->add( new elSelect('displayCode', m('Display item code/articul'), $this->_conf('displayCode'), $GLOBALS['yn']) );
+    $form->add( new elSelect('mnfNfo', m('Manufacturers / Trade marks'), $this->_conf('mnfNfo'), $params['mnf']) );
 
-    $form->add( new elSelect('catsCols',  m('Categories list view'), $this->_conf('catsCols'), $views ) );
-    $form->add( new elSelect('itemsCols', m('Items list view'),      $this->_conf('itemsCols'), $views ) );
-
-    $sort = array(
-      EL_IS_SORT_NAME  => m('By name'),
-      EL_IS_SORT_CODE  => m('By code/articul'),
-      EL_IS_SORT_PRICE => m('By price'),
-      EL_IS_SORT_TIME  => m('By publish date')
-    );
-
-    $form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $sort) );
-    $nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
-    $form->add( new elSelect('itemsPerPage', m('Number of documents per page'),
-    							$this->_conf('itemsPerPage'), $nums ) );
-    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'),
-    						$this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
-
-    $form->add( new elSelect('displayCode', m('Display item code/articul'), (int)$this->_conf('displayCode'), $GLOBALS['yn']) );
-
-    $mVars = array(
-      m('Do not use'),
-      EL_IS_USE_MNF    => m('Use only manufacturers info'),
-      EL_IS_USE_TM     => m('Use only trade marks info'),
-      EL_IS_USE_MNF_TM => m('Use both - manufacturers and trade marks info')
-       );
-    $form->add( new elSelect('mnfNfo', m('Manufacturers/Trade marks'), (int)$this->_conf('mnfNfo'), $mVars) );
-
-    $form->add( new elCData('c1', m('Item image')), array('cellAttrs'=>'class="formSubHeader"'));
-    $pos = array(EL_POS_LEFT=>m('left'), EL_POS_RIGHT=>m('right'));
-    $form->add( new elSelect('tmbListPos', m('Image position in items list'), $this->_conf('tmbListPos'), $pos) );
-    $size = array(50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500);
-    $form->add( new elSelect('tmbListSize', m('Max image size in items list (px)'),
-      $this->_conf('tmbListSize'), $size, null, false, false) );
-    $pos = array(EL_POS_LEFT=>m('left'), EL_POS_TOP=>m('top'), EL_POS_RIGHT=>m('right'));
-    $form->add( new elSelect('tmbItemCardPos', m('Image position in item card'), $this->_conf('tmbItemCardPos'), $pos) );
-    $form->add( new elSelect('tmbItemCardSize', m('Max image size in item card (px)'),
-      $this->_conf('tmbItemCardSize'), $size, null, false, false) );
+    $form->add( new elCData('c1', m('Item image')), array('cellAttrs'=>'class="form-tb-sub"'));
+    $form->add( new elSelect('tmbListPos', m('Image position in items list'), $this->_conf('tmbListPos'), $params['posLR']) );
+    $form->add( new elSelect('tmbListSize', m('Max image size in items list (px)'), $this->_conf('tmbListSize'), $params['imgSize'], null, false, false) );
+    $form->add( new elSelect('tmbItemCardPos', m('Image position in item card'), $this->_conf('tmbItemCardPos'), $params['posLTR']) );
+    $form->add( new elSelect('tmbItemCardSize', m('Max image size in item card (px)'), $this->_conf('tmbItemCardSize'), $params['imgSize'], null, false, false) );
     
-   $form->add( new elCData('c3',      m('Advanced search')), array('cellAttrs'=>'class="formSubHeader"'));
+   $form->add( new elCData('c3',      m('Advanced search')), array('cellAttrs'=>'class="form-tb-sub"'));
    $form->add( new elSelect('search', m('Use advanced search'), $this->_conf('search'), $GLOBALS['yn']) );
    $form->add( new elText('searchTitle', m('Search form title'), $this->_conf('searchTitle')) );
    $form->add( new elText('searchTypesLabel', m('Items types list label'), $this->_conf('searchTypesLabel')) );
-   $vars = array( m('Only on IShop first page'), m('On all pages') );
-   $form->add( new elSelect('searchOnAllPages', m('Display search form'), $this->_conf('searchOnAllPages'), $vars) );
+   $form->add( new elSelect('searchOnAllPages', m('Display search form'), $this->_conf('searchOnAllPages'), $params['searchPos']) );
    $form->add( new elSelect('searchColumnsNum', m('Numbers of columns in form'), $this->_conf('searchColumnsNum'), range(2,7), null, false, false) );
 
 

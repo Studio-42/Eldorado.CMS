@@ -1,8 +1,7 @@
 <?php
 
-class elIShopTm extends elMemberAttribute
+class elIShopTm extends elDataMapping
 {
-  var $tb      = '';
   var $tbmnf   = '';
   var $ID      = 0;
   var $mnfID   = 0;
@@ -10,15 +9,15 @@ class elIShopTm extends elMemberAttribute
   var $content = '';
 
 
-  function makeForm()
+  function _makeForm()
   {
-    parent::makeForm();
+    parent::_makeForm();
 
     $db   = & elSingleton::getObj('elDb');
     $mnfs = $db->queryToArray('SELECT id, name FROM '.$this->tbmnf.' ORDER BY name', 'id', 'name');
-    $this->form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
-    $this->form->add( new elText('name', m('Name'), $this->name) );
-    $this->form->add( new elEditor('content', m('Description'), $this->descrip) );
+    $this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
+    $this->_form->add( new elText('name', m('Name'), $this->name) );
+    $this->_form->add( new elEditor('content', m('Description'), $this->descrip) );
   }
 
   function _initMapping()

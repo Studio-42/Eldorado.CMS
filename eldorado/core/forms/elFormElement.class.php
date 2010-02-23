@@ -20,8 +20,6 @@ class elFormElement
    */
   var $_id = '';
 
-  //  var $isContainer = false;
-
   var $events = array();
 
   function __construct($name=null, $label=null, $attrs=null)

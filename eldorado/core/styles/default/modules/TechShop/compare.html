@@ -1,55 +1,31 @@
-<form action="{URL}compare/" method="get">
-<table class="nice mod-tshop-fts-tb">
+{URL} {catID}<table class="nice mod-tshop-fts-tb">
 	<caption>{m('Features')}</caption>
 	<thead>
 	<tr>
 		<th>{m('Equipment')}</th>
-		<!-- BEGIN CMP_OBJ -->
+		<!-- BEGIN TS_ITEM -->
 		<th>
-		    <!-- BEGIN CMP_OBJ_IMG -->
-	       <div><img src="{tmb}" /></div>
-		    <!-- END CMP_OBJ_IMG -->
-			<input type="checkbox" name="{inputName}[{id}]" value="1" checked="on" /> <a href="{url}">{code} {name}</a>
+			<a href="{URL}item/{catID}/{id}/">{name}</a>
 		</th>
-		<!-- END CMP_OBJ -->
+		<!-- END TS_ITEM -->
 	</tr>
-	<tr>
-		<td>{m('Manufacturer')}</td>
-		<!-- BEGIN CMP_OBJ_MNF -->
-		<td>
-			<a href="{URL}mnf/{mnf_id}/">{mnf}  {country}</a>
-		</td>
-		<!-- END CMP_OBJ_MNF -->
-	</tr>
-	<!-- BEGIN CMP_OBJ_PRICES_ROW -->
-	<tr>
-		<td>{m('Price')} ({currencySign})</td>
-		<!-- BEGIN CMP_OBJ_PRICE -->
-		<td>{price}</td>
-		<!-- END CMP_OBJ_PRICE -->
-	</tr>
-	<!-- END CMP_OBJ_PRICES_ROW -->
-
 	<tr>
 		<th colspan="{colspan}" align="center">{m('Features')}</th>
 	</tr>
 	</thead>
-	<!-- BEGIN CMP_FTG -->
-	<tr>
-		<th scope="row" colspan="{colspan}">{name}</th>
-	</tr>
-	<!-- BEGIN FT_ROW -->
-	<tr>
-		<td>{name} {unit}</td>
-		<!-- BEGIN FT -->
-		<td>{value}</td>
-		<!-- END FT -->
-	</tr>
-	<!-- END FT_ROW -->
-	<!-- END CMP_FTG -->
-
-	<tr>
-		<th colspan="{colspan}" style="text-align:center"><input type="submit" value="{m('Compare selected')}"  class="form-submit" /></th>
-	</tr>
+	<tbody>
+		<!-- BEGIN TS_FT_GROUP -->
+		<tr>
+			<th scope="row" colspan="{colspan}">{name}</th>
+		</tr>
+		<!-- BEGIN FEATURE -->
+		<tr>
+			<td>{name}</td>
+			<!-- BEGIN VALUE -->
+			<td>{value}</td>
+			<!-- END VALUE -->
+		</tr>
+		<!-- END FEATURE -->
+		<!-- END TS_FT_GROUP -->
+	</tbody>
 </table>
-</form>

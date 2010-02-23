@@ -21,30 +21,21 @@ class elFAFile extends elCatalogItem
 	/**
    * Create edit item form object
   */
-	function makeForm( $parents )
+	function _makeForm( $parents )
 	{
-		parent::makeForm($parents);
-
+		parent::_makeForm($parents);
 		
 		elLoadJQueryUI();
-
-		elAddCss('contextmenu.css',  EL_JS_CSS_FILE);
-		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
-		elAddCss('elrtee.css',       EL_JS_CSS_FILE);
-		elAddCss('elfinder.css',     EL_JS_CSS_FILE);
-		
-		elAddJs('jquery.metadata.js',       EL_JS_CSS_FILE);
-		elAddJs('jquery.cookie.js',         EL_JS_CSS_FILE);
-		elAddJs('jquery.form.js',           EL_JS_CSS_FILE);
-		elAddJs('ellib/eli18n.js',          EL_JS_CSS_FILE);
-		elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
-		elAddJs('elfinder/elfinder.js',     EL_JS_CSS_FILE);
+		elAddCss('elfinder.css',          EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.form.min.js',     EL_JS_CSS_FILE);
+		elAddJs('elfinder.min.js',        EL_JS_CSS_FILE);
 		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
 		{
 			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
 		
-		$this->form->add(new elCData('img',  "<a href='#' class='link download' id='ishop-sel-file'>".m('Select or upload file')."</a>"));
+		$this->_form->add(new elCData('img',  "<a href='#' class='link download' id='ishop-sel-file'>".m('Select or upload file')."</a>"));
 		$js = "
 		$('#ishop-sel-file').click(function(e) {
 			e.preventDefault();
@@ -64,9 +55,9 @@ class elFAFile extends elCatalogItem
 		{
 			$fURL = '';
 		}
-		$this->form->add( new elText('f_url',  m('URL'), $fURL) );
-		$this->form->add( new elEditor('descrip', m('Description'), $this->descrip, array('class' => 'small')) );
-		$this->form->setRequired('f_url');
+		$this->_form->add( new elText('f_url',  m('URL'), $fURL) );
+		$this->_form->add( new elEditor('descrip', m('Description'), $this->descrip, array('class' => 'small')) );
+		$this->_form->setRequired('f_url');
 	}
 
 
@@ -89,14 +80,14 @@ class elFAFile extends elCatalogItem
 			'f_size'  => 'fSize',
 			'mtime'   => 'mtime',
 			'cnt'     => 'cnt',
-			'ltd'     => 'tld'
+			'ltd'     => 'ltd'
 			);
 	}
 
 
 	function _attrsForSave()
 	{
-		$attrs = $this->getAttrs();
+		$attrs = parent::_attrsForSave();
 		if ( $attrs['f_url'] )
 		{
 			$attrs['f_url']  = str_replace(EL_BASE_URL.'/', '', $attrs['f_url']);

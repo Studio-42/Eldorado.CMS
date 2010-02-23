@@ -1,5 +1,5 @@
-<table class="nice full">
-	<!-- BEGIN FT_GROUP -->
+<table class="nice full" id="mod-tshop-ft-groups">
+	<!-- BEGIN TS_FT_GROUP -->
 	<tbody>
 		<tr>
 			<th>
@@ -8,42 +8,29 @@
 					<li><a href="{URL}edit_ftg/{id}/"  class="icons edit"     title="{m('Edit')}"></a></li>
 					<li><a href="{URL}rm_ftg/{id}/"    class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 				</ul>
-				{name}
+				<a href="#" class="el-collapsed">{name}</a>
 			</th>
 		</tr>
-	</tbody>
-	<!-- BEGIN FTS -->
-	<tbody>
-		<tr>
-			<td>
-				<a href="#" class="el-collapsed">{m('Features')}</a>
-			</td>
-		</tr>
-	</tbody>
-	<tbody class='hide'>
-    	<!-- BEGIN FT -->
-    	<tr>
+		<!-- BEGIN FT -->
+		<tr class="hide">
     		<td>
 				<ul class="adm-icons">
 					<li><a href="{URL}edit_ft/{id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
 					<li><a href="{URL}rm_ft/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 				</ul>
-				{name} ({unit})
+				{name} {unit}
 			</td>
     	</tr>
-    	<!-- END FT -->
+		<!-- END FT -->
 	</tbody>
-	<!-- END FTS -->
-	<!-- END FT_GROUP -->
+	<!-- END TS_FT_GROUP -->
 </table>
 <script type="text/javascript" charset="utf-8">
-	$().ready( 
-		function() { 
-			$('.nice a.el-collapsed').click( 
-				function(e) {
-					e.preventDefault();
-					$(this).toggleClass('el-expanded').parents('tbody').next('tbody').toggleClass('hide');
-				});
-			});
+	$().ready(function() { 
+		$('#mod-tshop-ft-groups a.el-collapsed').click(function(e) {
+				e.preventDefault();
+				$(this).toggleClass('el-expanded').parents('tr').eq(0).nextAll().toggleClass('hide');
+		});
+	});
 </script>
 

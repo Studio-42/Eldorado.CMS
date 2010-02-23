@@ -3,6 +3,7 @@ $elMsg['Manufacturers']               = 'Производители';
 $elMsg['Manufacturer']                = 'Производитель';
 $elMsg['Features group']              = 'Группа тех. характеристик';
 $elMsg['Features']                    = 'Технические характеристики';
+$elMsg['Models/Features']             = 'Модели/Тех характеристики';
 $elMsg['Feature']                     = 'Тех. характеристика';
 $elMsg['Models']                      = 'Модельный ряд';
 $elMsg['Model']                       = 'Модель';
@@ -26,5 +27,9 @@ $elMsg['Retail price']                = 'Цена';
 $elMsg['Download price list']         = 'Скачать прайс-лист';
 $elMsg['Description']                 = 'Описание';
 $elMsg['There are no one item was selected for compare'] = 'Нет выбранных объектов для сравнения';
-
+$elMsg['Prices'] = 'Цены';
+$elMsg['Select at least two of items'] = 'Выберите не меньше 2 товаров';
+$elMsg['Close'] = 'Закрыть';
+$elMsg[''] = '';
+$elMsg[''] = '';
 ?>

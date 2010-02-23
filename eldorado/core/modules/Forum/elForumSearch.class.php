@@ -34,7 +34,7 @@ class elForumSearch
 		$form->label = m('Search');
 		$form->setRenderer(elSingleton::getObj('elTplGridFormRenderer'), 2);		
 		
-		$left  = & new elFormContainer('left_cont',  m('Left'), array('style' => 'width: 350px; background: #eeeeee; padding: 8px;', 'class' => 'rounded-7'));
+		$left  = & new elFormContainer('left_cont',  m('Left'), array('style' => 'width: 500px; background: #eeeeee; padding: 8px;', 'class' => 'rounded-7'));
 		$left->setTpl('label', m('Category'));
 		$left->add(new elCData('div_1_b', '<div class="rounded-7 multiselect-opts" style="padding: 3px; background: white; height: 150px; overflow : auto;">'));
 		$left->add(new elCheckBoxesGroup('cats', '', array('0' => '1'), $myCats));

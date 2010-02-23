@@ -1,5 +1,5 @@
 .mod-tshop .strip-odd,.mod-tshop .strip-ev { background:transparent; }
-a.cat-level-1 { }
+a.cat-title { font-weight:bold; font-size:1.1em; }
 
 /* Заголовок итемов в одну колонку */
 .items-onecol h4,
@@ -18,11 +18,12 @@ a.cat-level-1 { }
 .mod-tshop-mnf, .mod-tshop-price { padding: 0 0 1em 0; }
 
 /* чекбоксы "выбрать для сравнения" */
-.mod-tshop-check, .mod-tshop-order { padding:0.3em;	float: right; display:inline; margin-left: 1em; margin-bottom: 0.15em; }
-.mod-tshop-check input { border:none; /* stupid IE */ }
+.mod-tshop-compare-item, .mod-tshop-compare-model { float:right; margin:3px;}
+.mod-tshop-compare-item { margin-top:5px;}
 
 /* список теххарактеристик с списке товаров */
 .mod-tshop-fts { padding:.5em; margin-top:.5em;	border:1px solid #ccc; }
+.mod-tshop-fts div:last-child { border-bottom:0 solid;}
 /* одна теххарактеристика */
 .mod-tshop-ft  { padding:0.1em 0; border-bottom:1px solid #eee; }
 .mod-tshop .mod-tshop-ft-name, .mod-tshop .mod-tshop-ft-val { font-size:90%; }
@@ -44,9 +45,15 @@ a.cat-level-1 { }
 .mod-tshop-item-descrip, .mod-tshop-item-descrip p  { text-align:justify; }
 
 /***  Теххарактеристики  ***/
-.mod-tshop-fts-tb { width:100%; margin:2em 0; }
+#mod-tshop-item-features strong { margin:.7em .5em; display:block;}
+table.mod-tshop-fts-tb { width:100%; margin:0; border:0px solid ; }
 .mod-tshop-fts-tb tbody th { padding:.7em; }
-
+#mod-tshop-item-features-wrapper {
+	overflow:auto;
+	border:1px solid #ccc;
+	min-height:400px;
+	max-height:600px;
+}
 /***  Производители  ***/
 
 /* список производителей */
@@ -62,3 +69,78 @@ a.cat-level-1 { }
 .mod-tshop-mnf-announce p, 
 .mod-tshop-mnf-descrip p { text-align:justify; }
 
+#mod-tshop-item-features table {
+	width:100%;
+	border:1px solid #ccc;
+}
+
+.mod-tshop-dialog .new-row { cursor:pointer; float:left;}
+.mod-tshop-dialog .new-row div {float:left;margin-right:9px}
+
+.mod-tshop-spinner {
+	font-weight:bold;
+	width:30px;
+	height:30px;
+	border:1px solid #ccc;
+	margin:9px auto;
+	background:url(../../images/loading.gif) 50% 50% no-repeat;
+}
+.mod-tshop-dialog table {
+	width:100%;
+}
+
+
+.mod-tshop-dialog td.price {
+	width:60px;
+}
+
+.mod-tshop-dialog td.name input, .mod-tshop-dialog td.price input {
+	width:100%;
+}
+
+.mod-tshop-dialog td.rm {
+	width:20px;
+}
+.mod-tshop-dialog td.rm div {
+	cursor:pointer;
+	float:right;
+	text-align:center;
+}
+
+/* price list tab */
+#mod-tshop-item-pricelist ul {
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+
+#mod-tshop-item-pricelist ul li {
+	padding: 9px 0;
+	border-bottom:1px solid #ccc;
+}
+
+#mod-tshop-item-pricelist ul li div {
+	width:20px;
+	height:20px;
+	float:left;
+	margin-right:0 5px;
+	background:url(../../images/links.png) 0 -19px no-repeat;
+}
+
+#mod-tshop-item-pricelist ul li:last-child {
+	border-bottom:none;
+}
+
+#mod-tshop-item-pricelist ul li strong {
+	float:right;
+}
+
+.mod-tshop-item-lobj ul {
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+
+.mod-tshop-item-lobj ul li {
+padding: 5px 0;	
+}

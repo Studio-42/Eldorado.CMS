@@ -48,8 +48,8 @@ class elIShopItem extends elCatalogItem
     // в зав-ти от настроек прозв/торг марка ($this->mnfNfo) извлекаем произв
     // - если только произв - по id из табл товара
     // иначе по id из табд торговых марок
-    $sql = 'SELECT '.$this->listAttrsToStr('i').', m.name AS mnf, m.country, t.name AS tm '
-      .'FROM '.$this->tb.' AS i LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
+    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
+      .'FROM '.$this->_tb.' AS i LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
       .'LEFT JOIN '.$this->tbmnf.' AS m ON IF( '.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
       .'WHERE i.id=\''.intval($this->ID).'\' ' ;
     $db = & elSingleton::getObj('elDb');
@@ -59,7 +59,7 @@ class elIShopItem extends elCatalogItem
         return false;
     }
     $r = $db->nextRecord(); 
-    $this->setAttrs( $r );
+    $this->attr( $r );
     $this->mnf        = $r['mnf'];
     $this->mnfCountry = $r['country'];
     $this->tm         = $r['tm'];
@@ -97,8 +97,8 @@ class elIShopItem extends elCatalogItem
     $items = array();
     $db    = & elSingleton::getObj('elDb');
 
-    $sql = 'SELECT '.$this->listAttrsToStr('i').', m.name AS mnf, m.country, t.name AS tm '
-        .' FROM '.$this->tbi2c.' AS i2c, '.$this->tb.' AS i '
+    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
+        .' FROM '.$this->tbi2c.' AS i2c, '.$this->_tb.' AS i '
         .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
         .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
         .' WHERE i2c.c_id=\''.$catID.'\' AND i.id=i2c.i_id '
@@ -141,8 +141,8 @@ class elIShopItem extends elCatalogItem
     $items = array();
     $db    = & elSingleton::getObj('elDb');
 
-    $sql = 'SELECT '.$this->listAttrsToStr('i').', m.name AS mnf, m.country, t.name AS tm '
-        .' FROM '.$tbr.' AS r, '.$this->tb.' AS i '
+    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
+        .' FROM '.$tbr.' AS r, '.$this->_tb.' AS i '
         .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
         .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
         .' WHERE i.id=r.id  '
@@ -234,7 +234,6 @@ class elIShopItem extends elCatalogItem
 
   function _findValue($pID, $val)
   {
-    //elPrintR($this->type->props[$pID]->values);
     $reg = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
     foreach ( $this->type->props[$pID]->values as $vID=>$v )
     {
@@ -333,13 +332,13 @@ class elIShopItem extends elCatalogItem
    *
    * @param array $parents
    */
-  function makeForm( $params )
+  function _makeForm( $params )
   {
-    $label      = !$this->getUniqAttr() ? 'Create object "%s"' : 'Edit object "%s"';
-    $this->form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m($label), m($this->_objName))  );
-    $this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+    $label = !$this->idAttr() ? 'Create object "%s"' : 'Edit object "%s"';
+    $this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m($label), m($this->_objName))  );
+    $this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 
-    $this->form->add( new elCData2('t', m('Type'), $this->type->name) );
+    $this->_form->add( new elCData2('t', m('Type'), $this->type->name) );
 
     if ( empty($params['parents']) )
     {
@@ -350,12 +349,12 @@ class elIShopItem extends elCatalogItem
     {
       $pIDs = array( $params['catID'] );
     }
-    $this->form->add( new elMultiSelectList('pids', m('Parent categories'), $pIDs, $params['parents']) );
+    $this->_form->add( new elMultiSelectList('pids', m('Parent categories'), $pIDs, $params['parents']) );
 
 
     if ( EL_IS_USE_MNF == $this->mnfNfo )
     {
-      $this->form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $this->_mnfsList()) );
+      $this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $this->_mnfsList()) );
     }
     elseif ( 0 <> $this->mnfNfo )
     {
@@ -365,20 +364,20 @@ class elIShopItem extends elCatalogItem
       {
         $gid = $sel->addGroup( $g[0], $g[1] );
       }
-      $this->form->add( $sel );
+      $this->_form->add( $sel );
     }
     $textAttrs = array('style'=>'width:100%;');
-    $this->form->add( new elText('code',  m('Code/Articul'),  $this->code,     $textAttrs) );
-    $this->form->add( new elText('name',  m('Name'),          $this->name,     $textAttrs) );
-    $this->form->add( new elText('price', m('Price'),         $this->price,    $textAttrs) );
-    $this->form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'35')) );
-    $this->form->add( new elEditor('content',  m('Content'),  $this->content) );
-    $this->form->setRequired('pids[]');
-    $this->form->setRequired('code');
-    $this->form->setRequired('name');
+    $this->_form->add( new elText('code',  m('Code/Articul'),  $this->code,     $textAttrs) );
+    $this->_form->add( new elText('name',  m('Name'),          $this->name,     $textAttrs) );
+    $this->_form->add( new elText('price', m('Price'),         $this->price,    $textAttrs) );
+    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'35')) );
+    $this->_form->add( new elEditor('content',  m('Content'),  $this->content) );
+    $this->_form->setRequired('pids[]');
+    $this->_form->setRequired('code');
+    $this->_form->setRequired('name');
     foreach ($this->type->props as $ID=>$p)
     {
-      $this->form->add( $p->getFormElement( $this->_getPropVal($p->ID) ) );//$this->_getPropValue($p->ID)) );
+      $this->_form->add( $p->getFormElement( $this->_getPropVal($p->ID) ) );//$this->_getPropValue($p->ID)) );
     }
   }
 
@@ -414,26 +413,25 @@ class elIShopItem extends elCatalogItem
 
   function removeItems( $catID )
   {
-    $db = & $this->_getDb();
-    $sql = 'SELECT id, CONCAT(code, " ", name) AS name  FROM '.$this->tb.', '.$this->tbi2c
+    $db = & elSingleton::getObj('elDb');
+    $sql = 'SELECT id, CONCAT(code, " ", name) AS name  FROM '.$this->_tb.', '.$this->tbi2c
     	  .' WHERE c_id=\''.$catID.'\' AND id=i_id ORDER BY '.$this->_getOrderBy($sortID);
     $items = $db->queryToArray($sql, 'id', 'name');
-    $this->form = & elSingleton::getObj( 'elForm', 'mf',  m('Select documents to remove')  );
-	$this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+    $this->_form = & elSingleton::getObj( 'elForm', 'mf',  m('Select documents to remove')  );
+	$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 	
-    $this->form->add( new elCheckBoxesGroup('items', '', null, $items) );
+    $this->_form->add( new elCheckBoxesGroup('items', '', null, $items) );
 
-    if ( $this->form->isSubmitAndValid() )
+    if ( $this->_form->isSubmitAndValid() )
     {
-      $data = $this->form->getValue();
+      $data = $this->_form->getValue();
       if ( !empty($data['items']) )
       {
         $iIDs = '('.implode(',', $data['items']).')';
-        $db->query('DELETE FROM '.$this->tb.'    WHERE id IN '.$iIDs);
+        $db->query('DELETE FROM '.$this->_tb.'    WHERE id IN '.$iIDs);
         $db->query('DELETE FROM '.$this->tbi2c.' WHERE i_id IN '.$iIDs);
-//        echo 'DELETE FROM '.$this->tbp2i.' WHERE i_id IN '.$iIDs;
         $db->query('DELETE FROM '.$this->tbp2i.' WHERE i_id IN '.$iIDs);
-        $db->optimizeTable($this->tb);
+        $db->optimizeTable($this->_tb);
         $db->optimizeTable($this->tbi2c);
         $db->optimizeTable($this->tbp2i);
       }
@@ -445,13 +443,13 @@ class elIShopItem extends elCatalogItem
   function changeImage($lSize, $cSize)
   {
     $this->_makeImageForm();
-    if ( !$this->form->isSubmitAndValid() )
+    if ( !$this->_form->isSubmitAndValid() )
     {
       return false;
     }
 
-    $sqlTpl = 'UPDATE '.$this->tb.' SET img="%s" WHERE id="'.$this->ID.'"';
-    $data   = $this->form->getValue(); //elPrintR($data); return;
+    $sqlTpl = 'UPDATE '.$this->_tb.' SET img="%s" WHERE id="'.$this->ID.'"';
+    $data   = $this->_form->getValue(); 
     if ( empty($data['imgURL']) )
     {
       $imgPath = '';
@@ -503,26 +501,18 @@ class elIShopItem extends elCatalogItem
   function _makeImageForm()
   {
 		elLoadJQueryUI();
-
-		elAddCss('contextmenu.css',  EL_JS_CSS_FILE);
-		elAddCss('eldialogform.css', EL_JS_CSS_FILE);
-		elAddCss('elrtee.css',       EL_JS_CSS_FILE);
-		elAddCss('elfinder.css',     EL_JS_CSS_FILE);
-		
-		elAddJs('jquery.metadata.js',       EL_JS_CSS_FILE);
-		elAddJs('jquery.cookie.js',         EL_JS_CSS_FILE);
-		elAddJs('jquery.form.js',           EL_JS_CSS_FILE);
-		elAddJs('ellib/eli18n.js',          EL_JS_CSS_FILE);
-		elAddJs('ellib/el.lib.complite.js', EL_JS_CSS_FILE);
-		elAddJs('elfinder/elfinder.js',     EL_JS_CSS_FILE);
+		elAddCss('elfinder.css',          EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.form.min.js',     EL_JS_CSS_FILE);
+		elAddJs('elfinder.min.js',        EL_JS_CSS_FILE);
 		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
 		{
 			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
 
-    	$this->form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), $this->name )  );
-		$this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-		$this->form->add( new elHidden('imgURL', '', $this->img ? EL_BASE_URL.$this->img : '') );
+    	$this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), $this->name )  );
+		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+		$this->_form->add( new elHidden('imgURL', '', $this->img ? EL_BASE_URL.$this->img : '') );
 		
 		$js = "
 		$('#ishop-sel-img').click(function(e) {
@@ -553,9 +543,9 @@ class elIShopItem extends elCatalogItem
 		}).trigger('change');
 		";
 		elAddJs($js, EL_JS_SRC_ONREADY);
-		$this->form->add(new elCData('img',  "<a href='#' class='link link-image' id='ishop-sel-img'>".m('Select or upload image file')."</a>"));
-		$this->form->add(new elCData('rm',   "<a href='#' class='link link-delete' id='ishop-rm-img'>".m('Delete image')."</a> "));
-		$this->form->add(new elCData('prev', "<fieldset id='ishop-sel-prev'><legend>".m('Preview')."</legend></fieldset>"));
+		$this->_form->add(new elCData('img',  "<a href='#' class='link link-image' id='ishop-sel-img'>".m('Select or upload image file')."</a>"));
+		$this->_form->add(new elCData('rm',   "<a href='#' class='link link-delete' id='ishop-rm-img'>".m('Delete image')."</a> "));
+		$this->_form->add(new elCData('prev', "<fieldset id='ishop-sel-prev'><legend>".m('Preview')."</legend></fieldset>"));
 
   }
 
@@ -630,8 +620,7 @@ class elIShopItem extends elCatalogItem
   function getDependOnValue( $pID, $mVal )
   {
     $db  = & elSingleton::getObj('elDb');
-    $sql = 'SELECT DISTINCT d.s_value FROM '.$this->tbpdep.' AS d WHERE s_id='.$pID.' AND m_value='.$mVal;
-    return $db->queryToArray( $sql, null, 's_value');
+    return $db->queryToArray('SELECT DISTINCT d.s_value FROM '.$this->tbpdep.' AS d WHERE s_id='.$pID.' AND m_value='.$mVal, null, 's_value');
   }
 
 
@@ -654,14 +643,13 @@ class elIShopItem extends elCatalogItem
    */
   function _validForm()
   {
-    $data = $this->form->getValue();
+    $data = $this->_form->getValue();
     $code = mysql_real_escape_string($data['code']);
     $db   = &elSingleton::getObj('elDb');
-    $sql  = 'SELECT id FROM '.$this->tb.' WHERE code=\''.$code.'\''.($this->ID ? ' AND id<>'.$this->ID : '');
-    $db->query($sql);
+    $db->query('SELECT id FROM '.$this->_tb.' WHERE code=\''.$code.'\''.($this->ID ? ' AND id<>'.$this->ID : ''));
     if ($db->numRows())
     {
-      return $this->form->pushError('code', m('Item code must be unique'));
+      return $this->_form->pushError('code', m('Item code must be unique'));
     }
     return true;
   }
@@ -689,16 +677,13 @@ class elIShopItem extends elCatalogItem
 
 	  if ( EL_IS_USE_TM == $this->mnfNfo || EL_IS_USE_MNF_TM == $this->mnfNfo ) //!empty($this->tmID) )
 	  {
-	    $sql = 'UPDATE '.$this->tb.' '
-	     .'SET mnf_id=(SELECT mnf_id FROM '.$this->tbtm.' WHERE id='.intval($this->tmID).' LIMIT 0,1) '
-	     .'WHERE id='.$this->ID;
-	    $db->query($sql);
+	    $db->query('UPDATE '.$this->_tb.' SET mnf_id=(SELECT mnf_id FROM '.$this->tbtm.' WHERE id='.intval($this->tmID).' LIMIT 0,1) WHERE id='.$this->ID);
 	  }
 
 	  $db->query('DELETE FROM '.$this->tbp2i.' WHERE i_id='.$this->ID);
 	  $db->optimizeTable($this->tbp2i);
 
-    $data = $this->form->getValue(); //elPrintR($data); exit;
+    $data = $this->_form->getValue(); //elPrintR($data); exit;
 
     foreach ($data['props'] as $pID=>$value)
     {
@@ -738,7 +723,7 @@ class elIShopItem extends elCatalogItem
   function _initMapping()
   {
     $map = array(
-      'id'=>'ID',
+      'id'       => 'ID',
       'type_id'  => 'typeID',
       'mnf_id'   => 'mnfID',
       'tm_id'    => 'tmID',

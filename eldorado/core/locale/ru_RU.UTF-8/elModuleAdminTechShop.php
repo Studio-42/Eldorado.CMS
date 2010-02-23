@@ -12,7 +12,6 @@ $elMsg['New model']                          = 'Новая модель';
 $elMsg['Set image']                          = 'Установить изображение';
 $elMsg['Set features']                       = 'Установить тех. характеристики';
 $elMsg['Set features for "%s %s"']           = 'Установить тех. характеристики для "%s %s"';
-$elMsg['Apply changes to all moodels']       = 'Применить изменения ко всем моделям';
 $elMsg['Announced']                          = 'Анонс';
 $elMsg['Features list']                      = 'Список тех. характеристик';
 $elMsg['Update prices from file']            = 'Обновить цены из файла';
@@ -70,5 +69,18 @@ $elMsg['Double quotes']                      = 'двойные кавычки';
 $elMsg['Single quotes']                      = 'одиночные кавычки';
 $elMsg['Create model']                       = 'Создать модель'; 
 $elMsg['Attention! File must be in UTF-8 charset!'] = 'Внимание файл должен быть в кодировке UTF-8';
+$elMsg['Display features/models in items list'] = 'Показывать модели/тех-характеристики в списке товаров';
+$elMsg['Display categoriy description'] = 'Показывать описание категории';
+$elMsg['Display linked objects'] = 'Показывать связаные объекты';
+$elMsg['Allow "fake" price lists'] = 'Разрешить "fake" прайс-лист';
+$elMsg['Enabled. Compare enabled.'] = 'Включено. Возможность сравнения товаров включена';
 
+
+$elMsg['By default'] = 'По умолчанию (внизу)';
+$elMsg['In tabs'] = 'В табах';
+$elMsg['Price list for %s'] = 'Прайс лист для %s';
+$elMsg['New record'] = 'Новая запись';
+$elMsg['Item price list was cleared'] = 'Прайс лист удален';
+$elMsg['Unable to save item price list'] = 'Не удалось сохранить прайс лист';
+$elMsg['Item price list was saved'] = 'Прайс лист сохранен';
 ?>

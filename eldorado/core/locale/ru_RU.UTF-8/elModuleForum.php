@@ -28,6 +28,7 @@ $elMsg['There are no one user was found'] = 'Не найдено ни одног
 $elMsg['Data transfering...']      = 'Передаются данные...';
 $elMsg['Last modified by']         = 'Отредактировано';
 $elMsg['Downloads']                = 'Скачан';
+$elMsg['Forum search']             = 'Поиск по форуму';
 
 // forum actions
 $elMsg['New topic']     = 'Новая тема';

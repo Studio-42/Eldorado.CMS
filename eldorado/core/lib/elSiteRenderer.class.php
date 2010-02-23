@@ -28,24 +28,51 @@ class elSiteRenderer
 		EL_POS_BOTTOM => 'BOTTOM_COLUMN'
 		);
 
-  var $_mainMenuPos = array(
-    EL_POS_TOP   => array('MAIN_MENU_POS_TOP', 'MAIN_MENU_TOP', 'mainMenuTop.html', '_rndMenuHoriz'),
-    EL_POS_LEFT  => array(EL_POS_LEFT,         'MENU_LEFT',     'menuLeft.html',    '_rndMenuVert'),
-    EL_POS_RIGHT => array(EL_POS_RIGHT,        'MENU_RIGHT',    'menuRight.html',   '_rndMenuVert')
-  );
-
-  var $_subMenuPos = array(
-    EL_POS_TOP   => array('SUB_MENU_POS_TOP', 'SUB_MENU_TOP', 'subMenuTop.html', '_rndMenuHoriz'),
-    EL_POS_LEFT  => array(EL_POS_LEFT,        'MENU_LEFT',    'menuLeft.html',   '_rndMenuVert'),
-    EL_POS_RIGHT => array(EL_POS_RIGHT,       'MENU_RIGHT',   'menuRight.html',  '_rndMenuVert')
-  );
+	var $_menuPos = array(
+		'main' => array(
+			EL_POS_TOP   => array(
+				'var' => 'MENU_TOP',
+				'tpl' => 'top.html'),
+			EL_POS_LEFT  => array(
+				'var' => 'MENU_LEFT',
+				'tpl' => 'left.html'),
+			EL_POS_RIGHT => array(
+				'var' => 'MENU_RIGHT',
+				'tpl' => 'right.html')
+			),
+		'sub'  => array(
+			EL_POS_TOP   => array(
+				'var' => 'MENU_TOP',
+				'tpl' => 'sub-top.html'),
+			EL_POS_LEFT  => array(
+				'var' => 'MENU_LEFT',
+				'tpl' => 'left.html'),
+			EL_POS_RIGHT => array(
+				'var' => 'MENU_RIGHT',
+				'tpl' => 'right.html')
+			),
+		'side'  => array(
+			EL_POS_TOP   => array(
+				'var' => 'CAT_MENU_TOP',
+				'tpl' => 'select.html'),
+			EL_POS_LEFT  => array(
+				'var' => 'ADD_MENU_LEFT',
+				'tpl' => 'left.html'),
+			EL_POS_RIGHT => array(
+				'var' => 'ADD_MENU_RIGHT',
+				'tpl' => 'right.html'),
+			EL_POS_BOTTOM => array(
+				'var' => 'CAT_MENU_BOTTOM',
+				'tpl' => 'select.html')
+			)
+			
+		);
 
 	var $_msgTpls = array(
-						EL_MSGQ   => 'messages.html',
-						EL_WARNQ  => 'warning.html',
-						EL_DEBUGQ => 'debug.html'
-						);
-
+		EL_MSGQ   => 'messages.html',
+		EL_WARNQ  => 'warning.html',
+		EL_DEBUGQ => 'debug.html'
+		);
 
 	var $_miscTpl = array(
 		'search' => array(
@@ -59,14 +86,14 @@ class elSiteRenderer
 			EL_POS_TOP   => array('ICART_TOP',   'common/ICart/top.html',  0)
 			),
 		'uAuth' => array(
-			EL_POS_LEFT  => array('AUTH_FORM_LEFT',  'common/authFormsAndInfo/authFormLeft.html', 1),
-			EL_POS_RIGHT => array('AUTH_FORM_RIGHT', 'common/authFormsAndInfo/authFormLeft.html', 1),
-			EL_POS_TOP   => array('AUTH_FORM_TOP',   'common/authFormsAndInfo/authFormTop.html',  0)
+			EL_POS_LEFT  => array('AUTH_FORM_LEFT',  'common/auth/auth-left.html', 1),
+			EL_POS_RIGHT => array('AUTH_FORM_RIGHT', 'common/auth/auth-left.html', 1),
+			EL_POS_TOP   => array('AUTH_FORM_TOP',   'common/auth/auth-top.html',  0)
 		),
 		'uInfo' => array(
-			EL_POS_LEFT  => array('USER_INFO_LEFT',  'common/authFormsAndInfo/userInfoLeft.html', 1),
-			EL_POS_RIGHT => array('USER_INFO_RIGHT', 'common/authFormsAndInfo/userInfoLeft.html', 1),
-			EL_POS_TOP   => array('USER_INFO_TOP',   'common/authFormsAndInfo/userInfoTop.html',  0)
+			EL_POS_LEFT  => array('USER_INFO_LEFT',  'common/auth/user-left.html', 1),
+			EL_POS_RIGHT => array('USER_INFO_RIGHT', 'common/auth/user-left.html', 1),
+			EL_POS_TOP   => array('USER_INFO_TOP',   'common/auth/user-top.html',  0)
 		)
 	);
 
@@ -80,17 +107,17 @@ class elSiteRenderer
 		);
 
 	var $_catsPosNfo = array(
-		EL_POS_LEFT   => array('catMenuLeft.html',  'CAT_MENU_LEFT',   'LEFT_COLUMN'),
-		EL_POS_RIGHT  => array('catMenuRight.html', 'CAT_MENU_RIGHT',  'RIGHT_COLUMN'),
-		EL_POS_TOP    => array('catMenuTop.html',   'CAT_MENU_TOP',    'TOP_COLUMN'),
-		EL_POS_BOTTOM => array('catMenuTop.html',   'CAT_MENU_BOTTOM', 'BOTTOM_COLUMN')
+		EL_POS_LEFT   => array('sideMenuLeft.html',  'CAT_MENU_LEFT',   'LEFT_COLUMN'),
+		EL_POS_RIGHT  => array('sideMenuRight.html', 'CAT_MENU_RIGHT',  'RIGHT_COLUMN'),
+		EL_POS_TOP    => array('sideMenuTop.html',   'CAT_MENU_TOP',    'TOP_COLUMN'),
+		EL_POS_BOTTOM => array('sideMenuTop.html',   'CAT_MENU_BOTTOM', 'BOTTOM_COLUMN')
 		);
 
 	var $_tsMNavPosNfo = array(
-	  	EL_POS_LEFT   => array('techShopMNavLeft.html',  'TS_MMENU_LEFT',   'LEFT_COLUMN'),
-		EL_POS_RIGHT  => array('techShopMNavRight.html', 'TS_MMENU_RIGHT',  'RIGHT_COLUMN'),
-		EL_POS_TOP    => array('techShopMNavTop.html',   'TS_MMENU_TOP',    'TOP_COLUMN'),
-		EL_POS_BOTTOM => array('techShopMNavTop.html',   'TS_MMENU_BOTTOM', 'BOTTOM_COLUMN')
+	  	EL_POS_LEFT   => array('sideShopMNavLeft.html',  'TS_MMENU_LEFT',   'LEFT_COLUMN'),
+		EL_POS_RIGHT  => array('sideShopMNavRight.html', 'TS_MMENU_RIGHT',  'RIGHT_COLUMN'),
+		EL_POS_TOP    => array('sideShopMNavTop.html',   'TS_MMENU_TOP',    'TOP_COLUMN'),
+		EL_POS_BOTTOM => array('sideShopMNavTop.html',   'TS_MMENU_BOTTOM', 'BOTTOM_COLUMN')
 	 );
 
 	var $_curPageID  = 0;
@@ -397,52 +424,6 @@ class elSiteRenderer
 		}
 	}
 
-	function _renderCatalogNav($tree, $pos, $ID, $URL, $title)
-	{
-		$posNfo = !empty($this->_catsPosNfo[$pos]) ? $this->_catsPosNfo[$pos] : $this->_catsPosNfo[EL_POS_LEFT];
-		$this->_te->setFile($posNfo[1], 'menus/'.$posNfo[0]);
-		$this->_te->assignVars('catID', $ID);
-		$this->_te->assignVars('catURL', $URL);
-		if (!empty($title))
-		{
-			$this->_te->assignBlockVars('CAT_NAV_TITLE', array('catNavTitle' => $title));
-		}
-		$categoryID  = !empty($GLOBALS['categoryID']) ? (int)$GLOBALS['categoryID'] : 0;
-		$appendLevel = EL_POS_TOP == $pos || EL_POS_BOTTOM == $pos;
-		if ( EL_POS_TOP == $pos || EL_POS_BOTTOM == $pos )
-		{
-		  $appendLevel = true;
-		}
-		else
-		{
-		  $appendLevel = false;
-		  array_shift($tree);
-		}
-		foreach ( $tree as $node )
-		{
-			$node['url'] = $URL.$node['id'].'/';
-			if ( $node['id'] == $categoryID )
-			{
-				$block            = 'CAT_NAV.CAT_NAV_ITEM_CUR';
-				$node['cssClass'] = $node['level'] <= 3 ? 'modNavCur'.$node['level'] : 'modNavCur3';
-			}
-			else
-			{
-				$block            = 'CAT_NAV.CAT_NAV_ITEM';
-				$node['cssClass'] = $node['level'] <= 3 ? 'modNav'.$node['level'] : 'modNav3';
-			}
-			if ($appendLevel)
-			{
-			   $node['name'] = 1 < $node['level']
-			      ? str_repeat(' + ', $node['level']-1).' '.$node['name']
-			      : strtoupper($node['name']);
-			}
-			$this->_te->assignBlockVars($block, $node, 0);
-		}
-		$this->_te->parse($posNfo[1], $posNfo[1], true, false, true);
-		$GLOBALS['parseColumns'][$pos] = true;
-	}
-
 	/**
    * Render navigation menu depends on site configuration
    */
@@ -450,95 +431,93 @@ class elSiteRenderer
 	function _renderMenu()
 	{
         $navType = $this->_conf->get('navType', 'layout');
-        if ( (file_exists('./style/lib/elNavRnd.lib.php') && include_once('./style/lib/elNavRnd.lib.php') ) && function_exists('elusernavrnd') )
-        {
-            $navType = EL_NAV_TYPE_USER;
-        }
-
-	  switch ($navType)
-	  {
-	    case EL_NAV_TYPE_MAIN:
-	      $pos = $this->_conf->get('mainMenuPos', 'layout');
-	      if (empty($this->_mainMenuPos[$pos]))
-	      {
-	        $pos = EL_POS_LEFT;
-	      }
-	      $pages = EL_POS_TOP == $pos
-	       ? $this->_nav->getPages(0, 1, false)
-	       : $this->_nav->getPages(0, 1, true, true);
-	      $m = $this->_mainMenuPos[$pos][3];
-	      $this->{$m}($pages, $this->_mainMenuPos[$pos][0], $this->_mainMenuPos[$pos][1],
-	                 $this->_mainMenuPos[$pos][2], (int)$this->_conf->get('mainMenuUseIcons', 'layout'));
-	      break;
-
-	    case EL_NAV_TYPE_COMBI:
-
-	      $pages = $this->_nav->getPages(0, 1, false);
-	      $param = $this->_mainMenuPos[EL_POS_TOP];
-	      $this->_rndMenuHoriz($pages, $param[0], $param[1], $param[2], (int)$this->_conf->get('mainMenuUseIcons', 'layout'));
-	      foreach ($pages as $page)
-	      {
-	        if ($this->_nav->isInCurPath($page['id']) && $page['has_childs'])
-	        {
-
-	          $subPages = $this->_nav->getPages($page['id'], 1, true, true); //elPrintR($subPages);
-	          $pos      = $this->_conf->get('subMenuPos', 'layout');
-	          if (empty($this->_subMenuPos[$pos]))
-	          {
-	            $pos = EL_POS_LEFT;
-	          }
-	          $param      = $this->_mainMenuPos[$pos]; 
-	          $parentName = $this->_conf->get('subMenuDisplParent', 'layout') ? $this->_nav->getPageName($page['id']) : '';
-	          $this->{$param[3]}($subPages, $param[0], $param[1], $param[2], (int)$this->_conf->get('subMenuUseIcons', 'layout'), $parentName);
-            break;
-	        }
-	      }
-	      break;
-
-        case EL_NAV_TYPE_USER:
-            elUserNavRnd($this->_te, $this->_nav, $this->_conf->get('navMainUseIcons', 'layout') );
-            break;
-
-	    case EL_NAV_TYPE_JS:
-        $this->_rndMenuJs();
-	      break;
-
-
-	    default:
-	      
-	        $this->_conf->set('navType', EL_NAV_TYPE_COMBI, 'layout');
-	        $this->_conf->save();
-	        elLocation(EL_URL);
-	      
-	  }
-
-		$aMenus = $this->_nav->getAdditionalMenus(); //elPrintR($aMenus);
-		if ( !empty($aMenus[EL_ADD_MENU_TOP]) )
-		{
-			$this->_rndAddMenu( $aMenus[EL_ADD_MENU_TOP], EL_ADD_MENU_TOP, $this->_conf->get('addMenuTop', 'layout'));
-		}
-		if ( !empty($aMenus[EL_ADD_MENU_BOT]) )
-		{
-			$this->_rndAddMenu( $aMenus[EL_ADD_MENU_BOT], EL_ADD_MENU_BOT, $this->_conf->get('addMenuBottom', 'layout'));
-		}
-	//	echo EL_ADD_MENU_SIDE;
-		if ( !empty($aMenus[EL_ADD_MENU_SIDE]) )
-		{
-			foreach ( $aMenus[EL_ADD_MENU_SIDE] as $menu )
-			{
-				// elPrintR($menu);
-				if (! empty($menu['pages']) )
-				{
-					
-					$param = $this->_mainMenuPos[$menu['pos']]; //elPrintR($param);
-					$this->{$param[3]}($menu['pages'], $param[0], $param[1], $param[2], (int)$this->_conf->get('subMenuUseIcons', 'layout'), $menu['name']);
-				}
-				
+		if ($navType == EL_NAV_TYPE_USER) {
+			if (!file_exists('./style/lib/elNavRnd.lib.php') || !include_once('./style/lib/elNavRnd.lib.php') || !function_exists('elusernavrnd')) {
+				$this->_conf->set('navType', EL_NAV_TYPE_COMBI, 'layout');
+		        $this->_conf->save();
+		        elLocation(EL_URL);
 			}
 		}
 
+		switch ($navType)
+		{
+			case EL_NAV_TYPE_MAIN:
+				$pos   = $this->_conf->get('mainMenuPos', 'layout'); 
+				$pos   = empty($this->_menuPos['main'][$pos]) ? EL_POS_LEFT : $pos;
+				$param = $this->_menuPos['main'][$pos];
+				$ico   = (int)$this->_conf->get('mainMenuUseIcons', 'layout');
+				if (EL_POS_TOP == $pos) {
+					$this->_rndMenuHoriz($this->_nav->getPages(0, 1, false), $param['var'], $param['tpl'], $ico);
+				} else {
+					$this->_rndMenuVert($this->_nav->getPages(0, 1, true), $param['var'], $param['tpl'], $ico, $pos);
+				}
+				break;
+
+			case EL_NAV_TYPE_COMBI:
+				$pages = $this->_nav->getPages(0, 1, false);
+				$pos   = $this->_conf->get('mainMenuPos', 'layout'); 
+				$param = $this->_menuPos['main'][$pos];
+				$ico   = (int)$this->_conf->get('mainMenuUseIcons', 'layout');
+				if (EL_POS_TOP == $pos) {
+					$this->_rndMenuHoriz($pages,  $param['var'], $param['tpl'], $ico);
+				} else {
+					$this->_rndMenuVert($pages, $param['var'], $param['tpl'], $ico, $pos);
+				}
+				
+				foreach ($pages as $page) {
+					if ($this->_nav->isInCurPath($page['id']) && $page['has_childs']) {
+						$subPages = $this->_nav->getPages($page['id'], 1, true, true); 
+						$pos      = $this->_conf->get('subMenuPos', 'layout');
+						$pos      = empty($this->_menuPos['sub'][$pos]) ? EL_POS_LEFT : $pos; 
+						$param    = $this->_menuPos['sub'][$pos];
+						$ico      = (int)$this->_conf->get('subMenuUseIcons', 'layout');
+						$parent   = $this->_conf->get('subMenuDisplParent', 'layout') ? $this->_nav->getPageName($page['id']) : '';
+						if ($pos == EL_POS_TOP) {
+							$this->_rndMenuHoriz($subPages, $param['var'], $param['tpl'], $ico);
+						} else {
+							$this->_rndMenuVert($subPages, $param['var'], $param['tpl'], $ico, $pos, $parent);
+						}
+						break;
+					}
+				}
+				break;
+
+			case EL_NAV_TYPE_USER:
+				elUserNavRnd($this->_te, $this->_nav, $this->_conf->get('navMainUseIcons', 'layout') );
+				break;
+
+			case EL_NAV_TYPE_JS:
+				$this->_rndMenuJs();
+				break;
+
+			default:
+				$this->_conf->set('navType', EL_NAV_TYPE_COMBI, 'layout');
+				$this->_conf->save();
+				elLocation(EL_URL);
+		}
+
+	
+
+		$aMenus = $this->_nav->getAdditionalMenus(); 
+		if ( !empty($aMenus[EL_ADD_MENU_TOP]) ) {
+			$this->_rndAddMenu( $aMenus[EL_ADD_MENU_TOP], EL_ADD_MENU_TOP, $this->_conf->get('addMenuTop', 'layout'));
+		}
+		if ( !empty($aMenus[EL_ADD_MENU_BOT]) ) {
+			$this->_rndAddMenu( $aMenus[EL_ADD_MENU_BOT], EL_ADD_MENU_BOT, $this->_conf->get('addMenuBottom', 'layout'));
+		}
+		
+		if ( !empty($aMenus[EL_ADD_MENU_SIDE]) ) {
+			foreach ( $aMenus[EL_ADD_MENU_SIDE] as $menu ) {
+				if (!empty($menu['pages'])) {
+					$pos   = $menu['pos'] == EL_POS_RIGHT ? EL_POS_RIGHT : EL_POS_LEFT;
+					$param = $this->_menuPos['side'][$pos];
+					$this->_rndMenuVert($menu['pages'], $param['var'], $param['tpl'], false, $pos, $menu['name'], '-sidemenu');
+				}
+			}
+		}
+		
 		// render catalogs fast nav
-		$groups = $this->_conf->getGroup('catalogsNavs'); //elPrintR($groups);
+		$groups = $this->_conf->getGroup('catalogsNavs'); 
 
 		if ( !empty($groups) )
 		{
@@ -547,12 +526,34 @@ class elSiteRenderer
 			{
 				if ( $g['all'] || (is_array($g['pIDs']) && in_array($this->_curPageID, $g['pIDs'])) )
 				{
-					$module = $this->_conf->get('module', $ID); 
-					if (!empty($this->_catsTbTpl[$module]))
+					$src = $this->_nav->getPage($ID); 
+					if (!empty($this->_catsTbTpl[$src['module']]))
 					{
-						$cat->tb = sprintf($this->_catsTbTpl[$module], $ID);
-						$tree = $cat->getTreeToArray((int)$g['deep'], false, false, true); //elPrintR($tree);
-						$this->_renderCatalogNav($tree, $g['pos'], $ID, $this->_nav->getPageURL($ID), $g['title'] );
+						$cat->tb(sprintf($this->_catsTbTpl[$src['module']], $ID));
+						$tree  = $cat->getTreeToArray((int)$g['deep'], false, false, true); 
+						$pos   = isset($this->_menuPos['side'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
+						$param = $this->_menuPos['side'][$pos];
+						if (EL_POS_TOP == $pos) {
+							
+							$this->_te->setFile($param['var'], 'menus/'.$param['tpl']);
+							if ($g['title']) {
+								$this->_te->assignBlockVars('MENU_TITLE', array('title' => $g['title']));
+							}
+							$categoryID  = !empty($GLOBALS['categoryID']) ? (int)$GLOBALS['categoryID'] : 0;
+							foreach ($tree as $id=>$p) {
+								$this->_te->assignBlockVars('MENU_PAGE', array(
+									'id'       => $id, 
+									'name'     => str_repeat('+', $p['level']).$p['name'],
+									'selected' => $id == $categoryID ? ' selected="on"' : ''
+									));
+							}
+							$this->_te->parse($param['var'], null, true, false, true);
+						} else {
+							foreach($tree as $k=>$v) {
+								$tree[$k]['url'] = $src['url'].$v['id'].'/';
+							}
+							$this->_rndMenuVert($tree, $param['var'], $param['tpl'], false, $pos, isset($g['title']) ? $g['title'] : '', '-sidemenu');
+						}
 					}
 					else
 					{ // invalid module
@@ -563,52 +564,37 @@ class elSiteRenderer
 			}
 		}
 
+		
 		// меню производителей из тех-каталогов
-		$groups = $this->_conf->getGroup('techShopsMNavs');
-		if (!empty($groups))
-		{
-		  foreach ($groups as $ID=>$g)
-		  {
-		    //invalid module
-		    if ('TechShop' != $this->_conf->get('module', $ID) )
-		    {
-		      $this->_conf->drop($ID, 'techShopsMNavs');
+		$groups = $this->_conf->getGroup('techShopsMNavs'); 
+		
+		// return;
+		if (!empty($groups)) {
+			foreach ($groups as $ID=>$g) {
+				$page = $this->_nav->getPage($ID); 
+				
+				if ($page['module'] == 'TechShop') {
+					if (in_array(1, $g['pids']) || in_array($this->_curPageID, $g['pids'])) {
+						$pos = isset($this->_menuPos['side'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
+						$param = $this->_menuPos['side'][$pos];
+						$tb = 'el_techshop_'.$ID.'_manufact'; 
+					    $db = &elSingleton::getObj('elDb');
+						if (EL_POS_TOP == $pos) {
+							$sql = 'SELECT id, name FROM '.$tb.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), name';
+						} else {
+							$sql = 'SELECT CONCAT("'.$page['url'].'mnf/", id) AS url, name FROM '.$tb.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), name';
+							$mnfs = $db->queryToArray($sql);
+							$this->_rndMenuVert($mnfs, $param['var'], $param['tpl'], false, $pos, isset($g['title']) ? $g['title'] : '', '-sidemenu');
+						}
+					}
+				} else {
+					$this->_conf->drop($ID, 'techShopsMNavs');
 					$this->_conf->save();
-		    }
-		    if ( in_array(1, $g['pids']) || in_array($this->_curPageID, $g['pids']))
-		    {
-          $this->_rndTechShopMNav($ID, $g, $this->_nav->getPageURL($ID));
-		    }
-		  }
+				}
+			}
 		}
 	}
 
-	function _rndTechShopMNav($ID, $data, $baseURL)
-	{
-	  $posNfo = !empty($this->_tsMNavPosNfo[$data['pos']])
-	   ? $this->_tsMNavPosNfo[$data['pos']]
-	   : $this->_tsMNavPosNfo[EL_POS_LEFT];
-		$this->_te->setFile($posNfo[1], 'menus/'.$posNfo[0]);
-    $this->_te->assignVars('tsMNavURL', $baseURL);
-		if (!empty($data['title']))
-		{
-		  $this->_te->assignBlockVars('TS_MNAV_TITLE', array('tsMNavTitle'=>$data['title']));
-		}
-    if ($data['view'])
-    {
-	     $tb = 'el_techshop_'.$ID.'_manufact'; 
-	     $db = &elSingleton::getObj('elDb');
-	     $sql = 'SELECT id, name FROM '.$tb.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), name';
-	     $mnfs = $db->queryToArray($sql, 'id', 'name');
-	     foreach ( $mnfs as $mID=>$mnf)
-	     {
-          $vars = array('name'=>$mnf, 'mnfID'=>$mID);
-          $this->_te->assignBlockVars('TS_MNAV_MNFS.TS_MNAV_MNF', $vars, 1);
-	     }
-    }
-	  $this->_te->parse($posNfo[1], $posNfo[1], true, false, true);
-		$GLOBALS['parseColumns'][$data['pos']] = true;
-	}
 
 	/**
 	 * Рисует горизонтальное верхнее меню
@@ -620,101 +606,72 @@ class elSiteRenderer
 	 * @param  bool    $icons    рисовать иконки в меню
 	 * @return void
 	 **/
-	function _rndMenuHoriz($pages, $block, $varName, $file, $icons)
+	function _rndMenuHoriz($pages, $var, $tpl, $icons)
 	{
-		$this->_te->setFile($varName, 'menus/'.$file);
-		//$curPageBlock = $this->_te->isBlockExists('HM_CPAGE'); 
+		$this->_te->setFile($var, 'menus/'.$tpl); //echo elPrintR($pages);
 		$size = sizeof($pages);
-        $cellWidth = ceil(100/$size);
+        $cellWidth = floor(100/$size);
 		$size--;
 		$i = 0;
 		foreach ( $pages as $one )
 		{
-			// совместимость со старой версткой
-			// if ( $curPageBlock && $this->_nav->isInCurPath($one['id']) )
-			// {
-			// 	$b = 'HMENU.HM_PAGES.HM_CPAGE';
-			// 	$bIco = $b.'.HMCP_ICO';
-			// }
-			// else
-			// {
-			// 	$b = 'HMENU.HM_PAGES.HM_PAGE';
-			// 	$bIco = $b.'.HMP_ICO';
-			// }
-			$b         = 'HMENU.HM_PAGES.HM_PAGE';
-			$bIco      = $b.'.HMP_ICO';
-			$cssClass  = $this->_nav->isInCurPath($one['id']) ? 'nav-top-current' : 'nav-top-page';
-			$cssClass .= $i==0 ? ' first' : ($i==$size ? ' last' : '');
+			$cssClass  = $this->_nav->isInCurPath($one['id']) ? 'navtop-item-selected' : 'navtop-item';
+			$cssClass .= $i==0 ? '-first' : ($i==$size ? '-last' : '');
 			
 			$page = array(
-				'url'          => $one['url'], 
-				'name'         => $one['name'], 
-				'page_descrip' => $one['page_descrip'], 
-				'ico_main'     => $one['ico_main'],
-				'cssClass'     => $cssClass,
-				'odd'          => (int)($i++%2),
-				'num'          => $i,
-				'cellWidth'    => $cellWidth
+				'url'       => $one['url'], 
+				'name'      => $one['name'], 
+				'descrip'   => !empty($one['page_descrip']) ? htmlspecialchars($one['page_descrip']) : '', 
+				'ico'       => !empty($one['ico_main']) ? $one['ico_main'] : '',
+				'cssClass'  => $cssClass,
+				'odd'       => (int)($i++%2),
+				'num'       => $i,
+				'width'     => $cellWidth
 				);
 			
-			$this->_te->assignBlockVars($b, $page, 1);
+			$this->_te->assignBlockVars('MENU.PAGE', $page, 1);
 			if ( $icons )
 			{
-				$this->_te->assignBlockVars($bIco, $page, 3);
+				$this->_te->assignBlockVars('MENU.PAGE.ICO', $page, 2);
 			}
 		}
-		//$this->_te->assignBlockVars('HMENU', array('elementsNum'=> sizeof($pages)), 1);
-		$this->_te->parse($varName);
-		$this->_te->assignBlockVars($block);
+		$this->_te->parse($var, null, true, false, true);
 	}
 
-	function _rndMenuVert($pages, $pos, $varName, $file, $icons, $parentName=null)
+	function _rndMenuVert($pages, $var, $tpl, $icons, $pos, $parentName=null, $suffix='')
 	{
-		// elPrintR($pages); echo $varName;
     	if (!$pages)
     	{
       		return;
     	}
     	$GLOBALS['parseColumns'][$pos] = true;
 
-    	$this->_te->setFile($varName, 'menus/'.$file);
+    	$this->_te->setFile($var, 'menus/'.$tpl);
+		$this->_te->assignVars('navSuffix', $suffix);
     	$curPageID = $this->_nav->getCurrentPageID();
 
     	if ($parentName)
     	{
-      		$this->_te->assignBlockVars('VMENU.VM_PARENT', array('parentName'=>$parentName), 1);
+      		$this->_te->assignBlockVars('MENU_PARENT', array('parentName'=>$parentName));
     	}
-		$i = 0;
+
     	foreach ( $pages as $one )
 		{
-			if ($curPageID != $one['id'])
-			{
-				$block           = 'VMENU.VM_PAGES.VM_PAGE';
-				$blockIco        = $block.'.VMP_ICO';
-				$one['cssClass'] = $one['level'] <= 3 ? 'nav'.$one['level'] : 'nav';
-			}
-			else
-			{
-				$block           = 'VMENU.VM_PAGES.VM_CPAGE';
-				$blockIco        = $block.'.VMCP_ICO';
-				$one['cssClass'] = $one['level'] <= 3 ? 'navCur'.$one['level'] : 'navCur3';
-			}
-			if ( $i++ == 0)
-			{
-				$one['cssClass'] .= ' first';
-			}
-			elseif ( $i == sizeof($pages) )
-			{
-				$one['cssClass'] .= ' last';
-			}
-			$this->_te->assignBlockVars($block, $one, 1);
-			if ( $icons )
-			{
-				// elPrintR($one);
-				$this->_te->assignBlockVars($blockIco, $one, 3);
+			$level = isset($one['level']) ? $one['level'] : 0;
+			$page = array(
+				'url'      => $one['url'],
+				'name'     => $one['name'],
+				'descrip'  => !empty($one['page_descrip']) ? htmlspecialchars($one['page_descrip']) : '',
+				'level'    => $level,
+				'ico'      => !empty($one['ico_main']) ? $one['ico_main'] : '',
+				'cssClass' => 'level'.min($level, 3).' item'.($one['id'] == $curPageID ? '-selected' : '')
+				);
+			$this->_te->assignBlockVars('MENU.PAGE', $page, 1);
+			if ($icons) {
+				$this->_te->assignBlockVars('MENU.PAGE.ICO', $page, 2);
 			}
 		}
-		$this->_te->parse($varName, null, true, false, true);
+		$this->_te->parse($var, null, true, false, true);
 	}
 
 	/**
@@ -830,48 +787,28 @@ class elSiteRenderer
 
 	function _rndAddMenu( $menu, $mType=EL_ADD_MENU_TOP, $displ=EL_ADD_MENU_TEXT )
 	{
-		
-		if ( EL_ADD_MENU_TOP == $mType )
-		{
-			$var       = 'ADD_MENU_TOP';
-			$pos       = 'ADD_MENU_TOP_POS';
-			$file      = 'addMenuTop.html';
-			$block     = 'ADD_MENU_TOP_PAGE';
-			$blockIco  = '.AMTP_ICO';
-			$blockText = '.AMTP_TEXT';
-		}
-		else
-		{
-			$var       = 'ADD_MENU_BOTTOM';
-			$pos       = 'ADD_MENU_BOTTOM_POS';
-			$file      = 'addMenuBottom.html';
-			$block     = 'ADD_MENU_BOTTOM_PAGE';
-			$blockIco  = '.AMBP_ICO';
-			$blockText = '.AMBP_TEXT';
+		if ( EL_ADD_MENU_TOP == $mType ) {
+			$var   = 'ADD_MENU_TOP';
+			$file  = 'add-top.html';
+		} else {
+			$var   = 'ADD_MENU_BOTTOM';
+			$file  = 'add-bottom.html';
 		}
 
 		$this->_te->setFile($var, 'menus/'.$file);
 		$s = sizeof($menu); 
-		$width = ceil(100/$s);
-		for ( $i=0; $i<$s; $i++ )
-		{
-			$cssClass = $i==0 ? 'first' : ( $i==$s-1 ? 'last' : '');
-			$cssClass .= ($this->_nav->isInCurPath($menu[$i]['id']) ? ' nav-add-current' : '' );
-			$this->_te->assignBlockVars($block, array('cssClass'=>$cssClass, 'num'=>$i+1, 'cellWidth'=>$width));
-			if ($displ & EL_ADD_MENU_TEXT )
-			{
-				$this->_te->assignBlockVars($block.$blockText, $menu[$i], 1);
+		// $width = floor(100/$s);
+		for ( $i=0; $i<$s; $i++ ) {
+			$this->_te->assignBlockVars('MENU_PAGE', array('cssClass' => $i==0 ? 'first' : ($i==$s-1 ? 'last' : '')));
+			if ($displ & EL_ADD_MENU_TEXT ) {
+				$this->_te->assignBlockVars('MENU_PAGE.TEXT', $menu[$i], 1);
 			}
-			if ($displ & EL_ADD_MENU_ICO )
-			{
-				$this->_te->assignBlockVars($block.$blockIco, $menu[$i], 1 );
+			if ($displ & EL_ADD_MENU_ICO ) {
+				$this->_te->assignBlockVars('MENU_PAGE.ICO', $menu[$i], 1);
 			}
 		}
-		$this->_te->parse($var);
-		$this->_te->assignBlockVars($pos);
+		$this->_te->parse($var, null, true, false, true);
 	}
-
-
 
 
 	function _renderPaths($altTitle='')
@@ -999,28 +936,20 @@ class elSiteRenderer
 		if ( $this->userName )
 		{
 			$tpl = $this->_processMiscTpl('uInfo', $this->_conf->get('userInfoPosition', 'layout'));
-			if (!$prepare)
-			{
-				$this->_te->assignVars( 'userName', $this->userName );
-				$this->_te->setFile($tpl[0], $tpl[1]);
-				$this->_te->parse($tpl[0]);
-			}
+			$this->_te->assignVars( 'userName', $this->userName );
+			$this->_te->setFile($tpl[0], $tpl[1]);
+			$this->_te->parse($tpl[0]);
 		}
 		elseif ( 'n' != ($pos = $this->_conf->get('authFormPosition', 'layout')) )
 		{
 			elLoadMessages('Auth');
 			$tpl = $this->_processMiscTpl('uAuth', $pos);
-			if (!$prepare)
+			$this->_te->setFile($tpl[0], $tpl[1]);
+			if ($this->isRegAllow && $this->_te->isBlockExists('USER_REG') )
 			{
-				$this->_te->setFile($tpl[0], $tpl[1]);
-				if ($this->isRegAllow && $this->_te->isBlockExists('USER_REG') )
-				{
-					$this->_te->assignBlockVars('USER_REG');
-				}
-				
-				$this->_te->parse($tpl[0]);
+				$this->_te->assignBlockVars('USER_REG');
 			}
-			
+			$this->_te->parse($tpl[0]);
 		}
 	}
 
@@ -1066,20 +995,13 @@ class elSiteRenderer
 		$this->_te->parse($tpl[0]);
 	}
 
-	function _processMiscTpl($name, $pos)
-	{
-		if ( empty($this->_miscTpl[$name][$pos]))
-		{
+	function _processMiscTpl($name, $pos) {
+		if ( empty($this->_miscTpl[$name][$pos])) {
 			$pos = EL_POS_LEFT;
 		}
 		$tpl = $this->_miscTpl[$name][$pos];
-		if ( !empty($tpl[2]) )
-		{
+		if ( !empty($tpl[2]) ) {
 			$GLOBALS['parseColumns'][$pos] = 1;
-		}
-		else
-		{
-			$this->_te->assignBlockOnce($tpl[0]);
 		}
 		return $tpl;
 	}

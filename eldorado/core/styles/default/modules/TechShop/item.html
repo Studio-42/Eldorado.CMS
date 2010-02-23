@@ -1,16 +1,20 @@
 <div class="item mod-tshop-item">
 	<div id="mod-tshop-item-tabs">
 		<!-- BEGIN TS_TABS -->
-		<ul class="noprint">
+		<ul id="mod-tshop-item-tabs-title">
 			<li><a href="#mod-tshop-item-descrip">{m('Description')}</a></li>
-			<!-- BEGIN TS_TAB_FT --><li><a href="#mod-tshop-item-ftlist">{m('Features')}</a></li><!-- END TS_TAB_FT -->
-			<!-- BEGIN TS_TAB_MODELS --><li><a href="#mod-tshop-item-models">{m('Models')}</a></li><!-- END TS_TAB_MODELS -->
+			<!-- BEGIN FEATURES --><li><a href="#mod-tshop-item-features">{label}</a></li><!-- END FEATURES -->
+			<!-- BEGIN PRICELIST --><li><a href="#mod-tshop-item-pricelist">{m('Prices')}</a></li><!-- END PRICELIST -->
+			<!-- BEGIN L_OBJECTS --><li><a href="#mod-tshop-item-lobj-{id}">{name}</a></li><!-- END L_OBJECTS -->
 		</ul>
 		<!-- END TS_TABS -->
 		<div id="mod-tshop-item-descrip">
 			<!-- BEGIN ITEM_ADMIN -->
 			<ul class="adm-icons">
-				<li><a href="{URL}edit_item/{catID}/{id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{URL}edit_item/{catID}/{id}/i/"  class="icons edit"   title="{m('Edit')}"></a></li>
+				<!-- BEGIN FAKE_PRICE -->
+				<li><a href="{URL}get_price/{catID}/{id}/"  class="icons money item-price"   title="{m('Prices')}"></a></li>
+				<!-- END FAKE_PRICE -->
 				<li><a href="{URL}edit_model/{catID}/{id}/" class="icons create" title="{m('New model')}"></a></li>
 				<li><a href="{URL}set_ft/{catID}/{id}/"     class="icons ft-set" title="{m('Set features')}"></a></li>
 				<li><a href="{URL}rm_item/{catID}/{id}/"    class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
@@ -18,9 +22,9 @@
 			<!-- END ITEM_ADMIN -->
 
 			<h2>{code} {name}</h2>
-			<!-- BEGIN IS_ITEM_ORDER -->
+			<!-- BEGIN ITEM_ORDER -->
 		    <div class="mod-tshop-order"><a href="{URL}__icart__/add/{catID}/{id}/" class="cart" >{m('Buy now')}</a></div>
-			<!-- END IS_ITEM_ORDER -->
+			<!-- END ITEM_ORDER -->
 			<!-- BEGIN ITEM_PRICE -->
 			<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
 			<!-- END ITEM_PRICE -->
@@ -30,110 +34,99 @@
 
 			<div class="mod-tshop-item-descrip clearfix">{descrip}</div>
 		</div>
-		<div id="mod-tshop-item-ftlist">
-			<!-- BEGIN ITEM_FTS -->
-			<table class="nice mod-tshop-fts-tb">
-				<caption>{m('Features')}</caption>
-				<!-- BEGIN IFTS_GROUP -->
-				<tr><th colspan="2">{name}</th></tr>
-				<!-- BEGIN IFTS_FT -->
-				<tr>
-					<td>{name} {unit}</td>
-					<td>{value}</td>
-				</tr>
-				<!-- END IFTS_FT -->
-				<!-- END IFTS_GROUP -->
+		<!-- BEGIN TS_FEATURES -->
+		<div id="mod-tshop-item-features">
+			<strong>{code} {name}</strong>
+			<div id="mod-tshop-item-features-wrapper" >
+			<table class="nice mod-tshop-fts-tb" style="border:none">
+				<!-- BEGIN HEAD -->
+				<thead>
+					<tr>
+						<th>{m('Models')}</th>
+						<!-- BEGIN MODEL -->
+						<th style="vertical-align:top">
+							<!-- BEGIN ADMIN -->
+							<ul class="adm-icons" style="float:none">
+								<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"     class="icons edit"   title="{m('Edit')}"></a></li>
+								<li><a href="{URL}edit_model_img/{catID}/{i_id}/{id}/item/" class="icons image"  title="{m('Set image')}"></a></li>
+								<li><a href="{URL}rm_model/{catID}/{i_id}/{id}/"       class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+							</ul><br clear="all" />
+							<!-- END ADMIN -->
+							{code} {name}
+						</th>
+						<!-- END MODEL -->
+					</tr>
+					<!-- BEGIN IMAGES -->
+					<tr>
+						<td></td>
+						<!-- BEGIN IMG_PLACE -->
+						<td>
+							<!-- BEGIN IMG -->
+							<a href="{target}" rel="fancy-tour"><img src="{tmb}" title="{m('Full size image')}" /></a>
+							<!-- END IMG -->
+						</td>
+						<!-- END IMG_PLACE -->
+					</tr>
+					<!-- END IMAGES -->
+					<!-- BEGIN DESCRIPTIONS -->
+					<tr>
+						<td></td>
+						<!-- BEGIN DESCRIP -->
+						<td>{descrip}</td>
+						<!-- END DESCRIP -->
+					</tr>
+					<!-- END DESCRIPTIONS -->
+				</thead>
+				<!-- END HEAD -->
+				<!-- BEGIN GROUP -->
+				<tbody>
+					<tr><th scope="row" colspan="{colspan}">{name}</th></tr>
+					<!-- BEGIN FEATURE_ROW -->
+					<tr>
+						<td><strong>{name} {unit}</strong></td>
+						<!-- BEGIN FEATURE -->
+						<td{colspan}>{value}</td>
+						<!-- END FEATURE -->
+					</tr>
+					<!-- END FEATURE_ROW -->
+				</tbody>
+				<!-- END GROUP -->
 			</table>
-			<!-- END ITEM_FTS -->
+		
+			</div>
 		</div>
-		<div id="mod-tshop-item-models">
-			<!-- BEGIN MODELS -->
-			<table class="nice mod-tshop-fts-tb">
-			<thead>
-				<!-- BEGIN M_IMG_ROW -->
-				<tr>
-					<th>&nbsp;</th>
-					<!-- BEGIN M_IMG_CELL -->
-					<th>
-						<!-- BEGIN M_IMG -->
-					 	<a href="{target}" rel="fancy-tour">
-						<img src="{tmb}" title="{m('Full size image')}" /></a>
-					 	<!-- END M_IMG -->
-					</th>
-					<!-- END M_IMG_CELL -->
-				</tr>
-				<!-- END M_IMG_ROW -->
-				<tr>
-					<th>{m('Models')}</th>
-					<!-- BEGIN M_NAME -->
-					<th style="width:{cellWidth}%">
-						<!-- BEGIN MODEL_ADMIN -->
-						<ul class="adm-icons">
-							<li><a href="{URL}edit_model/{catID}/{i_id}/{id}/"     class="icons edit"   title="{m('Edit')}"></a></li>
-							<li><a href="{URL}edit_model_img/{catID}/{i_id}/{id}/" class="icons image"  title="{m('Set image')}"></a></li>
-							<li><a href="{URL}rm_model/{catID}/{i_id}/{id}/"       class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
-						</ul>
-						<!-- END MODEL_ADMIN -->
-						<span>{code}</span> {name}
-					</th>
-					<!-- END M_NAME -->
-				</tr>
-				<!-- BEGIN M_DESCRIP_ROW -->
-				<tr>
-					<th >{m('Description')}</th>
-					<!-- BEGIN M_DESCRIP -->
-					<th style="font-weight:normal">{descrip}</th>
-					<!-- END M_DESCRIP -->
-				</tr>
-				<!-- END M_DESCRIP_ROW -->
-				<!-- BEGIN M_PRICE_ROW -->
-				<tr>
-			   		<th>{m('Price')} ({currencySign})</th>
-			   		<!-- BEGIN M_PRICE -->
-			   		<th>
-		         		{price}
-		         		<!-- BEGIN M_ORDER -->
-		         		<a href="{URL}__icart__/add/{catID}/{iID}/{ID}/" class="cart">{m('Buy now')}</a>
-		         		<!-- END M_ORDER -->
-		       		</th>
-			   		<!-- END M_PRICE -->
-				</tr>
-				<!-- END M_PRICE_ROW -->
-			</thead>
-			<!-- BEGIN M_FTS -->
-			<tbody>
-				<tr>
-					<td colspan="{colspan}"><strong>{m('Features')}</strong></td>
-				</tr>
-			</tbody>
-			<tbody>
-				<!-- BEGIN M_FTG -->
-				<tr>
-					<th class="sub" colspan="{colspan}">{name}</th>
-				</tr>
-				<!-- BEGIN M_FT_ROW -->
-				<tr>
-					<td>{name} {unit}</td>
-					<!-- BEGIN M_FT -->
-					<td{attrs}>{value} &nbsp;</td>
-					<!-- END M_FT -->
-				</tr>
-				<!-- END M_FT_ROW -->
-				<!-- END M_FTG -->
-			</tbody>
-			<!-- END M_FTS -->
-			</table>
-			<!-- END MODELS -->
+		<!-- END TS_FEATURES -->
+		<!-- BEGIN TS_PRICELIST -->
+		<div id="mod-tshop-item-pricelist">
+			<ul>
+				<!-- BEGIN ROW -->
+				<li>
+					<!-- BEGIN MODEL_ORDER -->
+					<a class="float-right" href="{URL}__icart__/add/{catID}/{itemID}/{modelID}/" class="cart" >{m('Buy now')}</a>
+					<!-- END MODEL_ORDER -->
+					<div></div>{name} <strong>{price}{currencySign}</strong>
+				</li>
+				<!-- END ROW -->
+			</ul>
 		</div>
+		<!-- END TS_PRICELIST -->
+		<!-- BEGIN TS_L_OBJECT -->
+		<div id="mod-tshop-item-lobj-{id}" class="mod-tshop-item-lobj">
+			<ul>
+				<!-- BEGIN LINK -->
+				<li><a href="{url}"  class="link forward2">{name}</a></li>
+				<!-- END LINK -->
+			</ul>
+		</div>
+		<!-- END TS_L_OBJECT -->
 	</div>
 	
 	{LINKED_OBJS}
 </div>
 <script type="text/javascript" charset="utf-8">
 $().ready( function() {
-	<!-- BEGIN TS_TABS_JS -->
-	$('#mod-tshop-item-tabs').tabs();
-	<!-- END TS_TABS_JS -->
+	$('#mod-tshop-item-tabs-title').length && $('#mod-tshop-item-tabs').tabs();
+
 	if ($.fn.fancybox) {
 		$("a[rel='fancy-tour']:has(img)").fancybox(); 
 	}

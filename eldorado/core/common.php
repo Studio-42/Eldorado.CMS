@@ -37,8 +37,10 @@ define ('EL_DEBUGQ', 3);
 define ('EL_WM_NORMAL', 1);
 define ('EL_WM_POPUP',  3);
 define ('EL_WM_XML',    4);
+define ('EL_WM_JSON',   5);
 define ('EL_URL_POPUP', '_popup_');
 define ('EL_URL_XML',   '_xml_');
+define ('EL_URL_JSON',   '_json_');
 
 /**
  * Pages scopes and display limits
@@ -106,7 +108,7 @@ $GLOBALS['_js_'] = array(
 	);
 $GLOBALS['_css_']       = array(
 	'ui-theme'     => '',
-	EL_JS_CSS_FILE => array('layout.css', 'styling.css', 'normal.css'),
+	EL_JS_CSS_FILE => array('styling.css', 'normal.css'),
 	EL_JS_CSS_SRC  => array()
 	);
 /**

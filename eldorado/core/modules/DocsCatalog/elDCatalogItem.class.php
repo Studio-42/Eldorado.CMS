@@ -20,13 +20,13 @@ class elDCatalogItem extends elCatalogItem
   /**
    * Create edit item form object
    */
-  function makeForm( $parents )
+  function _makeForm( $parents )
   {
-    parent::makeForm($parents);
+    parent::_makeForm($parents);
 
-    $this->form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'350')) );
-    $this->form->add( new elEditor('content', m('Content'), $this->content) );
-    $this->form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
+    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'350')) );
+    $this->_form->add( new elEditor('content', m('Content'), $this->content) );
+    $this->_form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
   }
 
 

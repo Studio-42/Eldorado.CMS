@@ -14,4 +14,4 @@ forum.i18n.ru = {
 	'Do You realy want to delete file?'     : 'Хотите удалить файл?',
 	'Data transfer error'                   : 'Ошибка передачи данных',
 	'Please, select file to attach to post' : 'Пожалуйста, выберите файл, чтобы добавить его к сообщению'
-}
+};

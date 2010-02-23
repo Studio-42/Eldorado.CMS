@@ -155,7 +155,7 @@ class elMultiSelectList extends elCheckBoxesGroup
 
 	function toHtml()
 	{
-		$values = $this->getValue();  //echo 'OPTS<br>'; elPrintR($this->opts); echo 'VALS<br>'; elPrintR($this->value);
+		$values = $this->getValue();  
 		$name   = substr($this->getName(), 0, -2);
 		$size   = sizeof($this->opts);
 		$res    = '';
@@ -167,13 +167,14 @@ class elMultiSelectList extends elCheckBoxesGroup
 		{
 			foreach ($values as $v )
 			{
-				$res .= '<'.$this->tpl['val'].'>'.$this->opts[$v].'; </'.$this->tpl['val'].'>';
+				$res .= $this->opts[$v].'; ';
+				// echo htmlspecialchars($res).'<br>';
 			}
 		}
 		$html = '';
 		
 		$html = '<div class="multiselect">
-			<a href="#" class="el-collapsed"></a> <span>here</span>
+			<a href="#" class="el-collapsed"></a> <span></span>
 			<div class="rounded-5 multiselect-opts" style="display:none">';
 		$i = 0;
 		foreach ($this->opts as $val=>$label)
@@ -214,7 +215,6 @@ class elMultiSelectList extends elCheckBoxesGroup
 			$(this).toggleClass("el-expanded").siblings(".multiselect-opts").eq(0).slideToggle();
 			return false;
 		}).end().find(":checkbox").change(function(e) {
-			window.console.log("change")
 			var s = [];
 			$(this).parents(".multiselect-opts").find(":checkbox[checked]").each(function() {
 				!$(this).attr("disabled") && s.push($.trim($(this).parent().text().replace(/\+\s/g, "")))
@@ -222,7 +222,7 @@ class elMultiSelectList extends elCheckBoxesGroup
 			if (s.length > 3) {
 				$(this).parents(".multiselect").children("span").append( " '.m('and %d more').'".replace("%d", s.length-3) );
 			}
-		}).eq(0).trigger("change");
+		}).trigger("change");
 		
 		';
 		elAddJs($js, EL_JS_SRC_ONREADY);

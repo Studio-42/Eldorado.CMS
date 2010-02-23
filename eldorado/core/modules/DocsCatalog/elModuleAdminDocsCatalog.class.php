@@ -250,11 +250,6 @@ class elModuleAdminDocsCatalog extends elModuleDocsCatalog
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
-	function _onBeforeStop()
-	{
-	  parent::_onBeforeStop();
-
-	}
 
   function &_makeConfForm()
   {
@@ -278,10 +273,10 @@ class elModuleAdminDocsCatalog extends elModuleDocsCatalog
 
   function &_makeNavForm($c)
   {
-  	$cat     = & elSingleton::getObj('elCatalogCategory');
-  	$cat->tb = 'el_menu';
-  	$tree    = $cat->getTreeToArray(0, true, true);
-  	$form    = & parent::_makeConfForm();
+  	$cat  = & elSingleton::getObj('elCatalogCategory');
+  	$cat->tb('el_menu');
+  	$tree = $cat->getTreeToArray(0, true, true);
+  	$form = & parent::_makeConfForm();
 
   	$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
   	$c['title'] = !empty($c['title']) ? $c['title'] : '';
@@ -290,16 +285,12 @@ class elModuleAdminDocsCatalog extends elModuleDocsCatalog
   	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
   	$form->setLabel( m('Configure navigation for catalog') );
-	$js = "if (this.value != '0') {
-		$(this).parents('tr').eq(0).nextAll('tr').show();
-	} else {
-		$(this).parents('tr').eq(0).nextAll('tr').hide();
-	}";
+	$js = "$(this).parents('tr').eq(0).nextAll('tr').toggle(this.value != '0');";
 
 	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],	$GLOBALS['posNLRTB'], array('onChange'=>$js)) );
   	$form->add( new elText('title', m('Navigation title'), $c['title']) );
   	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
-	$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
+	$js = "$(this).parents('tr').eq(0).nextAll('tr').toggle(this.value == '0');";
   	$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'], $GLOBALS['yn'], array('onChange'=>$js)) );
   	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
   	$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );

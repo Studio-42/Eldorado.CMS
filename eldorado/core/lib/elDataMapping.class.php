@@ -77,9 +77,6 @@ class elDataMapping
 	
 	function idAttr($val=null)
 	{
-		// echo get_class($this).' ';
-		// echo $this->__id__.' '.'<br>';
-		// elPrintR($this);
 		return is_null($val) ? $this->{$this->__id__} : $this->{$this->__id__} = $val;
 	}
 	
@@ -161,7 +158,6 @@ class elDataMapping
 			{
 				$ret[] = $this->copy($r);
 			} 
-//			$ret[ $assoc ? $r[$this->_id] : null] = $this->copy($r);
 		}
 		return $ret;
 	}

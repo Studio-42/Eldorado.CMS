@@ -70,6 +70,17 @@ class elImage {
 		return array($width, $height);
 	}
 	
+	function _cropPos($w, $h)
+	{
+		$x = $y = 0;
+		$size = min($w, $h);
+		if ($w > $h) {
+			$x = ceil(($w - $h)/2);
+		} else {
+			$y = ceil(($h - $w)/2);
+		}
+		return array($x, $y, $size);
+	}
 	
 	function imageInfo($img)
 	{
@@ -154,47 +165,32 @@ class elImage {
 	
 	function _resizeGD($image, $w, $h, $crop=true)
 	{
-		$m = $this->_gdMethods($image['mime']);
-		if (empty($m))
-		{
-			return $this->_error('File "%s" is not an image or has unsupported type', $image['basename']);
+		if ($image['mime'] == 'image/jpeg') {
+			$_img = imagecreatefromjpeg($image['path']);
+		} elseif ($image['mime'] = 'image/png') {
+			$_img = imagecreatefrompng($image['path']);
+		} elseif ($image['mime'] = 'image/gif') {
+			$_img = imagecreatefromgif($image['path']);
+		} else {
+			return $this->_error('File "%s" is not an image or has unsupported type', $image['basename']);;
 		}
-		if (false === ($i = $m[0]($image['path'])))
-		{
-			return $this->_error('Unable to load image %s', $image['basename']);
-		}
-		list($_w, $_h) = $this->calcTmbSize($image['width'], $image['height'], $w, $h, true);
-		$tmb = imagecreatetruecolor($_w, $_h);
-		if ( !imageCopyResampled($tmb, $i, 0,0,0,0, $_w, $_h, $image['width'], $image['height']) )
-		{
+		if (!$_img || false == ($_tmb = imagecreatetruecolor($w, $w))) {
 			return $this->_error('Unable to resize image %s', $image['basename']);
 		}
-		if ($crop)
-		{
-			$x = $y = 0;
-			if ($_w > $w)
-			{
-				$x  = intval(($_w-$w)/2);
-				$_w = $w;
-			}
-			else
-			{
-				$y  = intval(($_h-$h)/2);
-				$_h = $h;
-			}
-
-			$canvas = imagecreatetruecolor($w, $h);
-			imagecopy($canvas, $tmb, 0, 0, $x, $y, $_w, $_h);
-			$result = $m[1]($canvas, $image['path'], $m[2]);
-			imagedestroy($canvas);
+		list($x, $y, $size) = $this->_cropPos($image['width'], $image['height']);
+		if (!imagecopyresampled($_tmb, $_img, 0, 0, $x, $y, $w, $w, $size, $size)) {
+			return $this->_error('Unable to resize image %s', $image['basename']);
 		}
-		else
-		{
-			$result = $m[1]($tmb, $image['path'], $m[2]);
+		if ($image['mime'] == 'image/jpeg') {
+			$r = imagejpeg($_tmb, $image['path']);
+		} elseif ($image['mime'] = 'image/png') {
+			$r = imagepng($_tmb, $image['path'], 7);
+		} elseif ($image['mime'] = 'image/gif') {
+			$r = imagegif($_tmb, $image['path']);
 		}
-		imagedestroy($i);
-		imagedestroy($tmb);
-		return $result ? $image['path'] : false;
+		imagedestroy($_img);
+		imagedestroy($_tmb);
+		return $r ? $image['path'] : $this->_error('Unable to resize image %s', $image['basename']);
 	}
 	
 	function _resizeImagick($image, $w, $h, $crop=true)

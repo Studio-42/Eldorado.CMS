@@ -9,6 +9,21 @@ define('EL_IS_SORT_CODE',  2);
 define('EL_IS_SORT_PRICE', 3);
 define('EL_IS_SORT_TIME',  4);
 
+if (!defined('EL_CAT_DESCRIP_NO')) {
+	define('EL_CAT_DESCRIP_NO',      0);
+}
+if (!defined('EL_CAT_DESCRIP_IN_LIST')) {
+	define('EL_CAT_DESCRIP_IN_LIST', 1);
+}
+if (!defined('EL_CAT_DESCRIP_IN_SELF')) {
+	define('EL_CAT_DESCRIP_IN_SELF', 2);
+}
+if (!defined('EL_CAT_DESCRIP_IN_BOTH')) {
+	define('EL_CAT_DESCRIP_IN_BOTH', 3);
+}
+
+
+
 class elModuleIShop extends elModule
 {
   var $_factory   = null;
@@ -22,7 +37,7 @@ class elModuleIShop extends elModule
     'itemsCols'         => 1,
     'itemsSortID'       => EL_IS_SORT_NAME,
     'itemsPerPage'      => 10,
-    'displayCatDescrip' => 1,
+    'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
     'displayCode'       => 1,
     'mnfNfo'            => EL_IS_USE_MNF,
     'tmbListSize'       => 125,
@@ -71,8 +86,7 @@ class elModuleIShop extends elModule
                          $this->_factory->getItems( $this->_cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
                          $total,
                          $current,
-                         $this->_cat->getAttr('name'),
-                         $this->_cat->getAttr('descrip')
+                         $this->_cat
                       );
   }
 

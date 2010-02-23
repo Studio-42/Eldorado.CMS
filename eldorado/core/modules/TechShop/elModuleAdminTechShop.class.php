@@ -26,6 +26,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 		'sort_ftg'   => array('m' => 'sortFtGroups',    'g'=>'Actions', 'ico'=>'icoSortNumeric',   'l'=>'Sort features groups'),
 		'set_ft'     => array('m' => 'setFt'),
 		'item_ft'    => array('m' => 'changeFtList'),
+		'get_price'  => array('m' => 'getItemPrice'),
 		'update'     => array('m' => 'uploadPrice',     'g'=>'Actions', 'ico'=>'icoPriceFromFile', 'l'=>'Update prices from file'  ),
     	'cross_links'=> array('m' => 'editCrossLinks',  'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
 
@@ -40,55 +41,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 
 	var $_mMapAppUrl = array('edit_cat', 'edit_item', 'rm_group', 'sort_items');
 
-
-	function editCrossLinks()
-	{
-	  $this->_initCat( $this->_arg() );
-		$this->_item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
-		if ( !$this->_item->ID )
-		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
-		}
-		$clm = & $this->_getCrossLinksManager();
-		if (!$clm->editCrossLinks($this->_item))
-		{
-		  $this->_initRenderer();
-		  $this->_rnd->addToContent($clm->formToHtml());
-		}
-		else
-		{
-		  elMsgBox::put( m('Data saved') );
-			elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
-		}
-	}
-
-
-
-	function uploadPrice()
-  {
-    $form = & $this->_makeUploadPriceForm();
-
-    if (!$form->isSubmitAndValid())
-    {
-      $this->_initRenderer();
-      return $this->_rnd->addToContent($form->toHtml());
-    }
-    $v = $form->getValue(); //elPrintR($v); //return;
-    $charset = !empty($GLOBALS['EL_CHARSETS'][$v['csvCharset']]) && 'UTF-8' != $v['csvCharset'] && function_exists('iconv')
-      ? $v['csvCharset'] : null;
-    list($sep, $delim) = $this->_csvParams($v['csvSep'], $v['csvDelim']);
-
-    $price = $this->_csvToArray($v['csvFile']['tmp_name'], $sep, $delim, $charset); //elPrintR($price);
-    if (empty($price))
-    {
-      elThrow(E_USER_ERROR, 'File "%s" is empty or has incorrect format', $v['csvFile']['tmp_name'], EL_URL);
-    }
-    list($iUpd, $mUpd, $nFnd, $pRows) = $this->_updatePrice($price);
-    elMsgBox::put( sprintf( m('There are %d items and %d models was updated, %d records was not found. Total found %d records in csv file.'), $iUpd, $mUpd, $nFnd, $pRows));
-    elActionLog('Price', 'update', '', '');
-    elLocation(EL_URL);
-  }
+	var $_jslib = 'TechShop';
 
 
 	/** category manipulation */
@@ -173,27 +126,27 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function editItem()
 	{
 		$this->_initCat( $this->_arg() );
-		$item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
-		if (!$item->ID)
+		$this->_item = $this->_factory->create(EL_TS_ITEM, $this->_arg(1) );
+		if (!$this->_item->ID)
 		{
-			$item->parents = array($this->_cat->ID);
+			$this->_item->parents = array($this->_cat->ID);
 		}
-		if ( !$item->editAndSave($this->_cat->getTreeToArray(0, true)) )
+		if ( !$this->_item->editAndSave($this->_cat->getTreeToArray(0, true)) )
 		{
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $item->formToHtml() );
+			$this->_rnd->addToContent( $this->_item->formToHtml() );
 		}
 		else
 		{
-			elActionLog($item, false, $this->_cat->ID.'/'.$item->ID, $item->name);
+			elActionLog($this->_item, false, $this->_cat->ID.'/'.$this->_item->ID, $this->_item->name);
 			elMsgBox::put( m('Data saved') );
 			if ('mnf' == $this->_arg(2))
 			{
-			   elLocation(EL_URL.'mnf_items/'.$item->mnfID.'/');
+			   elLocation(EL_URL.'mnf_items/'.$this->_item->mnfID.'/');
 			}
 			elseif ('i' == $this->_arg(2))
 			{
-			  elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID.'/');
+			  elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/');
 			}
 			elLocation(EL_URL.$this->_cat->ID);
 		}
@@ -202,7 +155,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function rmItem()
 	{
 		$this->_initCat( $this->_arg() );
-		$item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
+		$item =  $this->_factory->create(EL_TS_ITEM, $this->_arg(1));
 		if ( !$item->ID )
 		{
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
@@ -248,7 +201,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 			elThrow(E_USER_WARNING, 'There are no one documents in this category was found', null, EL_URL);
 		}
 		$item =  $this->_factory->create( EL_TS_ITEM );
-		if ( !$item->removeItems($this->_cat->ID) )
+		if ( !$item->removeItems($this->_cat->ID, $this->_conf('itemsSortID')) )
 		{
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $item->formToHtml() );
@@ -298,14 +251,14 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function editModelImage()
 	{
 	   $this->_initCat($this->_arg());
-	   $this->_item = $this->_factory->create(EL_TS_ITEM, $this->_arg(1));
+	   $this->_item = $this->_factory->getItem($this->_arg(1));
 	   if ( !$this->_item->ID )
 	   {
 	      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 	        array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
 	   }
 	   $mID = (int)$this->_arg(2);
-	   if (!$this->_item->isModelExists($mID))
+	   if (!isset($this->_item->models[$mID]))
 	   {
 	      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array(m('Model'), $mID), EL_URL.$this->_cat->ID);
 	   }
@@ -316,7 +269,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 	      return $this->_rnd->addToContent( $this->_item->formToHtml() );
 	   }
 	   elMsgBox::put( m('Data saved') );
-	   $URL = 'item'==$this->_arg(3) ? EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID : EL_URL.$this->_cat->ID;
+	   $URL = 'item'==$this->_arg(3) ? EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/#mod-tshop-item-features' : EL_URL.$this->_cat->ID;
 	   elLocation($URL);
 	}
 
@@ -336,13 +289,17 @@ class elModuleAdminTechShop extends elModuleTechShop
 				array($model->getObjName(), $this->_arg(2)),EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID);
 		}
 		elActionLog($model, 'delete', false, $model->name);
-		$this->_item->deleteModel($model);
+		$model->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $model->getObjName(), $model->name) );
 		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID);
 	}
 
 	/***  Manufacturer manipulation  **/
-
+	/**
+	 * Edit/save manufacturer object
+	 *
+	 * @return void
+	 **/
 	function editManufacturer()
 	{
 		$mnf =  $this->_factory->create( EL_TS_MNF, $this->_arg(0) );
@@ -359,6 +316,11 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 	}
 
+	/**
+	 * Remove non empty manufacturer
+	 *
+	 * @return void
+	 **/
 	function rmManufacturer()
 	{
 		$mnf =  $this->_factory->create( EL_TS_MNF, $this->_arg(0) );
@@ -379,15 +341,23 @@ class elModuleAdminTechShop extends elModuleTechShop
 	}
 
 	/*** features manipulation ***/
-
+	/**
+	 * Display full list of features groups
+	 *
+	 * @return void
+	 **/
 	function displayFtList()
 	{
-		$ftg = $this->_factory->create(EL_TS_FTG);
 		$this->_initRenderer();
-		$this->_rnd->rndFtList( $ftg->getCollection() );
+		$this->_rnd->renderFeaturesGroups($this->_factory->getFeaturesGroups());
 		elAppendToPagePath( array('url'=>'ftg/',	'name'=>m('Features')) );
 	}
 
+	/**
+	 * Edit/save features group
+	 *
+	 * @return void
+	 **/
 	function editFtGroup()
 	{
 		$ftg = $this->_factory->create( EL_TS_FTG, $this->_arg(0) );
@@ -395,16 +365,21 @@ class elModuleAdminTechShop extends elModuleTechShop
 		{
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $ftg->formToHtml() );
-			elAppendToPagePath( array('url'=>'ftg/',	'name'=>m('Features')) );
+			elAppendToPagePath( array('url'=>'ftg/', 'name'=>m('Features')) );
 		}
 		else
 		{
 			elMsgBox::put( m('Data saved') );
-			elActionLog($ftg, false, 'ftg/', $mnf->name);
+			elActionLog($ftg, false, 'ftg/', $ftg->name);
 			elLocation(EL_URL.'ftg/');
 		}
 	}
 
+	/**
+	 * remove not empty features group
+	 *
+	 * @return void
+	 **/
 	function rmFtGroup()
 	{
 		$ftg = $this->_factory->create( EL_TS_FTG, $this->_arg(0) );
@@ -425,25 +400,30 @@ class elModuleAdminTechShop extends elModuleTechShop
 	}
 
 	/**
-	 * Сортировка групп теххарактеристик
-	 * Сортируются - хар-ки с индексом >0 в порядке индексов, остальные сортируются по имени
+	 * Sort features group
 	 *
-	 */
+	 * @return void
+	 **/
 	function sortFtGroups()
 	{
-	  $ftg = $this->_factory->create( EL_TS_FTG );
+		$ftg = $this->_factory->create( EL_TS_FTG );
 
-	  if ( !$ftg->sortGroups() )
-	  {
-	    $this->_initRenderer();
-	    return $this->_rnd->addToContent( $ftg->formToHtml() );
-	  }
-	elActionLog($ftg, 'sort', 'ftg/', '');
-    elMsgBox::put( m('Data saved') );
-    elLocation( EL_URL.'ftg/');
+		if ( !$ftg->sortGroups() )
+		{
+			elAppendToPagePath( array('url'=>'ftg/',	'name'=>m('Features')) );
+			$this->_initRenderer();
+			return $this->_rnd->addToContent( $ftg->formToHtml() );
+		}
+		elActionLog($ftg, 'sort', 'ftg/', '');
+		elMsgBox::put( m('Data saved') );
+		elLocation( EL_URL.'ftg/');
 	}
 
-
+	/**
+	 * Edit/save feature
+	 *
+	 * @return void
+	 **/
 	function editFt()
 	{
 		$ft = $this->_factory->create( EL_TS_FT, $this->_arg(0) );
@@ -461,63 +441,67 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 	}
 
+	/**
+	 * Remove feature and all related records
+	 *
+	 * @return void
+	 **/
 	function rmFt()
 	{
 		$ft = $this->_factory->create( EL_TS_FT, $this->_arg(0) );
 		if (!$ft->ID)
 		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($ft->getObjName(), $this->_arg()),	EL_URL.'ftg/');
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',	array($ft->getObjName(), $this->_arg()), EL_URL.'ftg/');
 		}
-		if (!$ft->isEmpty())
-		{
-			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
-				array($ft->getObjName(), $ft->name), EL_URL.'ftg/');
-		}
-		elActionLog($ft, 'delete', false, $ft->name);
 		$ft->delete();
+		elActionLog($ft, 'delete', false, $ft->name);
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $ft->getObjName(), $ft->name) );
 		elLocation(EL_URL.'ftg/');
 	}
 
 	/**
-	 * Сортирует теххарактеристики внутри выбранной группы
-	 * Порядок сортировки - такой же как у групп
+	 * Sort features inside required group
 	 *
-	 */
-  function sortFts()
-  {
-    $ftg = $this->_factory->create( EL_TS_FTG, $this->_arg(0) );
+	 * @return void
+	 **/
+	function sortFts()
+	{
+		$ftg = $this->_factory->create( EL_TS_FTG, $this->_arg(0) );
 		if (!$ftg->ID)
 		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($ftg->getObjName(), $this->_arg()),	EL_URL.'ftg/');
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',	array($ftg->getObjName(), $this->_arg()),	EL_URL.'ftg/');
 		}
 		if ($ftg->isEmpty())
 		{
 			elThrow(E_USER_WARNING, 'Features group "%s" is empty',	$ftg->name, EL_URL.'ftg/');
 		}
 
-		if ($ftg->sortFeatures() )
+		if ($ftg->sortFeatures($this->_factory->create( EL_TS_FT)) )
 		{
-		  elMsgBox::put( m('Data saved') );
-		  elActionLog($ftg, 'sort', 'ftg/', '');
-		  elLocation( EL_URL.'ftg/');
+			elMsgBox::put( m('Data saved') );
+			elActionLog($ftg, 'sort', 'ftg/', '');
+			elLocation( EL_URL.'ftg/');
 		}
 		$this->_initRenderer();
 		$this->_rnd->addToContent( $ftg->formToHtml() );
-  }
+		elAppendToPagePath( array('url'=>'ftg/',	'name'=>m('Features')) );
+	}
 
+	/**
+	 * Set features valus for item or item's models
+	 *
+	 * @return void
+	 **/
 	function setFt()
 	{
 		$this->_initCat( $this->_arg() );
-		$item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
+		$item =  $this->_factory->getItem($this->_arg(1));
 		if ( !$item->ID )
 		{
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 							array($item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
 		}
-		if ( !$item->setFt($this->_cat->ID) )
+		if ( !$item->setFeatures($this->_cat->ID) )
 		{
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $item->formToHtml() );
@@ -534,13 +518,13 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function changeFtList()
 	{
 		$this->_initCat( $this->_arg() );
-		$item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
+		$item =  $this->_factory->getItem($this->_arg(1) );
 		if ( !$item->ID )
 		{
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
 							array($item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
 		}
-		if (!$item->changeFtList())
+		if (!$item->changeFeaturesList($this->_factory->getFeaturesGroups()))
 		{
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $item->formToHtml() );
@@ -553,6 +537,102 @@ class elModuleAdminTechShop extends elModuleTechShop
 		}
 
 	}
+
+	function getItemPrice() {
+		include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$this->_initCat( $this->_arg() );
+		$item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
+		if ( !$item->ID )
+		{
+			elLoadMessages('Error');
+			exit(elJSON::encode( array('error' => sprintf(m('There is no object "%s" with ID="%d"'), $item->getObjName(), $this->_arg(1))) ));
+		}
+		if (!isset($_GET['save'])) {
+			$ret = array(
+				'title' => sprintf(m('Price list for %s'), $item->name),
+				'head' => array('name' => m('Name'), 'price' => m('Price'), 'item' => m('New record')),
+				'price' => $this->_factory->getItemPrice($item->ID)
+				);
+			exit(elJSON::encode($ret));
+		}
+		
+		$tb = $this->_factory->tb('tbprice');
+		$db = elSingleton::getObj('elDb');
+		$db->query('DELETE FROM '.$tb.' WHERE i_id='.$item->ID);
+		$db->optimizeTable($tb);
+
+		$data = array();
+		$result = array('result' => true, 'msg' => m('Item price list was cleared'));
+		for ($i=0; $i < sizeof($_GET['name']); $i++) { 
+			$name  = trim($_GET['name'][$i]);
+			$price = isset($_GET['price'][$i]) ? str_replace(',', '.', trim($_GET['price'][$i])) : 0;
+			if ($name && $price>0) {
+				$data[] = array($item->ID, mysql_real_escape_string($name), mysql_real_escape_string($price));
+			}
+		}
+		if ($data) {
+			$db->prepare('INSERT INTO '.$tb.' (i_id, name, price) VALUES ', '(%d, "%s", "%s")');
+			foreach ($data as $r) {
+				$db->prepareData($r);
+			}
+			if (!$db->execute()) {
+				$result['result'] = false;
+				$result['msg'] = m('Unable to save item price list');
+			} else {
+				$result['msg'] = m('Item price list was saved');
+			}
+		}
+		exit(elJSON::encode($result));
+	}
+
+
+	function uploadPrice()
+	{
+		$form = & $this->_makeUploadPriceForm();
+
+		if (!$form->isSubmitAndValid())
+		{
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($form->toHtml());
+		}
+		$v = $form->getValue(); //elPrintR($v); //return;
+		$charset = !empty($GLOBALS['EL_CHARSETS'][$v['csvCharset']]) && 'UTF-8' != $v['csvCharset'] && function_exists('iconv')
+			? $v['csvCharset'] : null;
+		list($sep, $delim) = $this->_csvParams($v['csvSep'], $v['csvDelim']);
+
+		$price = $this->_csvToArray($v['csvFile']['tmp_name'], $sep, $delim, $charset); //elPrintR($price);
+		if (empty($price))
+		{
+			elThrow(E_USER_ERROR, 'File "%s" is empty or has incorrect format', $v['csvFile']['tmp_name'], EL_URL);
+		}
+		list($iUpd, $mUpd, $nFnd, $pRows) = $this->_updatePrice($price);
+		elMsgBox::put( sprintf( m('There are %d items and %d models was updated, %d records was not found. Total found %d records in csv file.'), $iUpd, $mUpd, $nFnd, $pRows));
+		elActionLog('Price', 'update', '', '');
+		elLocation(EL_URL);
+	}
+
+	function editCrossLinks()
+	{
+	  $this->_initCat( $this->_arg() );
+		$this->_item =  $this->_factory->create( EL_TS_ITEM, $this->_arg(1) );
+		if ( !$this->_item->ID )
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
+				array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
+		}
+		$clm = & $this->_getCrossLinksManager();
+		if (!$clm->editCrossLinks($this->_item))
+		{
+		  $this->_initRenderer();
+		  $this->_rnd->addToContent($clm->formToHtml());
+		}
+		else
+		{
+		  elMsgBox::put( m('Data saved') );
+			elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
+		}
+	}
+	
 
 	function configureNav()
 	{
@@ -594,6 +674,8 @@ class elModuleAdminTechShop extends elModuleTechShop
 		elLocation( EL_URL );
 
 	}
+
+
 
   function configureManufactNav()
   {
@@ -671,46 +753,60 @@ class elModuleAdminTechShop extends elModuleTechShop
 
 	function &_makeConfForm()
 	{
+		$vars = array(
+			'deep' => array( m('All levels'), 1, 2, 3, 4),
+			'view' =>  array( 1=>m('One column'), 2=>m('Two columns')),
+			'itemsSortID' => array(m('By name'), m('By publish date') ),
+			'featuresInItemsList' => array(
+				EL_TSHOP_FEATURES_IN_LIST_DISABLE => m('Disabled'),
+				EL_TSHOP_FEATURES_IN_LIST_ENABLE  => m('Enabled'),
+				EL_TSHOP_FEATURES_IN_LIST_COMPARE => m('Enabled. Compare enabled.')
+				),
+			'itemsPerPage' => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
+			'displayCatDescrip' => array(
+				EL_CAT_DESCRIP_NO => m('Do not display'),
+				EL_CAT_DESCRIP_IN_LIST => m('Only in categories list'),
+				EL_CAT_DESCRIP_IN_SELF => m('Only in category itself'),
+				EL_CAT_DESCRIP_IN_BOTH => m('In list and in category')
+				),
+			'linkedObjPos' => array(
+				EL_TS_LOBJ_POS_DEFAULT => m('By default'),
+				EL_TS_LOBJ_POS_TAB     => m('In tabs')
+				),
+			'ishop' => array(
+				EL_TS_ISHOP_DISABLED   => m('Disabled'),
+				EL_TS_ISHOP_ONLY_PRICE => m('Only display prices'),
+				EL_TS_ISHOP_ENABLED    => m('Enabled')
+				)
+			);
+		
 		$form = &parent::_makeConfForm();
 
-		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),
-		$this->_conf('deep'), array( m('All levels'), 1, 2, 3, 4 ) ) );
-
-		$views = array( 1=>m('One column'), 2=>m('Two columns'));
-
-		$form->add( new elSelect('catsCols', m('Categories list view'),  $this->_conf('catsCols'), $views ) );
-		$form->add( new elSelect('itemsCols', m('Items list view'),      $this->_conf('itemsCols'), $views ) );
-		$sort = array(m('By name'), m('By publish date') );
-		$form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $sort) );
-		$nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
-		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $nums ) );
-		$nums = range(0, 15); unset($nums[0], $nums[1], $nums[2]);
-    	$form->add( new elSelect('modelsInRow', m('Number of models in row'), (int)$this->_conf('modelsInRow'),  $nums) );
-		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'), $this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
+		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),	$this->_conf('deep'), $vars['deep'] ) );
+		$form->add( new elSelect('catsCols', m('Categories list view'), $this->_conf('catsCols'),  $vars['view']) );
+		$form->add( new elSelect('itemsCols', m('Items list view'),     $this->_conf('itemsCols'), $vars['view']) );
+		$form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $vars['itemsSortID']) );
+		$form->add( new elSelect('featuresInItemsList', m('Display features/models in items list'), (int)$this->_conf('featuresInItemsList'), $vars['featuresInItemsList']));
+		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $vars['itemsPerPage'] ) );
+		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $vars['displayCatDescrip']));
 		$form->add( new elSelect('displayManufact', m('Display manufacturer info in items'),  $this->_conf('displayManufact'), $GLOBALS['yn']) );
-
-
-    	$form->add( new elSelect('eshopFunc', m('E-shop functions'), $this->_conf('eshopFunc'), array(m('Disabled'), m('Only display prices'), m('Enabled')), 
+		$form->add( new elSelect('linkedObjPos', m('Display linked objects'),  $this->_conf('linkedObjPos'), $vars['linkedObjPos']) );
+    	$form->add( new elSelect('ishop', m('E-shop functions'), $this->_conf('ishop'), $vars['ishop'], 
 			array('OnChange'=>'if (this.value == \'0\') { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').hide() } else { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').show() }')  ) );
     	$form->add( new elSelect('pricePrec', m('Price format'), (int)$this->_conf('pricePrec'),  array( m('Integer'), 2=>m('Double, two signs after dot'))) );
-	    $form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
-		elAddJs("$('#eshopFunc').trigger('change');", EL_JS_SRC_ONLOAD);
+		$form->add(new elSelect('fakePrice', m('Allow "fake" price lists'), (int)$this->_conf('fakePrice'), $GLOBALS['yn']));
+	
+		$form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
+		elAddJs("$('#ishop').trigger('change');", EL_JS_SRC_ONREADY);
 	    return $form;
 	}
 
 
-	function _getFtCollection()
-	{
-		$ftc        = elSingleton::getObj('elTSFeaturesCollection');
-		$ftc->tbftg = $this->tbftg;
-		$ftc->tbft  = $this->tbft;
-		return $ftc;
-	}
-
 	function &_makeNavForm($c)
 	{
 		$cat     = & elSingleton::getObj('elCatalogCategory');
-		$cat->tb = 'el_menu';
+		$cat->_tb = 'el_menu';
+
 		$tree    = $cat->getTreeToArray(0, true, true);
 		$form    = & parent::_makeConfForm();
 
@@ -736,7 +832,6 @@ class elModuleAdminTechShop extends elModuleTechShop
 		$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],  $GLOBALS['yn'], array('onChange'=>$js)) );
 		$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
 		$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-
 		elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
 
 		return $form;

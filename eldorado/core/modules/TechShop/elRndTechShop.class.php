@@ -16,28 +16,34 @@ class elRndTechShop extends elCatalogRenderer
 	var $_cartOn    = false;
 
 
-	function setCurrencyInfo( $currencyInfo, $pricePrec )
-	{
-	  $this->_currInfo = $currencyInfo;
-	  $this->_te->assignVars( 'currency',     $this->_currInfo['currency'] );
-	  $this->_te->assignVars( 'currencySign', $this->_currInfo['currencySign'] );
-	  $this->_te->assignVars( 'currencyName', $this->_currInfo['currencyName'] );
-	  $this->_pricePrec = $pricePrec;
+	function init( $moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null ) {
+		parent::init( $moduleName, $conf, $prnt, $admin, $tabs, $curTab);
+		if ( $this->_conf('ishop') > EL_TS_ISHOP_DISABLED )
+		{
+			$this->_currInfo = elGetCurrencyInfo();
+			  $this->_te->assignVars( 'currency',     $this->_currInfo['currency'] );
+			  $this->_te->assignVars( 'currencySign', $this->_currInfo['currencySign'] );
+			  $this->_te->assignVars( 'currencyName', $this->_currInfo['currencyName'] );
+			  $this->_pricePrec = (int)$this->_conf('pricePrec');
+		}
 	}
-
-	function switchCartOn()
-	{
-	  $this->_cartOn = true;
-	}
-
-
+	/**
+	 * Render item card
+	 *
+	 * @param  object  $item
+	 * @param  array   $linkedObjs  linked objects array
+	 * @return void
+	 **/
 	function renderItem( $item, $linkedObjs=null )
 	{
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.fancybox.js', EL_JS_CSS_FILE);
+		elLoadJQueryUI();
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
-		
+		if ($this->_admin) {
+			elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
+		}
+
 	  	$this->_setFile('item');
 	  	$this->_te->assignVars( $item->toArray() );
 		if ($this->_conf('displayManufact') && !empty($item->mnfName) )
@@ -47,168 +53,146 @@ class elRndTechShop extends elCatalogRenderer
 		if ($this->_admin)
 		{
 			$this->_te->assignBlockVars('ITEM_ADMIN', array('id' => $item->ID));
+			if ($this->_conf('fakePrice')) {
+				$this->_te->assignBlockVars('ITEM_ADMIN.FAKE_PRICE', array('id'=>$item->ID), 1);
+			}
 		}
-	  	$models   = $item->getModels(); //elPrintR($models);
-	  	$models   = array_chunk($models, $this->_conf('modelsInRow')); //elPrintR($models);
-	  	$ftGroups = $item->getFt();
-		elLoadJQueryUI();
-	  
-		if ( !empty($models[0]) )
-	  	{
-			$this->_te->assignBlockVars('TS_TABS.TS_TAB_MODELS', null, 1);
-			$this->_te->assignBlockVars('TS_TABS_JS', null, 1);
-		    for ( $i=0, $s = sizeof($models); $i<$s; $i++ )
-		    { 
-   				$useDes = $useImg = false;
-				$this->_te->assignBlockVars('MODELS');
-				$cellWidth = floor(100/(sizeof($models[$i])+1)); 
-				foreach ($models[$i] as $one)
-				{ 
-				  	$vars = array('id' => $one->ID, 'iID'=>$one->iID, 'code' =>$one->code, 'name' => $one->name, 'cellWidth'=>$cellWidth);
-				  	$this->_te->assignBlockVars('MODELS.M_NAME', $vars, 1);
-
-					if (!$useDes && !empty($one->descrip))
-				  	{
-				    	$useDes = true;
-				  	}
-				  	if (!$useImg && !empty($one->img) )
-				  	{
-				    	$useImg = true;
-				  	}
-					if ($this->_admin)
-					{
-						$this->_te->assignBlockVars('MODELS.M_NAME.MODEL_ADMIN', array('id' => $one->ID, 'i_id' => $one->iID), 2);
+	  	
+		// pricelist or item price
+		if ($this->_conf('ishop')) {
+			$price = $item->getPriceList();
+			$order = $this->_conf('ishop') == EL_TS_ISHOP_ENABLED;
+			if ($price) {
+				$this->_te->assignBlockVars('TS_TABS.PRICELIST', null, 1);
+				foreach ($price as $one) {
+					$one['price'] = $this->_formatPrice($one['price']);
+					$this->_te->assignBlockVars('TS_PRICELIST.ROW', $one, 1);
+					if ($order) {
+						$one['itemID'] = $item->ID;
+						$this->_te->assignBlockVars('TS_PRICELIST.ROW.MODEL_ORDER', $one, 2);
 					}
-		      	}
-
-	      		if ( !empty($this->_currInfo)  )
-	      		{ 
-	        		foreach ($models[$i] as $one)
-	        		{
-	          			$this->_te->assignBlockVars('MODELS.M_PRICE_ROW.M_PRICE', array('price'=>$this->_formatPrice($one->price)), 2);
-			  			if ( $one->price > 0 )
-			  			{
-							if ( 2 == $this->_conf['eshopFunc'] )
-							{
-								$this->_te->assignBlockVars('MODELS.M_PRICE_ROW.M_PRICE.M_ORDER', array('ID'=>$one->ID, 'iID'=>$one->iID), 3 );
-							}
-			  			}
-	        		}
-	      		}
-
-	      		// display models description if at least one has it
-	      		if ($useDes)
-	      		{
-	        		foreach ($models[$i] as $one)
-	        		{
-	          			$vars = array('descrip' => $one->descrip);
-			          	$this->_te->assignBlockVars('MODELS.M_DESCRIP_ROW.M_DESCRIP', $vars, 2);
-	        		}
-	      		}
-	      		// display models image if at least one has it
-	      		if ($useImg)
-	      		{
-	        		foreach ($models[$i] as $one)
-	        		{
-	          			$this->_te->assignBlockVars('MODELS.M_IMG_ROW.M_IMG_CELL', null, 2);
-	          			if (!empty($one->img))
-	          			{
-							
-	            			$vars = array(
-									'tmb' => EL_BASE_URL.dirname($one->img).'/mini_'.basename($one->img),
-									'target' => EL_BASE_URL.$one->img,
-									// 'img' => basename($one->img), 
-									// 'path'=>dirname($one->img), 
-									'm_id'=>$one->ID
-									);
-	            			$this->_te->assignBlockVars('MODELS.M_IMG_ROW.M_IMG_CELL.M_IMG', $vars, 3);
-	          			}
-	        		}
-	      		}
-
-	      		if (empty($ftGroups))
-	      		{
-	        		continue;
-	      		}
-	      		//display models features
-	      		$colspan = sizeof($models[$i])+1;
-	      		$this->_te->assignBlockVars('MODELS.M_FTS', array('colspan'=>$colspan), 1);
-	      		foreach ($ftGroups as $gr)
-	      		{
-	        		$vars = array('name'=>$gr->name, 'colspan'=>$colspan);
-	        		$this->_te->assignBlockVars('MODELS.M_FTS.M_FTG', $vars, 2);
-	        		$fts = $gr->getFeatures(); 
-	        		foreach ($fts as $ft)
-	        		{
-	          			$this->_te->assignBlockVars('MODELS.M_FTS.M_FTG.M_FT_ROW', $ft->toArray(), 3);
-			  
-	          			if ($ft->isSplit)
-	          			{
-	            			$one = $models[$i][0]; 
-	            			$value = $ft->getModelValue($one->ID);
-	            			if ( empty($value) )
-	            			{
-	              				$modIDs = array_keys($item->getModels());
-	              				foreach ($modIDs as $modID)
-	              				{
-	                				if ( false != ($value = $ft->getModelValue($modID)))
-	                				{
-	                  					break;
-	                				}
-	              				}
-	            			}
-
-	            			$vars = array('value' => str_replace('\n', '<br />', $value), 'attrs'=>' colspan="'.($colspan-1).'" align="center"');
-	            			$this->_te->assignBlockVars('MODELS.M_FTS.M_FTG.M_FT_ROW.M_FT', $vars, 4);
-	            			continue;
-	          			}
-
-	          			foreach ($models[$i] as $one)
-	          			{
-	            			$vars = array('value' => $ft->getModelValue($one->ID) );
-	            			$this->_te->assignBlockVars('MODELS.M_FTS.M_FTG.M_FT_ROW.M_FT', $vars, 4);
-	          			}
-	        		}
-	      		}
-	    	}
-	  	}
-	  	else
-	  	{
+				}
+			} elseif ($item->price) {
+				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $item->price));
+				if ($order) {
+					$this->_te->assignBlockVars('ITEM_ORDER', array('id' => $item->ID));
+				}
+			}
+		}
+	
+		if ($item->models) {
+			// models features
+			$colspan = sizeof($item->models)+1;
+			$this->_te->assignBlockVars('TS_TABS.FEATURES', array('label' => m('Models/Features')), 1);
+			$descrip = $img = $price = false;
+			foreach ($item->models as $id=>$model) {
+				$this->_te->assignBlockVars('TS_FEATURES.HEAD.MODEL', array('code' => $model->code, 'name' => $model->name), 2);
+				if ($this->_admin) {
+					$this->_te->assignBlockVars('TS_FEATURES.HEAD.MODEL.ADMIN', array('i_id'=>$item->ID, 'id' => $model->ID), 3);
+				}
+				
+				if ($model->descrip) {
+					$descrip = true;
+				}
+				if ($model->img) {
+					$img = true;
+				}
+			}
+			if ($descrip || $img || $price) {
+				foreach ($item->models as $id=>$model) {
+					if ($descrip) {
+						$this->_te->assignBlockVars('TS_FEATURES.HEAD.DESCRIPTIONS.DESCRIP', array('descrip' => $model->descrip), 3);
+					}
+					if ($img) {
+						if ($model->img) {
+							$this->_te->assignBlockVars('TS_FEATURES.HEAD.IMAGES.IMG_PLACE.IMG', $this->_modelImgData($model), 3);
+						} else {
+							$this->_te->assignBlockVars('TS_FEATURES.HEAD.IMAGES.IMG_PLACE', null, 3);
+						}
+						
+					}
+				}
+			}
 			
-	    	if ( !empty($this->_currInfo) && $item->price > 0)
-	    	{
-				$this->_te->assignBlockVars('ITEM_PRICE', array('price'=>$this->_formatPrice($item->price)));
-				$this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
-	    	}
-	    	if ( false != ($ftGroups = $item->getFt()) )
-	    	{
-				$this->_te->assignBlockVars('TS_TABS.TS_TAB_FT', null, 1);
-				$this->_te->assignBlockVars('TS_TABS_JS', null, 1);
-	      		$this->_te->assignBlockVars('ITEM_FTS');
-	      		foreach ( $ftGroups as $group )
-	      		{
-	        		$this->_te->assignBlockVars('ITEM_FTS.IFTS_GROUP', $group->toArray(), 1);
-	        		foreach ($group->features as $ft)
-	        		{
-	          			$val = $ft->toArray();
-	          			$val['value'] = $ft->getItemValue($item->ID);
-	          			$this->_te->assignBlockVars('ITEM_FTS.IFTS_GROUP.IFTS_FT', $val, 2);
-	        		}
-	      		}
-	    	}
-	  	}
-		$this->_rndLinkedObjs($linkedObjs);
+			foreach ($item->features as $group) {
+				$this->_te->assignBlockVars('TS_FEATURES.GROUP', array('name'=>$group['name'], 'colspan'=>$colspan), 1);
+				foreach ($group['features'] as $fid=>$f) {
+					$this->_te->assignBlockVars('TS_FEATURES.GROUP.FEATURE_ROW', $f, 2);
+					if ($f['is_split']) {
+						// find data for shared value
+						$data = array('colspan'=>' colspan="'.($colspan-1).'"', 'value' => '');
+						foreach ($item->models as $model) {
+							if (!empty($model->features[$fid])) {
+								$data['value'] = str_replace('\n', '<br />', $model->features[$fid]);
+								break;
+							}
+						}
+						$this->_te->assignBlockVars('TS_FEATURES.GROUP.FEATURE_ROW.FEATURE', $data, 3);
+					} else {
+						foreach ($item->models as $model) {
+							$this->_te->assignBlockVars('TS_FEATURES.GROUP.FEATURE_ROW.FEATURE', array('value' => !empty($model->features[$fid]) ? str_replace('\n', '<br/>', $model->features[$fid]) : ''), 3);
+						}
+						
+					}
+				}
+			}
+			
+		} elseif ($item->features) {
+			// item own features
+			$this->_te->assignBlockVars('TS_TABS.FEATURES', array('label' => m('Features')), 1);
+			foreach ($item->features as $group) {
+				$this->_te->assignBlockVars('TS_FEATURES.GROUP', array('name'=>$group['name'], 'colspan'=>2), 1);
+				foreach ($group['features'] as $f) {
+					$f['value'] = str_replace('\n', '<br/>', $f['value']);
+					$this->_te->assignBlockVars('TS_FEATURES.GROUP.FEATURE_ROW', $f, 2);
+					$this->_te->assignBlockVars('TS_FEATURES.GROUP.FEATURE_ROW.FEATURE', $f, 3);
+				}
+			}
+		}
+		
+		if ($linkedObjs) {
+			if ($this->_conf('linkedObjPos') == EL_TS_LOBJ_POS_TAB) {
+				foreach ($linkedObjs as $id=>$o) {
+					$this->_te->assignBlockVars('TS_TABS.L_OBJECTS', array('id'=>$id, 'name'=>$o['name']), 1);
+					$this->_te->assignBlockVars('TS_L_OBJECT', array('id'=>$id));
+					foreach ($o['items'] as $i) {
+						$this->_te->assignBlockVars('TS_L_OBJECT.LINK', $i, 1);
+					}
+				}
+			} else {
+				$this->_rndLinkedObjs($linkedObjs);
+			}
+		}
+
 	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author dio
+	 **/
+	function renderFeaturesGroups($groups)
+	{
+		$this->_setFile('ftGroups');
+		foreach ($groups as $group) {
+			$this->_te->assignBlockVars('TS_FT_GROUP', $group->toArray());
+			foreach ($group->features as $f) {
+				$this->_te->assignBlockVars('TS_FT_GROUP.FT', $f->toArray(), 1);
+			}
+		}
+	}
+
 
 	function rndManufacturers($mnfsList)
 	{
 		$this->_setFile('mnfs');
 		foreach ($mnfsList as $mnf)
 		{
-			$this->_te->assignBlockVars('MNF', $mnf->toArray() );
+			$this->_te->assignBlockVars('MNF', $mnf );
 			if ($this->_admin)
 			{
-				$this->_te->assignBlockVars('MNF.ADMIN', array('id' => $mnf->ID), 1);
+				$this->_te->assignBlockVars('MNF.ADMIN', array('id' => $mnf['id']), 1);
 			}
 		}
 	}
@@ -216,28 +200,31 @@ class elRndTechShop extends elCatalogRenderer
 	function rndManufacturer($mnf)
 	{
 		$this->_setFile('mnf');
-		$this->_te->assignVars( $mnf->toArray() );
+		$data = $mnf->toArray();
+		if (!$data['descrip']) {
+			$data['descrip'] = $data['announce'];
+		}
+		$this->_te->assignVars($data);
 		if ($this->_admin)
 		{
 			$this->_te->assignBlockVars('MNF_ADMIN', array('id' => $mnf->ID), 1);
 		}
 	}
 
-	function rndManufacturerItems($mnf, $items)
+	function rndManufacturerItems($items)
 	{
-	  $this->_setFile();
-	  $this->_te->assignVars($mnf->toArray());
-	  if(!empty($items))
-	  {
-	    if (2 == $this->_conf('itemsCols'))
-	    {
-	      $this->_rndItemsTwoColumns($items);
-	    }
-	    else
-	    {
-	      $this->_rndItemsOneColumn($items);
-	    }
-	  }
+		$this->_setFile();
+		if(!empty($items))
+		{
+			if (2 == $this->_conf('itemsCols'))
+			{
+				$this->_rndItemsTwoColumns($items);
+			}
+			else
+			{
+				$this->_rndItemsOneColumn($items);
+			}
+		}
 	}
 
 	function rndFtList($ftGroups)
@@ -258,56 +245,26 @@ class elRndTechShop extends elCatalogRenderer
 	  }
 	}
 
-	function rndCompare( $items, $ftgs )
-	{
-	  $this->_setFile('cmp');
-	  $this->_te->assignVars('colspan', sizeof($items)+1);
-	  foreach ($items as $one)
-	  {
-	    $imgVars = array();
-	    $vars    = array('id' => $one['id'], 'code' =>$one['code'], 'name' => $one['name']);
-	    if ($one['isItem'])
-	    {
-	      $vars['url']       = EL_URL.'item/'.$one['c_id'].'/'.$one['id'].'/';
-	      $vars['inputName'] = 'i';
-	    }
-	    else
-	    {
-	      $vars['url']       = EL_URL.'item/'.$one['c_id'].'/'.$one['i_id'].'/';
-	      $vars['inputName'] = 'm';
-	      if ( $one['img'])
-	      {
-	        $imgVars = array('tmb'=>EL_BASE_URL.dirname($one['img']).'/mini_'.basename($one['img']), 'm_id'=>$one['id']);
-	      }
-	    }
-	    $this->_te->assignBlockVars('CMP_OBJ', $vars);
-	    if (!empty($imgVars))
-	    {
-	      $this->_te->assignBlockVars('CMP_OBJ.CMP_OBJ_IMG', $imgVars, 1);
-	    }
-	    $mnf = array('mnf'=>$one['mnf'], 'country'=>$one['country'], 'mnf_id'=>$one['mnf_id']);
-	    $this->_te->assignBlockVars('CMP_OBJ_MNF', $mnf);
-	    if ($this->_currInfo)
-	    {
-	      $this->_te->assignBlockVars('CMP_OBJ_PRICES_ROW.CMP_OBJ_PRICE', array('price'=>$this->_formatPrice($one['price'])), 1);
-	    }
-	  }
-
-	  foreach ($ftgs as $ftg)
-	  {
-	    $this->_te->assignBlockVars('CMP_FTG', $ftg->toArray());
-	    $fts = $ftg->getFeatures();
-	    foreach ( $fts as $ft)
-	    {
-	      $this->_te->assignBlockVars('CMP_FTG.FT_ROW', $ft->toArray(), 1);
-	      foreach ( $items as $one )
-	      {
-	        $v = $one['isItem'] ? $ft->getItemValue($one['id']) : $ft->getModelValue($one['id']);
-	        $this->_te->assignBlockVars('CMP_FTG.FT_ROW.FT', array('value'=>$v), 2);
-	      }
-
-	    }
-	  }
+	function rndCompareTable($tb) {
+		$items    = $tb['items'];
+		$features = $tb['features'];
+		$this->_setFile('cmp');
+		$this->_te->assignVars('colspan', sizeof($items)+1);
+		
+		foreach ($items as $item) {
+			$this->_te->assignBlockVars('TS_ITEM', array('name' => $item['name'], 'id'=>$item['i_id']));
+		}
+		
+		foreach ($features as $group) {
+			$this->_te->assignBlockVars('TS_FT_GROUP', array('name' => $group['name']));
+			foreach ($group['features'] as $fid => $name) {
+				$this->_te->assignBlockVars('TS_FT_GROUP.FEATURE', array('name' => $name), 1);
+				foreach ($items as $item) {
+					$this->_te->assignBlockVars('TS_FT_GROUP.FEATURE.VALUE', array('value' => isset($item['features'][$fid]) ? $item['features'][$fid] : '' ), 2);
+				}
+			}
+		}
+		
 	}
 
 	//********************************************//
@@ -321,11 +278,55 @@ class elRndTechShop extends elCatalogRenderer
 	 **/
 	function _rndItemsOneColumn($items)
 	{
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.fancybox.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
+		$features = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
+		$compare  = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
+		$price    = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
+		$fakePrice = $this->_conf('faksePrice');
+		$i = 0;
+		foreach ($items as $item) {
+			$data = $item->toArray();
+			$data['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
+			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
+			if ($this->_admin) {
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
+			}
+			if ($this->_conf('displayManufact') && !empty($data['mnfName']) ) {
+				$mnf = array('mnf_id'=>$data['mnf_id'], 'mnfName'=>$data['mnfName'], 'mnfCountry'=>$data['mnfCountry']);
+				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MNF', $mnf, 3);
+			}
+			
+			if ($features) {
+				if ($item->models) {
+					$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS', array('i_id'=>$item->ID), 3);
+					foreach ($item->models as $model) {
+						$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL', $model->toArray(), 3);
+						if ($this->_admin) {
+							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_ADMIN', array('i_id'=>$model->iID, 'id'=>$model->ID), 4);
+						}
+						if ($compare) {
+							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_COMPARE', array('id'=>$model->ID), 4);
+						}
+						if ($price && $model->price>0 && !$item->hasFakePrice) {
+							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$this->_formatPrice($model->price)), 4);
+						}
+						if ($model->img) {
+			        		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_IMG', $this->_modelImgData($model), 4);
+			      		}
+						if ($model->features)
+			      		{
+							$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_ANN.MODEL_ANN_FT', $model->features, 5);
+			      		}
+					}
+				}
+				
+			}
+			
+		}
 		
+		return;
 		$i = 0;
 		foreach ($items as $item)
 		{
@@ -401,13 +402,22 @@ class elRndTechShop extends elCatalogRenderer
 	 **/
 	function _rndItemsTwoColumns($items)
 	{
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.fancybox.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
+
+		$features = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
+		$compare  = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
+		$price    = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
+		$fakePrice = $this->_conf('faksePrice');
+		$rowCnt   = $i = 0; 
+		$s        = sizeof($items);
 		
-		$rowCnt = $i = 0; 
-		$s= sizeof($items);
+		if ($compare) {
+			elAddJs('jquery.cluetip.js', EL_JS_CSS_FILE);
+			elAddCss('jquery.cluetip.css');
+		}
+		
 		foreach ($items as $item)
 		{
 			$data = $item->toArray();
@@ -422,6 +432,7 @@ class elRndTechShop extends elCatalogRenderer
 			if ($this->_admin)
 			{
 				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
+				
 			}
 			if ($this->_conf('displayManufact') && !empty($data['mnfName']) )
 			{
@@ -429,61 +440,81 @@ class elRndTechShop extends elCatalogRenderer
 				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MNF', $mnf, 2);
 			}
 			
-			if ( false != ($models = $item->getModels()))
-			{
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MOD_ROW', array('i_id'=>$item->ID), 3);
-				foreach ($models as $model)
-		      	{
-		        	$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MOD_ROW.MODEL', $model->toArray(), 3);
-		        	if (!empty($this->_currInfo) && $model->price>0)
-		        	{
-		          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MOD_ROW.MODEL.MODEL_PRICE', array('price'=>$this->_formatPrice($model->price)), 4);
-		        	}
-					if ($this->_admin)
-					{
-						$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MOD_ROW.MODEL.MODEL_ADMIN', array('i_id'=>$model->iID, 'id'=>$model->ID), 4);
+			if ($features) {
+				if ($item->models) {
+					// display item models and models features
+					$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS', array('i_id'=>$item->ID), 3);
+					foreach ($item->models as $model) {
+						$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL', $model->toArray(), 3);
+						if ($this->_admin) {
+							$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_ADMIN', array('i_id'=>$model->iID, 'id'=>$model->ID), 4);
+						}
+						if ($price && $model->price>0 && !$item->hasFakePrice) {
+			          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$this->_formatPrice($model->price)), 4);
+			        	}
+						if ($model->img) {
+			          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_IMG', $this->_modelImgData($model), 4);
+			        	}
+						if (!empty($model->features)) {
+							$this->_te->assignBlockFromArray('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_ANN.MODEL_ANN_FT', $model->features, 5);
+			        	}
+						if ($compare) {
+							$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_COMPARE', array('id' => $model->ID), 4);
+						} 
 					}
-		        	if ($model->img)
-		        	{
-		          		$vars = array( 
-								'm_id'   => $model->ID, 
-								'tmb'    => EL_BASE_URL.dirname($model->img).'/mini_'.basename($model->img), 
-								'target' => EL_BASE_URL.$model->img
-								);
-		          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MOD_ROW.MODEL.MODEL_IMG', $vars, 4);
-		        	}
-		        	if (!empty($item->ft[$model->ID]))
-		        	{
-						$this->_te->assignBlockFromArray('ITEMS_TWOCOL.ITEM.MOD_ROW.MODEL.MODEL_ANN.MODEL_ANN_FT', $item->ft[$model->ID], 5);
-		        	}
-		      	}
-			}
-			else
-			{
-		      	if (!empty($this->_currInfo) && $item->price>0)
-		      	{
-		        	$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$this->_formatPrice($item->price)), 3);
-		      	}
-		      	// display item announced features if exists
-		      	if (!empty($item->ft))
-		      	{
-					$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.COMPARE', array('id'=>$item->ID), 3);
-					$this->_te->assignBlockFromArray('ITEMS_TWOCOL.ITEM.ANN.ANN_FT', $item->ft, 3);
-		      	}
+				} else {
+			      	// display item announced features if exists
+			      	if (!empty($item->features)) {
+						$this->_te->assignBlockFromArray('ITEMS_TWOCOL.ITEM.ANN.ANN_FT', $item->features, 3);
+			      	}
+					// switch on compare if items has features (may be not announced)
+					if ($compare && $item->hasFeatures) {
+						$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.COMPARE', array('id'=>$item->ID), 3);
+					}
+				}
+			} 
+			// display item price
+			if ($price && !$item->models && $item->price>0 && !$item->hasFakePrice) {
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$this->_formatPrice($item->price)), 3);
 			}
 		}
-		if (!empty($this->_currInfo))
+		
+		if (!empty($this->_conf['priceDownl']) && $this->_conf('ishop'))
 	  	{
 	    	$this->_te->assignBlockVars('TS_PRICE_DOWNL');
 	  	}
-		$this->_te->assignBlockVars('TS_COMPARE');
+
 	}
 
-	function _formatPrice( $pr )
+	/**
+	 * Return model's image data 
+	 *
+	 * @param  object  $model
+	 * @return array
+	 **/
+	function _modelImgData($model) {
+		if ($model->img) {
+			return array( 
+					'm_id'   => $model->ID, 
+					'tmb'    => EL_BASE_URL.dirname($model->img).'/mini_'.basename($model->img), 
+					'target' => EL_BASE_URL.$model->img
+					);
+		}
+		return null;
+	}
+	
+	/**
+	 * Return formatted price
+	 *
+	 * @param  float    $pr    price
+	 * @param  boolean  $sign  append currency sign?
+	 * @return string
+	 **/
+	function _formatPrice( $pr, $sign=false )
 	{
-	  return 0 < $pr
-	  ? number_format(round($pr, $this->_pricePrec), $this->_pricePrec, $this->_currInfo['decPoint'], $this->_currInfo['thousandsSep'])
-	  : '';
+		return 0 < $pr
+			? number_format(round($pr, $this->_pricePrec), $this->_pricePrec, $this->_currInfo['decPoint'], $this->_currInfo['thousandsSep']).' '.($sign?$this->_currInfo['currencySign']:'')
+			: '';
 	}
 
 }

@@ -7,7 +7,6 @@ class elCatalogRenderer extends elModuleRenderer
 							'cats'  => array('_rndCatsOneColumn',  '_rndCatsTwoColumns'),
 							'items' => array('_rndItemsOneColumn', '_rndItemsTwoColumns')
 							 );
-	var $_cssClassPrefix = 'dc';
 	var $_catID = 1;
 	
 	function setCatID( $ID )
@@ -17,26 +16,24 @@ class elCatalogRenderer extends elModuleRenderer
 	}
 
 
-	function render($cats, $items, $total, $current, $catName, $catDescrip)
+	function render($cats, $items, $total, $current, $cat)
 	{
 		$this->_setFile();
-
-		if ( !empty($catDescrip) )
+		if ( !empty($cat->descrip) && $this->_conf['displayCatDescrip'] >= EL_CAT_DESCRIP_IN_SELF )
 		{
-			$var = array('curCatName'=>$catName, 'curCatDescrip' => $catDescrip);
-			$this->_te->assignBlockVars('CUR_CAT_DESCRIP', $var );
+			$this->_te->assignBlockVars('CUR_CAT_DESCRIP', array('name' => $cat->name, 'descrip' => $cat->descrip));
 		}
 		if ( $cats )
 		{
 			$m = $this->_getRndMethod('cats', $this->_conf('catsCols'));
 			$this->$m($cats);
-			if ( $items )
-			{
-				$this->_te->assignBlockVars('DC_HDELIM');
-			}
+		}
+		if ($cats && $items) {
+			$this->_te->assignBlockVars('DC_HDELIM');
 		}
 		if ( $items )
 		{
+			
 			$m = $this->_getRndMethod('items', $this->_conf('itemsCols'));
 			$this->$m($items);
 			if ( 1 < $total )
@@ -102,10 +99,12 @@ class elCatalogRenderer extends elModuleRenderer
 	 **/
 	function _rndCatsOneColumn($cats)
 	{
+		$descrip = $this->_conf('displayCatDescrip') == EL_CAT_DESCRIP_IN_LIST || $this->_conf('displayCatDescrip') == EL_CAT_DESCRIP_IN_BOTH;
+
 		for ( $i=0,$s=sizeof($cats); $i<$s; $i++ )
 		{
 			$data = $cats[$i]->toArray();
-			if (!$this->_conf('displayCatDescrip'))
+			if (!$descrip)
 			{
 			   $data['descrip'] = '';
 			}
@@ -129,11 +128,13 @@ class elCatalogRenderer extends elModuleRenderer
 	function _rndCatsTwoColumns($cats)
 	{
 		$rowCnt = $cnt = 0;
+		$descrip = $this->_conf('displayCatDescrip') == EL_CAT_DESCRIP_IN_LIST || $this->_conf('displayCatDescrip') == EL_CAT_DESCRIP_IN_BOTH;
+		
 		for ($i=0, $s=sizeof($cats); $i < $s ; $i++) 
 		{
 			$data = $cats[$i]->toArray();
 			$data['cssLastClass'] = 'col-last';
-			if (!$this->_conf('displayCatDescrip')) 
+			if (!$descrip) 
 			{
 				$data['descrip'] = '';
 			}

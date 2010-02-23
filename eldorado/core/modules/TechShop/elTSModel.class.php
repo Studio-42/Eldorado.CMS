@@ -1,8 +1,7 @@
 <?php
 
-class elTSModel extends elMemberAttribute
+class elTSModel extends elDataMapping
 {
-	var $tb         = '';
 	var $ftg        = '';
 	var $ft         = '';
 	var $ft2m       = '';
@@ -13,24 +12,44 @@ class elTSModel extends elMemberAttribute
 	var $descrip    = '';
 	var $price      = 0;
 	var $img        = '';
+	var $features   = array();
 	var $appToTitle = 0;
 	var $_objName   = 'Model';
 
-	function makeForm($itemName)
+	/**
+	 * Remove model and related data
+	 *
+	 * @return void
+	 **/
+	function delete() {
+		return parent::delete(array($this->tbft2m => 'm_id'));
+	}
+	
+	/**
+	 * Create new model for item
+	 *
+	 * @param  string  $itemName 
+	 * @return void
+	 **/
+	function _makeForm($itemName)
 	{
-		parent::makeForm();
+		parent::_makeForm();
 
-		$this->form->add( new elCData2('item',      m('Item'),  $itemName) );
-		$this->form->add( new elText('code',        m('Code'),  $this->getAttr('code')) );
-		$this->form->add( new elText('name',        m('Name'),  $this->getAttr('name')) );
-		$this->form->add( new elText('price',       m('Price'), $this->getAttr('price')) );
-		$this->form->add( new elEditor('descrip',   m('Description'), $this->getAttr('descrip'), array('rows'=>50)) );
+		$this->_form->add( new elCData2('item',      m('Item'),  $itemName) );
+		$this->_form->add( new elText('code',        m('Code'),  $this->code) );
+		$this->_form->add( new elText('name',        m('Name'),  $this->name) );
+		$this->_form->add( new elText('price',       m('Price'), $this->price) );
+		$this->_form->add( new elEditor('descrip',   m('Description'), $this->descrip, array('rows'=>50)) );
 	}
 
-
+	/**
+	 * Data mapping
+	 *
+	 * @return array
+	 **/
 	function _initMapping()
 	{
-		$map = array(
+		return array(
 			'id'        => 'ID',
 			'i_id'      => 'iID',
 			'code'      => 'code',
@@ -39,10 +58,7 @@ class elTSModel extends elMemberAttribute
 			'img'       => 'img',
 			'price'     => 'price'
 			);
-		return $map;
 	}
-	
-	
 	
 }
 

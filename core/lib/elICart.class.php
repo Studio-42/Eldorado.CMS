@@ -121,6 +121,22 @@ class elICart
         $this->_db->optimizeTable( $this->_tb );
     }
     
+	function add($item) {
+		if (false != ($ID = $this->_find($item))) {
+			$sql = 'UPDATE el_icart SET qnt=qnt+1, mtime=%d WHERE id=%d';
+			$sql = sprintf($sql, time(), $ID);
+
+		} else {
+			$sql = 'INSERT INTO el_icart (sid, uid, page_id, i_id, m_id, code, display_code, name, qnt, price, props, crtime, mtime) '
+                        .'VALUES         ("%s", %d, %d,      %d,   %d,   "%s", 1,            "%s", 1,   "%s",  "%s",  %d,     %d)';
+			$sql = sprintf($sql, $this->_SID, $this->_UID, $item['page_id'], $item['i_id'], $item['m_id'], 
+				mysql_real_escape_string($item['code']), mysql_real_escape_string($item['name']), $item['price'], 
+				!empty($item['props']) ? serialize($item['props']) : '', time(), time() );
+			
+		}
+		return $this->_db->query($sql);
+	}
+
     /**
      * Добавляет в корзину товар из модуля IShop
      *
@@ -290,6 +306,15 @@ class elICart
     /*                  PRIVATE                            */
     /*******************************************************/
     
+	function _find($item) {
+		$items = $this->getItems();
+		foreach ($items as $i) {
+			if ($i['page_id'] == $item['page_id'] && $i['i_id'] == $item['i_id'] && $i['m_id'] == $item['m_id']) {
+				return $i['id'];
+			}
+		}
+	}
+
     function _loadSummary()
     {
         $this->_db->query('SELECT SUM(qnt) AS total, SUM(qnt*price) AS amount FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\'');
@@ -305,7 +330,7 @@ class elICart
     {
         if ( !$this->_itemsLoaded && !$this->isEmpty() )
         {
-            $sql = 'SELECT id, shop, i_id, m_id, code, display_code, name, qnt, price, props FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' ORDER BY shop, code, name';
+            $sql = 'SELECT id, shop, page_id, i_id, m_id, code, display_code, name, qnt, price, props, url FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' ORDER BY shop, code, name';
             //$this->_items = $this->_db->queryToArray( $sql, 'id'); 
 			$this->_db->query($sql);
 			while($r = $this->_db->nextRecord())

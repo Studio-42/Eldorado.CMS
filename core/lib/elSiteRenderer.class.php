@@ -959,10 +959,7 @@ class elSiteRenderer
     **/
 	function _renderShoppingCart($prepare=false)
 	{
-		if ($prepare)
-        {
-            return;
-        }
+		
         $pos = $this->_conf->get('ICartPosition', 'layout');  
         if ( (!$pos || 'n' == $pos)
         || (  !$this->_conf->findGroup('module', 'IShop') && !$this->_conf->findGroup('module', 'TechShop'))

@@ -72,7 +72,7 @@ class elCore
 	{
 		
 		$conf = & elSingleton::getObj('elXmlConf');
-		$isCart = 'EShop' == $this->mName && !empty($this->ars[0]) && 'order' == $this->args[0];
+		// $isCart = 'EShop' == $this->mName && !empty($this->ars[0]) && 'order' == $this->args[0];
 
 		if ( EL_WM_XML == EL_WM )
 		{

@@ -105,6 +105,7 @@ class elServiceICart extends elService
                 }
             }
             $this->_initRenderer(); 
+// elPrintR($this->_iCart->getItems() );
 	        $this->_rnd->rndICart( $this->_iCart->getItems() );
         }
 		

@@ -73,11 +73,13 @@ class elTSItem extends elCatalogItem
 		}
 		$price = array();
 		foreach ($this->models as $model) {
-			$price[] = array(
-				'modelID' => $model->ID,
-				'name'    => trim($model->code.' '.$model->name),
-				'price'   => $model->price
-				);
+			if ($model->price) {
+				$price[] = array(
+					'modelID' => $model->ID,
+					'name'    => trim($model->code.' '.$model->name),
+					'price'   => $model->price
+					);
+			}
 		}
 		return $price;
 	}

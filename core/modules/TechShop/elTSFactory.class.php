@@ -223,7 +223,7 @@ class elTSFactory
 			}
 
 			if (!empty($this->conf['ishop']) && !empty($this->conf['fakePrice'])) {
-				$item->fakePriceList = $this->_db->queryToArray('SELECT name, price FROM '.$this->_tb['tbprice'].' WHERE i_id="'.$item->ID.'" ORDER BY name');
+				$item->fakePriceList = $this->_db->queryToArray('SELECT id AS modelID, name, price FROM '.$this->_tb['tbprice'].' WHERE i_id="'.$item->ID.'" ORDER BY name', 'modelID');
 				$item->hasFakePrice = (bool)count($item->fakePriceList);
 
 			}

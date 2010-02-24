@@ -13,7 +13,7 @@ define('EL_TS_LOBJ_POS_TAB',      1);
 
 include_once(EL_DIR_CORE.'lib/elCatalogModule.class.php');
 
-elAddJs('jquery.js', EL_JS_CSS_FILE);
+// elAddJs('jquery.js', EL_JS_CSS_FILE);
 
 class elModuleTechShop extends elCatalogModule
 {
@@ -35,7 +35,8 @@ class elModuleTechShop extends elCatalogModule
 		'mnf'        => array('m' => 'displayManufacturer'),
 		'mnf_items'  => array('m' => 'displayManufacturerItems'),
 		'compare'    => array('m' => 'displayCompareTable'),
-		'price'      => array('m' => 'downloadPrice')
+		'price'      => array('m' => 'downloadPrice'),
+		'order'      => array('m' => 'order')
 		);
 
 	var $_conf      = array(
@@ -184,6 +185,75 @@ class elModuleTechShop extends elCatalogModule
 
 	}
 
+	
+	function order() {
+		$this->_initCat($this->_arg());
+		$this->_item = $this->_factory->getItem($this->_arg(1));
+		if ( !$this->_item->ID )
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
+		}
+		
+		$data = array(
+			'page_id' => $this->pageID,
+			'i_id'    => $this->_item->ID,
+			'm_id'    => 0,
+			'code'    => '',
+			'name'    => '',
+			'price'   => 0,
+			'props'   => array(),
+			'url'     => EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID
+			);
+		$type = trim($this->_arg(2));
+		$mID = (int)$this->_arg(3);
+
+		
+		if ($mID) {
+			if ($type == 'm') {
+				// model
+				$model = $this->_factory->create(EL_TS_MODEL, $mID);
+				if ($model->ID) {
+					$data['m_id']  = $mID;
+					$data['code']  = $model->code;
+					$data['name']  = $model->name;
+					$data['price'] = $model->price;
+				}
+			} elseif ($type == 'f' && $this->_item->hasFakePrice) {
+				// record from fake price
+				$price = $this->_item->getPriceList();
+				if (!empty($price[$mID])) {
+					$data['m_id']  = $mID;
+					$data['code']  = $this->_item->code;
+					$data['name']  = $price[$mID]['name'];
+					$data['price'] = $price[$mID]['price'];
+				}
+			}
+		} else {
+			// item itself
+			$data['code']  = $this->_item->code;
+			$data['name']  = $this->_item->name;
+			$data['price'] = $this->_item->price;
+		}
+		
+		if (!$data['name']) {
+			elThrow(E_USER_WARNING, 'Unable to find item to add into shopping cart', null, $data['url']);
+		} elseif (!$data['price']) {
+			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $data['url']);
+		}
+		
+		elLoadMessages('ServiceICart');
+		$ICart = & elSingleton::getObj('elICart');
+		if ($ICart->add($data)) {
+			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
+	        elMsgBox::put($msg);
+			elLocation($data['url']);
+		} else {
+			$msg = sprintf( m('Error! Could not add item to Your shopping cart! Please contact site administrator.') );
+            elThrow(E_USER_WARNING, $msg, null, $data['url']);
+
+		}
+		
+	}
 	//**************************************************************************************//
 	// =============================== PRIVATE METHODS ==================================== //
 	//**************************************************************************************//

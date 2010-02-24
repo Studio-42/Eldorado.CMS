@@ -23,7 +23,7 @@
 
 			<h2>{code} {name}</h2>
 			<!-- BEGIN ITEM_ORDER -->
-		    <div class="mod-tshop-order"><a href="{URL}__icart__/add/{catID}/{id}/" class="cart" >{m('Buy now')}</a></div>
+		    <div class="mod-tshop-order"><a href="{url}" class="cart" >{m('Buy now')}</a></div>
 			<!-- END ITEM_ORDER -->
 			<!-- BEGIN ITEM_PRICE -->
 			<div class="mod-tshop-price">{m('Price')}: {price} {currencySign}</div>
@@ -102,9 +102,9 @@
 				<!-- BEGIN ROW -->
 				<li>
 					<!-- BEGIN MODEL_ORDER -->
-					<a class="float-right" href="{URL}__icart__/add/{catID}/{itemID}/{modelID}/" class="cart" >{m('Buy now')}</a>
+					<a class="float-right" href="{url}" class="cart" >{m('Buy now')}</a>
 					<!-- END MODEL_ORDER -->
-					<div></div>{name} <strong>{price}{currencySign}</strong>
+					<div></div>{name} <strong>{price} {currencySign}</strong>
 				</li>
 				<!-- END ROW -->
 			</ul>

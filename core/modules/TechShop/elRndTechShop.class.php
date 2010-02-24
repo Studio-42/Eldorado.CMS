@@ -60,22 +60,29 @@ class elRndTechShop extends elCatalogRenderer
 	  	
 		// pricelist or item price
 		if ($this->_conf('ishop')) {
+			// 
 			$price = $item->getPriceList();
 			$order = $this->_conf('ishop') == EL_TS_ISHOP_ENABLED;
 			if ($price) {
+				// elPrintR($price);
 				$this->_te->assignBlockVars('TS_TABS.PRICELIST', null, 1);
 				foreach ($price as $one) {
 					$one['price'] = $this->_formatPrice($one['price']);
-					$this->_te->assignBlockVars('TS_PRICELIST.ROW', $one, 1);
+					
+					$data = array(
+						'price' => $this->_formatPrice($one['price']),
+						'name'  => $one['name'],
+						);
+					$this->_te->assignBlockVars('TS_PRICELIST.ROW', $data, 1);
 					if ($order) {
-						$one['itemID'] = $item->ID;
-						$this->_te->assignBlockVars('TS_PRICELIST.ROW.MODEL_ORDER', $one, 2);
+						$data = array('url' => EL_URL.'order/'.$this->_catID.'/'.$item->ID.'/'.($item->hasFakePrice ? 'f' : 'm').'/'.$one['modelID'].'/');
+						$this->_te->assignBlockVars('TS_PRICELIST.ROW.MODEL_ORDER', $data, 2);
 					}
 				}
 			} elseif ($item->price) {
-				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $item->price));
+				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $this->_formatPrice($item->price)));
 				if ($order) {
-					$this->_te->assignBlockVars('ITEM_ORDER', array('id' => $item->ID));
+					$this->_te->assignBlockVars('ITEM_ORDER', array('url' => EL_URL.'order/'.$this->_catID.'/'.$item->ID.'/'));
 				}
 			}
 		}

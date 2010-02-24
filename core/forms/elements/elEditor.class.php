@@ -19,9 +19,13 @@ class elEditor extends elFormInput
   	{
 		elLoadJQueryUI();
 		elAddCss('elrtefinder.css',   EL_JS_CSS_FILE);
+		// elAddCss('elrte.f.css',   EL_JS_CSS_FILE);
 		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.form.min.js',     EL_JS_CSS_FILE);
-		elAddJs('elrtefinder.min.js',     EL_JS_CSS_FILE);
+		// elAddJs('elrtefinder.min.js',     EL_JS_CSS_FILE);
+		elAddJs('elrte.min.js',     EL_JS_CSS_FILE);
+		elAddJs('elfinder.min.js',     EL_JS_CSS_FILE);
+		
 		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elrte.'.EL_LANG.'.js'))
 		{
 			elAddJs('i18n'.DIRECTORY_SEPARATOR.'elrte.'.EL_LANG.'.js', EL_JS_CSS_FILE);

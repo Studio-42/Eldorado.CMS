@@ -43,7 +43,7 @@ class elRndOrderHistory extends elModuleRenderer
 		}
 	}
 
-	function rndOrder($order, $customer, $items, $status)
+	function rndOrder($order, $customer, $items, $status, $reorder)
 	{
 		$this->_setFile('order');
 		
@@ -104,7 +104,7 @@ class elRndOrderHistory extends elModuleRenderer
 		}
 
 		// repeat order
-		if (!$this->_admin)
+		if ($reorder)
 		{
 			$this->_te->assignBlockVars('ORDER_REPEAT');
 			$i = 0;

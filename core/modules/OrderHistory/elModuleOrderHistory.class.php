@@ -46,6 +46,11 @@ class elModuleOrderHistory extends elModule
 				elThrow(E_USER_WARNING, 'You do not have access to page "%s"', 'Order History', EL_URL);
 				return;
 			}
+
+		$reorder  = false;
+		if ($order['uid'] == $this->_checkAuth())
+			$reorder = true;
+
 		$customer = array_shift($this->_getCustomerNfo(array($id)));
 		$items    = $this->_getOrderItem($id);
 
@@ -54,7 +59,7 @@ class elModuleOrderHistory extends elModule
 		else
 		{
 			$this->_initRenderer();
-			$this->_rnd->rndOrder($order, $customer, $items, $this->_getStatus());
+			$this->_rnd->rndOrder($order, $customer, $items, $this->_getStatus(), $reorder);
 		}
 	}
 

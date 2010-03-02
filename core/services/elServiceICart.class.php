@@ -3,45 +3,51 @@
 elLoadMessages('ServiceICart');
 class elServiceICart extends elService
 {
-	var $_vdir      = '__icart__';
-	var $_mMap      = array(
-		'add'          => array('m' => 'addItem'),
-		'repeat_order' => array('m' => 'repeatOrder')
-	);
-	var $_iCart     = null;
-	var $_page      = array();
-	var $_steps     = array(
-		0 => array('stepDisplayCart', '_isNoEmpty',     'Shopping cart information', 1),
-		1 => array('stepDelivery',    '_checkDelivery', 'Delivery informatiom',      0),
-		2 => array('stepAddress',     '_checkAddress' , 'Customer information',      1),
-		3 => array('stepSummary',     '',               'Summary information',       1)
-	);
-	var $_curStID   = 0;
-	var $_maxStID   = 0;
-	var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'priceIsInt'=>0 );
-	var $_tplDir    = 'services/ICart/';
-	var $form       = null;
-	var $_addrNfo   = array();
-	var $_user      = null;
-	var $_uProfile  = null;
-	var $_uProfSkel = array();
-
-	function init($args)
-	{
-		$this->_args  = $args;
-		$this->_iCart = & elSingleton::getObj('elICart');
-		$nav          = & elSingleton::getObj('elNavigator');
-		$this->_page  = $nav->getCurrentPage();
-	}
-
-
+    var $_vdir      = '__icart__';
+    var $_mMap      = array('add' => array('m' => 'addItem'));
+    var $_iCart     = null;
+    var $_page      = array();
+    var $_steps     = array(
+                        0 => array('stepDisplayCart', '_isNoEmpty',     'Shopping cart information', 1),
+                        1 => array('stepDelivery',    '_checkDelivery', 'Delivery informatiom',      0),
+                        2 => array('stepAddress',     '_checkAddress' , 'Customer information',      1),
+                        3 => array('stepSummary',     '',               'Summary information',       1)
+                        );
+    var $_curStID   = 0;
+    var $_maxStID   = 0;
+    var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'priceIsInt'=>0 );
+    var $_tplDir    = 'services/ICart/';
+    var $form       = null;
+    var $_addrNfo   = array();
+    var $_user      = null;
+    var $_uProfile  = null;
+    var $_uProfSkel = array();
+    
+    function init($args)
+    {
+        $this->_args  = $args;
+        $this->_iCart = & elSingleton::getObj('elICart');
+        $nav          = & elSingleton::getObj('elNavigator');
+        $this->_page  = $nav->getCurrentPage();
+    }
+    
+    
     function defaultMethod()
     {
         $ats              = & elSingleton::getObj('elATS');
         $this->_user      = & $ats->getUser();
         $this->_uProfile  = & $this->_user->getProfile();
         $this->_uProfSkel = $this->_uProfile->getSkel();
-        unset( $this->_uProfSkel['login']); 
+
+		$flist = array('f_name', 's_name', 'l_name', 'email', 'phone', 'address', 'company');
+		foreach ($this->_uProfSkel as $k=>$v) {
+			if (!in_array($k, $flist)) {
+				unset($this->_uProfSkel[$k]);
+			}
+		}
+		$this->_uProfSkel['email']['rule'] = 'email';
+		$this->_uProfSkel['email']['is_func'] = false;
+		
         $this->_uProfSkel['comments'] = array('field'=>'comments', 'rq'=>1, 'label'=>'Comments', 'type'=>'textarea', 'sort_ndx'=>100, 'is_func'=>'', 'rule'=>'');
         $this->_loadAddrNfo();
         elLoadMessages('UserProfile');
@@ -55,7 +61,7 @@ class elServiceICart extends elService
         {
             elThrow(E_USER_WARNING, 'Please, complite all required steps', null, EL_URL.'__icart__/');
         }
-        //elDebug('arg_step='.$stepID.' cur_step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
+        //elDebug('step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
         if ( $this->_isStepExcluded($this->_curStID) )
         {
             $this->_goNext();
@@ -66,13 +72,12 @@ class elServiceICart extends elService
         {
             elThrow(E_USER_ERROR, 'Unexpected error!', null, EL_URL.'__icart__/');
         }
+
         $this->$m();
         $conf = &elSingleton::getObj('elXmlConf');
         $conf->set('navPathInPTitle', 3, 'layout');
 
-
         elAppendToPagePath( array( 'url'=>'__icart__/', 'name'=>m('Shopping cart'))  );
-
     }
     
     
@@ -105,7 +110,6 @@ class elServiceICart extends elService
                 }
             }
             $this->_initRenderer(); 
-// elPrintR($this->_iCart->getItems() );
 	        $this->_rnd->rndICart( $this->_iCart->getItems() );
         }
 		
@@ -133,23 +137,13 @@ class elServiceICart extends elService
 
         foreach ($this->_uProfSkel as $k=>$v)
         {
+
             $label = m($v['label']);
             $value = $this->_getAddrField($k);
-
             if ('select' == $v['type'])
-			{
-				if (strpos($v['opts'], 'directory:') == 0)
-				{
-					elSingleton::incLib('modules/Directory/elDirectory.class.php');
-					$dir = new elDirectory();
-					$opts = $dir->getOpts($v['opts']);
-				}
-				else
-				{
-					$opts = $v['opts'];
-				}
-				$this->form->add( new elSelect($k, $label, $value, $opts) );
-			}
+            {
+                $this->form->add( new elSelect($k, $label, $value, $v['opts']) );
+            }
             elseif ('textarea' == $v['type'])
             {
                 $this->form->add( new elTextArea($k, $label, $value, array('rows'=>5) ) );
@@ -196,10 +190,9 @@ class elServiceICart extends elService
         
         $this->_initRenderer();
         $addr = array();
-        foreach ($this->_addrNfo as $k=>$v)
-        {
-            $addr[] = array('label'=>m($this->_uProfSkel[$k]['label']), 'value'=>$v);
-        }
+		foreach ($this->_uProfSkel as $k=>$v) {
+			$addr[] = array('label'=>m($v['label']), 'value'=>$this->_addrNfo[$k]);
+		}
         $this->_rnd->rndSummary( $this->_iCart->getItems(), $this->_getDeliveryNfo(), $this->_getSummaryAmount(), $addr );
     }
     
@@ -259,55 +252,7 @@ class elServiceICart extends elService
 	elLocation( (isset($this->_args[3]) && $this->_args[3] == 'cat') ? EL_URL.$this->_args[1].'/' : $URL );
         
     }
-
-	// Repeat order from elModuleOrderHistory
-	// In fact this works like addItem but adds many items at once using POST
-	// TODO for now works only with IShop
-	function repeatOrder()
-	{
-		// get IShop pageID and virtual dir, only get first
-		$db = elSingleton::getObj('elDb');
-		$db->query('SELECT id, dir FROM el_menu WHERE module="IShop" LIMIT 1');	
-		if ($db->numRows())
-			$r = $db->nextRecord();
-		else
-			elThrow(E_USER_WARNING, 'Critical error in module! %s', 'IShop module not found', EL_URL);
-		$pageID = $r['id'];
-		$dir    = $r['dir'];
-
-		// re-arrange _POST
-		$post = array();
-		foreach ($_POST as $l => $v)
-		{
-			list($id, $l) = explode('_', $l, 2);
-			$post[$id][$l] = $v;
-		}
-
-		// Add items to ICart
-		$add_ok   = array();
-		$add_fail = array();
-		foreach ($post as $v)
-			if ($v['shop'] == 'IShop')
-				for ($i = 1; $i <= $v['qnt']; $i++)
-				{
-					$itemName = false;
-					$itemName = $this->_iCart->addIShopItem($pageID, (int)$v['i_id'], $v['props']);
-					//elPrintR($itemName.' '.$v['i_id'].' '.$v['props']);
-					if ($itemName)
-						$add_ok[$itemName]   = $itemName;
-					else
-						$add_fail[$itemName] = $itemName;
-				}
-
-		$msg_ok   = m('Next items "%s" were added to Your shopping cart');
-		$msg_fail = m('Next items "%s" NOT were added to Your shopping cart');
-		if (!empty($add_ok))
-			elMsgBox::put(sprintf($msg_ok,   implode(', ', $add_ok)));
-		if (!empty($add_fail))
-			elMsgBox::put(sprintf($msg_fail, implode(', ', $add_fail)));
-		elLocation(EL_BASE_URL.'/'.$dir.'/__icart__/');
-	}
-
+    
     /**************************************************************/
     /**                      PRIVATE                             **/
     /**************************************************************/
@@ -491,3 +436,4 @@ class elServiceICart extends elService
     
 }
 
+?>

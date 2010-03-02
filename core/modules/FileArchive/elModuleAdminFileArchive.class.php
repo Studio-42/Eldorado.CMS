@@ -236,27 +236,31 @@ class elModuleAdminFileArchive extends elModuleFileArchive
 
 	function &_makeConfForm()
 	{
+		$vars = array(
+			'deep' => array( m('All levels'), 1, 2, 3, 4),
+			'view' =>  array( 1=>m('One column'), 2=>m('Two columns')),
+			'itemsSortID' => array(m('By name'), m('By file name'), m('By modification time'), m('By popularity') ),
+			'itemsPerPage' => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
+			'displayCatDescrip' => array(
+				EL_CAT_DESCRIP_NO => m('Do not display'),
+				EL_CAT_DESCRIP_IN_LIST => m('Only in categories list'),
+				EL_CAT_DESCRIP_IN_SELF => m('Only in category itself'),
+				EL_CAT_DESCRIP_IN_BOTH => m('In list and in category')
+				)
+			);
+		
 		$form = &parent::_makeConfForm();
-
-    $form->add( new elSelect('deep', m('How many levels of catalog will open at once'),
-                            $this->_conf('deep'), array( m('All levels'), 1, 2, 3, 4 ) ) );
-		$views = array( 1=>m('One column'), 2=>m('Two columns'));
-    $form->add( new elSelect('catsCols', m('Categories list view'),  $this->_conf('catsCols'),  $views ) );
-    $form->add( new elSelect('itemsCols', m('Items list view'),      $this->_conf('itemsCols'), $views ) );
-
-    $sort = array( m('By name'), m('By file name'), m('By modification time'), m('By popularity') );
-    $form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $sort));
-		$nums = array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100);
-    $form->add( new elSelect('itemsPerPage', m('Number of documents per page'),
-    												$this->_conf('itemsPerPage'), $nums ) );
-    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions in categories list'),
-    						$this->_conf('displayCatDescrip'), $GLOBALS['yn']) );
-    $form->add( new elSelect('displayLmd', m('Display file last modify date'),
-    						$this->_conf('displayLmd'), $GLOBALS['yn']) );
-    $form->add( new elSelect('displayCnt', m('Display download counter'),
-    						$this->_conf('displayCnt'), $GLOBALS['yn']) );
-
-   	return $form;
+		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),	$this->_conf('deep'), $vars['deep'] ) );
+		$form->add( new elSelect('catsCols', m('Categories list view'), $this->_conf('catsCols'),  $vars['view']) );
+		$form->add( new elSelect('itemsCols', m('Items list view'),     $this->_conf('itemsCols'), $vars['view']) );
+		$form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $vars['itemsSortID']) );
+		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $vars['itemsPerPage'] ) );
+		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $vars['displayCatDescrip']));
+		$form->add( new elSelect('displayLmd', m('Display file last modify date'), $this->_conf('displayLmd'), $GLOBALS['yn']) );
+	    $form->add( new elSelect('displayCnt', m('Display download counter'), $this->_conf('displayCnt'), $GLOBALS['yn']) );
+		
+		return $form;
+	
 	}
 
 	function &_makeNavForm($c)

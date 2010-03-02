@@ -264,12 +264,9 @@ class elSiteRenderer
 
 	function _renderJs()
 	{
-	  	if ( file_exists(EL_DIR_STYLES.'style.js') )
-	  	{
-	    	$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/style/style.js') );
-	  	}
+	  	
 		$GLOBALS['_js_'][EL_JS_CSS_FILE] = array_unique($GLOBALS['_js_'][EL_JS_CSS_FILE]);
-		
+		// elPrintR($GLOBALS['_js_']);
 		if (false !== ($dnum = array_search('eldialogform.js', $GLOBALS['_js_'][EL_JS_CSS_FILE])))
 		{
 			if (in_array('elfinder.min.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]) || in_array('elrtefinder.full.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]))
@@ -317,6 +314,13 @@ class elSiteRenderer
 				$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/core/js/'.$js) );
 			}
 		}
+		
+		if ( file_exists(EL_DIR_STYLES.'style.js') )
+	  	{
+		// elAddJs(EL_BASE_URL.'/style/style.js', EL_JS_CSS_FILE);
+	    	$this->_te->assignBlockVars('JS_LINK', array('js' => EL_BASE_URL.'/style/style.js') );
+	  	}
+		
 		
 		if (!empty($GLOBALS['_js_'][EL_JS_SRC_ONLOAD]))
 		{
@@ -530,7 +534,7 @@ class elSiteRenderer
 					if (!empty($this->_catsTbTpl[$src['module']]))
 					{
 						$cat->tb(sprintf($this->_catsTbTpl[$src['module']], $ID));
-						$tree  = $cat->getTreeToArray((int)$g['deep'], false, false, true); 
+						$tree  = $cat->getTreeToArray((int)$g['deep'], false, false, false); 
 						$pos   = isset($this->_menuPos['side'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
 						$param = $this->_menuPos['side'][$pos];
 						if (EL_POS_TOP == $pos) {

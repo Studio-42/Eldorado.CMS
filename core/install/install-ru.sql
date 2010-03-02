@@ -12,10 +12,6 @@ CREATE TABLE IF NOT EXISTS `el_action_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --
-LOCK TABLES `el_amenu` WRITE;
---
-
-UNLOCK TABLES;
 --
 
 

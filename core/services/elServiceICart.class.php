@@ -53,7 +53,7 @@ class elServiceICart extends elService
         }
         if ( $stepID <> $this->_curStID )
         {
-            elThrow(E_USER_WARNING, 'Please, complite all required steps', null, EL_URL.'__icart__/');
+            elThrow(E_USER_WARNING, 'Please, complete all required steps', null, EL_URL.'__icart__/');
         }
         //elDebug('arg_step='.$stepID.' cur_step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
         if ( $this->_isStepExcluded($this->_curStID) )
@@ -138,7 +138,7 @@ class elServiceICart extends elService
 
             if ('select' == $v['type'])
 			{
-				if (strpos($v['opts'], 'directory:') == 0)
+				if (strpos($v['opts'], 'directory:') !== false)
 				{
 					elSingleton::incLib('modules/Directory/elDirectory.class.php');
 					$dir = new elDirectory();

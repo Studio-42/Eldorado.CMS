@@ -975,7 +975,7 @@ class elModuleForum extends elModule
 		{
 			$results = $search->search($form->_submitedData);
 			if (count($results) >= $this->_conf['postsNum'])
-				$next = 1 + (isset($form->_submitedData['next']) ? (int)$form->_submitedData['next'] : 0);
+				$next = (isset($form->_submitedData['next']) ? (int)$form->_submitedData['next'] : 1);
 		}
 
 		$this->_initRenderer();

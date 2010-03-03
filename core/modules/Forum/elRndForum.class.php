@@ -405,23 +405,47 @@ class elRndForum extends elModuleRenderer
 
 	function rndSearchResult($results, $next, $form)
 	{
-		$this->_setFile('search');
+		if ($results == false)
+			$size = 0;
+		else
+			$size = sizeof($results);
+
+		$pages = (int)($size / $this->_conf['postsNum']);
+		$pages += 1;
+
+		$this->_rndCommon(m('Search'), 'search', $pages, $next);
+		$this->_setFile('search', 'FORUM_CONTENT');
 		$this->_te->assignVars(array('form' => $form));
-		
-		foreach ($results as $r)
+
+		if ($size > 0)
+			$this->_te->assignBlockVars('RESULT_AMOUNT', array('size' => $size));
+
+		if ($next > 0)
+			$offset = $this->_conf['postsNum'] * ($next - 1);
+		else
+			$offset = 0;
+
+		$limit = $offset + $this->_conf['postsNum'];
+		for ($i = $offset; $i < $limit; $i++)
 		{
-			// elPrintR($r);
+			$res = array_values($results);
+			if (!array_key_exists($i, $res))
+				break;
+
+			$r = $res[$i];
+			$r['cssRowClass'] = $i % 2 ? 'mod-forum-post-row-odd' : 'mod-forum-post-row-ev';
 			$r['crtime'] = date(EL_DATETIME_FORMAT, $r['crtime']);
 			$this->_te->assignBlockVars('RESULT.FOUND', $r, 1);
 		}
-		
+
 		if ($next > 0)
-			$this->_te->assignBlockVars('RESULT.NEXT', array('next' => $next));
-		
+			$this->_te->assignBlockVars('RESULT.NEXT', array('next' => $next), 1);
+
 		if (is_array($results) and (sizeof($results) == 0))
 			$this->_te->assignBlockVars('NOT_FOUND');
+
 	}
-	
+
 	function rndTopicMerge($subj1, $subj2, $merge_to)
 	{
 		$this->_setFile('topic_merge');
@@ -492,6 +516,10 @@ class elRndForum extends elModuleRenderer
 		{   // название топика
 			$this->_te->assignBlockVars('FORUM_HEAD', array('id'=>'topic/'.$this->_catID.'/'.$this->_topicID, 'name'=>$head));
 		}
+		elseif ( 'search' == $context )
+		{
+			$this->_te->assignBlockVars('FORUM_HEAD', array('id'=>'search/', 'name'=>$head));
+		}
 		elseif (1 <> $this->_catID )
 		{   // название форума, кроме форума верхнего уровня
 			$this->_te->assignBlockVars('FORUM_HEAD', array('id'=>$this->_catID, 'name'=>$head));			
@@ -518,7 +546,8 @@ class elRndForum extends elModuleRenderer
 		
 		if ($total>1)
 		{
-			$this->_te->assignBlockVars('FORUM_TOP_PANEL', null, 1); 
+			if ('search' != $context)
+				$this->_te->assignBlockVars('FORUM_TOP_PANEL', null, 1);
 			$this->_te->assignBlockVars('FORUM_BOT_PANEL', null, 1);
 			$this->_te->assignVars('forum_current_page', $current);
 			$this->_te->setFile('PAGER', 'common/pager.html');
@@ -529,6 +558,10 @@ class elRndForum extends elModuleRenderer
 			elseif ('users' == $context)
 			{
 				$url = EL_URL.'users/';
+			}
+			elseif ('search' == $context)
+			{
+				$url = EL_URL.'search/';
 			}
 			else
 			{

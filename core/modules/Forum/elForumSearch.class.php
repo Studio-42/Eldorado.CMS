@@ -16,7 +16,7 @@ class elForumSearch
 		'365'=> 'Year'
 		);
 	var $_resultsOnPage = 10;
-	var $_messageLength = 256;
+	var $_messageLength = 4096;
 	
 	function makeForm($cats)
 	{
@@ -31,13 +31,13 @@ class elForumSearch
 		}
 
 		$form = & elSingleton::getObj('elForm', 'MYforumSearch', '', EL_URL.'search/#MYforumSearch');
-		$form->label = m('Search');
+		//$form->label = m('Search');
 		$form->setRenderer(elSingleton::getObj('elTplGridFormRenderer'), 2);		
 		
 		$left  = & new elFormContainer('left_cont',  m('Left'), array('style' => 'width: 500px; background: #eeeeee; padding: 8px;', 'class' => 'rounded-7'));
 		$left->setTpl('label', m('Category'));
-		$left->add(new elCData('div_1_b', '<div class="rounded-7 multiselect-opts" style="padding: 3px; background: white; height: 150px; overflow : auto;">'));
-		$left->add(new elCheckBoxesGroup('cats', '', array('0' => '1'), $myCats));
+		$left->add(new elCData('div_1_b', '<div class="rounded-7 multiselect-opts" style="padding: 3px; overflow : auto;">'));
+		$left->add(new elSelect('cats', '', array('0' => '1'), $myCats, array('size' => 10, 'style' => 'width: 100%;')));
 		$left->add(new elCData('div_1_e', '</div>'));
 		$left->add(new elCheckBox('recursive', '<label for="recursive">' . m('Search in sub forums? ') . '</label>', 'yes', array('checked' => 'on', 'style' => 'margin-top: 8px;')));
 
@@ -45,11 +45,11 @@ class elForumSearch
 		$right->setTpl('label', '');
 		$right->add(new elText(    'search', '', '', array('style' => 'font-size: x-large;', 'size' => '20')));
 		$right->add(new elCData(   'br_1', '<br />'));
-		$right->add(new elCheckBox('flexible', '<label for="flexible">' . m('Use flexible search ') . '</label>', 'yes', array('style' => 'margin-top: 8px;')));
+		$right->add(new elCheckBox('exact', '<label for="exact">' . m('Search exact phrase') . '</label> ', 'yes', array('style' => 'margin-top: 8px;')));
 		$right->add(new elCData(   'hr_1', '<hr />'));
-		$right->add(new elCheckBox('inc_subj', '<label for="inc_subj">' . m('Search in subjects ') . '</label>', 'yes', array('style' => 'margin-top: 5px;')));
+		$right->add(new elCheckBox('inc_subj', '<label for="inc_subj">' . m('Search in subjects') . '</label> ', 'yes', array('style' => 'margin-top: 5px;')));
 		$right->add(new elCData(   'hr_2', '<hr />'));
-		$right->add(new elSelect(  'period', '<label for="period">' . m('Search messages for ') . '</label>', '', $this->_searchPeriod));
+		$right->add(new elSelect(  'period', '<label for="period">' . m('Search messages for') . '</label> ', '', $this->_searchPeriod));
 		$right->add(new elCData(   'hr_3', '<hr />'));
 		$right->add(new elSubmit(  'search_submit', '', m('Search'), array('class' => 'submit', 'style' => 'margin-top: 8px;')));
 
@@ -126,19 +126,12 @@ class elForumSearch
 			array_push($where, $w);
 		}
 
-		// next page results
-		$n = isset($data['next']) ? $data['next'] : 0;
-		if (($n > 0) and ($t == 0))
-			$limit = 'LIMIT '.($n * $this->_resultsOnPage).', '.$this->_resultsOnPage;
-		else
-			$limit = 'LIMIT '.$this->_resultsOnPage;
-
+		$limit = '';
 		$s = $data['search'];
 
-		$f = isset($data['flexible']) ? $data['flexible'] : flase;
-		if ($f == 'yes')
+		$f = isset($data['exact']) ? $data['exact'] : flase;
+		if ($f != 'yes')
 		{
-			// Plan B
 			$s = str_replace(' ', '|', $s);
 		}
 
@@ -215,6 +208,12 @@ class elForumSearch
 			$m = str_replace('[', '<', $m);
 			$m = str_replace(']', '>', $m);
 			$m = strip_tags($m);
+			$m = preg_replace('/('.$s.')/i', '<span class="highlight">${1}</span>', $m);
+
+			if (isset($data['inc_subj']) and ($data['inc_subj'] == 'yes'))
+				$r['subject'] = preg_replace('/('.$s.')/i', '<span class="highlight">${1}</span>', $r['subject']);
+			//elPrintR($r);
+
 			// again magic around with encodings
 			if ($mb)
 			{
@@ -233,6 +232,7 @@ class elForumSearch
 			array_push($results, $r);
 		}
 
+		// TODO sort by date and relevance
 		// sort results based on score
 		$sorted = array();
 		foreach (array_reverse($results) as $r)

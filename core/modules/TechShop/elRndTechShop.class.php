@@ -64,7 +64,6 @@ class elRndTechShop extends elCatalogRenderer
 			$price = $item->getPriceList();
 			$order = $this->_conf('ishop') == EL_TS_ISHOP_ENABLED;
 			if ($price) {
-				// elPrintR($price);
 				$this->_te->assignBlockVars('TS_TABS.PRICELIST', null, 1);
 				foreach ($price as $one) {
 					$one['price'] = $this->_formatPrice($one['price']);
@@ -79,7 +78,7 @@ class elRndTechShop extends elCatalogRenderer
 						$this->_te->assignBlockVars('TS_PRICELIST.ROW.MODEL_ORDER', $data, 2);
 					}
 				}
-			} elseif ($item->price) {
+			} elseif ($item->price>0) {
 				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $this->_formatPrice($item->price)));
 				if ($order) {
 					$this->_te->assignBlockVars('ITEM_ORDER', array('url' => EL_URL.'order/'.$this->_catID.'/'.$item->ID.'/'));

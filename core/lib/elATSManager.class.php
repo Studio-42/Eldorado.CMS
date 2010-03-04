@@ -63,7 +63,7 @@ class elATSManager
     	$value = $profile->attr($k);
     	if ('select' == $v['type'])
     	{
-			if (strpos($v['opts'], 'directory:') == 0)
+			if (strpos($v['opts'], 'directory:') !== false)
 			{
 				elSingleton::incLib('modules/Directory/elDirectory.class.php');
 				$dir = new elDirectory();

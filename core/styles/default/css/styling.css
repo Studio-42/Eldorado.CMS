@@ -174,7 +174,7 @@ p.img-right label {
 
 /***********  Доп оформление  **************/
 
-.highlight { color: #f60; }
+.highlight { background: #ff0; }
 .mute      { color: #888; }
 .info      { background: #f8f8f8; color: #666; padding: 10px; margin-bottom: 0.5em; font-size: 91.7%; }
 .note      { background: #efe; color: #040; border: 2px #484 solid; padding: 10px; margin-bottom: 1em; }

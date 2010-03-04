@@ -4,6 +4,7 @@ class elUserProfile extends elDataMapping
 {
 	var $_tb         = 'el_user';
 	var $_id         = 'uid';
+	var $__id__      = 'UID';
 	var $UID         = 0;
 	var $login       = '';
 	var $email       = '';
@@ -82,7 +83,7 @@ class elUserProfile extends elDataMapping
 	{
 		// TODO
 		$name = null;
-		//$name = trim($this->attr('f_name').' '.$this->attr('s_name').' '.$this->attr('l_name'));
+		$name = trim($this->attr('f_name').' '.$this->attr('s_name').' '.$this->attr('l_name'));
 		return $name ? $name : $this->attr('login');
 	}
 

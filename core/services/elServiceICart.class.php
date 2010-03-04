@@ -5,7 +5,7 @@ class elServiceICart extends elService
 {
     var $_vdir      = '__icart__';
 	var $_mMap      = array(
-		'add' => array('m' => 'addItem')	
+		'add' => array('m' => 'addItem'),	
 		'repeat_order' => array('m' => 'repeatOrder')
 	);
     var $_iCart     = null;

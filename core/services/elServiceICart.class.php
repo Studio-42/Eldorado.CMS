@@ -5,7 +5,7 @@ class elServiceICart extends elService
 {
     var $_vdir      = '__icart__';
 	var $_mMap      = array(
-		'add' => array('m' => 'addItem'),	
+		'add'          => array('m' => 'addItem'),
 		'repeat_order' => array('m' => 'repeatOrder')
 	);
     var $_iCart     = null;
@@ -15,7 +15,7 @@ class elServiceICart extends elService
                         1 => array('stepDelivery',    '_checkDelivery', 'Delivery informatiom',      0),
                         2 => array('stepAddress',     '_checkAddress' , 'Customer information',      1),
                         3 => array('stepSummary',     '',               'Summary information',       1)
-                        );
+	);
     var $_curStID   = 0;
     var $_maxStID   = 0;
     var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'precision'=>2 );

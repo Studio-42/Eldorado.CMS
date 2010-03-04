@@ -5,12 +5,14 @@ class elModuleTemplatesEditor extends elModule {
 	function defaultMethod() {
 		elLoadJQueryUI();
 		elAddCss('elfinder.css', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 		elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
-		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
+		
+		$file = 'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js';
+		
+		if (file_exists(EL_DIR_CORE.'js'.DIRECTORY_SEPARATOR.$file))
 		{
-			elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
+			elAddJs($file, EL_JS_CSS_FILE);
 		}
 		
 		$js = "$('#finder').elfinder({

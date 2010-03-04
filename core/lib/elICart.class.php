@@ -15,19 +15,12 @@ class elICart
 	var $_amount      = 0;
 	var $_rnd         = null;
 	var $_conf        = null;
-	var $currInfo     = array(
-		'currency'     => 'USD',
-		'currencySign' => '$',
-		'currencyName' => 'US dollars',
-		'decPoint'     => '.',
-		'thousandsSep' => ','  
-	);
+	
 
     function elICart()
     {
         $this->_db       = & elSingleton::getObj('elDb');
         $this->_conf     = & elSingleton::getObj('elXmlConf');
-        $this->currInfo  = elGetCurrencyInfo();
         $this->_SID      = mysql_real_escape_string( session_id() );
         $ats             = & elSingleton::getObj('elATS');
         $this->_UID      = $ats->getUserID();
@@ -52,25 +45,7 @@ class elICart
     function getItems()
     {
 		return $this->_getItems();
-        $ret   = array();
-        $items = $this->_getItems();
-        foreach ( $items as $i )
-        {
-            $ret[$i['id']] = array(
-                                   'id'    => $i['id'],
-									'code' => $i['code'],
-                                   'name'  => $i['name'],
-                                   'qnt'   => $i['qnt'],
-                                   'price' => $i['price'],
-                                   'sum'   => $i['price']*$i['qnt'],
-                                   'props' => array()
-                                   );
-            if ( !empty($i['props']) )
-            {
-                $ret[$i['id']]['props'] = unserialize($i['props']);
-            }
-        }
-        return $ret;
+ 
     }
     
     function getItemsRaw()

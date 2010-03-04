@@ -1,5 +1,19 @@
 <?php
 
+if (!function_exists('scandir')) {
+	function scandir($dir) {
+		$files = array();
+		$dh  = opendir($dir);
+		while (false !== ($filename = readdir($dh))) {
+		    $files[] = $filename;
+		}
+
+		sort($files);
+		return $files;
+	}
+}
+
+
 function elRStripSlashes($data)
 {
 	if (!is_array($data))
@@ -318,36 +332,6 @@ function elClosePopupWindow()
     elAddJs('window.opener.location.reload(); window.close();', EL_JS_SRC_ONLOAD);
 }
 
-function elGetCurrencyInfo()
-{
-	static $currInfo = array();
-	if ( empty($currInfo))
-	{
-		$conf     = & elSingleton::getObj('elXmlConf');
-		$currency = $conf->get('currency', 'currency');
-		if ( $currency && !empty($GLOBALS['EL_CURRENCY_LIST'][$currency]))
-		{
-			$currInfo = array('currency'     => $currency,
-												'currencySign' => $GLOBALS['EL_CURRENCY_LIST'][$currency][0],
-												'currencyName' => $GLOBALS['EL_CURRENCY_LIST'][$currency][1],
-												'decPoint'     => $GLOBALS['EL_CURRENCY_LIST'][$currency][2],
-												'thousandsSep' => $GLOBALS['EL_CURRENCY_LIST'][$currency][3]
-												);
-		}
-		else
-		{
-			$currInfo = array('currency'     => 'USD',
-												'currencySign' => '$',
-												'currencyName' => 'US dollars',
-												'decPoint'     => '.',
-												'thousandsSep' => ','
-												);
-
-		}
-
-	}
-	return $currInfo;
-}
 
 
 function getPluginsManageList()

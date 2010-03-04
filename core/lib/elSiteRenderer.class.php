@@ -202,9 +202,10 @@ class elSiteRenderer
 		$this->_te->assignVars('elName',   EL_NAME );
 		$this->_te->assignVars('YEAR',     date('Y'));
 		$this->_te->assignVars('DATE',     date(EL_DATE_FORMAT));
-        $currencyNfo = elGetCurrencyInfo();
-        $this->_te->assignVars('currencySign', $currencyNfo['currencySign']);
-        $mt = &elSingleton::getObj('elMetaTagsCollection');
+        //$currencyNfo = elGetCurrencyInfo();
+        //$this->_te->assignVars('currencySign', $currencyNfo['currencySign']);
+        
+		$mt = &elSingleton::getObj('elMetaTagsCollection');
         list($title, $meta) = $mt->get();
 		
 		if ( EL_WM == EL_WM_NORMAL )
@@ -986,10 +987,11 @@ class elSiteRenderer
 		}
 		else
 		{
-			$currInfo  = elGetCurrencyInfo();
-			$pricePrec = $this->_conf->get('priceIsInt', 'iCart') ? 0 : 2;
-			$amount    = number_format(round($ICart->getAmount(), $pricePrec), $pricePrec, $currInfo['decPoint'], $currInfo['thousandsSep']);
-			$data      = array('iCartQnt'     => $qnt, 'iCartAmount'  => $amount );
+			$currency = &elSingleton::getObj('elCurrency');
+			$data     = array(
+				'iCartQnt'     => $qnt, 
+				'iCartAmount'  => $currency->format($ICart->getAmount(), array('precision' => (int)$this->_conf->get('precision', 'iCart'), 'symbol' => true)) 
+			);
 			$this->_te->assignBlockVars('ICART_SUMMARY',  $data);
 		}
 		

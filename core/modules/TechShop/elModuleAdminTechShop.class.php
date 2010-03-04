@@ -675,7 +675,7 @@ class elModuleAdminTechShop extends elModuleTechShop
 
 	}
 
-
+	
 
   function configureManufactNav()
   {
@@ -777,11 +777,19 @@ class elModuleAdminTechShop extends elModuleTechShop
 				EL_TS_ISHOP_DISABLED   => m('Disabled'),
 				EL_TS_ISHOP_ONLY_PRICE => m('Only display prices'),
 				EL_TS_ISHOP_ENABLED    => m('Enabled')
+				),
+			'exchangeSrc' => array(
+				'auto'   => m('from Central Bank of Russia'),
+				'manual' => m('enter manually')
 				)
 			);
+		$currency  = &elSingleton::getObj('elCurrency');
+		$cInfo     = $currency->current;
 		
-		$form = &parent::_makeConfForm();
-
+		$form      = &parent::_makeConfForm();
+		$headAttrs = array('cellAttrs'=>' class="form-tb-sub"') ;
+		
+		$form->add( new elCData('h_1', m('Page layout')), $headAttrs );
 		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),	$this->_conf('deep'), $vars['deep'] ) );
 		$form->add( new elSelect('catsCols', m('Categories list view'), $this->_conf('catsCols'),  $vars['view']) );
 		$form->add( new elSelect('itemsCols', m('Items list view'),     $this->_conf('itemsCols'), $vars['view']) );
@@ -791,16 +799,72 @@ class elModuleAdminTechShop extends elModuleTechShop
 		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $vars['displayCatDescrip']));
 		$form->add( new elSelect('displayManufact', m('Display manufacturer info in items'),  $this->_conf('displayManufact'), $GLOBALS['yn']) );
 		$form->add( new elSelect('linkedObjPos', m('Display linked objects'),  $this->_conf('linkedObjPos'), $vars['linkedObjPos']) );
-    	$form->add( new elSelect('ishop', m('E-shop functions'), $this->_conf('ishop'), $vars['ishop'], 
-			array('OnChange'=>'if (this.value == \'0\') { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').hide() } else { $(this).parents(\'tr\').eq(0).nextAll(\'tr\').show() }')  ) );
+    	
+		$form->add( new elCData('h_2', m('E-shop functions')), $headAttrs );
+		$form->add( new elSelect('ishop', m('E-shop functions'), $this->_conf('ishop'), $vars['ishop']));
     	$form->add( new elSelect('pricePrec', m('Price format'), (int)$this->_conf('pricePrec'),  array( m('Integer'), 2=>m('Double, two signs after dot'))) );
-		$form->add(new elSelect('fakePrice', m('Allow "fake" price lists'), (int)$this->_conf('fakePrice'), $GLOBALS['yn']));
+		$form->add( new elSelect('currency', m('Currency'), $this->_conf('currency'), $currency->getList()));
+		$form->add( new elSelect('exchangeSrc', m('Use exchange rate'), $this->_conf('exchangeSrc'), $vars['exchangeSrc']));
+		$form->add( new elText('commision', m('Exchange rate commision (%)'), $this->_conf('commision'), array('size' => 8)));
+		$form->add( new elText('rate', m('Exchange rate'), $this->_conf('rate'), array('size' => 8)));
+		
+		$form->add( new elSelect('fakePrice', m('Allow "fake" price lists'), (int)$this->_conf('fakePrice'), $GLOBALS['yn']));
 	
-		$form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
-		elAddJs("$('#ishop').trigger('change');", EL_JS_SRC_ONREADY);
+		// $form->add( new elSelect('priceDownl', m('Allow download price-list as file'), (int)$this->_conf('priceDownl'), $GLOBALS['yn']) );
+		$js = "
+		$('#currency').change(function() {
+			var s = $(this).val() != '".$currency->current['intCode']."',
+				c = $(this).parents('tr').eq(0).nextAll('tr'),
+				i = 3;
+			while (i--) {
+				c.eq(i).toggle(s)
+			}
+			if (s) {
+				$('#exchangeSrc').trigger('change');
+			}
+		});
+		$('#exchangeSrc').change(function() {
+			var c = $('#commision').parents('tr').eq(0),
+				r = $('#rate').parents('tr').eq(0).show();;
+			
+			if ($(this).val() == 'auto') {
+				c.show();
+				r.hide();
+			} else {
+				r.show();
+				c.hide();
+			}
+		});
+		$('#ishop').change(function() {
+			$(this).parents('tr').eq(0).nextAll('tr').toggle($(this).val()>0);
+			$('#currency').trigger('change');
+		}).trigger('change');
+		";
+		
+		elAddJs($js, EL_JS_SRC_ONREADY);
 	    return $form;
 	}
 
+
+	/**
+   * Save new configuration in conf file
+   */
+	function _updateConf( $newConf )
+	{
+		$conf = &elSingleton::getObj('elXmlConf');
+		foreach ($newConf as $k=>$v)
+		{
+			if ( isset($this->_conf[$k]) )
+			{
+				$conf->set($k, $newConf[$k], $this->_confID);
+			}
+		}
+		
+		$conf->save();
+		
+		$currency = &elSingleton::getObj('elCurrency');
+		$currency->updateConf($newConf['courseUpdate']);
+	}
 
 	function &_makeNavForm($c)
 	{

@@ -15,7 +15,7 @@ class elServiceICart extends elService
                         );
     var $_curStID   = 0;
     var $_maxStID   = 0;
-    var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'priceIsInt'=>0 );
+    var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'precision'=>2 );
     var $_tplDir    = 'services/ICart/';
     var $form       = null;
     var $_addrNfo   = array();
@@ -29,6 +29,13 @@ class elServiceICart extends elService
         $this->_iCart = & elSingleton::getObj('elICart');
         $nav          = & elSingleton::getObj('elNavigator');
         $this->_page  = $nav->getCurrentPage();
+		$conf = &elSingleton::getObj('elXmlConf');
+		$tmp = $conf->getGroup('iCart');
+		foreach ($tmp as $k=>$v) {
+			if (isset($this->_conf[$k])) {
+				$this->_conf[$k] = $v;
+			}
+		} 
     }
     
     
@@ -430,7 +437,6 @@ class elServiceICart extends elService
                 $steps[$i] = m($this->_steps[$i][2]);
             }
         }
-        $this->_rnd->setCurrencyInfo( elGetCurrencyInfo() );
         $this->_rnd->setSteps($steps, $this->_curStID, $this->_maxStID);
     }
     

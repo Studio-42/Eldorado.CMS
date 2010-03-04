@@ -111,6 +111,8 @@ $GLOBALS['_css_']       = array(
 	EL_JS_CSS_FILE => array('styling.css', 'normal.css'),
 	EL_JS_CSS_SRC  => array()
 	);
+	
+	
 /**
  * Array contains current path inside page
  * Dont use directly. Use elAppendToPagePath() func

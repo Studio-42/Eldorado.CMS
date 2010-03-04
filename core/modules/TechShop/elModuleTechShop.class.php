@@ -44,11 +44,15 @@ class elModuleTechShop extends elCatalogModule
     'catsCols'          => 1,
     'itemsCols'         => 2,
 	'featuresInItemsList' => EL_TSHOP_FEATURES_IN_LIST_COMPARE,
-    'itemsSortID'       => 1,
-    'itemsPerPage'      => 10,
-    'displayCatDescrip' => 1,
-    'modelsTmbSize'     => 100,
+    'itemsSortID'         => 1,
+    'itemsPerPage'        => 10,
+    'displayCatDescrip'   => 1,
+    'modelsTmbSize'      => 100,
 	'ishop'             => EL_TS_ISHOP_DISABLED,
+	'currency'          => '',
+	'exchangeSrc'       => 'auto',
+	'commision'         => 0,
+	'rate'              => 1,
     'pricePrec'         => 2,
     'priceDownl'        => 0,
 	'fakePrice'         => 0,
@@ -206,8 +210,14 @@ class elModuleTechShop extends elCatalogModule
 			);
 		$type = trim($this->_arg(2));
 		$mID = (int)$this->_arg(3);
-
-		
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate')
+			);
 		if ($mID) {
 			if ($type == 'm') {
 				// model
@@ -216,7 +226,7 @@ class elModuleTechShop extends elCatalogModule
 					$data['m_id']  = $mID;
 					$data['code']  = $model->code;
 					$data['name']  = $model->name;
-					$data['price'] = $model->price;
+					$data['price'] = $currency->convert($model->price, $curOpts);
 				}
 			} elseif ($type == 'f' && $this->_item->hasFakePrice) {
 				// record from fake price
@@ -225,14 +235,14 @@ class elModuleTechShop extends elCatalogModule
 					$data['m_id']  = $mID;
 					$data['code']  = $this->_item->code;
 					$data['name']  = $price[$mID]['name'];
-					$data['price'] = $price[$mID]['price'];
+					$data['price'] = $currency->convert($price[$mID]['price'], $curOpts);
 				}
 			}
 		} else {
 			// item itself
 			$data['code']  = $this->_item->code;
 			$data['name']  = $this->_item->name;
-			$data['price'] = $this->_item->price;
+			$data['price'] = $currency->convert($this->_item->price, $curOpts);
 		}
 		
 		if (!$data['name']) {
@@ -291,9 +301,31 @@ class elModuleTechShop extends elCatalogModule
 		$this->_cat            = $this->_factory->create(EL_TS_CAT);
 		$this->_cat->ID        = 1;
 		$GLOBALS['categoryID'] = 1;
+		
+		if ($this->_conf('eshopFunc')) {
+			
+			$cur  = &elSingleton::getObj('elCurrency');
+			
+			if (empty($this->_conf['currency'])) {
+				$conf = & elSingleton::getObj('elXmlConf');
+				$this->_conf['currency'] = $cur->current['intCode'];
+				$conf->set('currency', $cur->current['intCode'], $this->pageID);
+				$conf->save();
+			}
+			
+			if ($this->_conf['currency'] != $cur->current['intCode'] && $this->_conf('exchangeSrc') == 'manual' && !($this->_conf('rate') > 0)) {
+				$conf = & elSingleton::getObj('elXmlConf');
+				$conf->set('exchangeSrc', 'auto', $this->pageID);
+				$conf->set('rate',         0,     $this->pageID);
+				$conf->save();
+				$cur->updateConf();
+				$this->_conf['exchangeSrc'] = 'auto';
+				$this->_conf['rate']        = 0;
+			}
+		}
 	}
 
-  function _onBeforeStop()
+  	function _onBeforeStop()
 	{
 	   $this->_cat->pathToPageTitle();
       if ( $this->_item )

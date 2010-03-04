@@ -61,6 +61,13 @@ $elMsg['Search results for']         = 'Результаты поиска ';
 $elMsg['Searching for "%s"']         = 'Ищем "%s"';
 
 //ICart
+$elMsg['USA dollar']                  = 'Доллар США';
+$elMsg['Euro']                        = 'Евро';
+$elMsg['Russian Ruble']               = 'Российский рубль';
+$elMsg['Ukrainian Hryvnia']           = 'Украинская гривна';
+$elMsg['Belarussian Ruble']           = 'Белорусский рубль';
+$elMsg['Latvian Lat']                 = 'Латвийский лат';
+$elMsg['Lithuanian Lita']             = 'Литовский лит';
 $elMsg['Buy now']                     = 'Купить';
 $elMsg['Buy']                         = 'Купить';
 $elMsg['Shopping cart']               = 'Корзина покупателя';

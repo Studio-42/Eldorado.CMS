@@ -72,12 +72,10 @@ class elSubModuleCommonControl extends elModule
 			}
 			elseif ('currency' == $k )
 			{
-				$curr = array();
-				foreach ($GLOBALS['EL_CURRENCY_LIST'] as $c=>$val)
-				{
-					$curr[$c] = $val[1];
-				}
-				$form->add( new elSelect($k, $v['label'], $this->_currInfo['currency'], $curr) );
+				
+				$currency = &elSingleton::getObj('elCurrency');
+				$form->add( new elSelect($k, $v['label'], $currency->current['intCode'], $currency->getList()) );
+				// $form->add( new elSelect($k, $v['label'], $this->_currInfo['currency'], $curr) );
 			}
 			elseif ('jsCacheTime' == $k)
 			{
@@ -144,8 +142,8 @@ class elSubModuleCommonControl extends elModule
 			elseif('currency' == $k)
 			{
 				$this->_params[$k]['label'] = m($this->_params[$k]['label']);
-				$this->_currInfo            = elGetCurrencyInfo();
-				$this->_params[$k]['val']   = $this->_currInfo['currencyName'];
+				$currency = &elSingleton::getObj('elCurrency');
+				$this->_params[$k]['val']   = $currency->current['name'];
 			}
 			elseif('jsCacheTime' == $k)
 			{

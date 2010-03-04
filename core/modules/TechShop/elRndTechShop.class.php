@@ -12,21 +12,26 @@ class elRndTechShop extends elCatalogRenderer
 		'ftGroups' => 'ft-groups.html',
 		);
 	var $_currInfo  = array();
+	var $_currency = null;
 	var $_pricePrec = 0;
 	var $_cartOn    = false;
+	
+	var $_currency = null;
 
 
-	function init( $moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null ) {
-		parent::init( $moduleName, $conf, $prnt, $admin, $tabs, $curTab);
-		if ( $this->_conf('ishop') > EL_TS_ISHOP_DISABLED )
-		{
-			$this->_currInfo = elGetCurrencyInfo();
-			  $this->_te->assignVars( 'currency',     $this->_currInfo['currency'] );
-			  $this->_te->assignVars( 'currencySign', $this->_currInfo['currencySign'] );
-			  $this->_te->assignVars( 'currencyName', $this->_currInfo['currencyName'] );
-			  $this->_pricePrec = (int)$this->_conf('pricePrec');
-		}
-	}
+	// function init( $moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null ) {
+	// 	parent::init( $moduleName, $conf, $prnt, $admin, $tabs, $curTab);
+	// 	if ( $this->_conf('ishop') > EL_TS_ISHOP_DISABLED )
+	// 	{
+	// 		$this->_currency = &elSingleton::getObj('elCurrency');
+	// 		$this->_te->assignVars(array(
+	// 			'currencySymbol' => $this->_currency->current['symbol'],
+	// 			'currencyName' => $this->_currency->current['name']
+	// 			));
+	// 		
+	// 		$this->_pricePrec = (int)$this->_conf('pricePrec');
+	// 	}
+	// }
 	/**
 	 * Render item card
 	 *
@@ -60,16 +65,26 @@ class elRndTechShop extends elCatalogRenderer
 	  	
 		// pricelist or item price
 		if ($this->_conf('ishop')) {
-			// 
-			$price = $item->getPriceList();
+			$currency = &elSingleton::getObj('elCurrency');
+			$curOpts = array(
+				'precision'   => (int)$this->_conf('pricePrec'),
+				'currency'    => $this->_conf('currency'),
+				'exchangeSrc' => $this->_conf('exchangeSrc'),
+				'commision'   => $this->_conf('commision'),
+				'rate'        => $this->_conf('rate'),
+				'format'      => true,
+				'symbol'      => true
+				);
+				
 			$order = $this->_conf('ishop') == EL_TS_ISHOP_ENABLED;
-			if ($price) {
+				
+			$priceList = $item->getPriceList();
+			
+			if ($priceList) {
 				$this->_te->assignBlockVars('TS_TABS.PRICELIST', null, 1);
-				foreach ($price as $one) {
-					$one['price'] = $this->_formatPrice($one['price']);
-					
+				foreach ($priceList as $one) {
 					$data = array(
-						'price' => $this->_formatPrice($one['price']),
+						'price' => $currency->convert($one['price'], $curOpts),
 						'name'  => $one['name'],
 						);
 					$this->_te->assignBlockVars('TS_PRICELIST.ROW', $data, 1);
@@ -79,7 +94,7 @@ class elRndTechShop extends elCatalogRenderer
 					}
 				}
 			} elseif ($item->price>0) {
-				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $this->_formatPrice($item->price)));
+				$this->_te->assignBlockVars('ITEM_PRICE', array('price' => $currency->convert($item->price, $curOpts)));
 				if ($order) {
 					$this->_te->assignBlockVars('ITEM_ORDER', array('url' => EL_URL.'order/'.$this->_catID.'/'.$item->ID.'/'));
 				}
@@ -287,10 +302,24 @@ class elRndTechShop extends elCatalogRenderer
 		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
-		$features = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
-		$compare  = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
-		$price    = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
+		$features  = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
+		$compare   = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
+		$price     = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
 		$fakePrice = $this->_conf('faksePrice');
+		$currency  = &elSingleton::getObj('elCurrency');
+		$curOpts   = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => true
+			);
+		if ($compare) {
+			elAddJs('jquery.cluetip.js', EL_JS_CSS_FILE);
+			elAddCss('jquery.cluetip.css');
+		}
 		$i = 0;
 		foreach ($items as $item) {
 			$data = $item->toArray();
@@ -316,7 +345,7 @@ class elRndTechShop extends elCatalogRenderer
 							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_COMPARE', array('id'=>$model->ID), 4);
 						}
 						if ($price && $model->price>0 && !$item->hasFakePrice) {
-							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$this->_formatPrice($model->price)), 4);
+							$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$currency->convert($model->price, $curOpts)), 4);
 						}
 						if ($model->img) {
 			        		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_IMG', $this->_modelImgData($model), 4);
@@ -326,78 +355,24 @@ class elRndTechShop extends elCatalogRenderer
 							$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.MODELS.MODEL.MODEL_ANN.MODEL_ANN_FT', $model->features, 5);
 			      		}
 					}
+				} else {
+					// display item announced features if exists
+			      	if (!empty($item->features)) {
+						$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.ANN.ANN_FT', $item->features, 3);
+			      	}
+					// switch on compare if items has features (may be not announced)
+					if ($compare && $item->hasFeatures) {
+						$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.COMPARE', array('id'=>$item->ID), 3);
+					}
 				}
-				
+				// display item price
+				if ($price && !$item->models && $item->price>0 && !$item->hasFakePrice) {
+					$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.PRICE', array('price'=>$currency->convert($item->price, $curOpts)), 3);
+				}
 			}
 			
 		}
 		
-		return;
-		$i = 0;
-		foreach ($items as $item)
-		{
-			$data = $item->toArray();
-			$data['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
-			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
-			if ($this->_admin)
-			{
-				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.ADMIN', array('id'=>$data['id']), 2);
-			}
-			if ($this->_conf('displayManufact') && !empty($data['mnfName']) )
-			{
-				$mnf = array('mnf_id'=>$data['mnf_id'], 'mnfName'=>$data['mnfName'], 'mnfCountry'=>$data['mnfCountry']);
-				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MNF', $mnf, 3);
-			}
-			
-			if ( false != ($models = $item->getModels()) )
-			{
-				$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MOD_ROW', array('i_id'=>$item->ID), 3);
-				foreach ($models as $model)
-		    	{
-		      		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MOD_ROW.MODEL', $model->toArray(), 3);
-		      		if (!empty($this->_currInfo) && $model->price>0 )
-		      		{
-		        		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MOD_ROW.MODEL.MODEL_PRICE',
-		        			array('price'=>$this->_formatPrice($model->price)), 4);
-		      		}
-					if ($this->_admin)
-					{
-						$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MOD_ROW.MODEL.MODEL_ADMIN', array('i_id'=>$model->iID, 'id'=>$model->ID), 4);
-					}
-		      		if ($model->img)
-		      		{
-						$vars = array( 
-								'm_id'   => $model->ID, 
-								'tmb'    => EL_BASE_URL.dirname($model->img).'/mini_'.basename($model->img), 
-								'target' => EL_BASE_URL.$model->img
-								);
-		        		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.MOD_ROW.MODEL.MODEL_IMG', $vars, 4);
-		      		}
-		      		if (!empty($item->ft[$model->ID]))
-		      		{
-						$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.MOD_ROW.MODEL.MODEL_ANN.MODEL_ANN_FT', $item->ft[$model->ID], 5);
-		      		}
-		    	}
-			}
-			else
-			{
-		    	if ( !empty($this->_currInfo) && $item->price>0 )
-		    	{
-		      		$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.PRICE', array('price'=>$this->_formatPrice($item->price)), 2);
-		    	}
-		    	// display item announced features if exists
-		    	if (!empty($item->ft))
-		    	{
-					$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM.COMPARE', array('id'=>$item->ID), 2);
-					$this->_te->assignBlockFromArray('ITEMS_ONECOL.ITEM.ANN.ANN_FT', $item->ft, 3);
-		    	}
-			}
-		}
-		if (!empty($this->_currInfo))
-		{
-		  $this->_te->assignBlockVars('TS_PRICE_DOWNL');
-		}
-		$this->_te->assignBlockVars('TS_COMPARE');
 	}
 
 	/**
@@ -412,13 +387,22 @@ class elRndTechShop extends elCatalogRenderer
 		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
 
-		$features = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
-		$compare  = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
-		$price    = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
+		$features  = $this->_conf('featuresInItemsList') >= EL_TSHOP_FEATURES_IN_LIST_ENABLE;
+		$compare   = $this->_conf('featuresInItemsList') == EL_TSHOP_FEATURES_IN_LIST_COMPARE;
+		$price     = $this->_conf('ishop') > EL_TS_ISHOP_DISABLED;
 		$fakePrice = $this->_conf('faksePrice');
-		$rowCnt   = $i = 0; 
-		$s        = sizeof($items);
-		
+		$rowCnt    = $i = 0; 
+		$s         = sizeof($items);
+		$currency  = &elSingleton::getObj('elCurrency');
+		$curOpts   = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => true
+			);
 		if ($compare) {
 			elAddJs('jquery.cluetip.js', EL_JS_CSS_FILE);
 			elAddCss('jquery.cluetip.css');
@@ -456,7 +440,7 @@ class elRndTechShop extends elCatalogRenderer
 							$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_ADMIN', array('i_id'=>$model->iID, 'id'=>$model->ID), 4);
 						}
 						if ($price && $model->price>0 && !$item->hasFakePrice) {
-			          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$this->_formatPrice($model->price)), 4);
+			          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_PRICE', array('price'=>$currency->convert($model->price, $curOpts)), 4);
 			        	}
 						if ($model->img) {
 			          		$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.MODELS.MODEL.MODEL_IMG', $this->_modelImgData($model), 4);
@@ -481,7 +465,7 @@ class elRndTechShop extends elCatalogRenderer
 			} 
 			// display item price
 			if ($price && !$item->models && $item->price>0 && !$item->hasFakePrice) {
-				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$this->_formatPrice($item->price)), 3);
+				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$currency->convert($item->price, $curOpts)), 3);
 			}
 		}
 		
@@ -509,19 +493,7 @@ class elRndTechShop extends elCatalogRenderer
 		return null;
 	}
 	
-	/**
-	 * Return formatted price
-	 *
-	 * @param  float    $pr    price
-	 * @param  boolean  $sign  append currency sign?
-	 * @return string
-	 **/
-	function _formatPrice( $pr, $sign=false )
-	{
-		return 0 < $pr
-			? number_format(round($pr, $this->_pricePrec), $this->_pricePrec, $this->_currInfo['decPoint'], $this->_currInfo['thousandsSep']).' '.($sign?$this->_currInfo['currencySign']:'')
-			: '';
-	}
+	
 
 }
 

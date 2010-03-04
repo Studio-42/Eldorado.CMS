@@ -11,14 +11,7 @@ class elICartRnd extends elModuleRenderer
         'summary'  => 'summary.html',
 		'letter'   => 'letter.html'
 		);
-    var $_pricePrec = null;
-    var $currInfo   = array(
-                            'currency'     => 'USD',
-                            'currencySign' => '$',
-                            'currencyName' => 'US dollars',
-                            'decPoint'     => '.',
-                            'thousandsSep' => ','  
-                            );
+    
 
     /**
      * получает мсасив-конфигурацию корзины
@@ -39,20 +32,14 @@ class elICartRnd extends elModuleRenderer
         $this->_maxStepID = $maxStepID; 
     }
     
-    /**
-     * получает настройки валюты для сайта
-     **/
-    function setCurrencyInfo( $cNfo )
-    {
-        $this->currInfo = $cNfo;   
-    }
-    
+  
     
     /**
      * Рисует товары в корзине
      **/
     function rndICart( $items )
     {
+		$currency = & elSingleton::getObj('elCurrency');
         $this->_rndCommon();
         $this->_setFile('icart', 'ICART_CONTENT');
         $amount = 0;
@@ -63,8 +50,8 @@ class elICartRnd extends elModuleRenderer
 				$i['code'] = '';
 			}
             $amount += $i['sum'];
-            $i['price'] = $this->_formatPrice($i['price']);
-            $i['sum']   = $this->_formatPrice($i['sum']);
+            $i['price'] = $currency->format($i['price'], array('precision' => $this->_conf['precision']));
+            $i['sum']   = $currency->format($i['sum'],   array('precision' => $this->_conf['precision']));
             $props = $i['props'];
             unset($i['props']);
             $this->_te->assignBlockVars('ICART_ITEM', $i);
@@ -77,7 +64,8 @@ class elICartRnd extends elModuleRenderer
                 }
             }
         }
-        $this->_te->assignVars('amount', $this->_formatPrice($amount) );
+        $this->_te->assignVars('amount', $currency->format($amount, array('precision' => $this->_conf['precision'])) );
+		$this->_te->assignVars('currencySign', $currency->current['symbol']);
     }
     
     /**
@@ -113,7 +101,7 @@ class elICartRnd extends elModuleRenderer
      **/
     function getSummaryRnd($items, $delivery, $amount, $addr, $rnd=true, $orderID=0)
     {
-
+		$currency = &elSingleton::getObj('elCurrency');
 		if ($rnd)
 		{
 			$this->_setFile('summary', 'SUMMARY');
@@ -125,16 +113,16 @@ class elICartRnd extends elModuleRenderer
 			$this->_te->assignVars('date', date(EL_DATETIME_FORMAT));
 			$this->_te->assignVars('order_id', $orderID);
 		}
-        //elPrintR($items);
-        $this->_te->assignVars('currencySign', $this->currInfo['currencySign']);
+
+        $this->_te->assignVars('currencySign', $currency->current['symbol']);
         foreach ( $items as $i )
         {
 			if ($rnd && !$i['display_code'])
 			{
 				$i['code'] = '';
 			}
-            $i['price'] = $this->_formatPrice($i['price']);
-            $i['sum']   = $this->_formatPrice($i['sum']);
+            $i['price'] = $currency->format($i['price'], array('precision' => $this->_conf['precision']));
+            $i['sum']   = $currency->format($i['sum'],   array('precision' => $this->_conf['precision']));
             $this->_te->assignBlockVars('ICART_ITEM', $i);
             if ( !empty($i['props']) )
             {
@@ -145,17 +133,13 @@ class elICartRnd extends elModuleRenderer
                 }
             }
         }
-        $this->_te->assignVars('amount', $this->_formatPrice($amount)); 
+        $this->_te->assignVars('amount', $currency->format($amount, array('precision' => $this->_conf['precision']))); 
         
         if ( !empty($delivery) )
         {
             $this->_te->assignBlockVars('ICART_DELIVERY');
         }
         
-        foreach ($addr as $field)
-        {
-            //$this->_te->assignBlockVars('ICART_ADDR', $field);
-        }
         $this->_te->assignBlockFromArray('ICART_ADDR', $addr);
         $this->_te->parse('SUMMARY', null, false, true);
         return $this->_te->getVar('SUMMARY');
@@ -171,7 +155,6 @@ class elICartRnd extends elModuleRenderer
     function _rndCommon()
     {
         $this->_setFile();
-        $this->_te->assignVars('currencySign', $this->currInfo['currencySign']);
         foreach ( $this->_steps as $ID=>$step )
         {
             if ( $ID<=$this->_maxStepID )
@@ -198,18 +181,6 @@ class elICartRnd extends elModuleRenderer
         }
     }
 
-    /**
-     * Возвращает цену отформатированную в соответствии и настройками
-     **/
-    function _formatPrice( $pr )
-    {
-        if ( null === $this->_pricePrec )
-        {
-            $this->_pricePrec = $this->_conf('priceIsInt') ? 0 : 2;
-        }
-        return 0 < $pr
-            ? number_format(round($pr, $this->_pricePrec), $this->_pricePrec, $this->currInfo['decPoint'], $this->currInfo['thousandsSep'])
-            : '';
-    }
+ 
 }
 

@@ -18,9 +18,10 @@ class elEditor extends elFormInput
 	function toHtml()
   	{
 		elLoadJQueryUI();
-		elAddCss('elrtefinder.css',   EL_JS_CSS_FILE);
+		elAddCss('elrte.css',   EL_JS_CSS_FILE);
+		elAddCss('elfinder.css',   EL_JS_CSS_FILE);
 		// elAddCss('elrte.f.css',   EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		// elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.form.min.js',     EL_JS_CSS_FILE);
 		// elAddJs('elrtefinder.min.js',     EL_JS_CSS_FILE);
 		elAddJs('elrte.min.js',     EL_JS_CSS_FILE);
@@ -30,10 +31,13 @@ class elEditor extends elFormInput
 		{
 			elAddJs('i18n'.DIRECTORY_SEPARATOR.'elrte.'.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
-		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
+		$file = 'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js';
+		
+		if (file_exists(EL_DIR_CORE.'js'.DIRECTORY_SEPARATOR.$file))
 		{
-			elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
+			elAddJs($file, EL_JS_CSS_FILE);
 		}
+		
 		
 		$js = "var opts = {
 			cssClass : 'el-rte ".$this->getAttr('class')."',

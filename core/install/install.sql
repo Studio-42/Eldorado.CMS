@@ -601,57 +601,28 @@ CREATE TABLE `el_user_profile` (
   `opts` varchar(255) collate utf8_bin NOT NULL,
   `rule` char(25) collate utf8_bin NOT NULL,
   `is_func` enum('0','1','2') collate utf8_bin NOT NULL default '0',
+  `rq` enum('0','1','2') COLLATE utf8_bin NOT NULL DEFAULT '1',
+  `sort_ndx` tinyint(4) NOT NULL,
   PRIMARY KEY  (`field`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --
 LOCK TABLES `el_user_profile` WRITE;
 --
-INSERT INTO el_user_profile (field, label, type, opts, rule, is_func) VALUES ("address", "Address", "textarea", "", "", ""), 
-("company", "Company name", "text", "", "", ""), 
-("email", "E-mail", "text", "", "elCheckUserUniqFields", "1"), 
-("f_name", "First name", "text", "", "letters", ""), 
-("fax", "Fax number", "text", "", "phone", ""), 
-("icq_uin", "ICQ UIN", "text", "", "", ""), 
-("l_name", "Last name", "text", "", "letters", ""), 
-("login", "Login", "text", "", "elCheckUserUniqFields", "1"), 
-("phone", "Phone", "text", "", "phone", ""), 
-("postal_code", "Postal code", "text", "", "numbers", ""), 
-("s_name", "Second name", "text", "", "letters", ""), 
-("web_site", "Website URL", "text", "", "", "");
+INSERT INTO el_user_profile (field, label, type, opts, rule, is_func, rq, sort_ndx) VALUES 
+("address", "Address", "textarea", "", "", "", "0", "9"), 
+("company", "Company name", "text", "", "", "", "0", "7"), 
+("email", "E-mail", "text", "", "elCheckUserUniqFields", "1", "2", "4"), 
+("f_name", "First name", "text", "", "letters", "", "2", "1"), 
+("fax", "Fax number", "text", "", "phone", "", "0", "6"), 
+("icq_uin", "ICQ UIN", "text", "", "", "", "0", "10"), 
+("l_name", "Last name", "text", "", "letters", "", "2", "3"), 
+("login", "Login", "text", "", "elCheckUserUniqFields", "1", "2", "0"), 
+("phone", "Phone", "text", "", "phone", "", "1", "5"), 
+("postal_code", "Postal code", "text", "", "numbers", "", "0", "8"), 
+("s_name", "Second name", "text", "", "letters", "", "1", "2"), 
+("web_site", "Website URL", "text", "", "", "", "0", "11");
 --
 
 UNLOCK TABLES;
 --
-
-
-DROP TABLE IF EXISTS `el_user_profile_use`;
---
-CREATE TABLE `el_user_profile_use` (
-  `field` varchar(50) collate utf8_bin NOT NULL,
-  `rq` enum('0','1','2') collate utf8_bin NOT NULL default '1',
-  `sort_ndx` tinyint(2) NOT NULL default '0',
-  PRIMARY KEY  (`field`),
-  KEY `rq` (`rq`),
-  KEY `sort_ndx` (`sort_ndx`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
---
-LOCK TABLES `el_user_profile_use` WRITE;
---
-INSERT INTO el_user_profile_use (field, rq, sort_ndx) VALUES ("address", "1", 9), 
-("company", "0", 7), 
-("email", "2", 4), 
-("f_name", "2", 1), 
-("fax", "0", 6), 
-("icq_uin", "0", 10), 
-("l_name", "2", 3), 
-("login", "2", 0), 
-("phone", "1", 5), 
-("postal_code", "0", 8), 
-("s_name", "1", 2), 
-("web_site", "0", 11);
---
-
-UNLOCK TABLES;
---
-
 

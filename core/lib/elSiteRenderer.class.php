@@ -557,7 +557,7 @@ class elSiteRenderer
 							foreach($tree as $k=>$v) {
 								$tree[$k]['url'] = $src['url'].$v['id'].'/';
 							}
-							$this->_rndMenuVert($tree, $param['var'], $param['tpl'], false, $pos, isset($g['title']) ? $g['title'] : '', '-sidemenu');
+							$this->_rndMenuVert($tree, $param['var'], $param['tpl'], false, $pos, isset($g['title']) ? $g['title'] : '', '-catmenu');
 						}
 					}
 					else

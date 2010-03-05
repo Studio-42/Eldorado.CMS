@@ -529,7 +529,7 @@ class elSiteRenderer
 			$cat = & elSingleton::getObj('elCatalogCategory');
 			foreach ( $groups as $ID=>$g )
 			{
-				if ( $g['all'] || (is_array($g['pIDs']) && in_array($this->_curPageID, $g['pIDs'])) )
+				if ( in_array(1, $g['pIDs']) || in_array($this->_curPageID, $g['pIDs']) )
 				{
 					$src = $this->_nav->getPage($ID); 
 					if (!empty($this->_catsTbTpl[$src['module']]))

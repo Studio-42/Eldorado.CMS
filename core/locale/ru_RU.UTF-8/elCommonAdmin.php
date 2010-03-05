@@ -110,7 +110,6 @@ $elMsg['from Central Bank of Russia'] = 'с Центробанка России'
 $elMsg['enter manually'] = 'указать вручную';
 $elMsg['Exchange rate commision (%)'] = 'Комиссия';
 $elMsg['Exchange rate'] = 'Курс обмена';
-$elMsg[''] = '';
-$elMsg[''] = '';
+
 
 ?>

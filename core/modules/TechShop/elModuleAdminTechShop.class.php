@@ -637,41 +637,38 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function configureNav()
 	{
 		$conf = &elSingleton::getObj('elXmlConf');
-		$form = & $this->_makeNavForm( $conf->get($this->pageID, 'catalogsNavs') );
-		//elPrintR($tree);
+	  	$form = & $this->_makeNavForm( $conf->get($this->pageID, 'catalogsNavs') );
 
-		if (!$form->isSubmitAndValid())
-		{
-			$this->_initRenderer();
+	  	if (!$form->isSubmitAndValid())
+	  	{
+	  		$this->_initRenderer();
 			return $this->_rnd->addToContent($form->toHtml());
-		}
+	  	}
 
-		$raw = $form->getValue();
-		$data = array();
-		$data['pos']   = isset($GLOBALS['posNLRTB'][$raw['pos']]) ? $raw['pos'] : 0;
-		$data['title'] = !empty($raw['title']) ? $raw['title'] : '';
-		$data['deep']  = (int)$raw['deep'];
-		$data['all']   = (int)$raw['all'];
-		$data['pIDs']  = !$data['all'] && is_array($raw['pIDs']) ? $raw['pIDs'] : '';
+	  	$raw = $form->getValue();
+	  	$data = array();
+	  	$data['pos']   = isset($GLOBALS['posNLRTB'][$raw['pos']]) ? $raw['pos'] : 0;
+	  	$data['title'] = !empty($raw['title']) ? $raw['title'] : '';
+	  	$data['deep']  = (int)$raw['deep'];
+		$data['pIDs']  = $raw['pIDs'];
 
-
-		if (!$data['pos'])
-		{
-			$conf->drop($this->pageID, 'catalogsNavs');
-		}
-		else
-		{
-			if ( empty($data['all']) && empty($data['pIDs']) )
-			{
-				$form->pushError('pIDs[]', m('You should select at least one page') );
-				$this->_initRenderer();
-				return $this->_rnd->addToContent($form->toHtml());
-			}
-			$conf->set($this->pageID, $data, 'catalogsNavs');
-		}
-		$conf->save();
-		elMsgBox::put( m('Configuration was saved') );
-		elLocation( EL_URL );
+	  	if (!$data['pos'])
+	  	{
+	  		$conf->drop($this->pageID, 'catalogsNavs');
+	  	}
+	  	else
+	  	{
+	  		if ( empty($data['pIDs']) )
+	  		{
+	  			$form->pushError('pIDs[]', m('You should select at least one page') );
+	  			$this->_initRenderer();
+	  			return $this->_rnd->addToContent($form->toHtml());
+	  		}
+	  		$conf->set($this->pageID, $data, 'catalogsNavs');
+	  	}
+	  	$conf->save();
+	  	elMsgBox::put( m('Configuration was saved') );
+	  	elLocation( EL_URL );
 
 	}
 
@@ -869,36 +866,28 @@ class elModuleAdminTechShop extends elModuleTechShop
 	function &_makeNavForm($c)
 	{
 		$cat     = & elSingleton::getObj('elCatalogCategory');
-		$cat->_tb = 'el_menu';
-
-		$tree    = $cat->getTreeToArray(0, true, true);
+	  	$cat->tb('el_menu');
+	  	$tree    = $cat->getTreeToArray(0, true, false); 
+	  	$tree[1] = m('Whole site');
 		$form    = & parent::_makeConfForm();
-
-		$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
-		$c['title'] = !empty($c['title']) ? $c['title'] : '';
-		$c['deep']  = isset($c['deep'])   ? $c['deep']  : 0;
-		$c['all']   = isset($c['all'])    ? $c['all']   : 0;
-		$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
-
 		$form->setLabel( m('Configure navigation for catalog') );
-		
+	  	$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
+	  	$c['title'] = !empty($c['title']) ? $c['title'] : '';
+	  	$c['deep']  = isset($c['deep'])   ? $c['deep']  : 0;
+	  	$c['all']   = isset($c['all'])    ? $c['all']   : 0;
+	  	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
-		$js = "if (this.value != '0') {
-			$(this).parents('tr').eq(0).nextAll('tr').show();
-		} else {
-			$(this).parents('tr').eq(0).nextAll('tr').hide();
-		}";
-		
-		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],  $GLOBALS['posNLRTB'], array('onChange'=>$js)) );
-		$form->add( new elText('title', m('Navigation title'), $c['title']) );
-		$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
-		$js = "if(this.value == '0'){ $(this).parents('tr').eq(0).nextAll('tr').show() } else { $(this).parents('tr').eq(0).nextAll('tr').hide(); } ";
-		$form->add( new elSelect('all', m('Display navigation on all pages'), $c['all'],  $GLOBALS['yn'], array('onChange'=>$js)) );
-		$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
-		$form->add( new elCheckboxesGroup('pIDs', '', $c['pIDs'], $tree) );
-		elAddJs("$('#pos').trigger('change');", EL_JS_SRC_ONLOAD);
 
-		return $form;
+	  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'], $GLOBALS['posNLRTB']) );
+	  	$form->add( new elText('title', m('Navigation title'), $c['title']) );
+	  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+	  	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
+	  	$ms = new elMultiSelectList('pIDs', '', $c['pIDs'], $tree);
+		$ms->setSwitchValue(1);
+		$form->add( $ms );
+
+		elAddJs("$('#pos').change(function() { $(this).parents('tr').eq(0).nextAll('tr').toggle(this.value != '0'); }).trigger('change');", EL_JS_SRC_ONLOAD);
+	  	return $form;
 	}
 
 	function _initCat($ID)

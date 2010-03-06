@@ -592,7 +592,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `el_user_profile`;
 --
 CREATE TABLE `el_user_profile` (
-  `field` char(15) collate utf8_bin NOT NULL,
+  `field` char(30) collate utf8_bin NOT NULL,
   `label` char(50) collate utf8_bin NOT NULL,
   `type` enum('text','textarea','select') collate utf8_bin NOT NULL default 'text',
   `opts` varchar(255) collate utf8_bin NOT NULL,
@@ -606,18 +606,18 @@ CREATE TABLE `el_user_profile` (
 LOCK TABLES `el_user_profile` WRITE;
 --
 INSERT INTO el_user_profile (field, label, type, opts, rule, is_func, rq, sort_ndx) VALUES 
-("address", "Address", "textarea", "", "", "", "0", "9"), 
-("company", "Company name", "text", "", "", "", "0", "7"), 
-("email", "E-mail", "text", "", "elCheckUserUniqFields", "1", "2", "4"), 
-("f_name", "First name", "text", "", "letters", "", "2", "1"), 
-("fax", "Fax number", "text", "", "phone", "", "0", "6"), 
-("icq_uin", "ICQ UIN", "text", "", "", "", "0", "10"), 
-("l_name", "Last name", "text", "", "letters", "", "2", "3"), 
-("login", "Login", "text", "", "elCheckUserUniqFields", "1", "2", "0"), 
-("phone", "Phone", "text", "", "phone", "", "1", "5"), 
-("postal_code", "Postal code", "text", "", "numbers", "", "0", "8"), 
-("s_name", "Second name", "text", "", "letters", "", "1", "2"), 
-("web_site", "Website URL", "text", "", "", "", "0", "11");
+("address", "Address", "textarea", "", "", "", "0", "10"), 
+("company", "Company name", "text", "", "", "", "0", "8"), 
+("email", "E-mail", "text", "", "elCheckUserUniqFields", "1", "2", "5"), 
+("f_name", "First name", "text", "", "letters", "", "2", "2"), 
+("fax", "Fax number", "text", "", "phone", "", "0", "7"), 
+("icq_uin", "ICQ UIN", "text", "", "", "", "0", "11"), 
+("l_name", "Last name", "text", "", "letters", "", "2", "4"), 
+("login", "Login", "text", "", "elCheckUserUniqFields", "1", "2", "1"), 
+("phone", "Phone", "text", "", "phone", "", "1", "6"), 
+("postal_code", "Postal code", "text", "", "numbers", "", "0", "9"), 
+("s_name", "Second name", "text", "", "letters", "", "1", "3"), 
+("web_site", "Website URL", "text", "", "", "", "0", "12");
 --
 
 UNLOCK TABLES;

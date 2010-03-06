@@ -11,7 +11,7 @@ class elDataMapping
 	var $_tb           = '';
 	var $_form         = null;
 	var $_id           = 'id';
-	var $__id__        = 'ID';
+	var $__id__        = 'ID'; // DO NOT SET MANUALY!!! use _id instead
 	var $_formRndClass = 'elTplFormRenderer';
 	var $_objName      = 'Object';
 	var $_new          = false;

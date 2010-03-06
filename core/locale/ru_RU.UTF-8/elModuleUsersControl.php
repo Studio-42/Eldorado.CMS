@@ -15,14 +15,30 @@ $elMsg['Do you realy want to delete user']      = 'Удалить пользов
 $elMsg['User "%s" was deleted']                 = 'Пользователь "%s" удален';
 $elMsg['Create user']                           = 'Новый пользователь';
 $elMsg['Create group']                          = 'Новая группа';
-$elMsg['Apply filter'] = 'Применить фильтр';
-$elMsg['Clean filter'] = 'Сбросить фильтр';
+$elMsg['Apply filter']                          = 'Применить фильтр';
+$elMsg['Clean filter']                          = 'Сбросить фильтр';
 
 // confidure profile
+$elMsg['Add profile field']                     = 'Добавить поле в профиль';
 $elMsg['Configuration of user profile']         = 'Настройка профайла пользователя';
 $elMsg['Profile field']                         = 'Поле профайла';
 $elMsg['Usage']                                 = 'Использование';
 $elMsg['Sort index']                            = 'Индекс сортировки';
+$elMsg['Field in DB']                           = 'Поле в БД';
+$elMsg['Label']                                 = 'Метка';
+$elMsg['Type']                                  = 'Тип';
+$elMsg['Options']                               = 'Параметры';
+$elMsg['Check rule']                            = 'Правило проверки';
+$elMsg['"%s" must contain only latin, numeral, or "_" characters. Length must be from 3 to 30 characters.'] = '"%s" должно содержать только латинские букты, цифры или "_". Длина поля должна быть от 3 до 30 символов.';
+$elMsg['Not allowed value for "%s".']           = 'Запрещённое значение для "%s".';
+$elMsg['"%s" = "%s" already exists.']           = '"%s" = "%s" уже существует.';
+$elMsg['Select delete method']                  = 'Выберите метод удаления';
+$elMsg['Select delete method']                  = 'Выберите метод удаления';
+$elMsg['Delete field "%s"']                     = 'Удаление поля "%s"';
+$elMsg['Delete only field']                     = 'Удалить только поле';
+$elMsg['Delete field and data']                 = 'Удалить поле и данные';
+$elMsg['Field "%s" deleted']                    = 'Поле "%s" удалено';
+$elMsg['Cannot delete field "%s"']              = 'Невозможно удалить поле "%s"';
 
 //groups subModule
 $elMsg['Users group']                           = 'Группа пользователей';

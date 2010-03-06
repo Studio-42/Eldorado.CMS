@@ -5,7 +5,6 @@ class elForumProfile extends elDataMapping
 	var $_tb        = 'el_user';
 	var $_tbc       = 'el_forum_cat';
 	var $_tbp       = 'el_user_profile';
-	var $_tbpu      = 'el_user_profile_use';
 	var $_tbm       = 'el_forum_moderator';
 	var $_tbr       = 'el_forum_role';
 	var $_tblrf     = 'el_forum_log_read_forum';
@@ -465,7 +464,8 @@ class elForumProfile extends elDataMapping
 	function _skel()
 	{
 		$db  = &elSingleton::getObj('elDb');
-		$sql = 'SELECT p.field, p.label, p.type, p.rule, p.opts, p.is_func, u.rq FROM '.$this->_tbp.' AS p, '.$this->_tbpu.' AS u WHERE u.rq!="0" AND p.field=u.field ORDER BY u.sort_ndx';
+		$sql = 'SELECT p.field, p.label, p.type, p.rule, p.opts, p.is_func, p.rq '
+		     . 'FROM '.$this->_tbp.' AS p WHERE p.rq!="0" ORDER BY p.sort_ndx';
 		return $db->queryToArray($sql, 'field');
 	}
 	
@@ -587,4 +587,3 @@ class elForumProfile extends elDataMapping
 
 }
 
-?>

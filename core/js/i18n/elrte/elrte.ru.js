@@ -2,6 +2,7 @@
 elRTE.prototype.i18Messages.ru = {
 	'Editor' : 'Редактор',
 	'Source' : 'Исходник',
+	// названия панелей
 	'Copy/Pase'      : 'Копирование/Вставка',
 	'Undo/Redo'      : 'Отмена/Повтор действия',
 	'Text styles'    : 'Стили текста',
@@ -16,7 +17,7 @@ elRTE.prototype.i18Messages.ru = {
 	'Media'          : 'Media файлы',
 	'Tables'         : 'Таблицы',
 	'File manager (elFinder)' : 'Файловый менеджер (elFinder)',
-	/** названия кнопок **/
+	// названия кнопок
 	'Save'                    : 'Сохранить',
 	'Copy'                    : 'Копировать',
 	'Cut'                     : 'Вырезать',
@@ -30,8 +31,8 @@ elRTE.prototype.i18Messages.ru = {
 	'Italic'                  : 'Курсив',
 	'Underline'               : 'Подчеркнутый',
 	'Strikethrough'           : 'Перечеркнутый',
-	'Superscript'             : 'Верхний регистр',
-	'Subscript'               : 'Нижний регистр',
+	'Superscript'             : 'Надстрочный текст',
+	'Subscript'               : 'Подстрочный текст',
 	'Align left'              : 'Выровнять налево',
 	'Ailgn right'             : 'Выровнять направо',
 	'Align center'            : 'Выровнять по центру',
@@ -69,7 +70,7 @@ elRTE.prototype.i18Messages.ru = {
 	'Open file manager'       : 'Открыть файловый менеджер',
 	'Non breakable space'     : 'Неразрывный пробел',
 	'Stop element floating'   : 'Отключить обтекание элементов текстом',
-	/** dialogs **/
+	// dialogs
 	'Warning' : 'Внимание',
 	'Properies' : 'Свойства',
 	'Popup' : 'Новое окно',
@@ -96,11 +97,12 @@ elRTE.prototype.i18Messages.ru = {
 	'In new window (_blank)' : 'В новом окне (_blank)',
 	'In new parent window (_parent)' : 'В родительском окне (_parent)',
 	'In top frame (_top)' : 'В верхнем фрейме (_top)',
+	'URL' : '',
 	'Open in' : 'Открыть',
 	'Open file manger' : 'Открыть файловый менеджер',
-	/** copy **/
+	// copy
 	'This operation is disabled in your browser on security reason. Use shortcut instead.' : 'Действие запрещено в вашем браузере по соображениям безопастности. Используйте сочетание клавиш',
-	/** format  **/
+	// format 
 	'Heading 1' : 'Заголовок 1',
 	'Heading 2' : 'Заголовок 2',
 	'Heading 3' : 'Заголовок 3',
@@ -108,8 +110,9 @@ elRTE.prototype.i18Messages.ru = {
 	'Heading 5' : 'Заголовок 5',
 	'Heading 6' : 'Заголовок 6',	
 	'Paragraph' : 'Параграф',
-	'Address'   : 'Адрес',
-	/** font size **/
+	'Address' : 'Адрес',
+	'Preformatted' : '',
+	// font size
 	'Small (8pt)'   : 'Мелкий (8pt)',
 	'Small (10px)'  : 'Маленький (10px)',
 	'Small (12pt)'  : 'Небольшой (12pt)',
@@ -117,13 +120,14 @@ elRTE.prototype.i18Messages.ru = {
 	'Large (18pt)'  : 'Большой (18pt)',
 	'Large (24pt)'  : 'Крупный (24pt)',
 	'Large (36pt)'  : 'Огромный (36pt)',				
-	/** bookmark **/
+	// bookmark
 	'Bookmark name' : 'Имя закладки',
-	/** link **/
+	// link
 	'Link URL' : 'Адрес ссылки (URL)',
 	'Target' : 'Цель',
 	'Select bookmark' : 'Выбрать закладку',
 	'Open link in popup window' : 'Открыть ссылку во всплывающем окне',
+	'URL' : '',
 	'Window name' : 'Название окна',
 	'Window size' : 'Размер окна',
 	'Window position' : 'Позиция окна',
@@ -138,14 +142,15 @@ elRTE.prototype.i18Messages.ru = {
 	'Target MIME type' : 'MIME type цели',
 	'Relationship page to target (rel)' : 'Отношение страницы к цели (rel)',
 	'Relationship target to page (rev)' : 'Отношение цели к странице (rev)',
+	'Tab index' : '',
 	'Access key' : 'Клавиша доступа',
-	/** image **/
+	// image
 	'Size' : 'Размер',
 	'Preview' : 'Предварительный просмотр',
 	'Margins' : 'Отступы',
 	'Alt text' : 'Описание (Alt)',
 	'Image URL' : 'URL',
-	/** table **/
+	// table
 	'Spacing'       : 'Промежуток (spacing)',
 	'Padding'       : 'Отступ (padding)',
 	'Rows'          : 'Строки',
@@ -154,7 +159,7 @@ elRTE.prototype.i18Messages.ru = {
 	'Cells'         : 'Ячейки',
 	'Caption'       : 'Заголовок таблицы',
 	'Inner borders' : 'Внутренний бордюр',
-	/** table cell **/
+	// table cell
 	'Table cell type' : 'Тип ячейки',
 	'Data' : 'Данные',
 	'Header' : 'Заголовок',
@@ -165,5 +170,7 @@ elRTE.prototype.i18Messages.ru = {
 	'All cells in row' : 'Все ячейки в ряду',
 	'All cells in column' : 'Все ячейки в столбце',
 	'All cells in table' : 'Все ячейки таблицы'
+	
+	
 }
 })(jQuery);

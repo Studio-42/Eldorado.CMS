@@ -148,7 +148,7 @@ table.form-tb tfoot td input,
 .form-errors            { padding-left:3em; line-height:2em; background: url('../images/icons2.png') -3px -1961px no-repeat;}
 .form-tb-sub            { font-weight:bold; text-align:center; border-bottom:1px solid #ccc; }
 .form-req, .form-errors { color:red; }
-table.form-tb label { margin: .3em; display:inline-block;}
+/*table.form-tb label { margin: .3em; display:inline-block;}*/
 
 /***************  ссылки  ************************/
 

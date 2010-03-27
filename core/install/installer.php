@@ -10,6 +10,10 @@ error_reporting(0);
 $installer = & new elInstaller();
 $installer->run();
 
+//echo '<pre>';
+//print_r($_SESSION);
+//print_r($_SERVER);
+
 class elInstaller {
 	var $_steps = array(
 		'lang'     => array('m' => 'selectLanguage', 'l' => 'Select language'),
@@ -76,7 +80,7 @@ class elInstaller {
 				$reg = '|core'.DIRECTORY_SEPARATOR.'install$|';
 				if (preg_match($reg, $dir))
 				{
-					$dir = preg_replace($reg, '');
+					$dir = preg_replace($reg, '', $dir);
 				}
 
 				$this->_rootDir = $dir.DIRECTORY_SEPARATOR;
@@ -413,26 +417,26 @@ class elInstaller {
 	
 	function complite()
 	{
-		$path = preg_replace('|(~[^/]+/)|i', '', $_SERVER['REQUEST_URI']);
-		$path = str_replace('/'.basename(__FILE__), '', $path);
+		//$path = preg_replace('|(~[^/]+/)|i', '', $_SERVER['REQUEST_URI']);
+		//$path = str_replace('/'.basename(__FILE__), '', $path);
+		$path = str_replace('core/install/installer.php', '', $_SERVER['REQUEST_URI']);
 		if (!$path)
 		{
 			$path = '/';
 		}
 
-		$ht = "RewriteEngine On                                                                
-		RewriteBase  ".$path."                                                   
-		RewriteRule ^conf\/(.*)\.(sql|xml) index.php [NS,F]    
-		RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]                              
-		RewriteRule (.*)\.(php|phtml) index.php [L]                                  
-		RewriteRule ^storage(.*)  storage$1 [L]                                         
-		RewriteRule ^style/(.*) style/$1 [L]                                            
-		RewriteRule ^(.*)\.(jpg|gif|png|swf|ico|html|css|js|xml|gz)(.*) $1.$2$3 [L]     
+		$ht  = "RewriteEngine On\n";
+		$ht .= "RewriteBase  ".$path."\n";
+		$ht .= "RewriteRule ^conf\/(.*)\.(sql|xml) index.php [NS,F]\n";
+		$ht .= "RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]\n";
+		$ht .= "RewriteRule (.*)\.(php|phtml) index.php [L]\n";
+		$ht .= "RewriteRule ^storage(.*)  storage$1 [L]\n";
+		$ht .= "RewriteRule ^style/(.*) style/$1 [L]\n";
+		$ht .= "RewriteRule ^(.*)\.(jpg|gif|png|swf|ico|html|css|js|xml|gz|txt|htc)(.*) $1.$2$3 [L]\n";
+		$ht .= "RewriteRule (.*) index.php [L]\n";
 
-		RewriteRule (.*) index.php [L]
-		";
 		$err = '';
-		if (false == ($fp = fopen('./.htaccess', 'w')))
+		if (false == ($fp = fopen($this->_rootDir.'.htaccess', 'w')))
 		{
 			$err = $this->_tr->translate('Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.');
 			$err .= '<br />'.nl2br($ht);
@@ -441,13 +445,12 @@ class elInstaller {
 			fwrite($fp, $ht);
 			fclose($fp);
 		}
-		if ($fp = fopen('./robots.txt', 'w'))
+		if ($fp = fopen($this->_rootDir.'robots.txt', 'w'))
 		{
-			$str = "User-Agent: *
-			Disallow: /*__
-			Disallow: /*.exe
-			Disallow: /*.zip
-			";
+			$str  = "User-Agent: *\n";
+			$str .= "Disallow: /*__\n";
+			$str .= "Disallow: /*.exe\n";
+			$str .= "Disallow: /*.zip\n";
 			fwrite($fp, $str);
 			fclose($fp);
 		}
@@ -1736,4 +1739,3 @@ class elFS
 	
 } // END class
 
-?>

@@ -85,7 +85,8 @@ class elCurrency {
 		$this->current = isset($this->info[$currency]) 
 			? $this->info[$currency]
 			: $this->info['USD'];
-		// $this->_load();
+		$this->_load();
+		// elPrintR($this);
 		
 	}
 	
@@ -112,7 +113,6 @@ class elCurrency {
 			if ($opts['exchangeSrc'] == 'manual' 
 			&& !empty($opts['rate']) 
 			&& $opts['rate'] > 0) {
-				echo 'manual';
 				$rate = $opts['rate'];
 				$price *= $rate;
 			} else {
@@ -159,9 +159,9 @@ class elCurrency {
 		$nav   = & elSingleton::getObj('elNavigator');
 		$pages = array_merge($nav->findByModule('TechShop'), $nav->findByModule('IShop'), $nav->findByModule('GoodsCatalog'));
 		foreach ($pages as $id) {
-			$c = $conf->get('currency',     $id);
-			$t = $conf->get('courseUpdate', $id);
-			if ($t == 'auto' && $c != $this->_current) {
+			// $c = $conf->get('currency',     $id);
+			$t = $conf->get('exchangeSrc', $id);
+			if ($t == 'auto') {
 				$type = $t;
 				break;
 			}
@@ -186,12 +186,14 @@ class elCurrency {
 		$conf = & elSingleton::getObj('elXmlConf');
 		$this->_updateType = $conf->get('type', 'currencyUpdate');
 		$this->_updateTime = (int)$conf->get('time', 'currencyUpdate');
-		// echo 'load';
+
 		if ($this->_updateType == 'auto') {
 			if (!$this->_updateTime 
 			|| date('d', $this->_updateTime) < date('d') 
 			|| date('m', $this->_updateTime) < date('m')) {
-				// echo 'update';
+				elDebug('update currency');
+				// elDebug(date('d', $this->_updateTime).' : '.date('d'));
+				// elDebug(date('m', $this->_updateTime).' : '.date('m'));
 				$url  = 'http://www.cbr.ru/scripts/XML_dynamic.asp';
 				$date = date('d/m/Y');
 				foreach ($this->info as $k=>$v) {

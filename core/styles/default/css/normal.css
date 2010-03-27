@@ -24,7 +24,7 @@ body, html { height: 100% !important; padding: 0;}
 /** Шапка **/
 #header { 
 	position:relative; 
-	background:url("../images/design/line.gif");  
+	background-color:#DEE7ED;
 	height:70px;
 }
 
@@ -204,7 +204,6 @@ div.searchProgress {
 	display: inline; 
 }
 #navtop ul li a {  
-	color: #1a5167; 
 	font-weight:bold;  
 }
 .navtop-item-selected a, .navtop-item-selected-first a, .navtop-item-selected-last a {
@@ -249,8 +248,8 @@ ul.navright li, ul.navright-sidemenu li, ul.navright-catmenu li {
 /***********************************************/
 /***                    Форма                ***/
 /***********************************************/
-table.form-tb thead th { background: #dee7ed url('../images/design/line.gif') left top repeat-x; }
-table.form-tb tfoot td { background: #dee7ed url('../images/design/line.gif') left bottom repeat-x; }
+table.form-tb thead th { background: #dee7ed; }
+table.form-tb tfoot td { background: #dee7ed; }
 table.form-tb tfoot td input, .form-submit { 
 	padding:.2em;
 	margin:.1em;
@@ -266,7 +265,7 @@ table.form-tb tfoot td input:hover,
 .form-tb-sub  { background: #f2f2f2; padding:.5em; }
 input[type $='text'], input[type $='password'] { border:1px solid #ccc; padding:1px;}
 .strip-odd { background: #dee7ed;}
-.plugins-title { background: #dee7ed url('../images/design/line.gif') left top repeat-x;}
+.plugins-title { background: #dee7ed;}
 
 
 a { color:#000; }
@@ -392,7 +391,6 @@ ul.items-onecol li p { text-align: justify;}
 /***************************************/
 
 .print, .hide { display:none; }
-#logo {position:absolute; left:20px; }
 
 .ui-widget { font-family: Verdana,Arial,sans-serif; font-size: 1em; }
 .ui-datepicker { width: 17em; padding: 0; }

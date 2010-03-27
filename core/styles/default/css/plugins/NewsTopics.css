@@ -4,5 +4,5 @@
 .pl-news-topic   { margin-bottom:.5em; }
 .pl-news-date    { display:inline-block; padding: .3em; background:#eee; border:1px solid #ccc; margin-bottom:.5em; }
 .pl-news-top table td { vertical-align: top;}
-.pl-news-title { background:#dee7ed url("../../images/design/line.gif") 0 top repeat-x; }
+.pl-news-title { background:#dee7ed ; }
 .pl-news-title  h5 {text-align:center;}

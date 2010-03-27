@@ -1118,6 +1118,11 @@ elRTE = function(target, opts) {
 		content = this.target.hide().html();
 	}
 
+	content = $.trim(content);
+	if (!content) {
+		content = '&nbsp;';
+	}
+
 	/* add tabs */
 	if (this.options.allowSource) {
 		this.tabsbar.append('<div class="tab editor rounded-bottom-7 active">'+self.i18n('Editor')+'</div><div class="tab source rounded-bottom-7">'+self.i18n('Source')+'</div><div class="clearfix" style="clear:both"/>')
@@ -1254,7 +1259,7 @@ elRTE = function(target, opts) {
 			}
 		});
 	}
-
+	this.window.focus();
 }
 
 /**
@@ -1683,7 +1688,7 @@ elRTE.prototype.dom = function(rte) {
 	/********************************************************/
 	
 	this.is = function(n, f) {
-		// if (n && n.nodeName) {
+		if (n && n.nodeName) {
 			if (typeof(f) == 'string') {
 				f = this.regExp[f]||/.?/;
 			}
@@ -1692,7 +1697,7 @@ elRTE.prototype.dom = function(rte) {
 			} else if (typeof(f) == 'function') {
 				return f(n);
 			}
-		// }
+		}
 		
 		return false;
 	}
@@ -2025,8 +2030,7 @@ elRTE.prototype.dom = function(rte) {
 	}
 }
 
-})(jQuery);
-(function($) {
+})(jQuery);(function($) {
 	/**
 	 * @class Clean html and make replace/restore for some patterns
 	 *
@@ -4123,7 +4127,7 @@ elRTE.prototype.ui.prototype.buttons.paste = elRTE.prototype.ui.prototype.button
 		
 		this.node = function() {
 			var n = this.rte.selection.getNode();
-			if (n.nodeType != 1) {
+			if (n.nodeType == 3) {
 				n = n.parentNode;
 			}
 			return n.nodeType == 1 && n.nodeName != 'BODY' ? n : null;

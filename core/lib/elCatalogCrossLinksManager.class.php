@@ -187,7 +187,7 @@ class elCatalogCrossLinksManager
       }
       $sql       = 'SELECT id, _left, _right, level, name FROM '.$tbc.' ORDER BY _left';
       $tree[$ID] = $this->_db->queryToArray($sql, 'id');
-      $sql = 'SELECT c_id, '.implode(',', $obj->listAttrs())
+      $sql = 'SELECT c_id, '.implode(',', $obj->attrsList())
           .' FROM '.$tbi.','.$tbi2c
           .' WHERE id=i_id '
           .' ORDER BY name';

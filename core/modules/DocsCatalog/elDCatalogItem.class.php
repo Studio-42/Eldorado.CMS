@@ -24,7 +24,7 @@ class elDCatalogItem extends elCatalogItem
   {
     parent::_makeForm($parents);
 
-    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'350')) );
+    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('height' => 250)) );
     $this->_form->add( new elEditor('content', m('Content'), $this->content) );
     $this->_form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
   }

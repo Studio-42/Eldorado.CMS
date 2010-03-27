@@ -35,11 +35,17 @@ class elEditor extends elFormInput
 			// elAddJs($file, EL_JS_CSS_FILE);
 		}
 		
+		$height = (int)$this->getAttr('height');
+		if (!$height) {
+			$height = 500;
+		} else {
+			unset($this->attrs['height']);
+		}
 		
 		$js = "var opts = {
 			cssClass : 'el-rte ".$this->getAttr('class')."',
 			lang     : '".EL_LANG."',
-			height   : 600,
+			height   : ".$height.",
 			toolbar  : 'eldorado',
 			cssfiles : ['".EL_BASE_URL."/style/css/elrte-inner.css'],
 			fmAllow  : true,

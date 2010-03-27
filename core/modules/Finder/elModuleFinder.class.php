@@ -7,7 +7,6 @@ class elModuleFinder extends elModule {
 	function defaultMethod() {
 		elLoadJQueryUI();
 		elAddCss('elfinder.css', EL_JS_CSS_FILE);
-		elAddJs('jquery.form.min.js', EL_JS_CSS_FILE);
 		elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
 
 		$file = 'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js';

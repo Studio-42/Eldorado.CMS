@@ -68,7 +68,7 @@
 	width:23px;
 	margin:0 2px;
 	padding:0;
-	background:url('../images/toolbar.png') no-repeat; 
+	background:url('../images/elfinder/toolbar.png') no-repeat; 
 	border:1px solid #ccc;
 	border-radius:3px; 
 	-moz-border-radius:3px; 
@@ -116,7 +116,7 @@
 	border-radius:3px; 
 	-moz-border-radius:3px; 
 	-webkit-border-radius:3px;
-	background:url('../images/toolbar.png') 2px -705px no-repeat; 
+	background:url('../images/elfinder/toolbar.png') 2px -705px no-repeat; 
 }
 
 .ui-dialog .el-finder-dock-button {
@@ -145,7 +145,7 @@
 	left:37%;
 	width:250px;
 	height:50px;
-	background:transparent url(../images/spinner.gif) 50% 50% no-repeat;
+	background:transparent url(../images/elfinder/spinner.gif) 50% 50% no-repeat;
 	display:none;
 }
 
@@ -205,7 +205,7 @@ ul.el-finder-tree, ul.el-finder-places {
 }
 
 .el-finder-nav  a, .el-finder-nav  div.collapsed {
-	background-image:url(../images/toolbar.png);
+	background-image:url(../images/elfinder/toolbar.png);
 	background-repeat:no-repeat;
 }
 .el-finder-nav  div.collapsed {
@@ -296,7 +296,7 @@ ul.el-finder-tree, ul.el-finder-places {
 	border-radius:5px; 
 	-moz-border-radius:5px; 
 	-webkit-border-radius:5px;
-	background: url('../images/icons-big.png') -1px 1px no-repeat;
+	background: url('../images/elfinder/icons-big.png') -1px 1px no-repeat;
 }
 
 /* mimetypes */
@@ -375,6 +375,7 @@ ul.el-finder-tree, ul.el-finder-places {
 	height:25px;
 	overflow:hidden;
 	cursor:default;
+	text-align:center;
 }
 
 .el-finder-cwd div input { 
@@ -393,7 +394,7 @@ ul.el-finder-tree, ul.el-finder-places {
 	margin-left:9px;
 	width:15px;
 	height:16px;
-	background:url(../images/icons-big.png) -17px -1290px no-repeat;
+	background:url(../images/elfinder/icons-big.png) -17px -1290px no-repeat;
 }
 
 .el-finder-cwd div em.dropbox {
@@ -468,7 +469,7 @@ ul.el-finder-tree, ul.el-finder-places {
 	height:16px;
 	margin:0;
 	padding:0;
-	background:url(../images/icons-small.png) 4px 0 no-repeat;
+	background:url(../images/elfinder/icons-small.png) 4px 0 no-repeat;
 }
 
 .el-finder-cwd table .size {
@@ -526,7 +527,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	width:10px;
 	height:12px;
 	margin-top:5px;
-	background:url(../images/icons-small.png) 0px -405px no-repeat;
+	background:url(../images/elfinder/icons-small.png) 0px -405px no-repeat;
 }
 
 .el-finder-cwd table p em.readonly { background-position:0px -433px; }
@@ -667,7 +668,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	padding:4px 29px 4px 29px;
 	white-space:nowrap;
 	font:12px trebuchet ms,lucida grande,verdana,sans-serif;
-	background:url('../images/toolbar.png') 0 0 no-repeat;
+	background:url('../images/elfinder/toolbar.png') 0 0 no-repeat;
 }
 
 .el-finder-contextmenu  span {
@@ -675,7 +676,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	width:9px;
 	height:18px;
 	margin-right:-27px;
-	background:url(../images/toolbar.png) -4px 5px no-repeat;
+	background:url(../images/elfinder/toolbar.png) -4px 5px no-repeat;
 }
 
 .el-finder-contextmenu  div.el-finder-contextmenu-sub {
@@ -742,7 +743,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 }
 
 .el-finder-drag-copy {
-	background:url('../images/toolbar.png') 0 -771px no-repeat;
+	background:url('../images/elfinder/toolbar.png') 0 -771px no-repeat;
 }
 
 .el-finder-drag-helper label { 
@@ -767,7 +768,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	border-radius:9px; 
 	-moz-border-radius:9px; 
 	-webkit-border-radius:9px;
-	background:url(../images/ql.png);
+	background:url(../images/elfinder/ql.png);
 	overflow: inherit !important;
 }
 
@@ -811,12 +812,14 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	font:.82em/1.3em trebuchet ms,lucida grande,verdana,sans-serif;
 	padding:5px 0;
 	overflow:hidden;
+	text-align:center;
 }
 
 .el-finder-ql div.el-finder-ql-content span,
 .el-finder-ql div.el-finder-ql-content a {
 	display:block;
 	color: #fff;
+	text-align:center;
 }
 
 /* text files preview */
@@ -839,14 +842,14 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 
 /* button help */
 .el-finder-help-std {
-	background: url(../images/icons-big.png) 0 -1315px no-repeat;
+	background: url(../images/elfinder/icons-big.png) 0 -1315px no-repeat;
 	width:48px;
 	height:48px;
 	float:right;
 }
 
 .el-finder-logo {
-	background: url(../images/icons-big.png) 0 -1365px no-repeat;
+	background: url(../images/elfinder/icons-big.png) 0 -1365px no-repeat;
 	width:48px;
 	height:48px;
 	float:left;

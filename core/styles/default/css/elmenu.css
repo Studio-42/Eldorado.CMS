@@ -46,27 +46,32 @@ ul.el-menu-vert ul li.last {
 
 ul.el-menu-horiz, ul.el-menu-horiz ul {
 	list-style:none;
-	border:1px solid #ccc;
-	border-radius:5px;
-	-moz-border-radius:5px;
-	-webkit-border-radius:5px;
 	padding:0;
 	margin:0;
-	background-color:#fff;
+	background:#fff;
 	z-index:100;
 }
+
+
+ul.el-menu-horiz ul {
+	border:1px solid #333;
+}
+
 ul.el-menu-horiz {
 	height:30px;
-	float:left;
-	border:none;
 }
 
 ul.el-menu-horiz li.toplevel {
-	float:left;
-	border-right:1px solid #ccc;
-/*	display:inline;*/
+	display: -moz-inline-stack;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+	vertical-align: top;
+	text-align:center;
+	margin:0;
+	padding:0;
 }
-ul.el-menu-horiz li.last { border:none;}
+
 
 ul.el-menu-horiz li ul {
 	position: absolute; 
@@ -79,12 +84,22 @@ ul.el-menu-horiz li {
 	margin:0;
 	padding:0;
 	white-space:nowrap;
+}
 
-}
 ul.el-menu-horiz li.hover { background-color: #6dacf8; }
-ul.el-menu-horiz li a {
-	display: block;
-	padding:5px 29px 5px 12px;
-	zoom: 1;
+
+ul.el-menu-horiz a {
+	display:block;
+	font:14px Arial, sans-serif;;
 }
+ul.el-menu-horiz li a {
+	padding:5px 0 7px 0;
+	text-align:center;
+}
+
+ul.el-menu-horiz li ul li a {
+	text-align:left;
+	padding:5px 29px 5px 12px;
+}
+
 /*******************************/

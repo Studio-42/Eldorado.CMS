@@ -2061,7 +2061,7 @@ elRTE.prototype.dom = function(rte) {
 		$(n).remove();
 		/* swf placeholder url */
 		this.swfSrc = url ? url.replace(/^url\("?([^"]+)"?\)$/, "$1") : '';
-		
+
 		/* create chains */
 		for (chain in this.chains) {
 			if (this.chains.hasOwnProperty(chain)) {
@@ -2325,7 +2325,8 @@ elRTE.prototype.dom = function(rte) {
 		replace : function(f, html) { 
 			var n = $('<div/>').html(html);
 			
-			n.find('object[classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"]').each(function() {
+			n.find('object[classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"]')
+				.each(function() {
 				var t = $(this),
 					url = t.children('param[name="'+($.browser.msie ? 'Movie' : 'movie')+'"]').attr('value'),
 					st  = t.attr('style')||'',
@@ -2342,6 +2343,22 @@ elRTE.prototype.dom = function(rte) {
 					'vertical-align' : a
 				});
 				$(this).replaceWith(img);
+			}).end().find('embed[type="application/x-shockwave-flash"]').each(function() {
+				var t = $(this),
+					url = t.attr('src'),
+					st  = t.attr('style')||'',
+					w   = parseInt(t.css('width')||0) || parseInt(t.attr('width')||0) || '',
+					h   = parseInt(t.css('height')||0) || parseInt(t.attr('height')||0) || '',
+					fl  = t.css('float') || t.attr('align'),
+					a   = t.css('vertical-align'),
+					img = $('<img src="'+f.swfSrc+'" class="'+f.swfClass+'" rel="'+url+'" />');
+					img.attr('style', st).css({
+						width            : w?(w+'px'):'auto',
+						height           : h?h+'px':'auto',
+						'float'          : fl,
+						'vertical-align' : a
+					});
+					$(this).replaceWith(img);
 			})
 			
 			return n.html();

@@ -194,19 +194,28 @@ div.searchProgress {
 
 /************** Верхнее меню  ****************/
 #navtop { padding:10px; }
-#navtop ul { 
+ul.navtop-menu { 
 	margin:0 ; 
 	padding:0; 
 	font-size:110%; 
 	list-style:none; 
 }
-#navtop li { 
-	display: inline; 
+ul.navtop-menu li { 
+	display: -moz-inline-stack;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+	vertical-align: top;
+	text-align:center;
+	margin:0;
+	padding:0;
 }
-#navtop ul li a {  
-	font-weight:bold;  
+ul.navtop-menu li a {  
+	font-weight:bold; 
 }
-.navtop-item-selected a, .navtop-item-selected-first a, .navtop-item-selected-last a {
+ul.navtop-menu li.navtop-item-selected a, 
+ul.navtop-menu li.navtop-item-selected-first a, 
+ul.navtop-menu li.navtop-item-selected-last a {
 	text-decoration:underline;
 }
 /*.navtop-item, .navtop-item-selected, .navtop-item-first, .navtop-item-last, .navtop-item-selected-first, .navtop-item-selected-last {  }*/

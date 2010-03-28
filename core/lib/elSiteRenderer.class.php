@@ -707,6 +707,14 @@ class elSiteRenderer
 			$curPageID = $this->_nav->getCurrentPageID();
 			$html = "";
 			$level = 1;
+			$cnt = 0;
+			foreach($pages as $p) {
+				if ($p['level'] == 1) {
+					$cnt++;
+				}
+			}
+
+			$width = floor(100/$cnt);
 			foreach ( $pages as $p )
 			{
 				if ( $p['level']>$level )
@@ -715,7 +723,7 @@ class elSiteRenderer
 				}
 				elseif ( $p['level']<$level )
 				{
-					$html .= str_repeat("\n</ul></li>\n", $level-$p['level']);
+					$html .= str_repeat("\n</ul></li>", $level-$p['level']);
 				}
 
 				$cssClass = '';
@@ -723,7 +731,7 @@ class elSiteRenderer
 				{
 					$cssClass = 'toplevel';
 					$cssClass .= $curPageID == $p['id'] ? ' nav-top-current ' : '';
-					$cssClass = 'class="'.$cssClass.'"';
+					$cssClass = 'class="'.$cssClass.'" style="width:'.$width.'%"';
 				} 
 
 				$ico = '';
@@ -737,7 +745,7 @@ class elSiteRenderer
 				$html .= '<a href="'.$p['url'].'">'.$ico.$p['name']."</a>";
 				if ( !$p['has_childs'] )
 				{
-					$html .= "</li>\n";
+					$html .= "</li>";
 				}
 
 				$level = $p['level'];

@@ -423,7 +423,7 @@ function elDisplayCaptcha($str)
 	$img          = is_file('./style/forms/captcha.png') ? './style/forms/captcha.png' : './core/styles/default/forms/captcha.png';
 	$font         = is_file('./style/forms/captcha.gdf') ? './style/forms/captcha.gdf' : './core/styles/default/forms/captcha.gdf';
 	$captchaImage = imagecreatefrompng($img) or die("Cannot Initialize new GD image stream");
-	$captchaFont  = imageloadfont($font);
+	$captchaFont  = imageloadfont($font); 
 	$captchaColor = imagecolorallocate($captchaImage,0,0,0);
 	imagestring($captchaImage,$captchaFont,15,5,$str,$captchaColor);
 	imagepng($captchaImage);

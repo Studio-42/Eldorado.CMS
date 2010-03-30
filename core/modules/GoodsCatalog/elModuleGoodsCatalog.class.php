@@ -21,7 +21,11 @@ class elModuleGoodsCatalog extends elCatalogModule
   	'itemsSortID'       => 1,
   	'itemsPerPage'      => 5,
   	'displayCatDescrip' => 1,
-  	'pricePrecision'    => 0,
+  	'currency'          => '',
+	'exchangeSrc'       => 'auto',
+	'commision'         => 0,
+	'rate'              => 1,
+    'pricePrec'         => 2,
   	'orderRcpt'         => 0
   	);
 
@@ -140,12 +144,24 @@ class elModuleGoodsCatalog extends elCatalogModule
     }
 
   }
-                          
+         
+
+	function _onInit() {
+		parent::_onInit();
+
+		if (empty($this->_conf['currency'])) {
+			$conf = & elSingleton::getObj('elXmlConf');
+			$this->_conf['currency'] = $cur->current['intCode'];
+			$conf->set('currency', $cur->current['intCode'], $this->pageID);
+			$conf->save();
+		}
+	}
+                 
 	function _initRenderer()
   {
     parent::_initRenderer();
-    $this->_rnd->setCurrency( elGetCurrencyInfo() ); 
-    $this->_rnd->setPricePrecision( $this->_conf('pricePrecision') );
+    // $this->_rnd->setCurrency( elGetCurrencyInfo() ); 
+    // $this->_rnd->setPricePrecision( $this->_conf('pricePrecision') );
   }
 
 }

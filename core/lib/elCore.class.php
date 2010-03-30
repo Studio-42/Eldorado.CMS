@@ -46,6 +46,9 @@ class elCore
 		$this->ats     = & elSingleton::getObj('elATS');
 		$this->ats->init($this->pageID);
 
+
+
+
 		define ('EL_URL', $nav->getURL() ); 
 
 		if ( !empty($this->args[0]) && EL_URL_POPUP == $this->args[0] )
@@ -66,6 +69,16 @@ class elCore
 			define('EL_WM',     EL_WM_NORMAL);
 			define('EL_WM_URL', EL_URL);
 		}
+		
+		if (EL_WM != EL_WM_XML) {
+			foreach ($_GET as $v) {
+				if (false != strpos($v, '>') && false != strpos($v, '<')) {
+					header('HTTP/1.x 404 Not Found'); 
+					elThrow(E_USER_ERROR, 'Error 404: Page not found.');
+				}
+			}
+		}
+		
 	}
 
 	function run()

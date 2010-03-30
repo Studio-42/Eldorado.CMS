@@ -38,7 +38,7 @@ class elNews extends elDataMapping
     parent::_makeForm();
     $this->_form->add( new elDateSelector('published', m('Date'), $this->publishTs, null, 1, 0, true) );
     $this->_form->add( new elText(  'title',        m('Title'),    $this->title,    array('style'=>'width:100%')) );
-    $this->_form->add( new elEditor('announce',     m('Announce'), $this->announce, array('class' =>'small')) );
+    $this->_form->add( new elEditor('announce',     m('Announce'), $this->announce, array('height' => 250)) );
     $this->_form->add( new elEditor('content',      m('Content'),  $this->content) );
     $this->_form->add( new elText(  'export_param', m('Export parameter'), $this->expParam, array('style'=>'width:100%')) );
     $this->_form->setRequired('announce');

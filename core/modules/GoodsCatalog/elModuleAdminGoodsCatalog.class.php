@@ -245,6 +245,86 @@ class elModuleAdminGoodsCatalog extends elModuleGoodsCatalog
 
 	function &_makeConfForm()
 	{
+		$vars = array(
+			'deep' => array( m('All levels'), 1, 2, 3, 4),
+			'view' =>  array( 1=>m('One column'), 2=>m('Two columns')),
+			'itemsSortID' => array(m('By name'), m('By price'), m('By publish date') ),
+			'itemsPerPage' => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
+			'displayCatDescrip' => array(
+				EL_CAT_DESCRIP_NO => m('Do not display'),
+				EL_CAT_DESCRIP_IN_LIST => m('Only in categories list'),
+				EL_CAT_DESCRIP_IN_SELF => m('Only in category itself'),
+				EL_CAT_DESCRIP_IN_BOTH => m('In list and in category')
+				),
+			// 'linkedObjPos' => array(
+			// 	EL_TS_LOBJ_POS_DEFAULT => m('By default'),
+			// 	EL_TS_LOBJ_POS_TAB     => m('In tabs')
+			// 	),
+
+			'exchangeSrc' => array(
+				'auto'   => m('from Central Bank of Russia'),
+				'manual' => m('enter manually')
+				)
+			);
+		
+		$currency  = &elSingleton::getObj('elCurrency');
+		// $cInfo     = $currency->current;
+			
+		$form      = &parent::_makeConfForm();
+		$headAttrs = array('cellAttrs'=>' class="form-tb-sub"') ;
+		
+		$form->add( new elCData('h_1', m('Page layout')), $headAttrs );
+		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),	$this->_conf('deep'), $vars['deep'] ) );
+		$form->add( new elSelect('catsCols', m('Categories list view'), $this->_conf('catsCols'),  $vars['view']) );
+		$form->add( new elSelect('itemsCols', m('Items list view'),     $this->_conf('itemsCols'), $vars['view']) );
+		$form->add( new elSelect('itemsSortID', m('Sort documents by'), (int)$this->_conf('itemsSortID'), $vars['itemsSortID']) );
+		$form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $vars['itemsPerPage'] ) );
+		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $vars['displayCatDescrip']));
+		// $form->add( new elSelect('linkedObjPos', m('Display linked objects'),  $this->_conf('linkedObjPos'), $vars['linkedObjPos']) );
+
+		$form->add( new elCData('h_2', m('Prices')), $headAttrs );
+		$form->add( new elSelect('pricePrec', m('Price format'), (int)$this->_conf('pricePrec'),  array( m('Integer'), 2=>m('Double, two signs after dot'))) );
+		$form->add( new elSelect('currency', m('Currency'), $this->_conf('currency'), $currency->getList()));
+		$form->add( new elSelect('exchangeSrc', m('Use exchange rate'), $this->_conf('exchangeSrc'), $vars['exchangeSrc']));
+		$form->add( new elText('commision', m('Exchange rate commision (%)'), $this->_conf('commision'), array('size' => 8)));
+		$form->add( new elText('rate', m('Exchange rate'), $this->_conf('rate'), array('size' => 8)));
+		
+		$form->add( new elCData('h_3', m('Orders')), $headAttrs );
+		$ec = & elSingleton::getObj('elEmailsCollection');
+		$form->add( new elSelect('orderRcpt', m('Order recipient'), $this->_conf('orderRcpt'), $ec->getLabels()));
+		
+		
+		$js = "
+		$('#currency').change(function() {
+			var s = $(this).val() != '".$currency->current['intCode']."',
+				c = $(this).parents('tr').eq(0).nextAll('tr'),
+				i = 3;
+			while (i--) {
+				c.eq(i).toggle(s)
+			}
+			if (s) {
+				$('#exchangeSrc').trigger('change');
+			}
+		}).trigger('change');
+		$('#exchangeSrc').change(function() {
+			var c = $('#commision').parents('tr').eq(0),
+				r = $('#rate').parents('tr').eq(0).show();;
+			
+			if ($(this).val() == 'auto') {
+				c.show();
+				r.hide();
+			} else {
+				r.show();
+				c.hide();
+			}
+		});
+		
+		";
+		
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		return $form;
+			
+			
 		$form = &parent::_makeConfForm();
 		$form->add( new elSelect('deep', m('How many levels of catalog will open at once'),
 		$this->_conf('deep'), array( m('All levels'), 1, 2, 3, 4 ) ) );
@@ -263,6 +343,26 @@ class elModuleAdminGoodsCatalog extends elModuleGoodsCatalog
 		$ec = & elSingleton::getObj('elEmailsCollection');
 		$form->add( new elSelect('orderRcpt', m('Order recipient'), $this->_conf('orderRcpt'), $ec->getLabels()));
 		return $form;
+	}
+
+	/**
+   * Save new configuration in conf file
+   */
+	function _updateConf( $newConf )
+	{
+		$conf = &elSingleton::getObj('elXmlConf');
+		foreach ($newConf as $k=>$v)
+		{
+			if ( isset($this->_conf[$k]) )
+			{
+				$conf->set($k, $newConf[$k], $this->_confID);
+			}
+		}
+		
+		$conf->save();
+		
+		$currency = &elSingleton::getObj('elCurrency');
+		$currency->updateConf();
 	}
 
 	function &_makeNavForm($c)

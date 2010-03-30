@@ -1,5 +1,7 @@
 <?php
-
+if (function_exists('date_default_timezone_set')) {
+	date_default_timezone_set('Europe/Moscow');
+}
 // define base URL, if does not define previousely
 if ( !defined('EL_BASE_URL') )
 {

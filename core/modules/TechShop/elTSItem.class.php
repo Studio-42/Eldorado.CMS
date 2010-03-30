@@ -284,7 +284,7 @@ class elTSItem extends elCatalogItem
 		{
 		  $this->_form->add( new elText('price', m('Price'), $this->price) );
 		}
-		$this->_form->add( new elEditor('announce', m('Announce'),    $this->announce, array('class' => 'small')) );
+		$this->_form->add( new elEditor('announce', m('Announce'),    $this->announce, array('height' => 250)) );
 		$this->_form->add( new elEditor('descrip',  m('Description'), $this->descrip) );
 		$this->_form->add( new elDateSelector('crtime', m('Publish date'), $this->crtime) );
 	}

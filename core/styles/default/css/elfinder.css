@@ -1,4 +1,6 @@
+
 /* file manager window */
+
 .el-finder {
 	width:100%; 
 	min-width:400px;
@@ -26,7 +28,6 @@
 }
 
 /* disabled */
-.el-finder .noaccess, 
 .el-finder-disabled .el-finder-toolbar li,
 .el-finder-disabled .el-finder-nav,
 .el-finder-disabled .el-finder-cwd { 
@@ -40,6 +41,12 @@
 	background-color:#ccc;
 }
 
+.el-finder input {
+	margin:0;
+	padding:0;
+	outline:none;
+	border:1px solid #ccc;
+}
 
 /************************************/
 /*             toolbar              */
@@ -138,7 +145,7 @@
 	left:37%;
 	width:250px;
 	height:50px;
-	background:#fff url(../images/elfinder/spinner.gif) 50% 50% no-repeat;
+	background:transparent url(../images/elfinder/spinner.gif) 50% 50% no-repeat;
 	display:none;
 }
 
@@ -164,6 +171,7 @@
 .el-finder-nav {
 	float:left;
 	width : 200px;
+	background:#fff;
 }
 
 .el-finder-nav .ui-resizable-e {
@@ -179,7 +187,6 @@
 
 .el-finder-nav ul li {
 	clear:both;
-	margin:0;
 }
 
 ul.el-finder-tree, ul.el-finder-places {
@@ -228,6 +235,9 @@ ul.el-finder-tree, ul.el-finder-places {
 .el-finder-nav a.readonly {
 	background-position: 15px -104px; 
 }
+.el-finder-nav a.noaccess {
+	background-position: 15px -750px; 
+}
 
 .el-finder-nav a.selected {
 	background-color:#ccc;
@@ -272,10 +282,10 @@ ul.el-finder-tree, ul.el-finder-places {
 	border-radius:5px; 
 	-moz-border-radius:5px; 
 	-webkit-border-radius:5px;
+	color:#000;
+	background-color:transparent;
 }
-.el-finder-cwd div label {
-	text-align:center;
-}
+
 
 .el-finder-cwd p, 
 .el-finder-ql p {
@@ -291,25 +301,25 @@ ul.el-finder-tree, ul.el-finder-places {
 
 /* mimetypes */
 
-.directory p   { background-position:  0     -45px; }
-.application p { background-position: -1px  -134px; }
-.audio p       { background-position: -1px -1082px; }
-.image p       { background-position: -1px -1132px; }
+.directory p     { background-position:  0     -45px; }
+.application p   { background-position: -1px  -134px; }
+.audio p         { background-position: -1px -1082px; }
+.image p         { background-position: -1px -1132px; }
 .text p,
-.x-empty p { background-position: -1px  -524px; }
-.video p   { background-position: -1px -1032px; }
+.x-empty p       { background-position: -1px  -524px; }
+.video p         { background-position: -1px -1032px; }
 /* images */
-.gif p  { background-position: 0 -1183px; }
-.jpeg p { background-position: 0 -1234px; }
+.gif p           { background-position: 0 -1183px; }
+.jpeg p          { background-position: 0 -1234px; }
 .vnd-adobe-photoshop p,
-.postscript p { background-position: 0 -1132px; }
+.postscript p    { background-position: 0 -1132px; }
 /* video */
-.ogg p { background-position: -1px -1032px; }
+.ogg p           { background-position: -1px -1032px; }
 /* audio */
-.ogm p { background-position: -1px -1082px; }
+.ogm p           { background-position: -1px -1082px; }
 /* texts */
 .rtf p,
-.rtfd p { background-position: 0 -573px; }
+.rtfd p          { background-position: 0 -573px; }
 .javascript p,
 .x-javascript p  { background-position: 0 -184px; }
 .x-c p, 
@@ -327,16 +337,20 @@ ul.el-finder-tree, ul.el-finder-places {
 .vnd-ms-office p, 
 .msword p, 
 .vnd-ms-word p, 
-.vnd-oasis-opendocument-text p { background-position: -1px -232px; }
+.vnd-oasis-opendocument-text p 
+                 { background-position: -1px -232px; }
 .ms-excel p,
 .vnd-ms-excel p,
-.vnd-oasis-opendocument-spreadsheet p { background-position: -1px -330px; }
+.vnd-oasis-opendocument-spreadsheet p 
+                 { background-position: -1px -330px; }
 .vnd-ms-powerpoint p,
-.vnd-oasis-opendocument-presentation p { background-position: -1px -380px; }
-.pdf p { background-position: -1px -282px; }
-.xml p { background-position: 0 -980px; }
-.x-shockwave-flash p { background-position: 0 -1032px; }
-.x-sh p { background-position: 0 -930px; }
+.vnd-oasis-opendocument-presentation p 
+                 { background-position: -1px -380px; }
+.pdf p           { background-position: -1px -282px; }
+.xml p           { background-position: 0 -980px; }
+.x-shockwave-flash p 
+                 { background-position: 0 -1032px; }
+.x-sh p          { background-position: 0 -930px; }
 /* archives */
 .x-bzip p, 
 .x-bzip2 p,
@@ -344,8 +358,9 @@ ul.el-finder-tree, ul.el-finder-places {
 .x-rar p,
 .x-rar-compressed p, 
 .x-tar p,  
-.x-7z-compressed p { background-position: -1px -430px; }
-.x-gzip p { background-position: -1px -477px; }
+.x-7z-compressed p 
+                 { background-position: -1px -430px; }
+.x-gzip p        { background-position: -1px -477px; }
 
 .el-finder-cwd div.el-finder-droppable p {
 	background-position: 0 -87px;
@@ -360,10 +375,12 @@ ul.el-finder-tree, ul.el-finder-places {
 	height:25px;
 	overflow:hidden;
 	cursor:default;
+	text-align:center;
 }
 
 .el-finder-cwd div input { 
 	background:#fff; 
+	color:#000;
 	width:81px;
 	margin-left:-2px; 
 	outline:none; 
@@ -383,12 +400,12 @@ ul.el-finder-tree, ul.el-finder-places {
 .el-finder-cwd div em.dropbox {
 	float:right;
 	margin-right:9px;
-	background-position: 0px -1290px;
+	background-position: 0 -1290px;
 }
 .el-finder-cwd div em.noread {
 	float:right;
 	margin-right:9px;
-	background-position: 0px -1415px;
+	background-position: 0 -1415px;
 }
 .el-finder-cwd div em.readonly {
 	float:right;
@@ -396,19 +413,35 @@ ul.el-finder-tree, ul.el-finder-places {
 	background-position: -34px -1287px;
 }
 
+.el-finder-cwd div em.noaccess {
+	float:right;
+	margin-right:9px;
+	background-position: 0 -1415px;
+}
+
 /********** view: list  ************/
 
 .el-finder-cwd table {
 	width:100%;
-	*width:99%;
+/*	*width:99%;*/
 	border-collapse: collapse;	
 	border-spacing: 0;
 	border:1px solid #ccc;
+	border-top:0 solid;
+	border-left:0 solid;
 	margin:-3px -3px;
 }
 
-.el-finder-row-odd {
+.el-finder-cwd table tr {
+	background:transparent;
+}
+
+.el-finder-cwd table tr.el-finder-row-odd {
 	background-color:#eee;
+}
+
+.el-finder-cwd table tr.ui-selected {
+	background-color:#ccc;
 }
 
 .el-finder-cwd table th,
@@ -417,6 +450,8 @@ ul.el-finder-tree, ul.el-finder-places {
 	border-left:1px solid #ccc;
 	cursor:default;
 	white-space:nowrap;
+	color:#000;
+	
 }
 
 .el-finder-cwd table th {
@@ -428,7 +463,6 @@ ul.el-finder-tree, ul.el-finder-places {
 .el-finder-cwd table td.icon {
 	width:24px;
 }
-
 
 .el-finder-cwd table  p {
 	width:24px;
@@ -496,9 +530,10 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	background:url(../images/elfinder/icons-small.png) 0px -405px no-repeat;
 }
 
-.el-finder-cwd table p em.readonly { background-position:0px -423px; }
+.el-finder-cwd table p em.readonly { background-position:0px -433px; }
 .el-finder-cwd table p em.dropbox  { background-position:0px -418px; }
-.el-finder-cwd table p em.noread  { background-position:0px -470px; }
+.el-finder-cwd table p em.noread, 
+.el-finder-cwd table p em.noaccess { background-position:0px -470px; }
 
 /************************************/
 /*              statusbar           */
@@ -532,17 +567,17 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 /*           dialog window          */
 /************************************/
 .el-finder-dialog {
-/*	font-size:.84em;*/
+	font-size:.84em;
 }
 .el-finder-dialog form p, .el-finder-dialog .ui-tabs p {
 	margin:.5em;
 }
 .el-finder-dialog .ui-dialog-titlebar { 
-/*	padding: .2em .1em .1em .8em; */
+	padding: .2em .1em .1em .8em; 
 }
 .el-finder-dialog .ui-dialog-buttonpane {
-/*	padding: .1em 1em .1em .4em; */
-/*	font-size:.9em;*/
+	padding: .1em 1em .1em .4em; 
+	font-size:.9em;
 }
 .el-finder-dialog .ui-dialog-content {
 	padding:5px;
@@ -565,6 +600,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	height:400px; 
 	outline:none; 
 	border:1px solid #ccc;
+	font-family: "Monaco", "Andale Mono", "Lucida Console", monospace;
 }
 
 .ui-state-error {
@@ -615,6 +651,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	position:absolute;
 	width:200px;
 	background:#fff; 
+	color:#000;
 	cursor:default; 
 	border:1px solid #ccc;  
 	border-radius:5px; 
@@ -631,7 +668,6 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	padding:4px 29px 4px 29px;
 	white-space:nowrap;
 	font:12px trebuchet ms,lucida grande,verdana,sans-serif;
-	color:#000;
 	background:url('../images/elfinder/toolbar.png') 0 0 no-repeat;
 }
 
@@ -701,12 +737,13 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 }
 
 .el-finder-drag-helper div {
+	border:0 solid;
 	margin-left:-57px;
 	
 }
 
 .el-finder-drag-copy {
-	background:url('../images/elfinder/toolbar.png') 0 -751px no-repeat;
+	background:url('../images/elfinder/toolbar.png') 0 -771px no-repeat;
 }
 
 .el-finder-drag-helper label { 
@@ -763,7 +800,6 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 	line-height:18px;
 	margin-left:-17px;
 	color:#fff;
-	font-size:.9em;
 }
 
 .el-finder-ql div.el-finder-ql-media {
@@ -773,7 +809,7 @@ tr.el-finder-droppable td.icon  p { background-position:5px -450px; }
 
 .el-finder-ql div.el-finder-ql-content {
 	width:100%;
-	font:.92em/1.3em trebuchet ms,lucida grande,verdana,sans-serif;
+	font:.82em/1.3em trebuchet ms,lucida grande,verdana,sans-serif;
 	padding:5px 0;
 	overflow:hidden;
 	text-align:center;

@@ -370,7 +370,7 @@ class elIShopItem extends elCatalogItem
     $this->_form->add( new elText('code',  m('Code/Articul'),  $this->code,     $textAttrs) );
     $this->_form->add( new elText('name',  m('Name'),          $this->name,     $textAttrs) );
     $this->_form->add( new elText('price', m('Price'),         $this->price,    $textAttrs) );
-    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('rows'=>'35')) );
+    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('height' => 250)) );
     $this->_form->add( new elEditor('content',  m('Content'),  $this->content) );
     $this->_form->setRequired('pids[]');
     $this->_form->setRequired('code');

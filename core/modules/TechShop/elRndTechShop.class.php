@@ -16,7 +16,6 @@ class elRndTechShop extends elCatalogRenderer
 	var $_pricePrec = 0;
 	var $_cartOn    = false;
 	
-	var $_currency = null;
 
 
 	// function init( $moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null ) {

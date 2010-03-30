@@ -52,14 +52,22 @@ class elSiteRenderer
 				'tpl' => 'right.html')
 			),
 		'side'  => array(
+			EL_POS_LEFT  => array(
+				'var' => 'SIDE_MENU_LEFT',
+				'tpl' => 'left.html'),
+			EL_POS_RIGHT => array(
+				'var' => 'SIDE_MENU_RIGHT',
+				'tpl' => 'right.html')
+			),
+		'cat'  => array(
 			EL_POS_TOP   => array(
 				'var' => 'CAT_MENU_TOP',
 				'tpl' => 'select.html'),
 			EL_POS_LEFT  => array(
-				'var' => 'ADD_MENU_LEFT',
+				'var' => 'CAT_MENU_LEFT',
 				'tpl' => 'left.html'),
 			EL_POS_RIGHT => array(
-				'var' => 'ADD_MENU_RIGHT',
+				'var' => 'CAT_MENU_RIGHT',
 				'tpl' => 'right.html'),
 			EL_POS_BOTTOM => array(
 				'var' => 'CAT_MENU_BOTTOM',
@@ -536,8 +544,8 @@ class elSiteRenderer
 					{
 						$cat->tb(sprintf($this->_catsTbTpl[$src['module']], $ID));
 						$tree  = $cat->getTreeToArray((int)$g['deep'], false, false, false); 
-						$pos   = isset($this->_menuPos['side'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
-						$param = $this->_menuPos['side'][$pos];
+						$pos   = isset($this->_menuPos['cat'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
+						$param = $this->_menuPos['cat'][$pos];
 						if (EL_POS_TOP == $pos) {
 							
 							$this->_te->setFile($param['var'], 'menus/'.$param['tpl']);
@@ -580,8 +588,8 @@ class elSiteRenderer
 				
 				if ($page['module'] == 'TechShop') {
 					if (in_array(1, $g['pids']) || in_array($this->_curPageID, $g['pids'])) {
-						$pos = isset($this->_menuPos['side'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
-						$param = $this->_menuPos['side'][$pos];
+						$pos = isset($this->_menuPos['cat'][$g['pos']]) ? $g['pos'] : EL_POS_LEFT;
+						$param = $this->_menuPos['cat'][$pos];
 						$tb = 'el_techshop_'.$ID.'_manufact'; 
 					    $db = &elSingleton::getObj('elDb');
 						if (EL_POS_TOP == $pos) {
@@ -686,76 +694,77 @@ class elSiteRenderer
 	 */
 	function _rndMenuJS()
 	{
-	  	$pos       = $this->_conf->get('mainMenuPos', 'layout');
-	  	if (empty($this->_mainMenuPos[$pos]))
-	  	{
-	    	$pos = EL_POS_LEFT;
-	  	}
-	  	$param     = $this->_mainMenuPos[$pos]; 
-	  	$vert      = EL_POS_TOP != $pos;
-		$pages     = $this->_nav->getPages(0, 0, true, true);
-		$showIcons = $this->_conf->get('mainMenuUseIcons', 'layout');
-		$icoURL    = $this->_conf->get('mainMenuUseIcons', 'layout')
-			? EL_BASE_URL.'/'.EL_DIR_STORAGE_NAME.'/pageIcons/' 
-			: '';
+		  	$pos = $this->_conf->get('mainMenuPos', 'layout');
+			$pos   = empty($this->_menuPos['main'][$pos]) ? EL_POS_LEFT : $pos;
+			$param = $this->_menuPos['main'][$pos];
+		  	$vert      = EL_POS_TOP != $pos;
+			$pages     = $this->_nav->getPages(0, 0, true, true);
+			$showIcons = $this->_conf->get('mainMenuUseIcons', 'layout');
+			$icoURL    = $this->_conf->get('mainMenuUseIcons', 'layout')
+				? EL_BASE_URL.'/'.EL_DIR_STORAGE_NAME.'/pageIcons/' 
+				: '';
 
-		$curPageID = $this->_nav->getCurrentPageID();
-		$html = "";
-		$level = 1;
-		foreach ( $pages as $p )
-		{
-			if ( $p['level']>$level )
-			{
-				$html .= "\n<ul>\n";
+			$curPageID = $this->_nav->getCurrentPageID();
+			$html = "";
+			$level = 1;
+			$cnt = 0;
+			foreach($pages as $p) {
+				if ($p['level'] == 1) {
+					$cnt++;
+				}
 			}
-			elseif ( $p['level']<$level )
-			{
-				$html .= str_repeat("\n</ul></li>\n", $level-$p['level']);
-			}
-			
-			$cssClass = '';
-			if (!$vert && 1==$p['level'])
-			{
-				$cssClass = 'toplevel';
-				$cssClass .= $curPageID == $p['id'] ? ' nav-top-current ' : '';
-				$cssClass = 'class="'.$cssClass.'"';
-			} 
-			
-			$ico = '';
-			if ($icoURL)
-			{
-				$data = $this->_nav->getPage($p['id']);
-				$ico = '<img src="'.$icoURL.$data['ico_main'].'" width="16" height="16" style="margin-right:5px" />';
-			}
-			
-			$html .= "<li ".$cssClass.">";
-			$html .= '<a href="'.$p['url'].'">'.$ico.$p['name']."</a>";
-			if ( !$p['has_childs'] )
-			{
-				$html .= "</li>\n";
-			}
-			
-			$level = $p['level'];
-		}
-		$cssClass = $vert ? 'el-menu-vert' : 'el-menu-horiz';
-		$html = "\n<ul class=\"".$cssClass."\">\n".$html."</ul>\n";
 
-    	if (EL_POS_TOP == $pos)
-    	{
-			$this->_te->assignBlockVars($param[0]);
-    	}
-    	else
-    	{
-      		$GLOBALS['parseColumns'][$param[0]] = true;
-    	}
+			$width = floor(100/$cnt);
+			foreach ( $pages as $p )
+			{
+				if ( $p['level']>$level )
+				{
+					$html .= "\n<ul>\n";
+				}
+				elseif ( $p['level']<$level )
+				{
+					$html .= str_repeat("\n</ul></li>", $level-$p['level']);
+				}
 
-    	$this->_te->assignVars($param[1], $html);
+				$cssClass = '';
+				if (!$vert && 1==$p['level'])
+				{
+					$cssClass = 'toplevel';
+					$cssClass .= $curPageID == $p['id'] ? ' nav-top-current ' : '';
+					$cssClass = 'class="'.$cssClass.'" style="width:'.$width.'%"';
+				} 
 
-		
-		elAddJs('ellib/jquery.elmenu.js', EL_JS_CSS_FILE);
-		$js = $vert ? '$(".el-menu-vert").elmenu({orientation : "vertical"}); ' : '$(".el-menu-horiz").elmenu({orientation : "horizontal", deltaY : 12}); ';
-		elAddJs($js, EL_JS_SRC_ONREADY);
-		elAddCss('elmenu.css');
+				$ico = '';
+				if ($icoURL)
+				{
+					$data = $this->_nav->getPage($p['id']);
+					$ico = '<img src="'.$icoURL.$data['ico_main'].'" width="16" height="16" style="margin-right:5px" />';
+				}
+
+				$html .= "<li ".$cssClass.">";
+				$html .= '<a href="'.$p['url'].'">'.$ico.$p['name']."</a>";
+				if ( !$p['has_childs'] )
+				{
+					$html .= "</li>";
+				}
+
+				$level = $p['level'];
+			}
+			$cssClass = $vert ? 'el-menu-vert' : 'el-menu-horiz';
+			$html = "\n<ul class=\"".$cssClass."\">\n".$html."</ul>\n";
+
+
+	    	if (EL_POS_TOP != $pos)
+	    	{
+	      		$GLOBALS['parseColumns'][$param[0]] = true;
+	    	}
+
+			$this->_te->assignVars('MENU_TOP', $html);
+
+			elAddJs('jquery.elmenu.min.js', EL_JS_CSS_FILE);
+			$js = $vert ? '$(".el-menu-vert").elmenu({orientation : "vertical"}); ' : '$(".el-menu-horiz").elmenu({orientation : "horizontal", deltaY : 3, deltaX : 12}); ';
+			elAddJs($js, EL_JS_SRC_ONREADY);
+			elAddCss('elmenu.css');
 	}
 
 

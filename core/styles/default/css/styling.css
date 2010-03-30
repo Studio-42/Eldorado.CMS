@@ -78,20 +78,20 @@ q:before, q:after,blockquote:before, blockquote:after { content: ""; }
 
 /************fonts**********/
 body {
-  font-family: Trebuchet MS, Verdana, Geneva,sans-serif;
+  font-family: Tahoma,  Geneva,sans-serif;
   font-size: 76.00%;
   color: #000;
 }
 
 /************  Заголовки  *******************/
 
-h1, h2, h3, h4, h5, h6 { font-family: Trebuchet MS, Verdana, Geneva,sans-serif;	color:#111; }
+h1, h2, h3, h4, h5, h6 { font-family: Trebuchet MS, Verdana, Geneva,sans-serif;	color:#222; }
 h1 { font-size:2.5em;   margin-bottom:0.5em;  line-height:1;}
 h2 { font-size:1.7em;   margin-bottom:0.75em; }
 h3 { font-size:1.3em; margin-bottom:1em;    line-height:1;}
 h4 { font-size:1.2em; margin-bottom:1.2em;  line-height:1.25;}
 h5 { font-size:1em; margin-bottom:1.3em;  font-weight:bold;}
-h6 { font-size:.8em;   margin-bottom:0.5em;  font-weight:bold;}
+h6 { font-size:.9em;   margin-bottom:0.5em;  font-weight:bold;}
 h1 img, h2 img, h3 img, h4 img, h5 img, h6 img { margin:0; }
 
 /************  Списки  **********************/
@@ -148,7 +148,7 @@ table.form-tb tfoot td input,
 .form-errors            { padding-left:3em; line-height:2em; background: url('../images/icons2.png') -3px -1961px no-repeat;}
 .form-tb-sub            { font-weight:bold; text-align:center; border-bottom:1px solid #ccc; }
 .form-req, .form-errors { color:red; }
-table.form-tb label { margin: .3em; display:inline-block;}
+
 
 /***************  ссылки  ************************/
 
@@ -309,6 +309,7 @@ table.tablesorter thead tr th           { background: #eee; }
 	background:#000 url(../images/debug.gif) 7px 9px no-repeat; 
 	padding:11px 12px; 
 	line-height:1.2em; 
+	font-size:90%;
 	color:#fff;
 }
 .debug strong { display:block; margin:9px 25px;}

@@ -103,13 +103,20 @@ $elMsg['Could not open robots.txt. Check permissions.'] = 'Не могу отк�
 $elMsg['Could not write robots.txt']    = 'Не могу записать robots.txt.';
 $elMsg['robots.txt updated']    = 'Файл robots.txt обновлен.';
 $elMsg['Could not create robots.txt. Check permissions.'] = 'Не могу создать robots.txt. Проверьте права.';
-
+$elMsg['Display linked objects'] = 'Показывать связаные объекты';
+$elMsg['By default'] = 'По умолчанию (внизу)';
+$elMsg['In tabs'] = 'В табах';
+$elMsg['Double, two signs after dot']        = 'Десятичная дробь, два знака после запятой';
 $elMsg['Currency'] = 'Валюта';
 $elMsg['Use exchange rate'] = 'Использовать курс';
 $elMsg['from Central Bank of Russia'] = 'с Центробанка России';
 $elMsg['enter manually'] = 'указать вручную';
 $elMsg['Exchange rate commision (%)'] = 'Комиссия';
 $elMsg['Exchange rate'] = 'Курс обмена';
+
+$elMsg['Page layout'] = 'Внешний вид';
+$elMsg['Prices'] = 'Цены';
+$elMsg['Orders'] = 'Заказы';
 
 
 ?>

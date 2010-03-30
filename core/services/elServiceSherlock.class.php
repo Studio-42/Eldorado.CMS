@@ -94,7 +94,7 @@ class elServiceSherlock extends elService
 
 	function _searchString($str)
 	{
-		$str = substr(trim($str), 0, 100);
+		$str = strip_tags(substr(trim($str), 0, 100));
 		$r   = '/\[|\]|\\\|\/|\'|\"|\*|\||\(|\)|(\s{2,)/';
 		$str = preg_replace($r, '', $str);
 		$r   = array('.',',','!','@','#','^','&','*',':', '%');

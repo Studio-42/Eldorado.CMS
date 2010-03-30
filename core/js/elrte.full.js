@@ -2370,10 +2370,14 @@ elRTE.prototype.dom = function(rte) {
 
 			n.find('.'+f.swfClass).each(function() {
 				var t = $(this),
-					obj = '<object style="'+(t.attr('style')||'')+'" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="quality" value="high" /><param name="movie" value="'+$(this).attr('rel')+'" /><embed pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" src="'+$(this).attr('rel')+'" type="application/x-shockwave-flash"></embed></object>';
-				
-				f.rte.log(t.css('width'))
-				t.replaceWith(obj);
+					w = parseInt(t.css('width'))||'',
+					h = parseInt(t.css('height'))||'',
+					s = t.attr('style')
+					obj = '<embed type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="'+t.attr('rel')+'" width="'+w+'" height="'+h+'" style="'+s+'" play="true" loop="true" menu="true"> </embed>';
+					// obj = '<object style="'+(t.attr('style')||'')+'" width="'+parseInt(t.css('width'))+'" height="'+parseInt(t.css('height'))+'" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="quality" value="high" /><param name="movie" value="'+$(this).attr('rel')+'" /><embed pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" src="'+$(this).attr('rel')+'" type="application/x-shockwave-flash"></embed></object>';
+
+				// f.rte.log(obj)
+				t.replaceWith($(obj));
 			})
 			.end().find('.Apple-style-span').removeClass('Apple-style-span')
 			.end().find('*').each(function() {
@@ -2566,7 +2570,7 @@ elRTE.prototype.options   = {
 		compact  : ['save', 'undoredo', 'style', 'alignment', 'lists', 'links', 'fullscreen'],
 		normal   : ['save', 'copypaste', 'undoredo', 'style', 'alignment', 'colors', 'indent', 'lists', 'links', 'elements', 'images', 'fullscreen'],
 		complete : ['save', 'copypaste', 'undoredo', 'style', 'alignment', 'colors', 'format', 'indent', 'lists', 'links', 'elements', 'media', 'fullscreen'],
-		maxi     : ['save', 'copypaste', 'undoredo', 'style', 'alignment', 'colors', 'format', 'indent', 'lists', 'links', 'elements', 'media', 'tables', 'fullscreen'],
+		maxi     : ['save', 'copypaste', 'undoredo', 'elfinder', 'style', 'alignment', 'colors', 'format', 'indent', 'lists', 'links', 'elements', 'media', 'tables', 'fullscreen'],
 		eldorado : ['save', 'copypaste', 'elfinder', 'undoredo', 'style', 'alignment', 'colors', 'format', 'indent', 'lists', 'links', 'elements', 'media', 'tables', 'fullscreen']
 		
 	},
@@ -4326,7 +4330,7 @@ elRTE.prototype.ui.prototype.buttons.elfinder = function(rte, name) {
 								.attr('title', self.rte.i18n('Open file manger'))
 								.append($('<span />').addClass('ui-icon ui-icon-folder-open'))
 									.click( function() {
-										self.rte.options.fmOpen( function(url) { self.src.url(url).change(); } );
+										self.rte.options.fmOpen( function(url) { self.src.url.val(url).change(); } );
 									})
 									.hover(function() {$(this).addClass('ui-state-hover')}, function() { $(this).removeClass('ui-state-hover')})
 							);
@@ -4427,10 +4431,11 @@ elRTE.prototype.ui.prototype.buttons.elfinder = function(rte, name) {
 		this.set = function() {
 			self.swf = null
 			var url = this.rte.utils.absoluteURL(this.src.url.val()),
-				w = parseInt(this.src.width.val()) || '',
-				h = parseInt(this.src.height.val()) || ''
+				w = parseInt(this.src.width.val()) || 'auto',
+				h = parseInt(this.src.height.val()) || 'auto'
 				a = this.src.align.val(),
 				f = a == 'left' || a == 'right' ? a : '';
+
 			if (url) {
 				var m = this.src.margin.val(),
 					css = {
@@ -4452,10 +4457,10 @@ elRTE.prototype.ui.prototype.buttons.elfinder = function(rte, name) {
 					self.placeholder.css(css).attr('rel', url);
 				} else {
 					this.placeholder = $(this.rte.dom.create('img'))
-						.attr('src', this.rte.swfPlaceholder)
+						.attr('src', this.rte.filter.swfSrc)
 						.attr('rel', url)
 						.css(css)
-						.addClass('elrte-swf-placeholder')
+						.addClass('elrte-swf-placeholder');
 					this.rte.selection.insertNode(this.placeholder.get(0));
 				}
 

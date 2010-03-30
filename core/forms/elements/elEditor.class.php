@@ -50,7 +50,7 @@ class elEditor extends elFormInput
 			cssfiles : ['".EL_BASE_URL."/style/css/elrte-inner.css'],
 			fmAllow  : true,
 			fmOpen   : function(callback) {
-				$('<div />').elfinder({
+				$('<div id=\"elfinder-rte\" />').elfinder({
 					url : '".EL_URL."__finder__',
 					lang : '".EL_LANG."',
 					dialog : { width : 900, modal : true, title : '".m('Files')."' },

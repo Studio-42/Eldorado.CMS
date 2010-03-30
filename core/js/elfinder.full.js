@@ -571,6 +571,9 @@
 				this.options.dialog.close = function() { self.dock(); };
 				this.view.win.data('size', {width : this.view.win.width(), height : this.view.nav.height()});
 			} else {
+				this.options.dialog.close = function() { 
+					self.destroy();
+				}
 				this.dialog = $('<div/>').append(this.view.win).dialog(this.options.dialog);
 			}
 		}
@@ -586,7 +589,6 @@
 					self.eventsManager.init();
 					self.reload(data);
 					self.params = data.params;
-					// self.log(self.params)
 					$('*', document.body).each(function() {
 						var z = parseInt($(this).css('z-index'));
 						if (z >= self.zIndex) {
@@ -608,9 +610,20 @@
 			if (this.options.docked && this.view.win.attr('undocked')) {
 				this.dock();
 			} else {
-				this.dialog ? this.dialog.dialog('close') : this.view.win.hide();
+
+				this.dialog ? this.dialog.dialog('destroy') : this.view.win.hide();
 			}
 			this.eventsManager.lock = true;
+		}
+		
+		this.destroy = function() {
+			if (this.dialog) {
+				this.dialog.dialog('destroy');
+				this.view.win.parent().remove();
+			} else {
+				this.view.win.remove();
+			}
+			this.ui.menu.remove();
 		}
 		
 		this.dock = function() {
@@ -1431,8 +1444,7 @@ elFinder.prototype.ui.prototype.commands = {
 			} 
 			this.fm.options.editorCallback(this.fm.options.cutURL == 'root' ? f.url.substr(this.fm.params.url.length) : f.url.replace(new RegExp('^('+this.fm.options.cutURL+')'), ''));
 			if (this.fm.options.closeOnEditorCallback) {
-				this.fm.dock();
-				this.fm.close();
+				this.fm.destroy();
 			}
 		}
 				
@@ -2459,7 +2471,7 @@ elFinder.prototype.quickLook = function(fm, el) {
 		.append(this.ico)
 		.append(this.media)
 		.append(this.content.append(this.name).append(this.kind).append(this.size).append(this.date).append(this.url).append(this.add))
-		.appendTo(document.body)
+		.appendTo(this.fm.view.win)
 		.draggable({handle : '.el-finder-ql-drag-handle'})
 		.resizable({
 			minWidth  : 420,

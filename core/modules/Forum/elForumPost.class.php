@@ -209,6 +209,8 @@ class elForumPost extends elDataMapping
 		{
 			$attrs['mtime'] = time();			
 		}
+		$attrs['subject'] = mysql_real_escape_string($attrs['subject']);
+		$attrs['message'] = mysql_real_escape_string($attrs['message']);
 		return $attrs;
 	}
 	

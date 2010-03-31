@@ -236,7 +236,8 @@ class elModuleForum extends elModule
 		}
 		else
 		{
-			header("Content-Type: ".elGetMimeContentType($filepath));
+			include_once EL_DIR_CORE.'lib/elFileInfo.class.php';
+			header("Content-Type: ".elFileInfo::mimetype($filepath));
 			header("Content-Disposition: attachment; filename=".$filename );
 			header("Content-Location: ".EL_DIR.'storage/attachments/');
 			header("Content-Length: " .filesize($filepath));

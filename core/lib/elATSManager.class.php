@@ -56,6 +56,7 @@ class elATSManager
     $isNewUser   = !$user->UID;
     $profile     = & $user->getProfile();
     $profileSkel = $profile->getSkel() ;
+	// elPrint($profileSkel);
     $this->_initForm( m('User profile') );
     foreach ( $profileSkel as $k=>$v )
     {

@@ -10,16 +10,16 @@ body, html { height: 100% !important; padding: 0;}
 	position:relative !important;
 	min-height:100%; 
 	height: auto !important;
-	min-width: 780px; 
+	min-width: 980px; 
 	text-align:left;
 	margin: 0 auto;
-	padding:15px 5px 0 5px;
+	padding:0;
 }
   
 * html #body { height:100% !important; }
 
 /** Контейнер в #body (внизу оставляем место для #footer) **/
-#page { padding:0 0 90px 0;}
+#page { padding:0 0 70px 0;}
 
 /** Шапка **/
 #header { 
@@ -58,7 +58,7 @@ body.rm-both  #center { margin:0; }
 /*****  Низ страницы  *****/
 #footer {
     position:relative !important;
-    min-width: 780px;
+    min-width: 980px;
 	height:70px;
     margin: -70px auto 0;
     padding: 0;
@@ -66,7 +66,7 @@ body.rm-both  #center { margin:0; }
 }
 
 #footer-content {
-	padding:10px;
+	padding: 0 10px;
 	font-size:90%;
 }
 

@@ -12,10 +12,6 @@ CREATE TABLE IF NOT EXISTS `el_action_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --
-LOCK TABLES `el_amenu` WRITE;
---
-
-UNLOCK TABLES;
 --
 
 
@@ -159,6 +155,8 @@ CREATE TABLE `el_icart` (
   `props` text collate utf8_bin,
   `crtime` int(11) NOT NULL,
   `mtime` int(11) NOT NULL,
+  `page_id` int(3) NOT NULL,
+  `url` varchar(256) collate utf8_bin NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --
@@ -200,18 +198,18 @@ CREATE TABLE `el_menu` (
 LOCK TABLES `el_menu` WRITE;
 --
 INSERT INTO el_menu (id, name, name_alt, page_descrip, dir, _left, _right, level, module, visible, visible_limit, perm, is_menu, redirect_url, ico_main, ico_add_menu_top, ico_add_menu_bot, in_add_menu_top, in_add_menu_bot, alt_tpl) VALUES (1, "--", "", "", "", 1, 26, 0, "Container", "2", "0", "1", "0", "", "", "", "", "0", "0", ""), 
-(2, "Начало", "", "", "home", 2, 3, 1, "SimplePage", "2", "0", "1", "0", "", "home.png", "home.png", "home.png", "0", "0", ""), 
-(3, "Обратная связь", "", "", "conf", 4, 5, 1, "Mailer", "2", "0", "1", "0", "", "mail.png", "mail.png", "mail.png", "0", "0", "0"), 
-(5, "Контрольный центр", "", "", "cc", 6, 25, 1, "Container", "2", "0", "0", "0", "", "default.png", "default.png", "default.png", "0", "0", ""), 
-(6, "Пользователи/группы", "", "", "users", 7, 8, 2, "UsersControl", "2", "0", "0", "0", "", "users.gif", "default.png", "default.png", "0", "0", "0"), 
-(7, "Управление структурой", "", "", "menu", 9, 10, 2, "NavigationControl", "2", "0", "1", "0", "", "nav.gif", "default.png", "default.png", "0", "0", ""), 
-(8, "Настройки сайта", "", "", "site_conf", 11, 12, 2, "SiteControl", "2", "0", "0", "0", "", "options.gif", "default.png", "default.png", "0", "0", ""), 
-(9, "Файлы", "", "", "fm", 13, 14, 2, "Finder", "2", "0", "0", "0", "", "files.gif", "default.png", "default.png", "0", "0", ""), 
-(10, "Доп. модули", "", "", "plc", 15, 16, 2, "PluginsControl", "2", "0", "0", "0", "", "modules.gif", "default.png", "default.png", "0", "0", ""), 
-(24, "Резервные копии", "", "", "backup", 17, 18, 2, "SiteBackup", "2", "0", "0", "0", "", "backup.gif", "default.png", "default.png", "0", "0", ""), 
-(25, "Карта XML", "", "", "sitemap", 19, 20, 2, "SitemapGenerator", "2", "0", "0", "0", "", "map.gif", "default.png", "default.png", "0", "0", ""), 
-(26, "Обновление системы", "", "", "update", 21, 22, 2, "UpdateClient", "2", "0", "0", "0", "", "updates.gif", "default.png", "default.png", "0", "0", ""), 
-(27, "Редактор шаблонов", "", "", "tpl", 23, 24, 2, "TemplatesEditor", "2", "0", "0", "0", "", "tpl-editor.gif", "default.png", "default.png", "0", "0", "");
+(2, "Home", "", "", "home", 2, 3, 1, "SimplePage", "2", "0", "1", "0", "", "home.png", "home.png", "home.png", "0", "0", ""), 
+(3, "Feedback", "", "", "conf", 4, 5, 1, "Mailer", "2", "0", "1", "0", "", "mail.png", "mail.png", "mail.png", "0", "0", "0"), 
+(5, "Control Centre", "", "", "cc", 6, 25, 1, "Container", "2", "0", "0", "0", "", "default.png", "default.png", "default.png", "0", "0", ""), 
+(6, "Users/Groups", "", "", "users", 7, 8, 2, "UsersControl", "2", "0", "0", "0", "", "users.gif", "default.png", "default.png", "0", "0", "0"), 
+(7, "Navigation Control", "", "", "menu", 9, 10, 2, "NavigationControl", "2", "0", "1", "0", "", "nav.gif", "default.png", "default.png", "0", "0", ""), 
+(8, "Site Settings", "", "", "site_conf", 11, 12, 2, "SiteControl", "2", "0", "0", "0", "", "options.gif", "default.png", "default.png", "0", "0", ""), 
+(9, "Files", "", "", "fm", 13, 14, 2, "Finder", "2", "0", "0", "0", "", "files.gif", "default.png", "default.png", "0", "0", ""), 
+(10, "Plugins", "", "", "plc", 15, 16, 2, "PluginsControl", "2", "0", "0", "0", "", "modules.gif", "default.png", "default.png", "0", "0", ""), 
+(24, "Backup", "", "", "backup", 17, 18, 2, "SiteBackup", "2", "0", "0", "0", "", "backup.gif", "default.png", "default.png", "0", "0", ""), 
+(25, "Sitemap XML", "", "", "sitemap", 19, 20, 2, "SitemapGenerator", "2", "0", "0", "0", "", "map.gif", "default.png", "default.png", "0", "0", ""), 
+(26, "System Update", "", "", "update", 21, 22, 2, "UpdateClient", "2", "0", "0", "0", "", "updates.gif", "default.png", "default.png", "0", "0", ""), 
+(27, "Template Editor", "", "", "tpl", 23, 24, 2, "TemplatesEditor", "2", "0", "0", "0", "", "tpl-editor.gif", "default.png", "default.png", "0", "0", "");
 --
 
 UNLOCK TABLES;
@@ -248,37 +246,39 @@ CREATE TABLE `el_module` (
 --
 LOCK TABLES `el_module` WRITE;
 --
-INSERT INTO el_module (module, descrip, multi, search) VALUES ("Container", "Контейнер", "1", "0"), 
+INSERT INTO el_module (module, descrip, multi, search) VALUES
+("ActionLog", "Action Logger", "0", "0"),
+("Container", "Container", "1", "0"), 
 ("Directory", "Directory", "0", "0"),
-("DocsCatalog", "Каталог документов", "1", "1"), 
-("EventSchedule", "Расписание событий", "1", "0"), 
-("FAQ", "Часто Задаваемые Вопросы", "1", "0"), 
-("FileArchive", "Файловый архив", "1", "1"), 
-("Finder", "Файловый менеджер", "1", "0"), 
-("Forum", "Форум", "0", "1"), 
-("GAStat", "Статистика", "0", "0"), 
-("Glossary", "Словарь терминов", "1", "0"), 
-("GoodsCatalog", "Каталог товаров", "1", "1"), 
-("IShop", "Интернет-магазин", "1", "1"), 
-("ImageGalleries", "Альбомы изображений", "1", "0"), 
-("LinksCatalog", "Каталог ссылок", "1", "1"), 
-("MailFormator", "Почтовые формы", "1", "0"), 
-("Mailer", "Отправка e-mail", "1", "0"), 
-("NavigationControl", "Управление навигацией", "0", "0"), 
-("News", "Новости", "1", "1"), 
-("OrderHistory", "История заказов", "0", "0"), 
-("PluginsControl", "Управление доп. модулями", "0", "0"), 
-("Poll", "Голосования", "1", "0"), 
-("SimplePage", "Одиночная страница", "1", "1"), 
-("SiteBackup", "Резервные копии", "0", "0"), 
-("SiteControl", "Настройки сайта", "0", "0"), 
-("SiteMap", "Карта сайта", "1", "0"), 
-("SitemapGenerator", "Генератор XML-карты сайта", "0", "0"), 
-("TechShop", "Магазин тех. товаров", "1", "1"), 
-("TemplatesEditor", "Редактор дизайна", "0", "0"), 
-("UpdateClient", "Обновление системы", "0", "0"), 
-("UsersControl", "Управление пользователями", "0", "0"), 
-("VacancyCatalog", "Каталог вакансий", "1", "1");
+("DocsCatalog", "Documents Catalogue", "1", "1"), 
+("EventSchedule", "Events Shedule", "1", "0"), 
+("FAQ", "FAQ", "1", "0"), 
+("FileArchive", "File Archive", "1", "1"), 
+("Finder", "File Manager", "1", "0"), 
+("Forum", "Forum", "0", "1"), 
+("GAStat", "Statistics", "0", "0"), 
+("Glossary", "Glossary", "1", "0"), 
+("GoodsCatalog", "Goods Catalogue", "1", "1"), 
+("IShop", "Internet Shop", "1", "1"), 
+("ImageGalleries", "Image Gallery", "1", "0"), 
+("LinksCatalog", "Link Catalogue", "1", "1"), 
+("MailFormator", "Mail Forms", "1", "0"), 
+("Mailer", "Send e-mail", "1", "0"), 
+("NavigationControl", "Navigation Control", "0", "0"), 
+("News", "News", "1", "1"), 
+("OrderHistory", "Order History", "0", "0"), 
+("PluginsControl", "Plugins", "0", "0"), 
+("Poll", "Poll", "1", "0"), 
+("SimplePage", "Simple Page", "1", "1"), 
+("SiteBackup", "Backup", "0", "0"), 
+("SiteControl", "Site Settings", "0", "0"), 
+("SiteMap", "Sitemap", "1", "0"), 
+("SitemapGenerator", "XML Sitemap generator", "0", "0"), 
+("TechShop", "Tech Shop", "1", "1"), 
+("TemplatesEditor", "Template Editor", "0", "0"), 
+("UpdateClient", "Update", "0", "0"), 
+("UsersControl", "Users Control", "0", "0"), 
+("VacancyCatalog", "Vacancy Catalogue", "1", "1");
 --
 
 UNLOCK TABLES;
@@ -386,10 +386,10 @@ CREATE TABLE `el_plugin` (
 LOCK TABLES `el_plugin` WRITE;
 --
 INSERT INTO el_plugin (name, label, descrip, is_on, status) VALUES ("Calculator", "Калькулятор", "", "0", "off"), 
-("InfoBlock", "Информационные блоки", "Показ информационных блоков на произвольно выбранных страницах", "1", "on"), 
-("NewsTopics", "Заголовки новостей", "Показ заголовков новостей", "0", "off"), 
-("Poll", "Голосования", "Отображение голосований", "1", "off"), 
-("RandomImage", "Случайная картинка", "Показ случайных картинок из альбомов изображений", "0", "off");
+("InfoBlock", "Info blocks", "Show info blocks on selected pages", "1", "on"), 
+("NewsTopics", "News Headlines", "Show news headlines", "0", "off"), 
+("Poll", "Poll", "Show poll", "1", "off"), 
+("RandomImage", "Random Image", "Show randmon images from gallery", "0", "off");
 --
 
 UNLOCK TABLES;

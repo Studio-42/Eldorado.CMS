@@ -155,6 +155,8 @@ CREATE TABLE `el_icart` (
   `props` text collate utf8_bin,
   `crtime` int(11) NOT NULL,
   `mtime` int(11) NOT NULL,
+  `page_id` int(3) NOT NULL,
+  `url` varchar(256) collate utf8_bin NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --

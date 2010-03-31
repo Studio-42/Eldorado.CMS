@@ -8,7 +8,7 @@ class elSubModuleUsers extends elModule
 		'ugroups' => array('m'=>'groups'),
 		'passwd'  => array('m'=>'passwd'),
 		'delete'  => array('m'=>'rmUser'),
-		'view'    => array('m'=>'viewProfile'),
+		'get_profile' => array('m'=>'getProfile'),
 		'field_rm'=> array('m'=>'profileRemove')
 	);
 	var $_mMapConf  = array(
@@ -41,6 +41,7 @@ class elSubModuleUsers extends elModule
    */
 	function defaultMethod()
 	{
+		elLoadJQueryUI();
 		$this->_initRenderer();
 		$ats = &elSingleton::getObj('elATS'); //echo $this->_arg();
 		$page = 0 < $this->_arg() ? (int)$this->_arg() : 1;
@@ -56,22 +57,27 @@ class elSubModuleUsers extends elModule
 		$this->_rnd->rndUsers( $users, $ats->getUsersGroupsList(), $page, ceil($nums/$this->_filter['offset']) );
 	}
 
-	/**
-   * показывает профайл пользователя во всплывающем окне
-   */
-	function viewProfile()
-	{
-		elLoadMessages('UserProfile'); // we are popup so force messages load
+	function getProfile() {
+		
 		$UID = (int)$this->_arg(0);
 		$user = & new elUser();
 		$user->setUniqAttr( $UID );
 		if ( !$user->fetch() )
 		{
-			return elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists', array(m('User'), $UID) );
+			elLoadMessages('Errors');
+			$msg = sprintf(m('Object "%s" with ID="%d" does not exists'), m('User'), $UID);
+			echo '<p class="warn">'.$msg.'</p>';
+			exit();
 		}
+		
+		
+		elLoadMessages('UserProfile');
 		$this->_initRenderer();
-		$this->_rnd->rndProfile( $user->toArray() );
+		$p = $this->_rnd->rndProfile( $user->toArray() );
+		echo $p;
+		exit();
 	}
+
 
 
 	//редактирование/создание пользователя

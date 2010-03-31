@@ -67,6 +67,8 @@ class elRndUsersControl extends elModuleRenderer
 		{
 			$this->_te->assignBlockVars('PROFILE_ROW', array('label'=>m($r['label']), 'value'=>$r['value']) );
 		}
+		$this->_te->parse('PAGE', 'PAGE', true, true);
+		return $this->_te->getVar('PAGE');
 	}
 
 	//**************    GROUPS CONTROL SUBMODULE *************************//

@@ -28,8 +28,10 @@ class elUserProfile extends elDataMapping
 		     . 'WHERE field IN ("'.implode('", "', $this->attrsList()).'") '
 		     . 'ORDER BY sort_ndx, field';
 		$this->db->query($sql);
-		while ($r = $this->db->nextRecord())
+		while ($r = $this->db->nextRecord()) {
 			$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['field']));
+		}
+		
 		return $ret;
 	}
 
@@ -76,7 +78,7 @@ class elUserProfile extends elDataMapping
 
 	function _initMapping()
 	{
-		$sql = 'SELECT field FROM el_user_profile WHERE rq>"0" OR field="login" OR field="email"';
+		$sql = 'SELECT field FROM el_user_profile WHERE rq>"0" OR field="login" OR field="email" ORDER BY sort_ndx';
 		$ats = & elSingleton::getObj('elATS');
 		$db = & $ats->getACLDb();
 		$map = $db->queryToArray($sql, 'field', 'field');

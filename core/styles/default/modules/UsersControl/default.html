@@ -12,7 +12,7 @@
 		<!-- BEGIN USER -->
   		<tr>
   			<td>{uid}</td>
-    		<td><a href="#" onClick="return popUp('{POPUP_URL}view/{uid}', 400, 500);" title="{m('User profile')}">{login}</a></td>
+    		<td><a href="#{uid}" class="uid" title="{m('User profile')}">{login}</a></td>
     		<td>{email} &nbsp;</td>
 			<td>{groups} &nbsp;</td>
 			<td>{visits} / {atime}</td>
@@ -33,5 +33,30 @@
 </table>
 {PAGER}
 <script type="text/javascript" charset="utf-8">
-	$().ready(function() { $("#users-list").tablesorter(); });
+	$().ready(function() { 
+		$("#users-list").tablesorter(); 
+		
+		$('a.uid').click(function(e) {
+			e.preventDefault();
+			var uid = $(this).attr('href').replace('#', '')
+			$.ajax({
+				url : "{URL}get_profile/"+uid,
+				error : function(a, b) {
+					alert(a)
+				},
+				success : function(data) {
+					$('<div/>').html(data)
+						.dialog({
+							title : "{m('User profile')}",
+							width : 500,
+							close : function() { $(this).dialog('destroy'); },
+							buttons : {
+								OK : function() { $(this).dialog('close'); }
+							}
+					});
+				}
+			});
+		})
+		
+	});
 </script>

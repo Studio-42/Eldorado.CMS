@@ -6,6 +6,19 @@
  * @package elActionLog
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
+
+/**
+ * To find all usage: grep -R elActionLog core/modules/*
+ * Only exist in next modules:
+ *   DocsCatalog
+ *   FAQ
+ *   FileArchive
+ *   LinksCatalog
+ *   News
+ *   SimplePage
+ *   TechShop
+ **/
+
 function elActionLog($obj, $act = false, $link = false, $value = false)
 {
 	$elActLog = array();
@@ -32,13 +45,8 @@ function elActionLog($obj, $act = false, $link = false, $value = false)
 		$elActLog['action'] = $act;
 
 	$elActLog['time'] = time();
-	$elActLog['link'] = EL_URL . $link;
+	$elActLog['link'] = str_replace(EL_BASE_URL, '', EL_URL) . $link;
 	$elActLog['value'] = substr(strip_tags($value), 0, 63);
-
-	// TODO update datamapping and memberattributes
-	// $elActLog[''] = ;
-	// $elActLog[''] = ;
-	// $elActLog[''] = ;
 
 	$db = & elSingleton::getObj('elDb');
 	$tb = 'el_action_log';

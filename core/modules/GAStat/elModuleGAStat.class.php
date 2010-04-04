@@ -177,7 +177,7 @@ class elModuleGAStat extends elModule
 	var $_analytics = null;
 	var $_period = array();
 	var $_periodHuman;
-	var $dateType = 'm';
+	var $dateType = '1m';
 	var $_sharedRndMembers = array('reportDates', 'dateType');
 
 	function __construct()

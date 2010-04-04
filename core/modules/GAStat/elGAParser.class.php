@@ -1,6 +1,6 @@
 <?php
 
-require_once './core/modules/GAStat/XMLParseIntoStruct.class.php';
+require_once './core/vendor/XMLParseIntoStruct.class.php';
 
 class elGAParser
 {

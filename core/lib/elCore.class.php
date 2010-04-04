@@ -3,7 +3,7 @@
 /**
  * Core version and name
  */
-define ('EL_VER',  '3.9.3');
+define ('EL_VER',  '3.9.4');
 define ('EL_NAME', 'Kioto');
 
 class elCore
@@ -70,11 +70,13 @@ class elCore
 			define('EL_WM_URL', EL_URL);
 		}
 		
-		if (EL_WM != EL_WM_XML) {
-			foreach ($_GET as $v) {
-				if (false != strpos($v, '>') && false != strpos($v, '<')) {
-					header('HTTP/1.x 404 Not Found'); 
-					elThrow(E_USER_ERROR, 'Error 404: Page not found.');
+		if (EL_WM != EL_WM_XML)
+		{
+			foreach ($_GET as $v)
+			{
+				if (false != strpos($v, '>') && false != strpos($v, '<'))
+				{
+					$this->_output404();
 				}
 			}
 		}
@@ -211,10 +213,24 @@ class elCore
 		//check for invalid requests
 		if ( !$this->module->checkArgs() )
 		{
-			header('HTTP/1.x 404 Not Found'); 
-			elThrow(E_USER_ERROR, 'Error 404: Page %s not found.', $_SERVER['REQUEST_URI']);
+			$this->_output404();
 		}
 		return true;
+	}
+
+	function _output404()
+	{
+		header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
+		// die here
+		if ($error = file_get_contents(EL_DIR_STYLES.'404.html'))
+		{
+			$err_title = m('The page you were looking for doesn\'t exist (404)');
+			$err_msg   = m('You may have mistyped the address or the page may have moved.');
+			$error = str_replace('{TITLE}',   $err_title, $error);
+			$error = str_replace('{MESSAGE}', $err_msg,   $error);
+			die($error);
+		}
+		elThrow(E_USER_ERROR, 'Error 404: Page not found.');
 	}
 
 	function _outputXML()
@@ -319,15 +335,13 @@ class elCore
 
 				if (empty($this->_srvMap[$service]))
 				{
-					header('HTTP/1.0 404 Not Found');
-					elThrow(E_USER_WARNING, 'Error 404: Page not found.', null);
+					$this->_output404();
 				}
 				include_once(EL_DIR_CORE.'services/elService.class.php');
 				$class = 'elService'.$this->_srvMap[$service];
 				if (!include_once(EL_DIR_CORE.'services/'.$class.'.class.php'))
 				{
-					header('HTTP/1.0 404 Not Found');
-					elThrow(E_USER_WARNING, 'Error 404: Page not found.', null);
+					$this->_output404();
 				}
 
 				$srv = & elSingleton::getObj($class);

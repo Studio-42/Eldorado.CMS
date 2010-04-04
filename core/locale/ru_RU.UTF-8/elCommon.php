@@ -1,4 +1,11 @@
 <?php
+
+// 404
+$elMsg['The page you were looking for doesn\'t exist (404)']
+     = 'Страница не найдена (404-я ошибка)';
+$elMsg['You may have mistyped the address or the page may have moved.']
+     = 'К сожалению, такая страница не существует. Вероятно, она была удалена, либо её здесь никогда не было.';
+
 //common
 $elMsg['Warning']                   = 'Предупреждение';
 $elMsg['Error']                     = 'Ошибка';

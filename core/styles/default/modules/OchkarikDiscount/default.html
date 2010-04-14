@@ -1,0 +1,40 @@
+<h3>Проверка скидки</h3>
+
+<form action="{URL}" method="POST">
+	Номер клубной карты <input type="text" name="card_number" size="10" maxlength="9" id="card_number" />
+	<input type="submit" name="submit" value="Проверить" id="query_discount" />
+</form>
+<div id="show_discount"></div>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		var button = $('input#query_discount');
+		var input  = $('input#card_number');
+		var info   = $('div#show_discount');
+
+		button.click(function(e) {
+			e.preventDefault();
+			input.attr("disabled", "disabled");
+			button.attr("disabled", "disabled");
+			var card_number = input.attr('value');
+
+			if ((/^[\d\-\s]+$/.test(card_number)) && ((card_number.length == 8) || (card_number.length == 9))) {
+				info.html('<i style="color: gray;">Проверка...</i>');
+				$.ajax({
+					url : "{URL}query/"+card_number,
+					error : function(a, b) { alert(a) },
+					success : function(data) {
+						info.html(data);
+						input.removeAttr("disabled");
+						button.removeAttr("disabled");
+					}
+				});
+			} else {
+				alert('Неверно введён номер карты');
+				input.removeAttr("disabled");
+				button.removeAttr("disabled");
+			}
+
+		})
+	});
+</script>

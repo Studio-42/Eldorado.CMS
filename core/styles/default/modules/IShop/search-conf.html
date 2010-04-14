@@ -1,8 +1,8 @@
 <form>
 	<div>
 		<ul class="adm-icons">
-			<li><a href="{URL}conf_search/group/"  class="cat-new"  title="{m('New search group')}"></a></li>
-			<li><a href="{URL}conf_search/sort/"  class="sort" title="{m('Sort')}"></a></li>
+			<li><a href="{URL}conf_search/group/"  class="icons cat-new"  title="{m('New search group')}"></a></li>
+			<li><a href="{URL}conf_search/sort/"  class="icons sort-num" title="{m('Sort')}"></a></li>
 		</ul>
 		<strong>{m('Search groups')}</strong>
 	</div>
@@ -24,7 +24,7 @@
 	</div>
 	<div style="padding:5px 0">
 		<div class="float-right">{newEls}</div>
-		<a href="#" class="link collapsed">{m('Elements')}</a>
+		<a href="#" class="el-collapsed">{m('Elements')}</a>
 	</div>
 	<div class="hide">
 	<!-- BEGIN IS_SGROUP_EL -->
@@ -47,9 +47,9 @@
 
 <script type="text/javascript" charset="utf-8">
 	$().ready(function() {
-		$('a.collapsed').click(function(e) {
+		$('a.el-collapsed').click(function(e) {
 			e.preventDefault();
-			$(this).toggleClass('expanded').parent().next().eq(0).slideToggle();
+			$(this).toggleClass('el-expanded').parent().next().eq(0).slideToggle();
 		})
 	})
 </script>

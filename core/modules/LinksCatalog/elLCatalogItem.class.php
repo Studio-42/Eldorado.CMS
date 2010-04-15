@@ -19,13 +19,13 @@ class elLCatalogItem extends elCatalogItem
   /**
    * Create edit item form object
   */
-  function makeForm( $parents )
+  function _makeForm( $parents )
   {
-    parent::makeForm($parents);
-    $this->form->add( new elEditor('content', m('Content'), $this->content, array('rows'=>'35;')) );
-    $this->form->add( new elText('url', m('URL'), $this->URL) );
-    $this->form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
-    $this->form->setElementRule('url', 'url', false);
+    parent::_makeForm($parents);
+    $this->_form->add( new elEditor('content', m('Content'), $this->content, array('rows'=>'35;')) );
+    $this->_form->add( new elText('url', m('URL'), $this->URL) );
+    $this->_form->add( new elDateSelector('crtime', m('Publish date'), $this->crTime) );
+    $this->_form->setElementRule('url', 'url', false);
   }
 
 

@@ -207,7 +207,7 @@ class elPluginRandomImage extends elPlugin
 			$box->add( new elSelect('name_'.$src,  m('Display images name'),   $this->_param($src, 'name', 0), $GLOBALS['yn'] ) );
 			$box->add( new elSelect('view_'.$src,  m('Display full sized images using'),   $this->_param($src, 'view', EL_IG_DISPL_LIGHTBOX), $view ) );
 			$box->add( new elSelect('pos_'.$src,   m('Position on page'), $this->_param($src, 'pos', EL_POS_LEFT), $GLOBALS['posLRTB']) );
-			$ms =  new elMultiSelectList('pages_'.$src, m('Site pages'), $this->_param($src, 'pages', array(1)), $pages) ;
+			$ms = & new elMultiSelectList('pages_'.$src, m('Site pages'), $this->_param($src, 'pages', array(1)), $pages) ;
 			$ms->setSwitchValue(1);
 			$box->add($ms);
 

@@ -555,7 +555,7 @@ function elDialogForm(o) {
 		name            : 'color',
 		color           : '',
 		update          : null,
-		change          : function(c) { window.console && window.console.log && window.console.log(c) },
+		change          : function(c) {  },
 		colors          : [
 			'#ffffff', '#cccccc', '#999999', '#666666', '#333333', '#000000', 
 			'#ffcccc', '#cc9999', '#996666', '#663333', '#330000', 
@@ -1079,8 +1079,8 @@ elRTE = function(target, opts) {
 		return alert('elRTE: argument "target" is not DOM Element');
 	}
 	var self     = this, html;
-	this.version = '1.0 RC3';
-	this.build   = '20100311';
+	this.version = '1.0 RC4';
+	this.build   = '20100330';
 	this.options = $.extend(true, {}, this.options, opts);
 	this.browser = $.browser;
 	this.target  = $(target);
@@ -1120,7 +1120,7 @@ elRTE = function(target, opts) {
 
 	content = $.trim(content);
 	if (!content) {
-		content = '&nbsp;';
+		content = ' ';
 	}
 
 	/* add tabs */
@@ -1131,7 +1131,7 @@ elRTE = function(target, opts) {
 					self.tabsbar.children('.tab').toggleClass('active');
 					self.workzone.children().toggle();
 					if ($(this).hasClass('editor')) {
-						self.val(self.source.val()||'&nbsp;');
+						self.val(self.source.val()||' ');
 						self.window.focus();
 						self.ui.update(true);
 						// self.selection.select(self.doc.body.firstChild).collapse(true);
@@ -1162,11 +1162,12 @@ elRTE = function(target, opts) {
 		html += '<link rel="stylesheet" type="text/css" href="'+this+'" />';
 	});
 	this.doc.open();
-	this.doc.write(self.options.doctype+html+'</head><body>'+(this.filter.fromSource(content))+'</body></html>');
+	var s = this.filter.fromSource(content)
+	this.doc.write(self.options.doctype+html+'</head><body>'+(s)+'</body></html>');
 	this.doc.close();
 	
 	this.source.val(this.filter.toSource(content));
-	
+	// this.log($(this.doc.body).html())
 	/* make iframe editable */
 	if ($.browser.msie) {
 		this.doc.body.contentEditable = true;
@@ -1421,7 +1422,7 @@ elRTE.prototype.dom = function(rte) {
 	this.createBookmark = function() {
 		var b = this.rte.doc.createElement('span');
 		b.id = 'elrte-bm-'+Math.random().toString().substr(2);
-		$(b).addClass('elrtebm')//.text('bm');
+		$(b).addClass('elrtebm');
 		return b;
 	}
 
@@ -2030,7 +2031,8 @@ elRTE.prototype.dom = function(rte) {
 	}
 }
 
-})(jQuery);(function($) {
+})(jQuery);
+(function($) {
 	/**
 	 * @class Clean html and make replace/restore for some patterns
 	 *
@@ -2173,10 +2175,10 @@ elRTE.prototype.dom = function(rte) {
 			});
 
 			/* Replace non-semantic attributes with css */
-			html = html.replace(/\<([a-z1-6]+)\s+([^>]*(border|bordercolor|color|background|bgcolor|align|valign|hspace|vspace|clear|size|face)=[^>]*)\>/gi, function(t, n, a) {
+			html = html.replace(/\<([a-z1-6]+)([^>]*\s+(border|bordercolor|color|background|bgcolor|align|valign|hspace|vspace|clear|size|face)=[^>]*)\>/gi, function(t, n, a) {
 				var attrs = {},
 					m = a.match(/([a-z]+)="([^"]*)"/gi), _t, i;
-				
+				f.rte.log(a)
 				function style(v) {
 					if (!attrs.style) {
 						attrs.style = '';
@@ -2293,7 +2295,6 @@ elRTE.prototype.dom = function(rte) {
 		/* proccess html for textarea */
 		toSource : function(f, html) { 
 
-			
 			html = f.rules.restore(f, html);
 
 
@@ -2358,15 +2359,37 @@ elRTE.prototype.dom = function(rte) {
 						'float'          : fl,
 						'vertical-align' : a
 					});
-					$(this).replaceWith(img);
+					t.replaceWith(img);
 			})
 			
+			if (!$.browser.safari) {
+				
+				n.find('iframe[src^="http://maps.google."]').each(function() {
+					var t = $(this),
+						url = t.attr('src'),
+						w = t.attr('width'),
+						h = t.attr('height'),
+						pl = '<div class="elrte-map-placeholder" style="width:'+w+'px;height:'+h+'px;" rel="'+url+'"/>';
+
+					t.replaceWith(pl);
+				});
+			}
 			return n.html();
 		},
 		
 		/* restore swf from placeholder */
 		restore : function(f, html) { 
 			var n = $('<div/>').html(html);
+
+			n.find('.elrte-map-placeholder').each(function() {
+				var t = $(this),
+					url = t.attr('rel'),
+					w = parseInt(t.css('width'))||'',
+					h = parseInt(t.css('height'))||'',
+					ifr = '<iframe src="'+url+'" width="'+w+'" height="'+h+'" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" />';
+
+				t.replaceWith(ifr);
+			});
 
 			n.find('.'+f.swfClass).each(function() {
 				var t = $(this),
@@ -2388,7 +2411,8 @@ elRTE.prototype.dom = function(rte) {
 				if (t.attr('style') == '') {
 					t.removeAttr('style')
 				}
-			});
+			})
+			
 			return n.html();
 		}
 	}
@@ -2490,7 +2514,7 @@ elRTE.prototype.options   = {
 	fmAllow         : true,
 	fmOpen          : null,
 	allowTags       : [],
-	denyTags        : ['iframe'],
+	denyTags        : [],
 	buttons         : {
 		'save'                : 'Save',
 		'copy'                : 'Copy',
@@ -6636,7 +6660,7 @@ elRTE.prototype.ui.prototype.buttons.tbcellprops = function(rte, name) {
 	}
 	
 	this.set = function() {
-		$(t).remove();
+		// $(t).remove();
 		var target = this.cell,
 			apply  = this.src.main.apply.val();
 		switch (this.src.main.apply.val()) {

@@ -46,7 +46,9 @@ body.rm-right #center { margin-right:0; }
 body.rm-both  #center { margin:0; }
 
 /**  Контент в колонках **/
-#mc-content, #mc-content #content { overflow:hidden; }
+#mc-content, #content { overflow:hidden; }
+#mc-content textarea, #content textarea { overflow:auto;}
+
 #mc-content   { text-align:justify; padding:0 15px;  }
 #left, #right { font-size:95%;  }
 

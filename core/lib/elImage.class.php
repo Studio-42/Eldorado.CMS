@@ -39,47 +39,44 @@ class elImage {
 	 *
 	 * @return void
 	 **/
-	function calcTmbSize($imgW, $imgH, $tmbW, $tmbH, $crop=false)
+	function calcTmbSize($width, $height, $tmbSize)
 	{
-		if ( $imgW >= $imgH )
-		{
-			if (!$crop)
-			{
-				$width  = $tmbW;
-				$height = ceil(($imgH*$width)/$imgW);
-			}
-			else
-			{
-				$height = $tmbH;
-				$width  = ceil(($imgW*$height)/$imgH);
-			}
+		if ($width > $height) {
+			$w = $tmbSize;
+			$h = ceil(($height*$w)/$width);
+		} elseif ($height > $width) {
+			$h = $tmbSize;
+			$w = ceil(($width*$h)/$height);
+		} else {
+			$w = $h = $tmbSize;
 		}
-		else
-		{
-			if (!$crop)
-			{
-				$height = $tmbH;
-				$width  = ceil(($imgW*$height)/$imgH);
-			}
-			else
-			{
-				$width  = $tmbW;
-				$height = ceil(($imgH*$width)/$imgW);
-			}
-		}
-		return array($width, $height);
+		
+		return array($w, $h);
 	}
 	
-	function _cropPos($w, $h)
-	{
-		$x = $y = 0;
-		$size = min($w, $h);
-		if ($w > $h) {
-			$x = ceil(($w - $h)/2);
+
+	
+	function _cropInfo($srcW, $srcH, $dstW, $dstH) {
+		$srcRel = $srcW/$srcH;
+		$dstRel = $dstW/$dstH;
+		
+		if ($dstRel < $srcRel) {
+			$cropH = $srcH;
+			$y = 0;
+			$cropW = ceil($srcH*$dstRel);
+			$x = ceil(($srcW-$cropW)/2);
+		} elseif ($dstRel > $srcRel) {
+			$cropW = $srcW;
+			$x = 0;
+			$cropH = ceil($srcW/$dstRel);
+			$y = ceil(($srcH-$cropH)/2);
 		} else {
-			$y = ceil(($h - $w)/2);
+			$x = $y = 0;
+			$cropW = $srcW;
+			$cropH = $srcH;
 		}
-		return array($x, $y, $size);
+		
+		return array($x, $y, $cropW, $cropH);
 	}
 	
 	function imageInfo($img)
@@ -108,7 +105,7 @@ class elImage {
 			);
 	}
 	
-	function tmb($img, $tmb, $w, $h, $crop=true)
+	function tmb($img, $tmb, $w, $h)
 	{
 		if (false == ($info = $this->imageInfo($img)))
 		{
@@ -125,16 +122,16 @@ class elImage {
 		}
 		$info['path'] = realpath($_tmb);
 		$info['basename'] = basename($_tmb);
-		return $this->_resize($info, $w, $h, $crop);
+		return $this->_resize($info, $w, $h);
 	}
 	
-	function resize($img, $w, $h, $crop=true)
+	function resize($img, $w, $h)
 	{
 		if (false == ($info = $this->imageInfo($img)))
 		{
 			return false;
 		}	
-		return $this->_resize($info, $w, $h, $crop);
+		return $this->_resize($info, $w, $h);
 	}
 	
 	function watermark($img, $wm, $pos='br')
@@ -152,48 +149,51 @@ class elImage {
 		}
 	}
 	
-	function _resize($info, $w, $h, $crop)
+	function _resize($info, $w, $h)
 	{
 		switch ($this->_lib)
 		{
-			case 'imagick': return $this->_resizeImagick($info, $w, $h, $crop);
-			case 'mogrify': return $this->_resizeMogrify($info, $w, $h, $crop);
-			case 'gd'     : return $this->_resizeGD($info, $w, $h, $crop );
+			case 'imagick': return $this->_resizeImagick($info, $w, $h);
+			case 'mogrify': return $this->_resizeMogrify($info, $w, $h);
+			case 'gd'     : return $this->_resizeGD($info, $w, $h);
 			default       : return $this->_error('There are no one libs for image manipulation');
 		}
 	}
 	
-	function _resizeGD($image, $w, $h, $crop=true)
+	function _resizeGD($image, $dstW, $dstH)
 	{
+		list($x, $y, $cropW, $cropH) = $this->_cropInfo($image['width'], $image['height'], $dstW, $dstH);
+		
 		if ($image['mime'] == 'image/jpeg') {
-			$_img = imagecreatefromjpeg($image['path']);
+			$_src = imagecreatefromjpeg($image['path']);
 		} elseif ($image['mime'] = 'image/png') {
-			$_img = imagecreatefrompng($image['path']);
+			$_src = imagecreatefrompng($image['path']);
 		} elseif ($image['mime'] = 'image/gif') {
-			$_img = imagecreatefromgif($image['path']);
+			$_src = imagecreatefromgif($image['path']);
 		} else {
 			return $this->_error('File "%s" is not an image or has unsupported type', $image['basename']);;
 		}
-		if (!$_img || false == ($_tmb = imagecreatetruecolor($w, $w))) {
+		
+		if (!$_src || false == ($_dst = imagecreatetruecolor($dstW, $dstH))) {
 			return $this->_error('Unable to resize image %s', $image['basename']);
 		}
-		list($x, $y, $size) = $this->_cropPos($image['width'], $image['height']);
-		if (!imagecopyresampled($_tmb, $_img, 0, 0, $x, $y, $w, $w, $size, $size)) {
+		
+		if (!imagecopyresampled($_dst, $_src, 0, 0, $x, $y, $dstW, $dstH, $cropW, $cropH)) {
 			return $this->_error('Unable to resize image %s', $image['basename']);
 		}
 		if ($image['mime'] == 'image/jpeg') {
-			$r = imagejpeg($_tmb, $image['path']);
+			$r = imagejpeg($_dst, $image['path']);
 		} elseif ($image['mime'] = 'image/png') {
-			$r = imagepng($_tmb, $image['path'], 7);
+			$r = imagepng($_dst, $image['path'], 7);
 		} elseif ($image['mime'] = 'image/gif') {
-			$r = imagegif($_tmb, $image['path']);
+			$r = imagegif($_dst, $image['path']);
 		}
-		imagedestroy($_img);
-		imagedestroy($_tmb);
+		imagedestroy($_src);
+		imagedestroy($_dst);
 		return $r ? $image['path'] : $this->_error('Unable to resize image %s', $image['basename']);
 	}
 	
-	function _resizeImagick($image, $w, $h, $crop=true)
+	function _resizeImagick($image, $w, $h)
 	{
 		$i = new imagick($image['path']);
 		if ($w<300 || $h<300)
@@ -201,23 +201,25 @@ class elImage {
 			$i->contrastImage(1);
 			//$image->adaptiveBlurImage( 1, 1 );
 		}
-		if ($crop)
-		{
-			$i->cropThumbnailImage($w, $h);
-		}
-		else
-		{
-			$i->thumbnailImage($w, $h, true);
-		}
+		$i->cropThumbnailImage($w, $h);
+		// if ($crop)
+		// {
+		// 	$i->cropThumbnailImage($w, $h);
+		// }
+		// else
+		// {
+		// 	$i->thumbnailImage($w, $h, true);
+		// }
 		
 		$result = $i->writeImage($image['path']);
 		$i->destroy();
 		return $result ? $image['path'] : false;
 	}
 	
-	function _resizeMogrify($image, $w, $h, $crop=true)
+	function _resizeMogrify($image, $w, $h)
 	{
-		exec('mogrify -scale '.$w.'x'.$h.' '.escapeshellarg($image['path']), $o, $c);
+		exec('mogrify -resize '.$w.'x'.$h.'^ -gravity center -extent '.$w.'x'.$h.' '.escapeshellarg($image['path']), $o, $c);
+		// exec('mogrify -scale '.$w.'x'.$h.' '.escapeshellarg($image['path']), $o, $c);
 		return 0 == $c ? $image['path'] : false;
 	}
 	

@@ -20,16 +20,16 @@ class elIGImage extends elDataMapping
 	var $comment   = '';
 	var $width     = 0;
 	var $height    = 0;
-	var $width1    = 0;
-	var $height1   = 0;
-	var $width2    = 0;
-	var $height2   = 0;
-	var $width3    = 0;
-	var $height3   = 0;
-	var $width4    = 0;
-	var $height4   = 0;
-	var $width5    = 0;
-	var $height5   = 0;
+	// var $width1    = 0;
+	// var $height1   = 0;
+	// var $width2    = 0;
+	// var $height2   = 0;
+	// var $width3    = 0;
+	// var $height3   = 0;
+	// var $width4    = 0;
+	// var $height4   = 0;
+	// var $width5    = 0;
+	// var $height5   = 0;
 	var $widthTmb  = 0;
 	var $heightTmb = 0;
 	var $sortNdx   = 0;
@@ -51,23 +51,16 @@ class elIGImage extends elDataMapping
 		{
 			$filename = $params['rename'] ? md5(microtime()).'.'.$uploader->getExt() : $uploader->getFileName();
 			$file     = $this->dir.'original'.DIRECTORY_SEPARATOR.$filename;
-			if ( !$uploader->moveUploaded($filename, $this->dir.'original'.DIRECTORY_SEPARATOR) )
+			if ( !$uploader->moveUploaded($filename, dirname($file)) )
 			{
 				elLoadMessages('Errors');
 				return $this->_form->pushError('upl_file', sprintf(m('Can not upload file "%s"'), $uploader->getFileName()) );
 			}
-			
-			// if ( $this->wm )
-			// {
-			// 	if (!$this->_setWatermark($GLOBALS['igDir'].$file))
-			// 	{
-			// 		elThrow(E_USER_WARNING, 'Could not add watermark to image');
-			// 	}
-			// }
 
-			if ( !$this->setImgFile($file, $params['wm'], $params['wmpos']) )
+
+			if ( !$this->setImgFile($file, $params['wm'], $params['wmpos'], $params['tmbSize'], $params['crop']) )
 			{
-//				@unlink($file);
+				@unlink($file);
 				return $this->_form->pushError('upl_file', $this->_error);
 			}
 			
@@ -96,17 +89,35 @@ class elIGImage extends elDataMapping
 	}
 
 
-	function setImgFile($file, $wm, $wmpos)
-	{
-		if (false == ($s = elFileInfo::isWebImage($file)))
+	function _makeTmb($file, $imgW, $imgH, $tmbSize, $crop=false) {
+		$_image = elSingleton::getObj('elImage');
+		if ($crop) {
+			$w = $h = $this->tmbSize;
+		} else {
+			list($w, $h) = $_image->calcTmbSize($imgW, $imgH, $tmbSize);	
+		}
+		
+		if (!$_image->tmb($file, $this->dir.'tmb', $w, $h))
 		{
+			$this->_error = $_image->error;
+			return false;
+		}
+		$this->attr(array('i_width_tmb' => $w, 'i_height_tmb' => $h));
+		return true;
+	}
+
+	function setImgFile($file, $wm, $wmpos, $tmbSize, $crop)
+	{
+		if (false == ($s = elFileInfo::isWebImage($file))) {
 			elLoadMessages('Errors');
 			$this->_error = sprintf(m('File "%s" is not an image or has unsupported type'), basename($file));
 			return false;
 		}
-
-		$this->attr( array('i_width_0' => $s[0], 'i_height_0' => $s[1]));
-
+		
+		if ($wm) {
+			$_image->watermark($file, $this->dir.'wm'.DIRECTORY_SEPARATOR.$wm, $wmpos);
+		}
+		
 		if (!elFS::mkdir($this->dir.'tmb'))
 		{
 			elLoadMessages('Errors');
@@ -114,67 +125,30 @@ class elIGImage extends elDataMapping
 			return false;
 		}
 
-		$_image = elSingleton::getObj('elImage');
-		$h = ceil($this->tmbMaxWidth/(4/3));
-		
-		if (!$_image->tmb($file, $this->dir.'tmb', $this->tmbMaxWidth, $h, true))
-		{
-			$this->_error = $_image->error;
+		if (!$this->_makeTmb($file, $s[0], $s[1], $tmbSize, $crop)) {
 			return false;
 		}
-		$this->attr(array('i_width_tmb' => $this->tmbMaxWidth, 'i_height_tmb' => $h));
-
-		if ($wm)
-		{
-			$_image->watermark($file, $this->dir.'wm'.DIRECTORY_SEPARATOR.$wm, $wmpos);
-		}
-
-		for ($i=1, $sz=sizeof($this->sizes); $i<$sz; $i++)
-		{
-			$_dir = $this->dir.$this->sizes[$i].DIRECTORY_SEPARATOR; 
-			if (!elFS::mkdir($_dir))
-			{
-				elLoadMessages('Errors');
-				$this->_error = sprintf(m('Could not create directory %s'), $_dir);
-				return false;
-			}
-			list($_w, $_h) = explode('x', $this->sizes[$i]);
-			list($w, $h)   = $_image->calcTmbSize($s[0], $s[1], $_w, $_h);
-
-			if (!$_image->tmb($file, $_dir, $w, $h))
-			{
-				$this->_error = $_image->error;
-				return false;
-			}
-			$this->attr(array('i_width_'.$i => $w, 'i_height_'.$i => $h));
-		}
-		$this->attr(array('i_file' => basename($file), 'i_file_size' => filesize($file)/1024));
+		
 		$this->ID && $this->file && $this->file != basename($file) && $this->rmFile();
+		$this->attr( array(
+			'i_file'      => basename($file),
+			'i_file_size' => ceil(filesize($file)/1024),
+			'i_width_0'   => $s[0], 
+			'i_height_0'  => $s[1]));
+		
 		return true;
 	}
 
-	function updateTmb()
+	function updateTmb($maxSize, $crop)
 	{
-		$_image = elSingleton::getObj('elImage');
-		$h = ceil($this->tmbMaxWidth/(4/3));
-		
-		if (!$_image->tmb($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file, $this->dir.'tmb', $this->tmbMaxWidth, $h, true))
-		{
-			$this->_error = $_image->error;
-			return false;
-		}
-		$this->attr(array('i_width_tmb' => $this->tmbMaxWidth, 'i_height_tmb' => $h));
-		return $this->save();
+		return $this->_makeTmb($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file, $this->width, $this->height, $maxSize, $crop) && $this->save();
+
 	}
 
 	function rmFile()
 	{
 		file_exists($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.'original'.DIRECTORY_SEPARATOR.$this->file);
 		file_exists($this->dir.'tmb'.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.'tmb'.DIRECTORY_SEPARATOR.$this->file);		
-		foreach ($this->sizes as $s)
-		{
-			file_exists($this->dir.$s.DIRECTORY_SEPARATOR.$this->file) && @unlink($this->dir.$s.DIRECTORY_SEPARATOR.$this->file);		
-		}
 	}
 
 	function delete()
@@ -197,16 +171,16 @@ class elIGImage extends elDataMapping
 		'i_comment'    => 'comment',
 		'i_width_0'    => 'width',
 		'i_height_0'   => 'height',
-		'i_width_1'    => 'width1',
-		'i_height_1'   => 'height1',
-		'i_width_2'    => 'width2',
-		'i_height_2'   => 'height2',
-		'i_width_3'    => 'width3',
-		'i_height_3'   => 'height3',
-		'i_width_4'    => 'width4',
-		'i_height_4'   => 'height4',
-		'i_width_5'    => 'width5',
-		'i_height_5'   => 'height5',
+		// 'i_width_1'    => 'width1',
+		// 'i_height_1'   => 'height1',
+		// 'i_width_2'    => 'width2',
+		// 'i_height_2'   => 'height2',
+		// 'i_width_3'    => 'width3',
+		// 'i_height_3'   => 'height3',
+		// 'i_width_4'    => 'width4',
+		// 'i_height_4'   => 'height4',
+		// 'i_width_5'    => 'width5',
+		// 'i_height_5'   => 'height5',
 		'i_width_tmb'  => 'widthTmb',
 		'i_height_tmb' => 'heightTmb',
 		'i_sort_ndx'   => 'sortNdx',

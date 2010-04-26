@@ -32,9 +32,12 @@ class elPluginInfoBlock extends elPlugin
 
 		while ( $r = $db->nextRecord() )
 		{
+			
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($r['pos'], $r['tpl']);
+			
 			if (!$pos)
 			{
+				echo $r['tpl'];
 				continue;
 			}
 			$rnd->setFile($tplVar, $tpl);

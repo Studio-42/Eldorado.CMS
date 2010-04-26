@@ -85,7 +85,9 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 			'gID'     => $this->_gID,
 			'rename'  => $this->_conf('imgUniqNames'),
 			'wm'      => $this->_conf('watermark'),
-			'wmpos'   => $this->_conf('watermarkPos')
+			'wmpos'   => $this->_conf('watermarkPos'),
+			'tmbSize' => $this->_conf('tmbMaxSize'),
+			'crop'    => $this->_conf('tmbCrop')
 			 );
 		if (!$img->editAndSave($params) )
 		{
@@ -284,7 +286,7 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 				}
 			}
 			
-			if (!$image->setImgFile($dir.'original'.DIRECTORY_SEPARATOR.$filename, $this->_conf('watermark'), $this->_conf('watermarkPos')))
+			if (!$image->setImgFile($dir.'original'.DIRECTORY_SEPARATOR.$filename, $this->_conf('watermark'), $this->_conf('watermarkPos'), $this->_conf('tmbMaxSize'), $this->_conf('tmbCrop')))
 			{
 				$failed[] = $file;
 				continue;
@@ -348,10 +350,7 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 		$dir = EL_IG_DIR.$this->pageID.DIRECTORY_SEPARATOR;
 		!is_dir($dir.'tmb') && elFS::mkdir($dir.'tmb');
 		!is_dir($dir.'original') && elFS::mkdir($dir.'original');		
-		for ($i=1, $s= sizeof($this->_sizes); $i<$s; $i++)
-		{
-			!is_dir($dir.$this->_sizes[$i]) && elFS::mkdir($dir.$this->_sizes[$i]);
-		}
+
 	}
 
 
@@ -379,30 +378,30 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
     $form     = & parent::_makeConfForm();
     $sortOpts = array(
       EL_IG_SORT_NAME => m('By title'),
-      EL_IG_SORT_TIME => m('By publishing time'),
-      //EL_IG_SORT_NDX  => m('By sort index')
+      EL_IG_SORT_TIME => m('By publishing time')
       );
     $tmbSizes = array(50=>'50x50', 75=>'75x75', 100=>'100x100', 125=>'125x125', 150=>'150x150', 175=>'175x175', 200=>'200x200', 225=>'225x225', 250=>'275x275', 300=>'300x300');
-    $dm = array(EL_IG_DISPL_POPUP    => m('Popup window'),  EL_IG_DISPL_LIGHTBOX => m('LightBox'));
-    $form->add( new elSelect('displayMethod', m('Display full-size image using'), $this->_conf('displayMethod'), $dm) );
-    $form->add( new elSelect('tmbMaxSize', m('Thumbnails max size (px)'),   $this->_conf('tmbMaxSize'), $tmbSizes) );
+    // $dm = array(EL_IG_DISPL_POPUP    => m('Popup window'),  EL_IG_DISPL_LIGHTBOX => m('LightBox'));
+    // $form->add( new elSelect('displayMethod', m('Display full-size image using'), $this->_conf('displayMethod'), $dm) );
+    $form->add( new elSelect('tmbMaxSize',   m('Thumbnails max size (px)'),   $this->_conf('tmbMaxSize'), $tmbSizes) );
+    $form->add( new elSelect('tmbCrop',      m('Thumbnails'),        (int)$this->_conf('tmbCrop'), array(m('Store proportions'), m('Crop square'))) );
     $form->add( new elSelect('imgUniqNames', m('Create unique names for images files'), $this->_conf('imgUniqNames'), $GLOBALS['yn']) );
-    $form->add( new elSelect('gSort',      m('Galleries display order'),    $this->_conf('gSort'),      $sortOpts) );
-    $form->add( new elSelect('iSort',      m('Images display order'),       $this->_conf('iSort'),      $sortOpts) );
+    $form->add( new elSelect('gSort',        m('Galleries display order'),    $this->_conf('gSort'),      $sortOpts) );
+    $form->add( new elSelect('iSort',        m('Images display order'),       $this->_conf('iSort'),      $sortOpts) );
 
-    $form->add( new elCData('c1', m('Galleries list appearance')), array('cellAttrs'=>'style="font-weight:bold"'));
+    $form->add( new elCData('c1', m('Galleries list appearance')), array('cellAttrs'=>' class="form-tb-sub"'));
     $form->add( new elSelect('tmbNumInGalList', m('Thumbnails number in galleries list'),  $this->_conf('tmbNumInGalList'), range(1,15), null, false, false) );
     $form->add( new elSelect('displayGalDate', m('Display gallery publish date'),   $this->_conf('displayGalDate'), $GLOBALS['yn']) );
     $form->add( new elSelect('displayGalImgNum', m('Display numbers of images in gallery'),  $this->_conf('displayGalImgNum'), $GLOBALS['yn']) );
 
-    $form->add( new elCData('c2', m('Gallery appearance')), array('cellAttrs'=>'style="font-weight:bold"'));
+    $form->add( new elCData('c2', m('Gallery appearance')), array('cellAttrs'=>' class="form-tb-sub"'));
     $form->add( new elSelect('tmbNumPerPage', m('Thumbnails number per page'),   $this->_conf('tmbNumPerPage'), range(10, 120), null, false, false) );
     $form->add( new elSelect('displayImgSize', m('Display image size'),    $this->_conf('displayImgSize'), $GLOBALS['yn']) );
     $form->add( new elSelect('displayImgDate', m('Display image publishing date'),   $this->_conf('displayImgDate'), $GLOBALS['yn']) );
     $form->add( new elSelect('displayFileName', m('Display image file name'),   $this->_conf('displayFileName'), $GLOBALS['yn']) );
     $form->add( new elSelect('displayFileSize', m('Display image file size'),   $this->_conf('displayFileSize'), $GLOBALS['yn']) );
     
-    $form->add( new elCData('c3', m('Watermark')), array('cellAttrs'=>'style="font-weight:bold"'));
+    $form->add( new elCData('c3', m('Watermark')), array('cellAttrs'=>' class="form-tb-sub"'));
     
     if ( !function_exists('imagejpeg') )
     {
@@ -470,9 +469,10 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 		{
 			$newConf['tmbMaxSize'] = 125;
 		}
-		if ($newConf['tmbMaxSize'] != $this->_conf('tmbMaxSize') )
+		if ($newConf['tmbMaxSize'] != $this->_conf('tmbMaxSize') || (int)$newConf['tmbCrop'] != (int)$this->_conf('tmbCrop'))
 		{
-			$this->_updateTmbs($newConf['tmbMaxSize']);
+			// echo $newConf['tmbCrop'].' '.$this->_conf('tmbCrop');
+			$this->_updateTmbs((int)$newConf['tmbMaxSize'], $newConf['tmbCrop']);
 		}
 		parent::_updateConf($newConf);
 	}

@@ -1,0 +1,86 @@
+.elslider {
+	margin:100px;
+	position:relative;
+	padding:0 16px;
+	border:1px solid red;
+}
+
+.elslider div {
+	position:relative;
+	overflow:hidden;
+	border:1px solid green;	
+}
+
+.elslider ul {
+	margin:0;
+	padding:0;
+	list-style:none;
+	position:absolute;
+	border:1px solid blue;
+}
+
+.elslider ul li {
+	float:left;
+	display:inline;
+	padding:0;
+	margin:0;
+	height:98px;
+	width:136px;
+/*	border:1px solid #111;*/
+}
+
+.elslider ul li img {
+	margin:0;
+	padding:0;
+}
+
+.elslider .prev, .elslider .next {
+	position:absolute;
+	width:16px;
+	height:16px;
+	z-index:100;
+}
+
+.elslider .prev {
+	left:3px;
+	background:url(../images/left.png) 0 0 no-repeat;
+}
+
+.elslider .next {
+	right:3px;
+	background:url(../images/right.png) 0 0 no-repeat;
+}
+
+/* vertical */
+
+.elslider-vert {
+	border:1px solid #111;
+	position:relative;
+	overflow:hidden;
+}
+
+.elslider-vert div.view {
+	position:absolute;
+}
+
+.elslider-vert div.view>div {
+	width:170px;
+	border:1px solid red;
+}
+
+.elslider-vert .prev, .elslider-vert .next {
+	position:absolute;
+	width:16px;
+	height:16px;
+	z-index:100;
+}
+
+.elslider-vert .prev {
+	top:3px;
+	background:url(../images/left.png) 0 0 no-repeat;
+}
+
+.elslider-vert .next {
+	bottom:3px;
+	background:url(../images/right.png) 0 0 no-repeat;
+}

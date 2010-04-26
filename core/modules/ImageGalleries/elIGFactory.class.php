@@ -22,29 +22,26 @@ class elIGFactory
 		);
 	
 	var $_conf = array();
-	var $_sizes = array();
-	var $_sizeNdx = 2;
+
 	
-	function __construct($pageID, $conf, $sizeNdx, $sizes)
+	function __construct($pageID, $conf)
 	{
 		$this->pageID   = $pageID;
 		$this->_dir     = EL_IG_DIR.$pageID.DIRECTORY_SEPARATOR;
 		$this->tbg      = sprintf($this->tbg, $pageID);
 		$this->tbi      = sprintf($this->tbi, $pageID);
 		$this->_conf    = $conf;
-		$this->_sizeNdx = $sizeNdx; 
-		$this->_sizes   = $sizes;
-		$this->sortg    = !empty($conf['gSort']) && !empty($this->_gSorts[$conf['gSort']]) ? $this->_gSorts[$conf['gSort']] : $this->_gSorts[EL_IG_SORT_TIME];
-		$this->sorti    = !empty($conf['iSort']) && !empty($this->_iSorts[$conf['iSort']]) ? $this->_iSorts[$conf['iSort']] : $this->_iSorts[EL_IG_SORT_TIME];
+		$this->sortg    = isset($conf['gSort']) && !empty($this->_gSorts[$conf['gSort']]) ? $this->_gSorts[$conf['gSort']] : $this->_gSorts[EL_IG_SORT_TIME];
+		$this->sorti    = isset($conf['iSort']) && !empty($this->_iSorts[$conf['iSort']]) ? $this->_iSorts[$conf['iSort']] : $this->_iSorts[EL_IG_SORT_TIME];
 		$this->_conf['tmbNumPerPage']   = $this->_conf['tmbNumPerPage'] > 0 ? $this->_conf['tmbNumPerPage'] : 20;
 		$this->_conf['tmbNumInGalList'] = $this->_conf['tmbNumInGalList'] > 0 ? $this->_conf['tmbNumInGalList'] : 5;
 		$this->_conf['tmbMaxSize']      = $this->_conf['tmbMaxSize'] > 0 ? $this->_conf['tmbMaxSize'] : 20;
 		$this->_db      = & elSingleton::getObj('elDb');
 	}
 	
-	function elIGFactory($pageID, $conf, $sizeNdx, $sizes)
+	function elIGFactory($pageID, $conf)
 	{
-		$this->__construct($pageID, $conf, $sizeNdx, $sizes);
+		$this->__construct($pageID, $conf);
 	}
 	
 	function gallery($id=0)
@@ -60,7 +57,6 @@ class elIGFactory
 		$img = & new elIGImage(array('i_id' => $id), $this->tbi);
 		$img->pageID = $this->pageID;
 		$img->dir = $this->_dir;
-		$img->sizes = $this->_sizes;
 		$img->tmbMaxWidth = $this->_conf['tmbMaxSize'];
 		!$img->fetch() && $img->idAttr(0);
 		return $img;
@@ -96,6 +92,7 @@ class elIGFactory
 				$ret[$id]['preview'] = $this->_db->queryToArray($sql);
 			}
 		}
+
 		return $ret;
 	}
 	
@@ -116,10 +113,8 @@ class elIGFactory
 		$pages            = ceil($gal['num']/$this->_conf['tmbNumPerPage']);
 		$offset           = ($pageNum-1)*$this->_conf['tmbNumPerPage'];
 
-		$size = $this->_sizeNdx ? $this->_sizes[$this->_sizeNdx] : 'original';
 		$sql = 'SELECT i_id, i_gal_id, CONCAT("'.EL_IG_URL.$this->pageID.'/tmb/", i_file) AS src, i_file, '
-				.'CONCAT("'.EL_IG_URL.$this->pageID.'/'.$size.'/", i_file) AS target, '
-				.'i_width_'.$this->_sizeNdx.'+20 AS win_width, i_height_'.$this->_sizeNdx.'+50 AS win_height, '
+				.'CONCAT("'.EL_IG_URL.$this->pageID.'/original/", i_file) AS target, '
 				.'i_width_tmb, i_height_tmb, i_width_0, i_height_0, i_file_size, i_name, i_comment, '
 				.'DATE_FORMAT(FROM_UNIXTIME(i_crtime), "'.EL_MYSQL_DATE_FORMAT.'")  AS date, i_sort_ndx '
 				.'FROM '.$this->tbi.' WHERE i_gal_id="'.$g->ID.'" ORDER BY '.$this->sorti.' LIMIT '.$offset.', '.$this->_conf['tmbNumPerPage'];

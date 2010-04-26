@@ -11,14 +11,14 @@ define('EL_IG_WMPOS_C',  'c');
 define('EL_IG_WMPOS_BL', 'bl');
 define('EL_IG_WMPOS_BR', 'br');
 
-if ( !defined('EL_IG_DISPL_POPUP') )
-{
-	define('EL_IG_DISPL_POPUP', 0);
-}
-if (!defined('EL_IG_DISPL_LIGHTBOX') )
-{
-	define('EL_IG_DISPL_LIGHTBOX', 1);
-}
+// if ( !defined('EL_IG_DISPL_POPUP') )
+// {
+// 	define('EL_IG_DISPL_POPUP', 0);
+// }
+// if (!defined('EL_IG_DISPL_LIGHTBOX') )
+// {
+// 	define('EL_IG_DISPL_LIGHTBOX', 1);
+// }
 
 define('EL_IG_DIR', EL_DIR_STORAGE.'galleries'.DIRECTORY_SEPARATOR);
 define('EL_IG_URL', EL_BASE_URL.'/'.EL_DIR_STORAGE_NAME.'/galleries/');
@@ -32,18 +32,18 @@ class elModuleImageGalleries extends elModule
 	var $_tbG        = '';
 	var $_tbI        = '';
 	var $_factory    = null;
-	var $_sizes      = array(
-		'Original size', 
-		'640x480', 
-		'800x600', 
-		'1024x768', 
-		'1280x960');
-	var $_mMap       = array('img' => array( 'm'   => 'viewImg'));
+	// var $_sizes      = array(
+	// 	'Original size', 
+	// 	'640x480', 
+	// 	'800x600', 
+	// 	'1024x768', 
+	// 	'1280x960');
+	// var $_mMap       = array('img' => array( 'm'   => 'viewImg'));
 	var $_sharedRndMembers = array('pageID', '_sizeNdx', '_sizes');
 	var $_conf       = array(
 		'gSort'            => EL_IG_SORT_TIME,
 		'iSort'            => EL_IG_SORT_TIME,
-		'displayMethod'    => EL_IG_DISPL_LIGHTBOX,
+		// 'displayMethod'    => EL_IG_DISPL_LIGHTBOX,
 		'displayGalDate'   => 1,
 		'displayGalImgNum' => 1,
 		'displayImgDate'   => 1,
@@ -53,13 +53,14 @@ class elModuleImageGalleries extends elModule
 		'tmbNumInGalList'  => 5,
 		'tmbNumPerPage'    => 20,
 		'tmbMaxSize'       => 150,
+		'tmbCrop'          => true,
 		'imgUniqNames'     => 0,
 		'watermark'        => '',
 		'watermarkPos'     => EL_IG_WMPOS_BR,
-		'imgSizeNdx'       => 2
+		// 'imgSizeNdx'       => 2
 		);
 
-	var $_sizeNdx = 2;
+	// var $_sizeNdx = 2;
 	
 	var $_wmPos = array(
                   EL_IG_WMPOS_TL => 'Top left',
@@ -170,7 +171,7 @@ class elModuleImageGalleries extends elModule
 			? $sizeNdx
 			: (!empty($this->_sizes[$this->_conf['imgSizeNdx']]) ? $this->_conf['imgSizeNdx'] : 2);
 
-		$this->_factory = & new elIGFactory($this->pageID, $this->_conf, $this->_sizeNdx, $this->_sizes);
+		$this->_factory = & new elIGFactory($this->pageID, $this->_conf);
 
 		$this->_galleries  = $this->_factory->galleriesList(); 
 
@@ -187,15 +188,11 @@ class elModuleImageGalleries extends elModule
 				elThrow(E_USER_ERROR, 'Error 404: Page %s not found.', $_SERVER['REQUEST_URI']);
 			}
 		}
-	
-		if (EL_IG_DISPL_LIGHTBOX == $this->_conf('displayMethod'))
-		{
-			unset($this->_mMap['img']);
 			
-			elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
-			elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
-			elAddCss('fancybox.css');
-		}
+		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
+		elAddCss('fancybox.css');
+
 	}
 
 

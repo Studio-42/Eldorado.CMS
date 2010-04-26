@@ -11,6 +11,7 @@ class elRndImageGalleries extends elModuleRenderer
 		
 		foreach ( $gList as $gal )
 		{
+			// elPrintR($gal);
 			$images = $gal['preview'];
 			unset($gal['preview']);
 			$gal['cssRowClass'] = (++$cnt%2) ? 'strip-ev' : 'strip-odd';
@@ -41,7 +42,6 @@ class elRndImageGalleries extends elModuleRenderer
 	
 	function rndGallery($content, $gID)
 	{
-		$useLightbox = EL_IG_DISPL_LIGHTBOX == $this->_conf['displayMethod'];
 		$this->_setFile('gal');
 		$gal = $content['gal'];
 		$images = $content['images'];
@@ -51,22 +51,14 @@ class elRndImageGalleries extends elModuleRenderer
 		$this->_conf('displayGalImgNum') && $this->_te->assignBlockVars('GAL_IMG_NUM');
 		$gal['g_comment'] && $this->_te->assignBlockVars('GAL_COMMENT');
 		
-		foreach ($this->_sizes as $k=>$v)
-		{
-			$this->_te->assignBlockVars('ISIZE', array('ndx'=>$k, 'size'=>m($v), 'sel'=>$k == $this->_sizeNdx ? ' selected="on"' : ''));
-		}
-
-		$block = EL_IG_DISPL_LIGHTBOX == $this->_conf['displayMethod'] ? 'LB' : 'POPUP';
 		$dsplFileName = $this->_conf('displayFileName');
 		$dsplFileSize = $this->_conf('displayFileSize');
 		$dsplImgDate  = $this->_conf('displayImgDate');
 		$dsplImgSize  = $this->_conf('displayImgSize');
 		
-		// elPrintR($images);
 		for ($i=0, $s = sizeof($images); $i<$s; $i++)
 		{
 			$this->_te->assignBlockVars('GAL_IMG', $images[$i]);
-			$this->_te->assignBlockVars('GAL_IMG.'.$block, $images[$i], 1);
 			if ($this->_admin)
 			{
 				$this->_te->assignBlockVars('GAL_IMG.ADMIN', array('i_gal_id' => $images[$i]['i_gal_id'], 'i_id' => $images[$i]['i_id']), 1);

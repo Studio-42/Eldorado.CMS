@@ -1,0 +1,209 @@
+<div class="mod-icartconf">
+<table class="grid-tb">
+	<tr>
+		<th colspan="2" style="border-bottom:1px solid #ccc">
+			<ul class="adm-icons">
+				<li><a href="{URL}conf/"  class="icons edit" title="{m('Edit')}"></a></li>
+			</ul>
+			{m('Configuration')}
+		</th>
+	</tr>
+	<tr>
+		<td>{m('Emails')}</td>
+		<td>
+			{order_emails}
+		</td>
+	</tr>
+	<tr>
+		<td>{m('Send confirm to customer')}</td>
+		<td>{order_confirm}</td>
+	</tr>
+	<tr>
+		<td>{m('Allow non-authorized users send order')}</td>
+		<td>{order_guest}</td>
+	</tr>
+
+</table>
+	
+<table class="grid-tb icart-conf">
+	<tr>
+		<th colspan="6">
+			<ul class="adm-icons">
+				<li><a href="{URL}edit/"  class="icons create" title="{m('New conf')}"></a></li>
+				<li><a href="{URL}rm/" class="icons clean" title="{m('Clean')}"></a></li>
+			</ul>
+			{m('Delivery/payment configuration')}
+		</th>
+	</tr>
+	<tr>
+		<td>{m('Regions')}</td>
+		<td>{m('Delivery')}</td>
+		<td>{m('Payment')}</td>
+		<td>{m('Fee')}</td>
+		<td>{m('Comment')}</td>
+		<td></td>
+	</tr>
+	<!-- BEGIN DELIVERY_PAYMENT_CONF -->
+	<tr>
+		<td>{region}</td>
+		<td>{delivery}</td>
+		<td>{payment}</td>
+		<td>{fee}</td>
+		<td>{comment}</td>
+		<td>
+			<ul class="adm-icons">
+				<li><a href="{URL}edit/{region_id}/{delivery_id}/{payment_id}/"  class="icons edit" title="{m('Edit')}"></a></li>
+				<li><a href="{URL}rm/{region_id}/{delivery_id}/{payment_id}/" class="icons delete" title="{m('Delete')}"></a></li>
+			</ul>
+		</td>
+	</tr>
+	<!-- END DELIVERY_PAYMENT_CONF -->
+</table>
+<table class="grid-tb icart-dirs">
+	<tr>
+		<th style="width:33%;border-right:1px solid #ccc">
+			<ul class="adm-icons">
+				<li><a href="#" rel="icart_region" class="icons create" title="{m('New regions')}"></a></li>
+				<li><a href="#" rel="icart_region" class="icons clean" title="{m('Clean regions')}"></a></li>
+			</ul>
+			{m('Regions')}
+		</th>
+		<th style="width:33%;border-right:1px solid #ccc">
+			<ul class="adm-icons">
+				<li><a href="#" rel="icart_delivery" class="icons create" title="{m('New delivery types')}"></a></li>
+				<li><a href="#" rel="icart_delivery" class="icons clean" title="{m('New delivery types')}"></a></li>
+			</ul>
+			{m('Delivery types')}
+		</th>
+		<th>
+			<ul class="adm-icons">
+				<li><a href="#" rel="icart_payment"  class="icons create" title="{m('New payment types')}"></a></li>
+				<li><a href="#" rel="icart_payment"  class="icons clean" title="{m('New payment types')}"></a></li>
+			</ul>
+			{m('Payment types')}
+		</th>
+	</tr>
+	<tr>
+		<td style="width:33%;border-right:1px solid #ccc;vertical-align:top">
+			<!-- BEGIN REGION -->
+			<div class="clearfix">
+				<ul class="adm-icons">
+					<li><a href="#{id}" rel="icart_region" class="icons edit" title="{m('Edit')}"></a></li>
+					<li><a href="#{id}" rel="icart_region" class="icons delete" title="{m('Delete')}"></a></li>
+				</ul>
+				{value}
+			</div>
+			<!-- END REGION -->
+		</td>
+		<td style="width:33%;border-right:1px solid #ccc;vertical-align:top">
+			
+			<!-- BEGIN DELIVERY -->
+			<div class="clearfix">
+				<ul class="adm-icons">
+					<li><a href="#{id}" rel="icart_delivery" class="icons edit" title="{m('Edit')}"></a></li>
+					<li><a href="#{id}" rel="icart_delivery" class="icons delete" title="{m('Delete')}"></a></li>
+				</ul>
+				{value}
+			</div>
+			<!-- END DELIVERY -->
+		</td>
+		<td style="vertical-align:top">
+			
+			<!-- BEGIN PAYMENT -->
+			<div class="clearfix">
+				<ul class="adm-icons">
+					<li><a href="#{id}" rel="icart_payment" class="icons edit" title="{m('Edit')}"></a></li>
+					<li><a href="{URL}payment_rm/" rel="{id}" class="icons delete" title="{m('Delete')}"></a></li>
+				</ul>
+				{value}
+			</div>
+			<!-- END PAYMENT -->
+		</td>
+	</tr>
+</table>
+
+{icart_form}
+
+</div>
+
+<script type="text/javascript" charset="utf-8">
+
+	$().ready(function() {
+
+		$('.create, .edit', '.icart-dirs').click(function(e) {
+			e.preventDefault();
+
+			var titles = {
+					'icart_region'   : ["{m('New regions')}",        "{m('Edit region')}"],
+					'icart_delivery' : ["{m('New delivery types')}", "{m('Edit delivery type')}"],
+					'icart_payment'  : ["{m('New payment types')}",  "{m('Edit payment type')}"]
+				},
+				id    = $(this).attr('href').substring(1),
+				dir   = $(this).attr('rel'),
+				err   = $('<div class="err"/>').text("{m('Field could not be empty')}").hide(),
+				label = id ? '' : "{m('One value per line')}",
+				input = id ? $('<input type="text" name="value" size="26"/>') : $('<textarea name="value" cols="34" rows="12" />'),
+				form  = $('<form method="post" action="{URL}dir_edit/'+dir+'/'+id+'/"/>')
+						.append(err).append(label).append(input).hide(),
+				dialog = $('<div/>').append(form);
+				
+				dialog.dialog({
+					title : titles[dir][id?1:0],
+					buttons : {
+						Cancel : function() { $(this).dialog('close'); },
+						OK : function() {
+							if (!$.trim(input.val())) {
+								err.show();
+							} else {
+								err.hide();
+								form.submit();
+								$(this).dialog('close');
+							}
+						}
+					}
+				});
+				
+				if (id) {
+					$.ajax({
+						url      : "{URL}dir_rec/"+dir+"/"+id+"/",
+						type     : 'get',
+						dataType : 'json',
+						success  : function(data) {
+							input.val(data.value);
+							form.show();
+						}
+					});
+				} else {
+					form.show();
+				}
+				
+				
+
+
+		})
+
+
+		$('.clean, .delete', '.icart-dirs').click(function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (confirm("{m('Do You really want to delete')}?")) {
+				$('<form method="post" action="{URL}dir_clean/'+$(this).attr('rel')+'/"/>')
+					.append('<input type="hidden" name="id" value="'+$(this).attr('href').substring(1)+'"/>')
+					.appendTo(document.body)
+					.submit();
+			}
+		});
+	
+		$('.clean, .delete', '.icart-conf').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Do You really want to delete')}?")) {
+				$('<form method="post" action="'+$(this).attr('href')+'"/>')
+					.append('<input type="hidden" name="rm" value="1"/>')
+					.appendTo(document.body)
+					.submit();
+			}
+			
+		});
+		
+	});
+</script>

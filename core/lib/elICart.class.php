@@ -21,7 +21,7 @@ class elICart
     {
         $this->_db       = & elSingleton::getObj('elDb');
         $this->_conf     = & elSingleton::getObj('elXmlConf');
-        $this->_SID      = mysql_real_escape_string( session_id() );
+        $this->_SID      = mysql_real_escape_string(session_id());
         $ats             = & elSingleton::getObj('elATS');
         $this->_UID      = $ats->getUserID();
         if ( $this->_UID )

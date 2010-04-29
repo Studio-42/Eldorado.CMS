@@ -11,14 +11,6 @@ define('EL_IG_WMPOS_C',  'c');
 define('EL_IG_WMPOS_BL', 'bl');
 define('EL_IG_WMPOS_BR', 'br');
 
-// if ( !defined('EL_IG_DISPL_POPUP') )
-// {
-// 	define('EL_IG_DISPL_POPUP', 0);
-// }
-// if (!defined('EL_IG_DISPL_LIGHTBOX') )
-// {
-// 	define('EL_IG_DISPL_LIGHTBOX', 1);
-// }
 
 define('EL_IG_DIR', EL_DIR_STORAGE.'galleries'.DIRECTORY_SEPARATOR);
 define('EL_IG_URL', EL_BASE_URL.'/'.EL_DIR_STORAGE_NAME.'/galleries/');
@@ -32,13 +24,7 @@ class elModuleImageGalleries extends elModule
 	var $_tbG        = '';
 	var $_tbI        = '';
 	var $_factory    = null;
-	// var $_sizes      = array(
-	// 	'Original size', 
-	// 	'640x480', 
-	// 	'800x600', 
-	// 	'1024x768', 
-	// 	'1280x960');
-	// var $_mMap       = array('img' => array( 'm'   => 'viewImg'));
+
 	var $_sharedRndMembers = array('pageID', '_sizeNdx', '_sizes');
 	var $_conf       = array(
 		'gSort'            => EL_IG_SORT_TIME,

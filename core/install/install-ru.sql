@@ -82,6 +82,14 @@ LOCK TABLES `el_catalogs_crosslink` WRITE;
 UNLOCK TABLES;
 --
 
+DROP TABLE IF EXISTS `el_directories_list`;
+--
+CREATE TABLE `el_directories_list` (
+	`id`    varchar(255) NOT NULL,
+	`label` varchar(255) NOT NULL,
+	PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 
 DROP TABLE IF EXISTS `el_email`;
 --
@@ -136,6 +144,23 @@ LOCK TABLES `el_group_acl` WRITE;
 
 UNLOCK TABLES;
 --
+DROP TABLE IF EXISTS `el_form`;
+
+CREATE TABLE `el_form` (
+	`id`         int(5)         NOT NULL auto_increment,
+	`form_id`    varchar(255)   NOT NULL,
+	`label`      varchar(255)   NOT NULL,
+	`type`       enum('comment', 'title', 'text', 'textarea', 'select', 'checkbox', 'date', 'file', 'captcha') NOT NULL default 'comment',
+	`value`      mediumtext     NOT NULL,
+	`opts`       mediumtext     NOT NULL,
+	`required`   enum('0', '1') NOT NULL default 0,
+	`rule`       enum('', 'noempty', 'email', 'url', 'phone', 'numbers', 'letters_or_space') NOT NULL default '',
+	`file_size`  int(3)         NOT NULL default 1,
+	`error`      varchar(255)   NOT NULL default '',
+	`sort_ndx`   int(3)         NOT NULL default 0,
+	PRIMARY KEY(`id`),
+	KEY(`form_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 DROP TABLE IF EXISTS `el_icart`;
@@ -165,6 +190,47 @@ LOCK TABLES `el_icart` WRITE;
 
 UNLOCK TABLES;
 --
+
+DROP TABLE IF EXISTS `el_icart_region`;
+--
+CREATE TABLE `el_icart_region` (
+	`id` int(5) NOT NULL auto_increment,
+	`name` varchar(255) NOT NULL,
+  	PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+--
+
+DROP TABLE IF EXISTS `el_icart_delivery`;
+--
+CREATE TABLE `el_icart_delivery` (
+	`id` int(5) NOT NULL auto_increment,
+	`name` varchar(255) NOT NULL,
+	PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+--
+
+DROP TABLE IF EXISTS `el_icart_payment`;
+--
+CREATE TABLE `el_icart_payment` (
+	`id` int(5) NOT NULL auto_increment,
+	`name` varchar(255) NOT NULL,
+	`type` enum('cache', 'non-cache', 'online') NOT NULL default 'cache',
+	PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+--
+
+DROP TABLE IF EXISTS `el_icart_conf`;
+--
+CREATE TABLE `el_icart_conf` (
+	`region_id`   int(5) NOT NULL,
+	`delivery_id` int(5) NOT NULL,
+	`payment_id`  int(5) NOT NULL,
+	`fee`         mediumtext,
+	`comment`     mediumtext,
+	PRIMARY KEY(`region_id`, `delivery_id`, `payment_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+--
+
 
 
 DROP TABLE IF EXISTS `el_menu`;

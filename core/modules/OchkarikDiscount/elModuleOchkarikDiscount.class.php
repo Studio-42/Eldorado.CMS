@@ -36,6 +36,7 @@ class elModuleOchkarikDiscount extends elModule
 			$card_number = $this->_arg(0);
 			$card_number = str_replace(' ', '', $card_number);
 			$card_number = str_replace('-', '', $card_number);
+			$card_number = str_replace('%20', '', $card_number);
 
 			// check cache
 			$elod = elSingleton::getObj('elOchkarikDiscount');

@@ -203,20 +203,18 @@ class elXmlConf
 
 	function _tagOpen($parser, $tag, $attrs)
 	{
-		if ( isset($this->_tags[$tag]) && isset($attrs['NAME']) && $attrs['NAME'] )
+		if ( isset($this->_tags[$tag]) && isset($attrs['NAME']) && $attrs['NAME']!== '' )
 		{
-			$this->{$this->_tags[$tag]} = $attrs['NAME'];
+			$this->{$this->_tags[$tag]} = $attrs['NAME']; 
 			$this->_ar = isset($attrs['ISARRAY']);
 		}
 	}
 
 	function _cdata($parser, $cdata)
 	{
-		if ( $this->_gr && $this->_el )
+		if ( $this->_gr && $this->_el!='' )
 		{
-
-
-			if ( $this->_ct )
+			if ( $this->_ct)
 			{
 				if ( !isset($this->groups[$this->_gr][$this->_ct][$this->_el]) )
 				{

@@ -115,7 +115,7 @@ class elModuleRenderer
 
   function _setFile($h='', $t='', $whiteSpace=false)
   {
-	$tpl = isset($this->_tpls[$h]) ? $this->_tpls[$h] : $this->_defTpl;
+	$tpl = !empty($this->_tpls[$h]) ? $this->_tpls[$h] : $this->_defTpl;
     $this->_te->setFile($t ? $t : 'PAGE', $this->_dir.$tpl, $whiteSpace );
   }
 

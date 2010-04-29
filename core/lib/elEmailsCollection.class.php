@@ -51,15 +51,31 @@ class elEmailsCollection
     return $addr;
   }
 
-  function getLabels()
-  {
-    $labels = array();
-    foreach ( $this->collection as $id=>$addr )
-    {
-      $labels[$id] = $addr['label'];
-    }
-    return $labels;
-  }
+  	function getLabels()
+  	{
+    	$ret = array();
+	    foreach ( $this->collection as $id=>$addr )
+	    {
+	      $ret[$id] = htmlspecialchars($this->formatEmail($addr['label'], $addr['email']));
+	    }
+	    return $ret;
+  	}
+
+	function getByIDs($ids, $defaultOnFailed=true) {
+		$ret = array();
+		if (!is_array($ids)) {
+			$ids = array();
+		}
+		foreach ($ids as $id) {
+			if (isset($this->collection[$id])) {
+				$ret[$id] = $this->formatEmail($this->collection[$id]['label'], $this->collection[$id]['email']);
+			}
+		}
+		if (empty($ret) && $defaultOnFailed) {
+			$ret[$this->defaultID] = $this->formatEmail($this->collection[$this->defaultID]['label'], $this->collection[$this->defaultID]['email']);
+		}
+		return  $ret;
+	}
 
   function size()
   {

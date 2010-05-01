@@ -61,7 +61,7 @@ class OchkarikDiscount
 	function queryDatabase()
 	{
 		// TODO reuse database link
-		$sql = 'sp_ClubCardPerCent @ClubCardNum="'.$this->card_number.'"';
+		$sql = 'EXEC sp_ClubCardPerCent @ClubCardNum="'.$this->card_number.'"';
 		if ($link = sybase_connect($this->db_serv, $this->db_user, $this->db_pass))
 		{
 			// ok
@@ -87,6 +87,7 @@ class OchkarikDiscount
 		else
 		{
 			$this->error = 'Query failed';
+			$this->error .= ' ('.sybase_get_last_message().')';
 			return false;
 		}
 		return false;

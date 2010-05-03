@@ -5,10 +5,6 @@
  * @author Troex Nevelin <troex@fury.scancode.ru>
  */
 
-// TODO нах было ебаться сверять что есть в базе, а чего нет
-//      проще всё убивать и начинать заново
-
-
 chdir('../');
 
 require_once './core/vendor/XMLParseIntoStruct.class.php';
@@ -94,10 +90,10 @@ class IShopImportLexus
 	function getCars()
 	{
 		foreach ($this->struct as $cars)
+		{
 			if ($cars['name'] == 'CAR')
 			{
 				$car = array();
-				//$car = new stdClass();
 				foreach ($cars['child'] as $a)
 				{
 					$k = $a['name'];
@@ -105,16 +101,27 @@ class IShopImportLexus
 
 					if ($k == 'MNFCDATE')
 						$v = date('Y', strtotime($v));
-					elseif (in_array($k, array('PRICERUB', 'PRICEUSD', 'ENGINECUBATURE')))
+					elseif (in_array($k, array('PRICERUB', 'PRICEUSD'))) //, 'ENGINECUBATURE'
 					{
-						$v = str_replace(',', '.', $v); // conver to PHP numbers
+						$v = str_replace(',', '.', $v); // convert to PHP numbers
+						$v = str_replace(' ', 'a', $v);
 						$v = sprintf('%.2f', $v);
 					}
-
-					$car[$k] = trim($v);
+					$v = trim($v);
+					if (($k == 'PHOTOS') && (!empty($a['child'])))
+					{
+						$photos = array();
+						foreach ($a['child'] as $p)
+						{
+							array_push($photos, $p['content']);
+						}
+						$v = $photos;
+					}
+					$car[$k] = $v;
 				}
 				array_push($this->cars, $car);
 			}
+		}
 	}
 
 	function getProps()
@@ -122,6 +129,7 @@ class IShopImportLexus
 		$props = array();
 		$valid_props = array_keys($this->prop_bind);
 		foreach ($this->cars as $car)
+		{
 			foreach ($car as $p => $v)
 			{
 				if (!(in_array($p, $valid_props)))
@@ -130,8 +138,10 @@ class IShopImportLexus
 				if (!(isset($props[$p])))
 					$props[$p] = array();
 
-				array_push($props[$p], $v);
+				if (!empty($v))
+					array_push($props[$p], $v);
 			}
+		}
 
 		// get only uniqe props
 		foreach ($props as $p => $v)
@@ -259,27 +269,73 @@ class IShopImportLexus
 	// insert into p2i
 	function loadCars()
 	{
-		// 1. delete old
-		$sql = "TRUNCATE TABLE ".$this->tb_item;
-		mysql_query($sql, $this->m);
+		// 1. delete old props and attribs
+		//$sql = "TRUNCATE TABLE ".$this->tb_item;
+		//mysql_query($sql, $this->m);
 		$sql = "TRUNCATE TABLE ".$this->tb_p2i;
 		mysql_query($sql, $this->m);
 		$sql = "TRUNCATE TABLE ".$this->tb_i2c;
 		mysql_query($sql, $this->m);
 
-		// 2. new auto
+		// 1.1. find car diffs (old and new)
+		$d_cars = array();
+		$sql = "SELECT code FROM ".$this->tb_item;
+		$r = mysql_query($sql, $this->m);
+		while ($m = mysql_fetch_assoc($r))
+		{
+			array_push($d_cars, $m['code']);
+		}
+		$i_cars = array();
 		foreach ($this->cars as $car)
 		{
+			array_push($i_cars, $car['CARID']);
+		}
+		$old_cars = array_diff($d_cars, $i_cars);
+		$new_cars = array_diff($i_cars, $d_cars);
+		// 1.2. delete old cars from db
+		if (!empty($old_cars))
+		{
+			$sql = "DELETE FROM ".$this->tb_item." WHERE code IN ('".implode("', '", $old_cars)."')";
+			mysql_query($sql);
+		}
+
+		// 2. new or update car
+		foreach ($this->cars as $car)
+		{
+			$i_id = '';
+			echo "\n* $car[MODEL]";
 			// 2.1 new item
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
-			$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, code, name, price, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
-			$sql = sprintf($sql, $mnf_id, $car['CARID'], $car['MODEL'], $car['PRICERUB'], time(), time());
-			mysql_query($sql, $this->m);
-			$i_id = mysql_insert_id();
+			if (in_array($car['CARID'], $new_cars))
+			{
+				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, code, name, price, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
+				$sql = sprintf($sql, $mnf_id, $car['CARID'], $car['MODEL'], $car['PRICERUB'], time(), time());
+				mysql_query($sql, $this->m);
+				$i_id = mysql_insert_id();
+				echo " (insert)\n";
+			}
+			else
+			{
+				$sql = "SELECT id FROM ".$this->tb_item." WHERE code='%s' LIMIT 1";
+				$sql = sprintf($sql, $car['CARID']);
+				$r = mysql_query($sql, $this->m);
+				$id = mysql_fetch_assoc($r);
+				$i_id = $id['id'];
+				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', name='%s', price='%s', mtime='%d' WHERE id='%d' LIMIT 1";
+				$sql = sprintf($sql, $mnf_id, $car['MODEL'], $car['PRICERUB'], time(), $i_id);
+				mysql_query($sql, $this->m);
+				echo " (update)\n";
+			}
+
+			if (empty($i_id)) // resume if something wrong
+			{
+				continue;
+			}
 
 			// 2.2 new props
 			foreach ($this->prop_bind as $p => $p_id)
 			{
+				//echo "  p $car[$p]\n";
 				$pv_id = $this->_getPropValueIdByName($p_id, $car[$p]);
 				//print "$p $car[$p] => $pv_id\n";
 				$sql = "INSERT INTO ".$this->tb_p2i." (i_id, p_id, value, pv_id) VALUES ('%d', '%d', '%s', '%d')";
@@ -288,10 +344,12 @@ class IShopImportLexus
 			}
 
 			// 2.3 new attr
-			foreach ($this->attr_bind as $a => $p_id)
+			foreach ($this->attr_bind as $a => $a_id)
 			{
+				$car[$a] = str_replace("'", '"', $car[$a]); // dirty magic with quotes
+				//echo "  a $a_id\t$car[$a]\n";
 				$sql = "INSERT INTO ".$this->tb_p2i." (i_id, p_id, value) VALUES ('%d', '%d', '%s')";
-				$sql = sprintf($sql, $i_id, $p_id, $car[$a]);
+				$sql = sprintf($sql, $i_id, $a_id, $car[$a]);
 				mysql_query($sql, $this->m);
 			}
 
@@ -326,6 +384,7 @@ $import->file = $file;
 $import->parseXML();
 $import->getCars();
 $import->getProps();
+
 $import->loadProps();
 $import->loadMnf();
 $import->loadCars();

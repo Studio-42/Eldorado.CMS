@@ -78,6 +78,10 @@ class elModuleOchkarikDiscount extends elModule
 				}
 				else
 				{
+					if ($od->error == 'No information found about card')
+					{
+						$od->error =  'Информация по карте отсутствует';
+					}
 					echo $this->_errorText($od->error);
 					exit();
 				}

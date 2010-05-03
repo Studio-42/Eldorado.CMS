@@ -125,7 +125,7 @@ class elModuleICartConf extends elModule {
 						$this->_dm->get('icart_region', false), 
 						$this->_dm->get('icart_delivery', false), 
 						$this->_dm->get('icart_payment', false),
-						$this->_fc->getForm(m('Additional fields'), EL_URL, 'POST', true)
+						$this->_fc->getAdminFormHtml()
 						);
 	}
 	
@@ -274,7 +274,8 @@ class elModuleICartConf extends elModule {
 	 **/
 	function fieldEdit() {
 		if ($this->_fc->edit((int)$this->_arg())) {
-			
+			elMsgBox::put(m('Data was saved'));
+			elLocation(EL_URL);
 		} else {
 			$this->_initRenderer();
 			$this->_rnd->addToContent($this->_fc->formToHtml());
@@ -284,7 +285,7 @@ class elModuleICartConf extends elModule {
 	
 	function _onInit() {
 		$this->_dm = & elSingleton::getObj('elDirectoryManager');
-		$this->_fc = & new elFormConstructor('icart_add_field');
+		$this->_fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
 		$this->_orderConf = & elSingleton::getObj('elOrderConf');
 		if (!$this->_dm->directoryExists('icart_region')) {
 			$this->_dm->create('icart_region', m('Regions'));

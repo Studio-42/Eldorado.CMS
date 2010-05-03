@@ -57,7 +57,7 @@ class elCheckBoxesGroup extends elFormInput
   var $tpl   = array(
                     'header'  => '',
                     'footer'  => '',
-                    'element' => "<input%s%s name=\"%s\" id=\"%s\" value=\"%s\" /><label for='%s'>%s</label><br />\n"
+                    'element' => "<input%s%s name=\"%s\" id=\"%s\" value=\"%s\" /><label for='%s'> %s</label><br />\n"
                     );
 
   function __construct($name=null, $label=null, $value=null, $opts=null, $attrs=null, $frozen=false, $use_keys=true)
@@ -113,7 +113,7 @@ class elCheckBoxesGroup extends elFormInput
     $attrs = $this->attrsToString();
     $name  = substr($this->getName(), 0, -2);
     $i = 0;
-//elPrintR($this->opts);
+
     foreach ( $this->opts as $val=>$label )
     {
     	$id = $name.'['.$i.']';

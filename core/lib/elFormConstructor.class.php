@@ -21,17 +21,28 @@ class elFormConstructor {
 	 * @var object
 	 **/
 	var $_form = null;
+	/**
+	 * form label
+	 *
+	 * @var string
+	 **/
+	var $label = '';
 	
 	/**
 	 * constructor
 	 *
 	 * @return void
 	 **/
-	function elFormConstructor($id) {
-		$this->ID = $id;
-		$el = & new elFormConstructorElement();
-		$this->_elements = $el->collection(true, false, 'form_id="'.mysql_real_escape_string($id).'"', 'sort_ndx');
-		// elPrintR($this->_elements);
+	function elFormConstructor($id, $label, $data=array()) {
+		$this->ID        = $id;
+		$this->label     = $label;
+		$el              = & new elFormConstructorElement();
+		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($id).'"', 'sort_ndx');
+		foreach ($data as $id=>$val) {
+			if (isset($this->_elements[$id])) {
+				$this->_elements[$id]->setValue($val);
+			}
+		}
 	}
 	
 	/**
@@ -39,21 +50,75 @@ class elFormConstructor {
 	 *
 	 * @return object
 	 **/
-	function getForm($label, $url=EL_URL, $method='POST', $admin=false) {
-		if ($admin) {
-			$label = '
-					<ul class="adm-icons">
-						<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
-						<li><a href="'.$url.'field_rm/" class="icons clean" title="'.m('Clean').'"></a></li>
-					</ul>
-				'.$label;
-		}
-		$this->_form = & elSingleton::getObj('elForm', $this->ID, $label);
+	function getForm($url=EL_URL, $method='POST') {
+		$this->_form = & elSingleton::getObj('elForm', $this->ID, $this->label);
 		$this->_form->setRenderer(new elTplFormRenderer());
 		foreach ($this->_elements as $el) {
-			$this->_form->add($el->toFormElement());
+			$rndParams = $el->type=='title' ? array('rowAttrs' => ' class="form-tb-sub"') : null;
+			$this->_form->add($el->toFormElement(), $rndParams);
+			if ($el->rule) {
+				$form->setElementRule($el->ID, $el->rule, $el->required, null, $el->error);
+			} elseif ($el->required) {
+				$form->setRequired($el->ID);
+			}
 		}
 		return $this->_form; 
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getAdminFormHtml($url=EL_URL)	{
+		$rnd = &elSingleton::getObj('elTE');
+		$rnd->setFile('icartAdminForm', 'forms/simple_form.html');
+		
+		$label = '
+			<ul class="adm-icons">
+				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
+				<li><a href="'.$url.'sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
+				<li><a href="'.$url.'field_rm/" class="icons clean" title="'.m('Clean').'"></a></li>
+			</ul>
+			';
+		
+		$rnd->assignBlockVars('FORM_HEAD', array('form_label' => $label.$this->label));
+
+		foreach ($this->_elements as $el) {
+			$e = $el->toFormElement();
+			if ($e->isCData) {
+
+				$data = array(
+					'cdata'  => '
+							<ul class="adm-icons">
+								<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
+								<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
+							</ul>
+						'.$e->toHtml(),
+					'rowAttrs' => $el->type=='title' ? ' class="form-tb-sub"' : ''
+					);
+
+				$rnd->assignBlockVars('FORM_BODY.CDATA', $data, 0);
+			} else {
+
+				$data = array(
+					'label' => $e->label,
+					'el'    => '
+							<ul class="adm-icons">
+								<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
+								<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
+							</ul>
+						'.$e->toHtml()
+					);
+				$rnd->assignBlockVars('FORM_BODY.ELEMENT', $data, 0);
+				if ($el->required) {
+					$rnd->assignBlockVars('FORM_BODY.ELEMENT.RQ', null, 2);
+				}
+			}
+		}
+		$rnd->parse('icartAdminForm');
+		return $rnd->getVar('icartAdminForm');
 	}
 	
 	/**
@@ -145,6 +210,12 @@ class elFormConstructorElement extends elDataMapping {
 	 **/
 	var $value = '';
 	/**
+	 * field value
+	 *
+	 * @var string
+	 **/
+	var $_value = '';
+	/**
 	 * valu variants
 	 *
 	 * @var string
@@ -169,6 +240,12 @@ class elFormConstructorElement extends elDataMapping {
 	 **/
 	var $fileSize = 1;
 	/**
+	 * allowed file types
+	 *
+	 * @var string
+	 **/
+	var $fileType = '';
+	/**
 	 * error message
 	 *
 	 * @var string
@@ -180,6 +257,16 @@ class elFormConstructorElement extends elDataMapping {
 	 * @var string
 	 **/
 	var $sortNdx = 0;
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function setValue($v) {
+		$this->_value = $v;
+	}
 	
 	/**
 	 * return form object
@@ -195,7 +282,7 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @return object
 	 **/
-	function toFormElement() {
+	function toFormElement($admin=false) {
 		$el = null;
 		switch ($this->type) {
 			case 'comment':
@@ -205,25 +292,46 @@ class elFormConstructorElement extends elDataMapping {
 				$el = & new elCData($this->ID, $this->value);
 				break;
 			case 'text':
-				$el = & new elText($this->ID, $this->label, $this->value);
+				$el = & new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value);
 				break;	
 			case 'textarea':
-			
+				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value);
 				break;
 			case 'select':
-			
+				$opts = explode("\n", $this->opts);
+				$el = &new elSelect($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $opts, null, false, false);
 				break;
 			case 'checkbox':
-			
+				$opts = array_map('trim', explode("\n", $this->opts)); 
+				$value = $this->_value ? implode("\n", $this->_value) : $this->value;
+				if (sizeof($opts) == 1) {
+					$attrs = $this->value ? array('checked' => '') : null;
+					$el = & new elCheckBox($this->ID, $this->label, 1, $attrs);
+				} else {
+					$value = array_map('trim', explode("\n", $this->value)); 
+					$el = & new elCheckBoxesGroup($this->ID, $this->label, $value, $opts, null, false, false);
+				}
 				break;
 			case 'date':
-			
+				$v = 0;
+				$value = $this->_value ? $this->_value : $this->value;
+				if ($value) {
+					list($y, $m, $d) = explode('/', $value);
+					if ($y>0 && $m>0 && $d>0) {
+						$v = mktime(0, 0, 0, $m, $d, $y);
+					}
+				}
+				$el = & new elDateSelector($this->ID, $this->label, $v, null, 60);
 				break;
 			case 'file':
-			
+				$el = & new elFileInput($this->ID, $this->label);
+				$el->setMaxSize($this->fileSize);
+				if (!empty($this->fileType)) {
+					$el->setFileExt(array_map('trim', explode(',', $this->fileType)));
+				}
 				break;
 			case 'captcha':
-			
+				$el = & new elCaptcha($this->ID, $this->label);
 				break;
 		}
 		return $el;
@@ -239,7 +347,8 @@ class elFormConstructorElement extends elDataMapping {
 		parent::_makeForm();
 		
 		if (!$this->ID) {
-			$this->sortNdx = $params['cnt']++;
+			$this->sortNdx = 1+$params['cnt']++;
+			// echo $this->sortNdx;
 		}
 		
 		$types = array(
@@ -263,17 +372,16 @@ class elFormConstructorElement extends elDataMapping {
 			);
 		$fileSizes = range(1, 10) + array(15, 20, 30, 40, 50, 60, 70, 80, 90, 100);
 		$req = ' <span class="form-req">*</span>';
-		$optsComments = '<br/>'.m('For drop-down list or checkboxes - one per line').'.<br/>'.m('For date selector - in DD.MM.YYYY format').'.';
-		$valueComments = '<br/>'.m('For checkboxes - one per line');
 		
 		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),   $this->sortNdx, range(1, $params['cnt']), null, null, false));
 		$this->_form->add(new elText('label',       m('Name').$req,      $this->label));
 		$this->_form->add(new elSelect('type',      m('Type'),           $this->type, $types));
-		$this->_form->add(new elTextArea('opts',    m('Value variants').$optsComments, $this->opts, array('rows' =>7)));
-		$this->_form->add(new elTextArea('value',   m('Default value').$req.$valueComments,  $this->value, array('rows' =>7)));
+		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
+		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
 		$this->_form->add(new elSelect('required',  m('Required'),       $this->required, $GLOBALS['yn']));
 		$this->_form->add(new elSelect('rule',      m('Type'),           $this->rule, $rules));
 		$this->_form->add(new elSelect('file_size', m('Max file size in Mb.'), $this->fileSize, $fileSizes, null, null, false));
+		$this->_form->add(new elText('file_type',   m('Allowed file extensions list (separeted by semicolon)'),  $this->fileType));
 		$this->_form->add(new elText('error',       m('Error message'),  $this->error));
 		
 		$js = "
@@ -287,41 +395,50 @@ class elFormConstructorElement extends elDataMapping {
 				
 				switch(v) {
 					case 'text':
-						$('#row_opts, #row_file_size').hide();
+						$('#row_opts, #row_file_size, #row_file_type').hide();
 						$('#row_label, #row_value, #row_required, #row_rule, #row_error').show();
 						break;
 					case 'textarea':
-						$('#row_opts, #row_rule, #row_file_size').hide();
+						$('#row_opts, #row_rule, #row_file_size, #row_file_type').hide();
 						$('#row_label, #row_value, #row_required, #row_error').show();
 						break;
 					case 'select':
-						$('#row_rule, #row_required, #row_error, #row_file_size').hide();
+						$('#row_rule, #row_required, #row_error, #row_file_size, #row_file_type').hide();
 						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
 						break;
 					case 'checkbox':
-						$('#row_rule, #row_file_size').hide();
+						$('#row_rule, #row_file_size, #row_file_type').hide();
 						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
 						break;
 					case 'file':
 						$('#row_opts, #row_value, #row_rule').hide();
-						$('#row_label, #row_file_size').show();
+						$('#row_label, #row_file_size, #row_file_type').show();
 						break;
 					case 'captcha':
-					case 'date':
-						$('#row_value, #row_opts, #row_required, #row_rule, #row_error, #row_file_size').hide();
+						$('#row_value, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
 						$('#row_label').show();
 						break;
+					case 'date':
+						$('#row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
+						$('#row_label, #row_value').show();
+						break;
 					default:
-						$('#row_label, #row_opts, #row_required, #row_rule, #row_error, #row_file_size').hide();
+						$('#row_label, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
 						$('#row_value').show();
 				}
 				
 				if (v == 'title' || v == 'comment') {
 					$('#row_label .form-req').hide();
+					$('#row_opts .form-req').hide();
 					$('#row_value .form-req').show();
+				} else if (v == 'select' || v == 'checkboxes') {
+					$('#row_value .form-req').hide();
+					$('#row_label .form-req').show();
+					$('#row_opts .form-req').show();
 				} else {
 					$('#row_value .form-req').hide();
 					$('#row_label .form-req').show();
+					
 				}
 			}).change();
 		";
@@ -356,6 +473,24 @@ class elFormConstructorElement extends elDataMapping {
 		return !$this->_form->hasErrors();
 	}
 	
+	function _postSave($isNew, $params=null)
+	{
+		$db  = & elSingleton::getObj('elDb');
+		$sql = 'UPDATE %s SET sort_ndx=IF(sort_ndx=%d, sort_ndx-1, sort_ndx+1) WHERE form_id="%s" AND sort_ndx>=%d AND id<>%d';
+		$sql = sprintf($sql, $this->_tb, $this->sortNdx, $this->formID, $this->sortNdx, $this->ID);
+		$db->query($sql);
+		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE form_id="'.$this->formID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
+		$i = 1;
+		foreach ($indexes as $id=>$ndx) {
+			if ($ndx != $i++) {
+				$sql = sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb, $i-1, $id);
+				$db->query($sql);
+			}
+		}
+		
+		return true;
+	}
+	
 	function _initMapping()
   	{
     	return array( 
@@ -368,6 +503,7 @@ class elFormConstructorElement extends elDataMapping {
 			'required'  => 'required',
 		    'rule'      => 'rule',
 		    'file_size' => 'fileSize',
+			'file_type' => 'fileType',
 		    'error'     => 'error',
 		    'sort_ndx'  => 'sortNdx'
 		);

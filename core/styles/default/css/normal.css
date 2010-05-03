@@ -273,7 +273,9 @@ table.form-tb tfoot td input, .form-submit {
 }
 table.form-tb tfoot td input:hover,  
 .form-submit:hover    { background:#649fc2; color:#f9f9f9; }
-.form-tb-sub  { background: #f2f2f2; padding:.5em; }
+/*.form-tb-sub  { background: #f2f2f2; padding:.5em; }*/
+tr.form-tb-sub { background: #f2f2f2; }
+tr.form-tb-sub td { padding:.5em; text-align:center; font-weight:bold;}
 input[type $='text'], input[type $='password'] { border:1px solid #ccc; padding:1px;}
 .strip-odd { background: #dee7ed;}
 .plugins-title { background: #dee7ed;}

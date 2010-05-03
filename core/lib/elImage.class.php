@@ -13,11 +13,11 @@ class elImage {
 		{
 			$this->_lib = 'imagick';
 		}
-		exec('mogrify --version', $o, $c);
-		if ($c == 0 && !empty($o))
-		{
-			$this->_lib = 'mogrify';
-		}
+		// exec('mogrify --version', $o, $c);
+		// if ($c == 0 && !empty($o))
+		// {
+		// 	$this->_lib = 'mogrify';
+		// }
 		elseif (function_exists('gd_info'))
 		{
 			$this->_lib = 'gd';

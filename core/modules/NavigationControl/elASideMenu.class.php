@@ -36,7 +36,7 @@ class elASideMenu
         $db->query('SELECT id, name, pos FROM '.$this->_tb.' ORDER BY id');
         while ($r = $db->nextRecord() )
         {
-            $ret[$r['id']]       = $this;
+            $ret[$r['id']]       = new elASideMenu();//$this;
             $ret[$r['id']]->ID   = $r['id'];
             $ret[$r['id']]->name = $r['name'];
             $ret[$r['id']]->pos  = $r['pos'];

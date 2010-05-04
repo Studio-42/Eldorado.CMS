@@ -477,14 +477,14 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 		parent::_updateConf($newConf);
 	}
 
-	function _updateTmbs($w)
+	function _updateTmbs($w, $crop)
 	{
 		$img = $this->_factory->image();
 		$img->tmbMaxWidth = $w;
 		$images = $img->collection(true);
 		foreach ( $images as $i )
 		{
-			$i->updateTmb($w);
+			$i->updateTmb($w, $crop);
 		}
 	}
 

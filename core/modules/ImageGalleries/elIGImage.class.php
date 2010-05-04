@@ -92,7 +92,7 @@ class elIGImage extends elDataMapping
 	function _makeTmb($file, $imgW, $imgH, $tmbSize, $crop=false) {
 		$_image = elSingleton::getObj('elImage');
 		if ($crop) {
-			$w = $h = $this->tmbSize;
+			$w = $h = $tmbSize;
 		} else {
 			list($w, $h) = $_image->calcTmbSize($imgW, $imgH, $tmbSize);	
 		}

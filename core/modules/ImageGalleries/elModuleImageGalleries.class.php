@@ -152,10 +152,7 @@ class elModuleImageGalleries extends elModule
 			$ats->user->setPref('ig_isize', (int)$_POST['ig_isize']);
 		}
 
-		$sizeNdx = $ats->user->getPref('ig_isize');
-		$this->_sizeNdx = !empty($this->_sizes[$sizeNdx])
-			? $sizeNdx
-			: (!empty($this->_sizes[$this->_conf['imgSizeNdx']]) ? $this->_conf['imgSizeNdx'] : 2);
+
 
 		$this->_factory = & new elIGFactory($this->pageID, $this->_conf);
 

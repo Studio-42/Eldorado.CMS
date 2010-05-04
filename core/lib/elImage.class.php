@@ -9,15 +9,10 @@ class elImage {
 	
 	function __construct()
 	{
-		if (extension_loaded('imagick'))
+		if (extension_loaded('imagick') && substr(PHP_VERSION, 0, 1) > 4)
 		{
 			$this->_lib = 'imagick';
 		}
-		// exec('mogrify --version', $o, $c);
-		// if ($c == 0 && !empty($o))
-		// {
-		// 	$this->_lib = 'mogrify';
-		// }
 		elseif (function_exists('gd_info'))
 		{
 			$this->_lib = 'gd';

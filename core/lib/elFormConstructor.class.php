@@ -46,6 +46,30 @@ class elFormConstructor {
 	}
 	
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getElements() {
+		$ret = array();
+		foreach ($this->_elements as $el) {
+			$ret[] = $el->toFormElement();
+		}
+		return $ret;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function fieldExists($id) {
+		return isset($this->_elements[$id]);
+	}
+	
+	/**
 	 * return complete form
 	 *
 	 * @return object
@@ -155,12 +179,22 @@ class elFormConstructor {
 	 * @return void
 	 * @author /bin/bash: niutil: command not found
 	 **/
-	function getElements() {
-		$ret = array();
-		foreach ($this->_elements as $el) {
-			$ret[] = $el->toFormElement();
+	function delete($id) {
+		if (isset($this->_elements[$id])) {
+			$this->_elements[$id]->delete();
 		}
-		return $ret;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function clean() {
+		$db = &elSigleton::getObj('elDb');
+		$db->query('DELETE FROM el_form WHERE form_id="'.$this->ID.'"');
+		$db->optimizeTable('el_form');
 	}
 	
 }
@@ -476,18 +510,20 @@ class elFormConstructorElement extends elDataMapping {
 	function _postSave($isNew, $params=null)
 	{
 		$db  = & elSingleton::getObj('elDb');
-		$sql = 'UPDATE %s SET sort_ndx=IF(sort_ndx=%d, sort_ndx-1, sort_ndx+1) WHERE form_id="%s" AND sort_ndx>=%d AND id<>%d';
-		$sql = sprintf($sql, $this->_tb, $this->sortNdx, $this->formID, $this->sortNdx, $this->ID);
-		$db->query($sql);
 		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE form_id="'.$this->formID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
 		$i = 1;
+		$s = sizeof($indexes);
 		foreach ($indexes as $id=>$ndx) {
-			if ($ndx != $i++) {
-				$sql = sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb, $i-1, $id);
-				$db->query($sql);
+			if ($id != $this->ID) {
+				if ($i == $this->sortNdx) {
+					$i = $i == $s ? $s-1 : $i++;
+				}
+				if ($ndx != $i) {
+					$db->query(sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb, $i, $id));
+				}
 			}
+			$i++;
 		}
-		
 		return true;
 	}
 	

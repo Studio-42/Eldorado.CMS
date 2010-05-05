@@ -95,7 +95,9 @@ class elModuleICartConf extends elModule {
 		'dir_clean'  => array('m' => 'dirClean'),
 		'edit'       => array('m' => 'edit'),
 		'rm'         => array('m' => 'remove'),
-		'field_edit' => array('m' => 'fieldEdit')
+		'field_edit' => array('m' => 'fieldEdit'),
+		'field_rm'   => array('m' => 'fieldRemove'),
+		'sort'       => array('m' => 'sort')
 		);
 	
 	var $_mMapConf  = array();
@@ -282,6 +284,28 @@ class elModuleICartConf extends elModule {
 		}
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function fieldRemove() {
+		$id = $this->_arg();
+		if (empty($id)) {
+			$this->_fc->clean();
+			elMsgBox::put(m('Data was removed'));
+		} else {
+			$id = (int)$id;
+			if ($this->_fc->fieldExists($id)) {
+				$this->_fc->delete($id);
+				elMsgBox::put(m('Data was removed'));
+			} else {
+				elThrow(E_USER_WARNING, '')
+			}
+		}
+		
+	}
 	
 	function _onInit() {
 		$this->_dm = & elSingleton::getObj('elDirectoryManager');

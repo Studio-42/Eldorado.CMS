@@ -2,14 +2,6 @@
 // ver 2.0
 include_once EL_DIR_CORE.'lib/elPlugin.class.php';
 
-if ( !defined('EL_IG_DISPL_POPUP') )
-{
-	define('EL_IG_DISPL_POPUP', 0);
-}
-if (!defined('EL_IG_DISPL_LIGHTBOX') )
-{
-	define('EL_IG_DISPL_LIGHTBOX', 1);
-}
 
 class elPluginRandomImage extends elPlugin
 {
@@ -74,7 +66,6 @@ class elPluginRandomImage extends elPlugin
 			}
 			$rnd->setFile($tplVar, $tpl);
 			$rnd->assignVars('srcID', $src);
-			$view    = $this->_param($src, 'view', EL_IG_DISPL_LIGHTBOX);
 			$imgName = $this->_param($src, 'name', 0);
 
 
@@ -88,28 +79,15 @@ class elPluginRandomImage extends elPlugin
 				$srcPage = $nav->getPage( $src );
 				$rnd->assignBlockVars('PL_RI_LINK', array('url'=>$srcPage['url'], 'link'=>$link));
 			}
-			if ( EL_IG_DISPL_LIGHTBOX == $view )
-			{
-				elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
-				elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
-				elAddCss('fancybox.css');
-				if ( $rnd->isBlockExists('PL_RI_SCRIPT') )
-				{
-					$rnd->assignBlockVars('PL_RI_SCRIPT');
-				}
-			}
+			elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
+			elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
+			elAddJs('$(".pl-rndimg a").fancybox(); ', EL_JS_SRC_ONREADY);
+			elAddCss('fancybox.css');
+
 			while ($r = $db->nextRecord() )
 			{
-				if ( EL_IG_DISPL_LIGHTBOX == $view )
-				{
-					$block  = 'PL_RI.PL_RI_LB';
-					$nBlock = 'PL_RI.PL_RI_LB.PL_RI_LB_NAME';
-				}
-				else
-				{
-					$block  = 'PL_RI.PL_RI_POPUP';
-					$nBlock = 'PL_RI.PL_RI_POPUP.PL_RI_POPUP_NAME';
-				}
+				$block  = 'PL_RI.PL_RI_IMG';
+				$nBlock = 'PL_RI.PL_RI_IMG.PL_RI_IMG_NAME';
 
 				$rnd->assignBlockVars($block, $r, 1);
 				if ($imgName && !empty($r['i_name']))
@@ -155,7 +133,6 @@ class elPluginRandomImage extends elPlugin
 					$params[$src]['num']   = $data['num_'.$src];
 					$params[$src]['sort']  = $data['sort_'.$src];
 					$params[$src]['name']  = $data['name_'.$src];
-					$params[$src]['view']  = (int)$data['view_'.$src];
 					$params[$src]['pos']   = $data['pos_'.$src];
 					$params[$src]['pages'] = $data['pages_'.$src];
 				}
@@ -188,9 +165,6 @@ class elPluginRandomImage extends elPlugin
 		$pages[1] = m('Whole site');
 		$swLabel  = m('Use this data source');
 		$sort     = array( m('Random images'), m('Last added images') );
-		$view     = array(
-			EL_IG_DISPL_POPUP    => m('Popup window'),
-			EL_IG_DISPL_LIGHTBOX => m('LightBox'));
 
 		foreach ($srcs as $src)
 		{
@@ -205,7 +179,6 @@ class elPluginRandomImage extends elPlugin
 			$box->add( new elSelect('num_'.$src,   m('How many images display'), $this->_param($src, 'num', 1), $nums) );
 			$box->add( new elSelect('sort_'.$src,   m('Which images display'), $this->_param($src, 'sort', 0), $sort) );
 			$box->add( new elSelect('name_'.$src,  m('Display images name'),   $this->_param($src, 'name', 0), $GLOBALS['yn'] ) );
-			$box->add( new elSelect('view_'.$src,  m('Display full sized images using'),   $this->_param($src, 'view', EL_IG_DISPL_LIGHTBOX), $view ) );
 			$box->add( new elSelect('pos_'.$src,   m('Position on page'), $this->_param($src, 'pos', EL_POS_LEFT), $GLOBALS['posLRTB']) );
 			$ms = & new elMultiSelectList('pages_'.$src, m('Site pages'), $this->_param($src, 'pages', array(1)), $pages) ;
 			$ms->setSwitchValue(1);

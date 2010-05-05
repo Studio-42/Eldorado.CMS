@@ -301,7 +301,7 @@ class elModuleICartConf extends elModule {
 				$this->_fc->delete($id);
 				elMsgBox::put(m('Data was removed'));
 			} else {
-				elThrow(E_USER_WARNING, '')
+				elThrow(E_USER_WARNING, '');
 			}
 		}
 		

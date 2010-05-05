@@ -21,25 +21,25 @@
 				vert       = opts.position == 'vertical' || (items.eq(0).css('display') == 'block' && items.eq(0).css('float') == 'none'),
 				w          = parseInt(items.eq(0).outerWidth()),
 				h          = parseInt(items.eq(0).outerHeight()),
-				prev       = $('<a href="#" class="elslider-prev"/>').hide().appendTo(t),
-				next       = $('<a href="#" class="elslider-next"/>').hide().appendTo(t),
+				prev       = $('<div class="prev"/>').hide().appendTo(t),
+				next       = $('<div class="next"/>').hide().appendTo(t),
 				itemSize   = vert ? h : w,
 				sliderSize = opts.size*itemSize,
 				viewSize   = items.length*itemSize,
 				cssPos     = vert ? 'top' : 'left';
-
+				
 			if (vert) {
 				t.height(sliderSize).width(w);
-				// slider.height(sliderSize).width(w);
+				slider.height(sliderSize).width(w);
 				view.height(viewSize).width(w);
 				prev.add(next).css('left', parseInt((w-prev.outerWidth())/2));
 			} else {
 				// t.width(sliderSize).height(h);
 				slider.width(sliderSize).height(h);
-				t.width(sliderSize)
+				t.width(sliderSize);
 				view.width(viewSize).height(h);
 				prev.add(next).css('top', parseInt((h-prev.outerHeight())/2));
-				log(t.css('padding-right'))
+				// log(t.css('padding-right'))
 			}
 			t.hover(
 				function() { prev.add(next).show(); },
@@ -61,8 +61,7 @@
 						css[cssPos] = offset-opts.delta+'px';
 					} else {
 						offset      = 0;
-						time        = parseInt(items.length*opts.time/2);
-						// alert(time)
+						time        = parseInt(items.length/3)*opts.time;
 						css[cssPos] = opts.delta+'px';
 					}
 
@@ -85,8 +84,7 @@
 						css[cssPos] = offset+opts.delta+'px';
 					} else {
 						offset = -(viewSize-sliderSize);
-						time = parseInt(items.length*opts.time/2);
-						// alert(time)
+						time = parseInt(items.length/3)*opts.time;
 						css[cssPos] = offset-opts.delta+'px';
 					}
 					view.animate(css, opts.time, opts.delta ? function() { css[cssPos] = offset+'px'; view.animate(css, opts.deltaTime); } : function() {});

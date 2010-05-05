@@ -102,7 +102,7 @@ class elFormConstructor {
 		$label = '
 			<ul class="adm-icons">
 				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
-				<li><a href="'.$url.'sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
+				<li><a href="'.$url.'field_sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
 				<li><a href="'.$url.'field_rm/" class="icons clean" title="'.m('Clean').'"></a></li>
 			</ul>
 			';
@@ -195,6 +195,25 @@ class elFormConstructor {
 		$db = &elSigleton::getObj('elDb');
 		$db->query('DELETE FROM el_form WHERE form_id="'.$this->ID.'"');
 		$db->optimizeTable('el_form');
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function sort()	{
+		$this->_form = & elSingleton::getObj('elForm', $this->ID, $this->label);
+		$this->_form->setRenderer(new elTplFormRenderer());
+		foreach ($this->_elements as $id => $e) {
+			$label = $e->type == 'title' || $e->type == 'comment' ? $e->value : $e->label;
+			$this->_form->add(new elText('el['.$id.']', $label, $r->sortNdx));
+		}
+		
+		if ($this->_form->isSubmitAndValid()) {
+			
+		}
 	}
 	
 }

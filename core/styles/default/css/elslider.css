@@ -1,14 +1,14 @@
 .elslider {
-	margin:100px;
+/*	margin:100px;*/
 	position:relative;
 	padding:0 16px;
-	border:1px solid red;
+/*	border:1px solid red;*/
 }
 
 .elslider div {
 	position:relative;
 	overflow:hidden;
-	border:1px solid green;	
+/*	border:1px solid green;	*/
 }
 
 .elslider ul {
@@ -16,7 +16,7 @@
 	padding:0;
 	list-style:none;
 	position:absolute;
-	border:1px solid blue;
+/*	border:1px solid blue;*/
 }
 
 .elslider ul li {
@@ -43,29 +43,45 @@
 
 .elslider .prev {
 	left:3px;
-	background:url(../images/left.png) 0 0 no-repeat;
+	background:url(../images/elslider/left.png) 0 0 no-repeat;
 }
 
 .elslider .next {
 	right:3px;
-	background:url(../images/right.png) 0 0 no-repeat;
+	background:url(../images/elslider/right.png) 0 0 no-repeat;
 }
 
 /* vertical */
 
 .elslider-vert {
-	border:1px solid #111;
+/*	border:1px solid #fff;*/
+	position:relative;
+/*	overflow:hidden;*/
+/*	margin:100px;*/
+	padding: 0;
+/*	height:400px;*/
+}
+
+.elslider-vert div {
 	position:relative;
 	overflow:hidden;
+/*	border:1px solid red;*/
 }
 
-.elslider-vert div.view {
+.elslider-vert ul {
 	position:absolute;
+	padding:0;
+	margin:0;
+	list-style:none;
 }
 
-.elslider-vert div.view>div {
-	width:170px;
-	border:1px solid red;
+.elslider-vert ul li {
+	display:block;
+	padding:0 0 20px 0;
+	margin:0;
+/*	width:170px;*/
+	height:110px;
+/*	border:1px solid red;*/
 }
 
 .elslider-vert .prev, .elslider-vert .next {
@@ -77,10 +93,10 @@
 
 .elslider-vert .prev {
 	top:3px;
-	background:url(../images/left.png) 0 0 no-repeat;
+	background:url(../images/elslider/top.png) 0 0 no-repeat;
 }
 
 .elslider-vert .next {
 	bottom:3px;
-	background:url(../images/right.png) 0 0 no-repeat;
+	background:url(../images/elslider/bottom.png) 0 0 no-repeat;
 }

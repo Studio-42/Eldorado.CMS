@@ -26,31 +26,40 @@ if (!defined('EL_CAT_DESCRIP_IN_BOTH')) {
 
 class elModuleIShop extends elModule
 {
-  var $_factory   = null;
-  var $_cat       = null;
-  var $_item      = null;
+	var $_factory   = null;
+	var $_cat       = null;
+	var $_item      = null;
 	var $_jslib     = true;
-  var $_mMap      = array('item' => array('m'=>'viewItem'), 'img'=>array('m' => 'displayItemImg') );
-  var $_conf      = array(
-  	'deep'              => 0,
-    'catsCols'          => 1,
-    'itemsCols'         => 1,
-    'itemsSortID'       => EL_IS_SORT_NAME,
-    'itemsPerPage'      => 10,
-    'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
-    'displayCode'       => 1,
-    'mnfNfo'            => EL_IS_USE_MNF,
-    'tmbListSize'       => 125,
-    'tmbListPos'        => EL_POS_LEFT,
-    'tmbItemCardSize'   => 250,
-    'tmbItemCardPos'    => EL_POS_LEFT,
-    'crossLinksGroups'  => array(),
-    'search'            => 1,
-    'searchOnAllPages'  => 1,
-    'searchColumnsNum'  => 3,
-    'searchTitle'       => '',
-    'searchTypesLabel'  => ''
-    );
+	var $_mMap      = array(
+		'item'   => array('m' =>'viewItem'), 
+		'img'   => array('m' => 'displayItemImg'),
+		'order' => array('m' => 'order') 
+	);
+	var $_conf      = array(
+		'deep'              => 0,
+		'catsCols'          => 1,
+		'itemsCols'         => 1,
+		'itemsSortID'       => EL_IS_SORT_NAME,
+		'itemsPerPage'      => 10,
+		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
+		'displayCode'       => 1,
+		'mnfNfo'            => EL_IS_USE_MNF,
+		'tmbListSize'       => 125,
+		'tmbListPos'        => EL_POS_LEFT,
+		'tmbItemCardSize'   => 250,
+		'tmbItemCardPos'    => EL_POS_LEFT,
+		'crossLinksGroups'  => array(),
+		'search'            => 1,
+		'searchOnAllPages'  => 1,
+		'searchColumnsNum'  => 3,
+		'searchTitle'       => '',
+		'searchTypesLabel'  => '',
+		'currency'          => '',
+		'exchangeSrc'       => 'auto',
+		'commision'         => 0,
+		'rate'              => 1,
+	    'pricePrec'         => 2
+	);
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
@@ -59,7 +68,6 @@ class elModuleIShop extends elModule
   function defaultMethod()
   {
     $this->_initRenderer();
-
     if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) )
     {
         $sm = $this->_factory->getSearchManager();
@@ -90,10 +98,63 @@ class elModuleIShop extends elModule
                       );
   }
 
-  function _displaySearchForm()
-  {
-    
-  }
+	function order()
+	{
+		$catID  = (int)$this->_arg();
+		$itemID = (int)$this->_arg(1);
+		$url    = EL_URL.'item/'.$catID.'/'.$itemID.'/';
+		$item   = $this->_factory->getItem( $itemID );
+		
+		if (!$item->ID) {
+			elThrow(E_USER_WARNING, 'Unable to find item to add into shopping cart', null, $url);
+		} elseif (!$item->price) {
+			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $url);
+		}
+		
+		$data = array(
+			'page_id' => $this->pageID,
+			'i_id'    => $item->ID,
+			'code'    => '',
+			'name'    => '',
+			'price'   => 0,
+			'props'   => array()
+			);
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate')
+			);
+		$data = array(
+			'page_id' => $this->pageID,
+			'i_id'    => $item->ID,
+			'm_id'    => '',
+			'code'    => $this->_conf('displayCode') ? $item->code : '',
+			'name'    => $item->name,
+			'price'   => $currency->convert($item->price, $curOpts),
+			'props'   => array()
+			);
+			
+		if (!empty($_POST['prop']) && is_array($_POST['prop'])) {
+			foreach ($_POST['prop'] as $pID => $v) {
+				$data['props'][] = array($item->getPropName($pID), $v);
+			}
+		}
+			
+		// elPrintR($data);
+		elLoadMessages('ServiceICart');
+		$ICart = & elSingleton::getObj('elICart');
+		if ($ICart->add($data)) {
+			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
+	        elMsgBox::put($msg);
+			elLocation($url);
+		} else {
+			$msg = sprintf( m('Error! Could not add item to Your shopping cart! Please contact site administrator.') );
+            elThrow(E_USER_WARNING, $msg, null, $url);
+		}
+	}
 
   function viewItem()
   {
@@ -243,6 +304,25 @@ class elModuleIShop extends elModule
 			}
 		}
 		$GLOBALS['categoryID'] = $this->_cat->ID;
+		
+		$cur  = &elSingleton::getObj('elCurrency');
+		
+		if (empty($this->_conf['currency'])) {
+			$conf = & elSingleton::getObj('elXmlConf');
+			$this->_conf['currency'] = $cur->current['intCode'];
+			$conf->set('currency', $cur->current['intCode'], $this->pageID);
+			$conf->save();
+		}
+		
+		if ($this->_conf['currency'] != $cur->current['intCode'] && $this->_conf('exchangeSrc') == 'manual' && !($this->_conf('rate') > 0)) {
+			$conf = & elSingleton::getObj('elXmlConf');
+			$conf->set('exchangeSrc', 'auto', $this->pageID);
+			$conf->set('rate',         0,     $this->pageID);
+			$conf->save();
+			$cur->updateConf();
+			$this->_conf['exchangeSrc'] = 'auto';
+			$this->_conf['rate']        = 0;
+		}
   }
 
 }

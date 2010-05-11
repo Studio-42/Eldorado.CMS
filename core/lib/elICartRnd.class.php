@@ -45,10 +45,7 @@ class elICartRnd extends elModuleRenderer
         $amount = 0;
         foreach ( $items as $i )
         {
-			if (!$i['display_code'])
-			{
-				$i['code'] = '';
-			}
+
             $amount += $i['sum'];
             $i['price'] = $currency->format($i['price'], array('precision' => $this->_conf['precision']));
             $i['sum']   = $currency->format($i['sum'],   array('precision' => $this->_conf['precision']));

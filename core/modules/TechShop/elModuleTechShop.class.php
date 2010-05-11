@@ -48,6 +48,7 @@ class elModuleTechShop extends elCatalogModule
     'itemsPerPage'        => 10,
     'displayCatDescrip'   => 1,
     'modelsTmbSize'      => 100,
+	'displayCode'       => 1,
 	'ishop'             => EL_TS_ISHOP_DISABLED,
 	'currency'          => '',
 	'exchangeSrc'       => 'auto',
@@ -197,16 +198,14 @@ class elModuleTechShop extends elCatalogModule
 		{
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
 		}
-		
+		$url = EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/';
 		$data = array(
 			'page_id' => $this->pageID,
 			'i_id'    => $this->_item->ID,
-			'm_id'    => 0,
 			'code'    => '',
 			'name'    => '',
 			'price'   => 0,
-			'props'   => array(),
-			'url'     => EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID
+			'props'   => array()
 			);
 		$type = trim($this->_arg(2));
 		$mID = (int)$this->_arg(3);
@@ -246,9 +245,13 @@ class elModuleTechShop extends elCatalogModule
 		}
 		
 		if (!$data['name']) {
-			elThrow(E_USER_WARNING, 'Unable to find item to add into shopping cart', null, $data['url']);
+			elThrow(E_USER_WARNING, 'Unable to find item to add into shopping cart', null, $url);
 		} elseif (!$data['price']) {
-			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $data['url']);
+			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $url);
+		}
+		
+		if (!$this->_conf('displayCode')) {
+			$data['code'] = '';
 		}
 		
 		elLoadMessages('ServiceICart');
@@ -256,13 +259,12 @@ class elModuleTechShop extends elCatalogModule
 		if ($ICart->add($data)) {
 			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
 	        elMsgBox::put($msg);
-			elLocation($data['url']);
+			elLocation($url);
 		} else {
 			$msg = sprintf( m('Error! Could not add item to Your shopping cart! Please contact site administrator.') );
-            elThrow(E_USER_WARNING, $msg, null, $data['url']);
-
+            elThrow(E_USER_WARNING, $msg, null, $url);
 		}
-		
+
 	}
 	//**************************************************************************************//
 	// =============================== PRIVATE METHODS ==================================== //

@@ -13,7 +13,7 @@ INSERT INTO `el_techshop_{pageID}_cat` (_left, _right, level, name) VALUES (1,2,
 
 DROP TABLE IF EXISTS `el_techshop_{pageID}_item`;
 CREATE TABLE `el_techshop_{pageID}_item` (
-  `id`       int(3)       NOT NULL auto_increment,
+  `id`       int(5)       NOT NULL auto_increment,
   `mnf_id`   int(2)       NOT NULL default '0',
   `code`     varchar(30)  NOT NULL default '',
   `name`     varchar(150) NOT NULL default '',
@@ -28,8 +28,8 @@ CREATE TABLE `el_techshop_{pageID}_item` (
 
 DROP TABLE IF EXISTS `el_techshop_{pageID}_model`;
 CREATE TABLE `el_techshop_{pageID}_model` (
-  `id`       int(4)       NOT NULL auto_increment,
-  `i_id`     int(3)       NOT NULL default '0',
+  `id`       int(5)       NOT NULL auto_increment,
+  `i_id`     int(5)       NOT NULL default '0',
   `code`     varchar(75)  NOT NULL default '',
   `name`     varchar(255) NOT NULL default '',
   `price`    double(12,2)  NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE `el_techshop_{pageID}_manufact` (
 
 DROP TABLE IF EXISTS `el_techshop_{pageID}_i2c`;
 CREATE TABLE `el_techshop_{pageID}_i2c` (
-  `i_id`     int(3) NOT NULL default '0',
+  `i_id`     int(5) NOT NULL default '0',
   `c_id`     int(3) NOT NULL default '0',
   `sort_ndx` int(3) NOT NULL default '0',
   PRIMARY KEY  (`i_id`,`c_id`)
@@ -88,7 +88,7 @@ CREATE TABLE `el_techshop_{pageID}_feature` (
 
 DROP TABLE IF EXISTS `el_techshop_{pageID}_ft2i`;
 CREATE TABLE `el_techshop_{pageID}_ft2i` (
-  `i_id`         int(3)         NOT NULL default '0',
+  `i_id`         int(5)         NOT NULL default '0',
   `ft_id`        int(3)         NOT NULL default '0',
   `value`        varchar(150)   NOT NULL default '',
 	`is_announced` enum('0', '1') NOT NULL default '0',
@@ -99,7 +99,7 @@ CREATE TABLE `el_techshop_{pageID}_ft2i` (
 
 DROP TABLE IF EXISTS `el_techshop_{pageID}_ft2m`;
 CREATE TABLE `el_techshop_{pageID}_ft2m` (
-  `m_id`         int(3)         NOT NULL default '0',
+  `m_id`         int(5)         NOT NULL default '0',
   `ft_id`        int(3)         NOT NULL default '0',
   `value`        varchar(150)   NOT NULL default '',
   `is_announced` enum('0', '1') NOT NULL default '0',
@@ -110,7 +110,7 @@ CREATE TABLE `el_techshop_{pageID}_ft2m` (
 DROP TABLE IF EXISTS `el_techshop_{pageID}_price`;
 CREATE TABLE IF NOT EXISTS `el_techshop_{pageID}_price` (
   `id` int(3) NOT NULL auto_increment,
-  `i_id` int(3) NOT NULL default '0',
+  `i_id` int(5) NOT NULL default '0',
   `name` varchar(255) collate utf8_bin NOT NULL default '',
   `comment` tinytext collate utf8_bin NOT NULL,
   `price` double(12,2) NOT NULL,

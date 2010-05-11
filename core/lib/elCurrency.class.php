@@ -86,8 +86,6 @@ class elCurrency {
 			? $this->info[$currency]
 			: $this->info['USD'];
 		$this->_load();
-		// elPrintR($this);
-		
 	}
 	
 	function elCurrency() {
@@ -98,7 +96,6 @@ class elCurrency {
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function getInfo()
 	{

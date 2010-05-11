@@ -124,6 +124,10 @@ class elUser extends elMemberAttribute
 					.' WHERE uid='.$this->UID;
 
 		$this->db->query($sql);
+		if ($upVisit) {
+			$this->db->query(sprintf('UPDATE el_icart SET sid="%s" WHERE uid=%d', mysql_real_escape_string(session_id()), $this->UID));
+		}
+		
 	}
 
 	function onLogout()

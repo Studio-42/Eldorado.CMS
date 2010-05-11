@@ -3,7 +3,7 @@
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFormConstructor.class.php';
 
-class elOrderConf {
+class _elOrderConf {
 	var $_confID = 'orderConf';
 	var $_tb     = 'el_icart_conf';
 	var $_conf   = null;
@@ -120,7 +120,8 @@ class elModuleICartConf extends elModule {
 		$orderConf = array(
 			'order_emails'  => htmlspecialchars(implode(', ', $this->_orderConf->recipients())),
 			'order_confirm' => $this->_orderConf->confirm() ? m('Yes') : m('No'),
-			'order_guest'   => $this->_orderConf->allowGuest()  ? m('Yes') : m('No')
+			'order_guest'   => $this->_orderConf->allowGuest() ? m('Yes') : m('No'),
+			'precision'     => $this->_orderConf->precision() > 0 ? m('Double, two signs after dot') : m('Integer')
 			);
 		$this->_rnd->rnd($orderConf, 
 						$this->_orderConf->getAll(), 
@@ -140,6 +141,8 @@ class elModuleICartConf extends elModule {
 		$form->add(new elCheckboxesGroup('rcpt', m('Recipients'), array_keys($this->_orderConf->recipients()), $ec->getLabels()));
 		$form->add(new elSelect('confirm', m('Send confirm to customer'), $this->_orderConf->confirm(), $GLOBALS['yn']));
 		$form->add(new elSelect('allowGuest', m('Allow non-authorized users send order'), $this->_orderConf->allowGuest(), $GLOBALS['yn']));
+		$formats = array(0=>m('Integer'), 2=> m('Double, two signs after dot'));
+		$form->add(new elSelect('precision', m('Price format'), $this->_orderConf->precision() > 0 ? 2 : 0, $formats));
 		$form->setRequired('rcpt[]');
 		
 		if (!$form->isSubmitAndValid()) {
@@ -150,6 +153,7 @@ class elModuleICartConf extends elModule {
 			$this->_orderConf->recipients($data['rcpt']);
 			$this->_orderConf->confirm($data['confirm']);
 			$this->_orderConf->allowGuest($data['allowGuest']);
+			$this->_orderConf->precision($data['precision']);
 			elMsgBox::put(m('Data was saved'));
 			elLocation(EL_URL);
 		}
@@ -327,7 +331,7 @@ class elModuleICartConf extends elModule {
 	function _onInit() {
 		$this->_dm = & elSingleton::getObj('elDirectoryManager');
 		$this->_fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
-		$this->_orderConf = & elSingleton::getObj('elOrderConf');
+		$this->_orderConf = & elSingleton::getObj('elICartConf');
 		if (!$this->_dm->directoryExists('icart_region')) {
 			$this->_dm->create('icart_region', m('Regions'));
 		}

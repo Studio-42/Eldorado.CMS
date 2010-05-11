@@ -983,14 +983,13 @@ class elSiteRenderer
         }
 
         $ICart = & elSingleton::getObj('elICart');
-		$qnt   = $ICart->getTotalQnt();
-		if ( !$qnt && !$this->_conf->get('iCartDisplayEmpty', 'layout') )
+		if ( !$ICart->qnt && !$this->_conf->get('iCartDisplayEmpty', 'layout') )
 		{
 			return;
 		}
 		$tpl = $this->_processMiscTpl('icart', $pos); 
 		$this->_te->setFile($tpl[0], $tpl[1]);
-		if ( !$qnt )
+		if ( !$ICart->qnt )
 		{
 			$this->_te->assignBlockVars('ICART_EMPTY');
 		}
@@ -998,8 +997,8 @@ class elSiteRenderer
 		{
 			$currency = &elSingleton::getObj('elCurrency');
 			$data     = array(
-				'iCartQnt'     => $qnt, 
-				'iCartAmount'  => $currency->format($ICart->getAmount(), array('precision' => (int)$this->_conf->get('precision', 'iCart'), 'symbol' => true)) 
+				'iCartQnt'     => $ICart->qnt, 
+				'iCartAmount'  => $ICart->amount
 			);
 			$this->_te->assignBlockVars('ICART_SUMMARY',  $data);
 		}

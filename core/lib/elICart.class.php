@@ -11,47 +11,31 @@ class elICart
 	var $_UID         = 0;
 	var $_items       = array();
 	var $_itemsLoaded = false;
-	var $_total       = 0;
-	var $_amount      = 0;
+	var $qnt       = 0;
+	var $amount      = 0;
 	var $_rnd         = null;
-	var $_conf        = null;
+	var $_conf        = array();
+	var $_precision   = 0;
 	
 
     function elICart()
     {
         $this->_db       = & elSingleton::getObj('elDb');
-        $this->_conf     = & elSingleton::getObj('elXmlConf');
+        $this->_conf     = & elSingleton::getObj('elICartConf');
+		$this->_currency = & elSingleton::getObj('elCurrency');
+		$this->_precision = $this->_conf->precision() > 0 ? 2 : 0;
         $this->_SID      = mysql_real_escape_string(session_id());
         $ats             = & elSingleton::getObj('elATS');
         $this->_UID      = $ats->getUserID();
-        if ( $this->_UID )
-        {
-            $sql = 'UPDATE '.$this->_tb.' SET sid=\''.$this->_SID.'\' WHERE uid=\''.$this->_UID.'\'';
-            $this->_db->query($sql);
-        }
-        $this->_loadSummary();
+		$this->_load();
     }
     
-    function getTotalQnt()
-    {
-        return $this->_total;
-    }
+
     
-    function getAmount()
-    {
-        return $this->_amount;
-    }
-    
-    function getItems()
-    {
-		return $this->_getItems();
- 
-    }
-    
-    function getItemsRaw()
-    {
-        return $this->_getItems();
-    }
+	function getItems()
+	{
+		return $this->_items;
+	}
     
     function isEmpty()
     {
@@ -100,139 +84,20 @@ class elICart
 		if (false != ($ID = $this->_find($item))) {
 			$sql = 'UPDATE el_icart SET qnt=qnt+1, mtime=%d WHERE id=%d';
 			$sql = sprintf($sql, time(), $ID);
-
 		} else {
-			$sql = 'INSERT INTO el_icart (sid, uid, page_id, i_id, m_id, code, display_code, name, qnt, price, props, crtime, mtime) '
-                        .'VALUES         ("%s", %d, %d,      %d,   %d,   "%s", 1,            "%s", 1,   "%s",  "%s",  %d,     %d)';
-			$sql = sprintf($sql, $this->_SID, $this->_UID, $item['page_id'], $item['i_id'], $item['m_id'], 
-				mysql_real_escape_string($item['code']), mysql_real_escape_string($item['name']), $item['price'], 
-				!empty($item['props']) ? serialize($item['props']) : '', time(), time() );
+			$item['code']  = mysql_real_escape_string($item['code']);
+			$item['name']  = mysql_real_escape_string($item['name']);
+			$item['props'] = !empty($item['props']) ? serialize($item['props']) : '';
 			
+			$sql = 'INSERT INTO el_icart (sid, uid, page_id, i_id, m_id, code, name, qnt, price, props, crtime, mtime) '
+                        .'VALUES         ("%s", %d, %d,      %d,   %d,   "%s", "%s", 1,   "%s",  "%s",  %d,     %d)';
+			$sql = sprintf($sql, $this->_SID, $this->_UID, $item['page_id'], $item['i_id'], $item['m_id'], $item['code'], $item['name'], $item['price'], $item['props'], time(), time() );
 		}
 		return $this->_db->query($sql);
 	}
 
-    /**
-     * Добавляет в корзину товар из модуля IShop
-     *
-     */
-    function addIShopItem($pageID, $iID, $props=null)
-    {
-        $iID        = intval($iID); 
-        $modConfig  = $this->_conf->getGroup($pageID);
-        $itemProps  = array();
-        elSingleton::incLib('modules/IShop/elIShopFactory.class.php', true);
-        $factory    = & elSingleton::getObj('elIShopFactory');
-        $factory->init($pageID, $modConfig);
-        $item       = $factory->getItem($iID);
-        $dispayCode = (int)!empty($modConfig['displayCode']);
-		
-		if (empty($item->name))
-		{
-			return '';
-		}
-        if (is_array($props))
-        {
-            foreach ($props as $pID => $v)
-                $itemProps[] = array($item->getPropName($pID), $v);
-            $pSerial = mysql_real_escape_string(serialize($itemProps));
-        }
-        else
-            $pSerial = $props;
-        $sqlIns = 'INSERT INTO %s (sid, uid, shop, i_id, code, display_code, name, qnt, price, props, crtime, mtime) '
-            .'VALUES (\'%s\', \'%d\', \'IShop\', \'%d\', \'%s\',     %d,     \'%s\', \'1\', \'%s\', \'%s\', \'%d\', \'%d\')';
-        $sqlUpd = 'UPDATE %s SET sid=\'%s\', uid=\'%d\', i_id=\'%d\', code=\'%s\', display_code=\'%s\', '
-            .'name=\'%s\', qnt=qnt+1, price=\'%s\', props=\'%s\', mtime=\'%d\' WHERE id=\'%d\'';         
-       
-        $sql = 'SELECT id FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' AND shop=\'IShop\' AND i_id=\''.$iID.'\' AND props=\''.$pSerial.'\'';
-        $this->_db->query( $sql );
-       
-        if ( !$this->_db->numRows() )
-        { 
-            $sql = sprintf($sqlIns, $this->_tb, $this->_SID, $this->_UID, $iID,
-                           $item->code, $displayCode, $item->name, $item->price, $pSerial, time(), time()); 
-        }
-        else
-        {
-            $r = $this->_db->nextRecord();
-            $sql = sprintf($sqlUpd, $this->_tb, $this->_SID, $this->_UID, $iID,
-                           $item->code, $displayCode, $item->name, $item->price, $pSerial, time(), (int)$r['id']);
-        }
-        return $this->_db->query($sql) ? $item->name : ''; 
-    }
-    
-    function addTechShopItem($pageID, $iID, $mID = NULL)
-    {
-      	$iID       = intval($iID);
-        $mID       = intval($mID); //echo $iID.' '.$mID; exit;
-        elSingleton::incLib('modules/TechShop/elTSFactory.class.php', true);
-        $factory   = & elSingleton::getObj('elTSFactory');
-        $factory->init($pageID);
-        $modConfig = $this->_conf->getGroup($pageID);
-        
-        $item      = $factory->create(EL_TS_ITEM, $iID);
-        
-        if ( !$item->ID )
-        {
-            return false;
-        }
-        
-        if ( !$mID )
-        {
-            $code = !empty($modConfig['dislayCode']) ? $item->code : '';
-            $sql  = 'SELECT id FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' AND shop=\'TechShop\' AND i_id=\''.$iID.'\'';
-            $this->_db->query($sql);
-            if ( !$this->_db->numRows() )
-            {
-                $sqlIns = 'INSERT INTO %s (sid, uid, shop, i_id, code, name, qnt, price, props, crtime, mtime) '
-                            .'VALUES (\'%s\', \'%d\', \'TechShop\', \'%d\', \'%s\', \'%s\', \'1\', \'%s\', \'%s\', \'%d\', \'%d\')';
-                $sql = sprintf($sqlIns, $this->_tb, $this->_SID, $this->_UID, $item->ID,
-                           $code, $item->name, $item->price, '', time(), time());
-            }
-            else
-            {
-                $r = $this->_db->nextRecord();
-                $sqlUpd = 'UPDATE %s SET sid=\'%s\', uid=\'%d\', i_id=\'%d\', code=\'%s\', '
-                            .'name=\'%s\', qnt=qnt+1, price=\'%s\', props=\'%s\', mtime=\'%d\' WHERE id=\'%d\'';
-                $sql = sprintf($sqlUpd, $this->_tb, $this->_SID, $this->_UID, $item->ID,
-                           $code, $item->name, $item->price, '', time(), (int)$r['id']);
-            }
-            return $this->_db->query($sql) ? $item->name : ''; 
-        }
-        else
-        {
-            $model = $factory->create(EL_TS_MODEL,$mID);
-            if (empty($model->ID))
-            {
-                return false;
-            }
-            
-            $mCode = !empty($modConfig['dislayCode']) ? $model->code : '';
-            $name = $model->name;
-            $sql  = 'SELECT id FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' AND shop=\'TechShop\' AND i_id=\''.$iID.'\' AND m_id=\''.$mID.'\'';
-            $this->_db->query($sql);
-            if ( !$this->_db->numRows() )
-            {
-                $sqlIns = 'INSERT INTO %s (sid, uid, shop, i_id, m_id, code, name, qnt, price, props, crtime, mtime) '
-                            .'VALUES (\'%s\', \'%d\', \'TechShop\', \'%d\', \'%d\', \'%s\', \'%s\', \'1\', \'%s\', \'%s\', \'%d\', \'%d\')';
-                $sql = sprintf($sqlIns, $this->_tb, $this->_SID, $this->_UID, $item->ID, $mID,
-                           $code, $name, $model->price, '', time(), time());
-            }
-            else
-            {
-                $r = $this->_db->nextRecord();
-                $sqlUpd = 'UPDATE %s SET sid=\'%s\', uid=\'%d\', i_id=\'%d\', m_id=\'%d\', code=\'%s\', '
-                            .'name=\'%s\', qnt=qnt+1, price=\'%s\', props=\'%s\', mtime=\'%d\' WHERE id=\'%d\'';
-                $sql = sprintf($sqlUpd, $this->_tb, $this->_SID, $this->_UID, $item->ID, $mID,
-                           $code, $name, $model->price, '', time(), (int)$r['id']);
-            }
-            return $this->_db->query($sql) ? $name : ''; 
-        }
-        
 
-	
-	
-    }
+
     
 
 	function compliteOrder($customerNfo, $deliveryPrice)
@@ -290,32 +155,21 @@ class elICart
 		}
 	}
 
-    function _loadSummary()
-    {
-        $this->_db->query('SELECT SUM(qnt) AS total, SUM(qnt*price) AS amount FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\'');
-        if ( $this->_db->numRows() )
-        {
-            $r = $this->_db->nextRecord();
-            $this->_total  = $r['total'];
-            $this->_amount = $r['amount'];
-        }
-    }
+
     
     function _load()
     {
-        if ( !$this->_itemsLoaded && !$this->isEmpty() )
-        {
-            $sql = 'SELECT id, shop, page_id, i_id, m_id, code, display_code, name, qnt, price, props, url FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' ORDER BY shop, code, name';
-            //$this->_items = $this->_db->queryToArray( $sql, 'id'); 
-			$this->_db->query($sql);
-			while($r = $this->_db->nextRecord())
-			{
-				$this->_items[$r['id']] = $r;
-				$this->_items[$r['id']]['props'] = !empty($r['props']) ? unserialize($r['props']) : array();
-				$this->_items[$r['id']]['sum'] = $r['price']*$r['qnt'];
-			}
-        }
-        $this->_itemsLoaded = true;
+		$opts = array('precision' => $this->_precision);
+		$this->_db->query(sprintf('SELECT id, page_id, i_id, m_id, code, name, qnt, price, props FROM %s WHERE sid="%s" ORDER BY  code, name', $this->_tb, $this->_SID));
+		while($r = $this->_db->nextRecord())
+		{
+			$this->_items[$r['id']] = $r;
+			$this->_items[$r['id']]['props'] = !empty($r['props']) ? unserialize($r['props']) : array();
+			$this->_items[$r['id']]['price'] = $this->_currency->format($r['price'], $opts);
+			$this->_items[$r['id']]['sum'] = $this->_currency->format($r['price']*$r['qnt'], $opts);
+			$this->qnt  += $r['qnt'];
+            $this->amount += $this->_items[$r['id']]['sum'];
+		}
     }
     
     function _reload()

@@ -169,20 +169,19 @@ CREATE TABLE `el_icart` (
   `id` int(8) NOT NULL auto_increment,
   `sid` varchar(32) collate utf8_bin NOT NULL,
   `uid` int(5) NOT NULL,
-  `shop` enum('IShop','TechShop') collate utf8_bin NOT NULL default 'IShop',
   `i_id` int(5) NOT NULL,
-  `m_id` int(5) NOT NULL,
   `code` varchar(256) collate utf8_bin NOT NULL,
   `display_code` tinyint(1) NOT NULL default '1',
   `name` varchar(256) collate utf8_bin NOT NULL,
   `qnt` int(5) NOT NULL default '1',
   `price` double(12,2) NOT NULL,
-  `props` text collate utf8_bin,
+  `props` mediumtext collate utf8_bin,
   `crtime` int(11) NOT NULL,
   `mtime` int(11) NOT NULL,
   `page_id` int(3) NOT NULL,
-  `url` varchar(256) collate utf8_bin NOT NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+	KEY (`sid`),
+	KEY (`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 --
 LOCK TABLES `el_icart` WRITE;

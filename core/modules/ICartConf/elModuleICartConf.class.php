@@ -97,7 +97,7 @@ class elModuleICartConf extends elModule {
 		'rm'         => array('m' => 'remove'),
 		'field_edit' => array('m' => 'fieldEdit'),
 		'field_rm'   => array('m' => 'fieldRemove'),
-		'sort'       => array('m' => 'sort')
+		'field_sort' => array('m' => 'fieldsSort')
 		);
 	
 	var $_mMapConf  = array();
@@ -269,6 +269,17 @@ class elModuleICartConf extends elModule {
 		elLocation(EL_URL);
 	}
 	
+	function fieldsSort() {
+		
+		if (!$this->_fc->sort()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($this->_fc->formToHtml());
+		} else {
+			elMsgBox::put(m('Data was saved'));
+			elLocation(EL_URL);
+		}
+	}
+	
 	/**
 	 * create/edit icart additional field
 	 *
@@ -288,22 +299,28 @@ class elModuleICartConf extends elModule {
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
+
 	 **/
 	function fieldRemove() {
-		$id = $this->_arg();
-		if (empty($id)) {
-			$this->_fc->clean();
-			elMsgBox::put(m('Data was removed'));
-		} else {
-			$id = (int)$id;
-			if ($this->_fc->fieldExists($id)) {
-				$this->_fc->delete($id);
+		
+		if (!empty($_POST['rm'])) {
+			$id = $this->_arg();
+			if (empty($id)) {
+				$this->_fc->clean();
 				elMsgBox::put(m('Data was removed'));
 			} else {
-				elThrow(E_USER_WARNING, '');
+				$id = (int)$id;
+				if ($this->_fc->fieldExists($id)) {
+					$this->_fc->delete($id);
+					elMsgBox::put(m('Data was removed'));
+				} else {
+					elThrow(E_USER_WARNING, '');
+				}
 			}
+			elLocation(EL_URL);
 		}
+		
+		
 		
 	}
 	

@@ -192,7 +192,7 @@ class elFormConstructor {
 	 * @author /bin/bash: niutil: command not found
 	 **/
 	function clean() {
-		$db = &elSigleton::getObj('elDb');
+		$db = &elSingleton::getObj('elDb');
 		$db->query('DELETE FROM el_form WHERE form_id="'.$this->ID.'"');
 		$db->optimizeTable('el_form');
 	}
@@ -208,11 +208,24 @@ class elFormConstructor {
 		$this->_form->setRenderer(new elTplFormRenderer());
 		foreach ($this->_elements as $id => $e) {
 			$label = $e->type == 'title' || $e->type == 'comment' ? $e->value : $e->label;
-			$this->_form->add(new elText('el['.$id.']', $label, $r->sortNdx));
+			$this->_form->add(new elText('el['.$id.']', $label, $e->sortNdx, array('size' => 7)));
 		}
 		
 		if ($this->_form->isSubmitAndValid()) {
-			
+			$data = $this->_form->getValue();
+			$res  = $data['el'];
+			$db   = & elSingleton::getObj('elDb');
+			$sql  = 'UPDATE el_form SET sort_ndx=%d WHERE id=%d LIMIT 1';
+			asort($res);
+			$i = 1;
+			foreach ($res as $id=>$ndx) {
+				if ($ndx != $i) {
+					$res[$id] = $i;
+				}
+				$db->query(sprintf($sql, $res[$id], $id));
+				$i++;
+			}
+			return true;
 		}
 	}
 	

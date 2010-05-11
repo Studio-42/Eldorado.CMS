@@ -123,32 +123,6 @@
 </table>
 
 {icart_form}
-<table class="form-tb">
-	<thead>
-		<tr><th colspan="2">
-			<ul class="adm-icons">
-				<li><a href="{URL}field_edit/"  class="icons create" title="{m('New field')}"></a></li>
-				<li><a href="{URL}field_rm/" class="icons clean" title="{m('Clean')}"></a></li>
-			</ul>
-			{m('Additional fields')}
-		</th></tr>
-	</thead>
-	<tbody>
-		<!-- BEGIN ICART_FORM_EL -->
-		<tr>
-			<td width="35%">{label}</td>
-			<td>
-				<ul class="adm-icons">
-					<li><a href="{URL}field_edit/{id}/"  class="icons edit" title="{m('Edit')}"></a></li>
-					<li><a href="{URL}field_rm/{id}/" class="icons delete" title="{m('Delete')}"></a></li>
-				</ul>
-				{element}
-			</td>
-		</tr>
-		<!-- END ICART_FORM_EL -->
-	</tbody>
-
-</table>
 
 </div>
 
@@ -220,15 +194,16 @@
 			}
 		});
 	
-		$('.clean, .delete', '.icart-conf').click(function(e) {
-			e.preventDefault();
-			if (confirm("{m('Do You really want to delete')}?")) {
-				$('<form method="post" action="'+$(this).attr('href')+'"/>')
-					.append('<input type="hidden" name="rm" value="1"/>')
-					.appendTo(document.body)
-					.submit();
-			}
-			
+		$('.clean, .delete', '.icart-conf')
+			.add($('.clean, .delete', '.mod-icartconf .form-tb'))
+			.click(function(e) {
+				e.preventDefault();
+				if (confirm("{m('Do You really want to delete')}?")) {
+					$('<form method="post" action="'+$(this).attr('href')+'"/>')
+						.append('<input type="hidden" name="rm" value="1"/>')
+						.appendTo(document.body)
+						.submit();
+				}
 		});
 		
 	});

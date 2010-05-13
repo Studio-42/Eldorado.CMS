@@ -102,6 +102,9 @@ class elCurrency {
 		return $this->current;
 	}
 
+	function getSymbol() {
+		return $this->current['symbol'];
+	}
 	
 	function convert($price, $opts=array()) {
 
@@ -132,7 +135,7 @@ class elCurrency {
 		return !empty($opts['format']) ? $this->format($price, $opts) : round($price, $p);
 	}
 	
-	function format($price, $opts) {
+	function format($price, $opts) { 
 		$p     = isset($opts['precision']) ? $opts['precision'] : 0;
 		$price = number_format(round($price, $p), $p, $this->current['point'], $this->current['separator']);
 		if (isset($opts['symbol'])) {

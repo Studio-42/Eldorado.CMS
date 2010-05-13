@@ -202,6 +202,7 @@ class elModuleTechShop extends elCatalogModule
 		$data = array(
 			'page_id' => $this->pageID,
 			'i_id'    => $this->_item->ID,
+			'm_id'    => 0,
 			'code'    => '',
 			'name'    => '',
 			'price'   => 0,

@@ -14,7 +14,7 @@ class elICart
 	var $qnt       = 0;
 	var $amount      = 0;
 	var $_rnd         = null;
-	var $_conf        = array();
+	var $conf        = array();
 	var $_precision   = 0;
 	
 
@@ -37,50 +37,47 @@ class elICart
 		return $this->_items;
 	}
     
+	function getCurrencySymbol() {
+		return $this->_currency->getSymbol();
+	}
+
     function isEmpty()
     {
-        return !$this->_total;
+        return !$this->qnt;
     }
     
-    function removeItem($ID)
+    function deleteItem($ID)
     {
-        $items = $this->_getItems();
-        if ( empty($items[$ID]) )
-        {
-            return false;
-        }
-        if ( !$this->_db->query('DELETE FROM '.$this->_tb.' WHERE id='.$ID) )
-        {
-            return false;
-        }
-        $res = $this->_db->affectedRows();
+		$this->_db->query(sprintf('DELETE FROM %s WHERE id=%d  AND sid="%s" LIMIT 1', $this->_tb, $ID, $this->_SID));
         $this->_db->optimizeTable( $this->_tb );
         $this->_reload();
-        return $res;
     }
     
-    function updateQnt( $iqnt )
-    {
-        $items = $this->_getItems();
-        if ( !is_array($iqnt) )
-        {
-            return;
-        }
-        $this->_db->query('DELETE FROM '.$this->_tb.' WHERE sid=\''.$this->_SID.'\' AND id NOT IN ('.implode(',', array_keys($iqnt) ).') ');
-        foreach ($iqnt as $ID=>$qnt)
-        {
-            if ( !empty($items[$ID]) )
-            {
-                $sql = ( 0>= $qnt )
-                    ? 'DELETE FROM '.$this->_tb.' WHERE id='.intval($ID).' AND sid=\''.$this->_SID.'\''
-                    : 'UPDATE '.$this->_tb.' SET qnt='.intval($qnt).' WHERE id='.intval($ID).' AND sid=\''.$this->_SID.'\'';
-                $this->_db->query( $sql );
-            }
-        }
+	function clean() {
+		$this->_db->query(sprintf('DELETE FROM %s WHERE sid="%s"', $this->_tb, $this->_SID));
         $this->_db->optimizeTable( $this->_tb );
-    }
+        $this->_reload();
+	}
+
+    function update($iqnt)
+    {
+		foreach ($iqnt as $id=>$qnt) {
+			$qnt = (int)$qnt;
+			if ($qnt>0) {
+				$sql = sprintf('UPDATE %s SET qnt=%d WHERE id=%d AND sid="%s" LIMIT 1', $this->_tb, $qnt, $id, $this->_SID);
+			} else {
+				$sql = sprintf('DELETE FROM %s WHERE id=%d AND sid="%s"', $this->_tb, $id, $this->_SID);
+				
+			}
+			$this->_db->query($sql);
+		}
+		$this->_db->optimizeTable( $this->_tb );
+        $this->_reload();
+   }
     
 	function add($item) {
+		// elPrintr($item);
+		// elPrintr($this->_items);
 		if (false != ($ID = $this->_find($item))) {
 			$sql = 'UPDATE el_icart SET qnt=qnt+1, mtime=%d WHERE id=%d';
 			$sql = sprintf($sql, time(), $ID);
@@ -149,7 +146,10 @@ class elICart
 	function _find($item) {
 		$items = $this->getItems();
 		foreach ($items as $i) {
-			if ($i['page_id'] == $item['page_id'] && $i['i_id'] == $item['i_id'] && $i['m_id'] == $item['m_id']) {
+			if ($i['page_id'] == $item['page_id'] 
+				&& $i['i_id'] == $item['i_id'] 
+				&& $i['m_id'] == $item['m_id']
+				&& $i['props'] == $item['props']) {
 				return $i['id'];
 			}
 		}
@@ -163,21 +163,22 @@ class elICart
 		$this->_db->query(sprintf('SELECT id, page_id, i_id, m_id, code, name, qnt, price, props FROM %s WHERE sid="%s" ORDER BY  code, name', $this->_tb, $this->_SID));
 		while($r = $this->_db->nextRecord())
 		{
-			$this->_items[$r['id']] = $r;
+			$sum                             = $r['price']*$r['qnt'];
+			$this->_items[$r['id']]          = $r;
 			$this->_items[$r['id']]['props'] = !empty($r['props']) ? unserialize($r['props']) : array();
-			$this->_items[$r['id']]['price'] = $this->_currency->format($r['price'], $opts);
-			$this->_items[$r['id']]['sum'] = $this->_currency->format($r['price']*$r['qnt'], $opts);
-			$this->qnt  += $r['qnt'];
-            $this->amount += $this->_items[$r['id']]['sum'];
+			$this->_items[$r['id']]['price'] = $r['price'];
+			$this->_items[$r['id']]['priceFormated'] = $this->_currency->format($r['price'], $opts);
+			$this->_items[$r['id']]['sum']   = $this->_currency->format($sum, $opts);
+			$this->qnt                      += $r['qnt'];
+            $this->amount                   += $sum;
 		}
+		$this->amountFormated = $this->_currency->format($this->amount, $opts);
     }
     
     function _reload()
     {
-        $this->_itemsLoaded = false;
         $this->_total = $this->_amount = 0;
         $this->_items = array();
-        $this->_loadSummary();
         $this->_load();
     }
     

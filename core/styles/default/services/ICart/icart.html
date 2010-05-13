@@ -1,37 +1,63 @@
-<table class="nice full" cellspacing="0">
-
-	<tr>
-        <th>{m('Item')}</th>
-        <th>{m('Qnt')}</th>
-        <th>{m('Price')}, {currencySign}</th>
-        <th>{m('Sum')}, {currencySign}</th>
-        <th width="100">{m('Remove item')}</th>
-    </tr>
-
-    <!-- BEGIN ICART_ITEM -->
-    <tr id="row_{id}">
-        <td>
-            <div id="iname_{id}"> <strong>{code} {name}</strong></div>
-            <!-- BEGIN IC_IPROPS -->
-            <!-- BEGIN IC_IPROP -->
-            <div class="mute">{name}: {value}</div>
-            <!-- END IC_IPROP -->
-            <!-- END IC_IPROPS -->
-        </td>
-        <td><input type="text" size="5" name="qnt[{id}]" id="iqnt_{id}" value="{qnt}" maxlength="12" /></td>
-        <td><div id="iprice_{id}">{price}</div></td>
-        <td><div id="isum_{id}">{sum}</div></td>
-        <td ><a href="{URL}__icart__/0/?rmID={id}" class="icons delete" style="margin:0 auto" title="{m('Remove item')}"></a></td>
-    </tr>    
-    <!-- END ICART_ITEM -->
-    <tr>
-       <th>{m('Amount')}, {currencySign} :</th>
-		<th><a href="#" class="icons reload" title="{m('Recalculate')}" onclick="$(this).parents('form').find('#icart-recalc').val(1).end().submit()"></a></th>
-		<th></th>
-       <th colspan="2"><div id="amount">{amount}</div></th>
-    </tr>
-    <tr>
-        <td colspan="5"><input type="submit" class="form-submit" value="{m('Continue')}" /></td>
-    </tr>    
+<table class="full" cellspacing="0">
+	<thead>
+		<tr>
+	        <th>{m('Product')}</th>
+	        <th class="text-center">{m('Qnt')}</th>
+	        <th class="text-right">{m('Price')}, {currencySign}</th>
+	        <th class="text-right">{m('Sum')}, {currencySign}</th>
+			<th></th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <!-- BEGIN ICART_ITEM -->
+	    <tr>
+	        <td>
+	            <div>{code} {name}</div>
+	            <div class="mute">{props}</div>
+	        </td>
+	        <td class="text-center"><input type="text" size="5" name="qnt[{id}]" id="iqnt_{id}" value="{qnt}" maxlength="12" /></td>
+	        <td class="text-right">{price}</td>
+	        <td class="text-right">{sum}</td>
+	        <td><a href="{URL}__icart__/0/?rmID={id}" class="icons delete" title="{m('Remove product')}" rel="{id}"></a></td>
+	    </tr>    
+	    <!-- END ICART_ITEM -->
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>{m('Amount')}:</th>
+			<th  class="text-center">
+				<a href="#" class="icons reload" title="{m('Recalculate')}"></a>
+			</th>
+			<th></th>
+			<th class="text-right" style="font-weight:normal">{amount}</th>
+			<th><a href="#" class="icons clean" title="{m('Remove all products')}"></a></th>
+		</tr>
+ 	</tfoot>
 </table>
-<input type="hidden" name="recalc" vaue="0" id="icart-recalc" />
+<input type="hidden" name="id" />
+
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		$('#icart .delete').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Remove product')}?")) {
+				$(this).parents('form').eq(0).find(':hidden[name="action"]').val('delete').end().find(':hidden[name="id"]').val($(this).attr('rel')).end().submit();
+			}
+		});
+		
+		$('#icart .clean').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Remove all products')}?")) {
+				$(this).parents('form').eq(0).find(':hidden[name="action"]').val('clean').end().submit();
+			}
+		});
+		
+		$('#icart .reload').click(function(e) {
+			e.preventDefault();
+			$(this).parents('form').eq(0).find(':hidden[name="action"]').val('update').end().submit();
+		});
+		
+	});
+</script>

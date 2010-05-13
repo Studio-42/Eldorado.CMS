@@ -1,15 +1,40 @@
 <?php
+$elMsg['Products'] = 'Товары';
+$elMsg['Delivery/payment'] = 'Доставка/оплата';
+$elMsg['Address'] = 'Адрес';
+$elMsg['Confirmation']                        = 'Подтверждение';
+
+$elMsg['Product'] = 'Товар';
+$elMsg['Qnt'] = 'Кол-во';
+$elMsg['Quantity']                            = 'Количество';
+$elMsg['Price'] = 'Цена';
+$elMsg['Sum'] = 'Сумма';
+$elMsg['Amount'] = 'Итого';
+$elMsg['Remove product']                         = 'Удалить товар';
+$elMsg['Remove all products']                         = 'Удалить все товары';
+$elMsg['Recalculate']                         = 'Пересчитать';
+
+$elMsg['Region'] = 'Регион';
+$elMsg['Delivery'] = 'Доставка';
+$elMsg['Payment'] = 'Оплата';
+$elMsg['Delivery price'] = 'Стоимость доставки';
+$elMsg['Comment'] = 'Комментарий';
+$elMsg['Free'] = 'Бесплатно';
+
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+
 $elMsg['Shopping cart information']           = 'Информация о товарах';
 $elMsg['Delivery informatiom']                = 'Информация о доставке';
 $elMsg['Customer information']                = 'Информация о покупателе';
-$elMsg['Summary information']                 = 'Подтверждение заказа';
+$elMsg['Summary']                 = 'Подтверждение заказа';
 $elMsg['Here is order\'s content.']           = 'Ниже приведена информация о Вашем заказе';
-$elMsg['Confirmation']                        = 'Подтверждение';
+
 $elMsg['Items list']                          = 'Список товаров';
 $elMsg['Order amount']                        = 'Общая сумма заказа';
 $elMsg['Item was removed from shopping cart'] = 'Товар был удален из корзины';
-$elMsg['Remove item']                         = 'Удалить товар';
-$elMsg['Recalculate']                         = 'Пересчитать';
+
 $elMsg['Order from %s']                       = 'Заказ с сайта %s';
 $elMsg['Code']                                = 'Код товара';
 $elMsg['Articul']                             = 'Артикул';

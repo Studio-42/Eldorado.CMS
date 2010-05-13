@@ -123,7 +123,7 @@ class elATS
    /**
    * Render auth form and login user
    */
-  function auth()
+  function auth($url=EL_URL)
   {
     elLoadMessages('Auth');
     $this->form = & elSingleton::getObj('elForm');
@@ -137,6 +137,7 @@ class elATS
 	{
 		$this->form->add( new elCData('reg', '<a href="'.EL_URL.'__auth__/'.'">'.m('New user registration').'</a>'  ) );
 	}
+	$this->form->add(new elHidden('url', '', $url));
     $rnd = &elSingleton::getObj('elSiteRenderer');
     $rnd->setPageContent( $this->form->toHtml() );
     if ($this->form->isSubmitAndValid())
@@ -529,7 +530,7 @@ class elATS
     $this->user->onLogin($data, $this->_dbHash, $al, $onlyGroups, true);
 
     elMsgBox::put( sprintf( m('Wellcome back %s!'), $this->user->getFullName() ) );
-    elLocation(EL_URL);
+    elLocation(!empty($_POST['url']) ? $_POST['url'] : EL_URL);
   }
 
   /**

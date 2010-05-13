@@ -1,6 +1,116 @@
 <?php
 
-class elICartRnd extends elModuleRenderer
+class elICartRnd {
+	var $_te = null;
+	var $url = '';
+	var $_steps = array(
+		'icart'    => 'Products',
+		'delivery' => 'Delivery/payment',
+		'address'  => 'Address',
+		'complete' => 'Confirmation'
+		);
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function elICartRnd() {
+		$this->_te = & elSingleton::getObj('elTE');
+		
+		foreach ($this->_steps as $k=>$v) {
+			$this->_steps[$k] = m($v);
+		}
+	}
+	
+	/**
+	 * render shopping cart
+	 *
+	 * @return void
+	 **/
+	function rndICart($icart) {
+		$this->_rndCommon('icart');
+		$this->_te->setFile('ICART_CONTENT', 'services/ICart/icart.html');
+		
+		$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
+		$this->_te->assignVars('amount', $icart->amountFormated);
+		$items = $icart->getItems();
+		
+
+		foreach ($items as $item) {
+			$data = array(
+				'id'    => $item['id'],
+				'code'  => $item['code'],
+				'name'  => $item['name'],
+				'qnt'   => $item['qnt'],
+				'price' => $item['priceFormated'],
+				'sum'   => $item['sum'],
+				'props' => ''
+				);
+			if (!empty($item['props'])) {
+				foreach ($item['props'] as $k=>$v) {
+					$data['props'] .= "$k: $v<br/>";
+				}
+			}
+			$this->_te->assignBlockVars('ICART_ITEM', $data);
+		}
+		
+		$this->_te->parse('ICART_CONTENT');
+	}
+	
+	/**
+	 * render delivery/payment selection
+	 *
+	 * @return void
+	 **/
+	function rndDelivery($regions, $delivery, $payment, $val) {
+		$this->_rndCommon('delivery');
+		$this->_te->setFile('ICART_CONTENT', 'services/ICart/delivery.html');
+		
+		$this->_te->assignBlockFromArray('ICART_REGION',   $regions);
+		$this->_te->assignBlockFromArray('ICART_DELIVERY', $delivery);
+		$this->_te->assignBlockFromArray('ICART_PAYMENT',  $payment);
+		$this->_te->assignVars(array(
+			'delivery_fee'=>$val['fee'],
+			'delivery_comment' => $val['comment']
+			));
+		// $this->_te->assignVars('delivery_fee', $val['fee']);
+		
+		
+		$this->_te->parse('ICART_CONTENT');	
+	}
+	
+	
+	function renderComplite() { }
+	
+	/**
+	 * render common part of order template
+	 *
+	 * @return void
+	 **/
+	function _rndCommon($step) {
+		$this->_te->setFile('PAGE', 'services/ICart/default.html');
+		$this->_te->assignVars('iCartStepTitle', $this->_steps[$step]);
+		$this->_te->assignVars('iCartURL', $this->url.'__icart__/');
+		$this->_te->assignVars('buttonText', $step == 'complete' ? m('Complete') : m('Continue').' &raquo;');
+		$allow = true;
+		foreach ($this->_steps as $k=>$v) {
+			$link = $allow ? '<a href="'.$this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/').'">'.$v.'</a>': $v;
+			
+			$this->_te->assignBlockVars('ICART_STEP', array('link' => $link));
+			$this->_te->assignVars('stepID', $step);
+			if ($allow && $k == $step) {
+				$allow = false;
+			}
+		}
+	}
+	
+	
+}
+
+
+class _elICartRnd extends elModuleRenderer
 {
     var $_te        = null;
     var $_conf      = array();

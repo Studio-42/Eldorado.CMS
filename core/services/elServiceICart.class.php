@@ -1,27 +1,24 @@
 <?php
-
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFormConstructor.class.php';
 elLoadMessages('ServiceICart');
+
 class elServiceICart extends elService
 {
-    var $_vdir      = '__icart__';
 	var $_mMap      = array(
-		'add'          => array('m' => 'addItem'),
-		'repeat_order' => array('m' => 'repeatOrder')
+		'repeat_order' => array('m' => 'repeatOrder'),
+		'cart'         => array('m' => 'cart'),
+		'delivery'     => array('m' => 'delivery'),
+		'address'      => array('m' => 'address'),
+		'complete'     => array('m' => 'complete'),
+		'info'         => array('m' => 'deliveryInfo')
 	);
     var $_iCart     = null;
-    var $_page      = array();
-    var $_steps     = array(
-                        0 => array('stepDisplayCart', '_isNoEmpty',     'Shopping cart information', 1),
-                        1 => array('stepDelivery',    '_checkDelivery', 'Delivery informatiom',      0),
-                        2 => array('stepAddress',     '_checkAddress' , 'Customer information',      1),
-                        3 => array('stepSummary',     '',               'Summary information',       1)
-	);
-    var $_curStID   = 0;
-    var $_maxStID   = 0;
-    var $_conf      = array('excludeSteps' => array(1), 'sendConfirm' => 1, 'precision'=>2 );
-    var $_tplDir    = 'services/ICart/';
-    var $form       = null;
-    var $_addrNfo   = array();
+	var $_ats       = null;
+	var $_conf      = null;
+	var $_currency  = null;
+	var $_url       = '';
+
     var $_user      = null;
     var $_uProfile  = null;
     var $_uProfSkel = array();
@@ -29,21 +26,85 @@ class elServiceICart extends elService
     function init($args)
     {
         $this->_args  = $args;
-        $this->_iCart = & elSingleton::getObj('elICart');
+		$this->_ats   = & elSingleton::getObj('elATS');
+		$this->_user  = & $this->_ats->getUser();
+		$this->_currency = & elSingleton::getObj('elCurrency');
+		$this->_iCart = & elSingleton::getObj('elICart');
+		$this->_conf  = & elSingleton::getObj('elICartConf');
         $nav          = & elSingleton::getObj('elNavigator');
-        $this->_page  = $nav->getCurrentPage();
-		$conf = &elSingleton::getObj('elXmlConf');
-		$tmp = $conf->getGroup('iCart');
-		foreach ($tmp as $k=>$v) {
-			if (isset($this->_conf[$k])) {
-				$this->_conf[$k] = $v;
-			}
-		} 
+        $page         = $nav->getCurrentPage();
+		$this->_url   = $page['url'];
+		elAddCss('services/ICart.css', EL_JS_CSS_FILE);
+        $this->_rnd = & elSingleton::getObj('elICartRnd');
+		$this->_rnd->url = $this->_url;
+
+		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
+		// elAppendToPageTitle('ICart', 1);
+
+		
+
+		$this->_userData = $this->_user->getPref('icartData');
+		if (empty($this->_userData['steps'])) {
+			$this->_userData = array(
+				'steps' => array(
+					'cart'     => true,
+					'delivery' => false,
+					'address'  => false,
+					'complete' => false
+					),
+				'address' => array()
+				);
+				
+			$this->_user->setPref('icartData', $this->_userData);
+		}
+
+		if ($this->_iCart->isEmpty()) {
+			$this->_resetSteps();
+			return elMsgBox::put('Your shopping cart is empty');
+		}
+
+		if (!$this->_conf->allowGuest() && !$this->_ats->isUserAuthed() ) {
+			// echo EL_URL.'__icart__/';
+			return $this->_ats->auth(EL_URL.'__icart__/');
+		}
+		
     }
     
     
-    function defaultMethod()
-    {
+    function defaultMethod() {
+		if (!empty($_POST['action'])) {
+			// elPrintR($_POST);
+			
+			switch($_POST['action']) {
+				case 'next':
+					$this->_iCart->update($_POST['qnt']);
+					$this->_allowStep('delivery');
+					elLocation($this->_url.'__icart__/delivery/');
+					break;
+				case 'delete':
+					if (!empty($_POST['id'])) {
+						$this->_iCart->deleteItem($_POST['id']);
+						elLocation($this->_url.'__icart__');
+					}
+					break;
+				case 'clean':
+					$this->_iCart->clean();
+					elLocation($this->_url.'__icart__');
+					break;
+				case 'update':
+					$this->_iCart->update($_POST['qnt']);
+					elLocation($this->_url.'__icart__');
+					break;
+			}
+			
+		} 
+		if (!$this->_iCart->isEmpty()) {
+			$this->_rnd->rndICart($this->_iCart);
+		}
+		
+		// elPrintR($this->_userData);
+		
+		return;
         $ats              = & elSingleton::getObj('elATS');
         $this->_user      = & $ats->getUser();
         $this->_uProfile  = & $this->_user->getProfile();
@@ -91,6 +152,81 @@ class elServiceICart extends elService
     }
     
     
+	/**
+	 * proccess delivery/payment selection step
+	 *
+	 * @return void
+	 **/
+	function delivery()	{
+
+		if (!$this->_checkStep('delivery')) {
+			elLocation($this->_url.'__icart__');
+		}
+	
+		$regions = $this->_conf->getRegions();
+		// elPrintR($regions);
+		$delivery = $this->_conf->getDelivery($regions[0]['id']);
+		// elPrintR($delivery);
+		$payment = $this->_conf->getPayment($regions[0]['id'], $delivery[0]['id']);
+		// elPrintR($payment);
+		$val = $this->_conf->get($regions[0]['id'], $delivery[0]['id'], $payment[0]['id']);
+		// elPrintR($val);
+		$opts = array('precision' => $this->_conf->precision(), 'symbol' => true);
+		// elPrintR($opts);
+		$val['fee'] = $val['fee'] > 0 ? $this->_currency->format($val['fee'], $opts): m('Free');
+		$this->_rnd->rndDelivery($regions, $delivery, $payment, $val);
+	}
+
+	/**
+	 * called via ajax
+	 *
+	 * @return void
+	 **/
+	function deliveryInfo() {
+		
+		$ret = array(
+			'delivery' => array(),
+			'payment'  => array(),
+			'fee'      => '',
+			'comment'  => ''
+			);
+		$currency   = & elSingleton::getObj('elCurrency');
+		$regionID   = isset($_GET['region_id'])   ? (int)$_GET['region_id']   : 0;	
+		$deliveryID = isset($_GET['delivery_id']) ? (int)$_GET['delivery_id'] : 0;	
+		$paymentID  = isset($_GET['payment_id'])  ? (int)$_GET['payment_id']  : 0;	
+		$changed    = !empty($_GET['change'])     ? $_GET['change']           : '';
+		
+		switch ($changed) {
+			case 'region_id':
+				$ret['delivery'] = $this->_conf->getDelivery($regionID);
+				if (!empty($ret['delivery'])) {
+					$deliveryID = $ret['delivery'][0]['id'];
+				}
+
+			case 'delivery_id':
+				$ret['payment']  = $this->_conf->getPayment($regionID, $deliveryID);
+				if (!empty($ret['payment'])) {
+					$paymentID = $ret['payment'][0]['id'];
+				}
+
+			case 'payment_id':
+				$data = $this->_conf->get($regionID, $deliveryID, $paymentID);
+				if ($data['fee'] > 0) {
+					$ret['fee'] = $data['fee'];
+				} elseif ($data['formula']) {
+					$f = create_function('$qnt, $amount', 'return '.$data['formula']);
+					$ret['fee'] = $f($this->_iCart->qnt, $this->_iCart->amount);
+				}
+				
+				$ret['fee'] = $ret['fee'] 
+					? $currency->format($ret['fee'], array('precision'=>$this->_conf->precision(), 'symbol'=>true)) 
+					: m('Free');
+				$ret['comment'] = $data['comment'];
+
+		}
+		exit(elJson::encode($ret));
+	}
+
     function stepDisplayCart()
     {
         if ( !empty($_POST['qnt']) && is_array($_POST['qnt']) )
@@ -247,30 +383,7 @@ class elServiceICart extends elService
         return $reply;
     }
     
-    function addItem()
-    {
-        $URL= EL_URL.'item/'.$this->_args[1].'/'.$this->_args[2];
-        if ('IShop'== $this->_page['module'])
-        {
-            $itemName = $this->_iCart->addIShopItem($this->_page['id'], (int)$this->_args[2], $_POST['prop']); //echo EL_URL;
-        }
-        elseif ('TechShop' == $this->_page['module'])
-        {
-            $itemName = $this->_iCart->addTechShopItem($this->_page['id'], (int)$this->_args[2], (int)$this->_args[3]);
-        }
-        if ( !$itemName )
-        {
-            $msg = sprintf( m('Error! Could not add item to Your shopping cart! Please contact site administrator.') );
-            elThrow(E_USER_WARNING, $msg, null, $URL);
-        }
-        $msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'),
-                        $itemName, EL_URL.'__icart__/' );
-        elMsgBox::put($msg);
-        //elPrintR($this->_args[3]);
-	
-	elLocation( (isset($this->_args[3]) && $this->_args[3] == 'cat') ? EL_URL.$this->_args[1].'/' : $URL );
-        
-    }
+    
  
 	// Repeat order from elModuleOrderHistory
 	// In fact this works like addItem but adds many items at once using POST
@@ -323,56 +436,49 @@ class elServiceICart extends elService
     /**************************************************************/
     /**                      PRIVATE                             **/
     /**************************************************************/
-    function _goNext()
-    {
-        elLocation(EL_URL.'__icart__/'.($this->_curStID + 1));
-    }
-    
-    function _checkStep($stepID)
-    {
-        if ( $this->_iCart->isEmpty() )
-        {
-            return -1;
-        }
-        
-        for($i=0; $i<sizeof($this->_steps)-1; $i++)
-        {
-            $m = $this->_steps[$i][1];
-            if ( !$this->_isStepExcluded($i) && method_exists($this, $m) && !$this->$m() )
-            {
-                break;
-            }
-            else
-            {
-                $this->_maxStID = $i+1;
-            }
-        }
-        $this->_curStID = ( 0<=$stepID &&  $stepID<sizeof($this->_steps) && $stepID <= $this->_maxStID ) ? $stepID : 0;
-        return;    
-    }
-    
-    function _isStepExcluded( $stepID )
-    {
-        $excl = $this->_conf('excludeSteps');
-        if ( empty($this->_steps[$stepID][3]) && is_array($excl) && in_array($stepID, $excl) )
-        {
-            return true;
-        }
-        return false;
-    }
+ 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function _allowStep($step) {
+		if (isset($this->_userData['steps'][$step])) {
+			$val = true;
+			foreach ($this->_userData['steps'] as $k=>$v) {
+				$this->_userData['steps'][$k] = $val;
+				if ($k == $step) {
+					$val = false;
+				}
+			}
+			$this->_user->setPref('icartData', $this->_userData);
+		}
+	}
 
-    //     Delivery
-    
-    function _checkDelivery()
-    {
-        return true;
-    }
-    
-    function _getDeliveryNfo()
-    {
-        return null;
-    }
-    
+	/**
+	 * mark all steps as not completed
+	 *
+	 * @return void
+	 **/
+	function _resetSteps() {
+		$this->_userData['steps'] = array(
+			'cart'     => true,
+			'delivery' => false,
+			'address'  => false,
+			'complete' => false
+			);
+		$this->_user->setPref('icartData', $this->_userData);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function _checkStep($step) {
+		return $this->_userData['steps'][$step];
+	}
+
     //     Address
     
     function _checkAddress()
@@ -501,4 +607,7 @@ class elServiceICart extends elService
     }
     
 }
+
+
+
 

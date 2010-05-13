@@ -1,8 +1,98 @@
-<table width="100%" border="1">
+<table class="full">
     <tr>
-        <td>
-            <input type="hidden" name="delivery" value="1" />
-            <input type="submit" value="{m('Continue')}" />
-        </td>
+        <td>{m('Region')}</td>
+		<td>
+			<select name="region_id">
+				<!-- BEGIN ICART_REGION -->
+				<option value="{id}">{name}</option>
+				<!-- END ICART_REGION -->
+			</select>
+		</td>
     </tr>
+	<tr>
+        <td>{m('Delivery')}</td>
+		<td>
+			<select name="delivery_id">
+				<!-- BEGIN ICART_DELIVERY -->
+				<option value="{id}">{name}</option>
+				<!-- END ICART_DELIVERY -->
+			</select>
+		</td>
+    </tr>
+	<tr>
+        <td>{m('Payment')}</td>
+		<td>
+			<select name="payment_id">
+				<!-- BEGIN ICART_PAYMENT -->
+				<option value="{id}">{name}</option>
+				<!-- END ICART_PAYMENT -->
+			</select>
+		</td>
+    </tr>
+	<tr class="delivery_fee">
+		<td>{m('Delivery price')}</td>
+		<td>{delivery_fee}</td>
+	</tr>
+	<tr class="delivery_comment foot">
+		<td>{m('Comment')}</td>
+		<td>{delivery_comment}</td>
+	</tr>
 </table>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		var region   = $('#icart select[name="region_id"]'),
+			delivery = $('#icart select[name="delivery_id"]'),
+			payment  = $('#icart select[name="payment_id"]'),
+			all      = region.add(delivery).add(payment),
+			fee      = $('#icart .delivery_fee'),
+			comment  = $('#icart .delivery_comment');
+		
+		function toggleComment() {
+			comment.children(':last').is(':empty') ? comment.hide() : comment.show();
+		}
+		
+		// toggleComment();
+		
+		all.change(function() {
+			all.attr('disabled', 'disabled');
+			fee.children(':last').add(comment.children(':last')).empty();
+			
+			$.ajax({
+				url  : "{iCartURL}info/",
+				type : 'get',
+				dataType : 'json',
+				data : {
+					change      : $(this).attr('name'),
+					region_id   : region.val(),
+					delivery_id : delivery.val(),
+					payment_id  : payment.val()
+				},
+				success : function(data) {
+					
+					all.removeAttr('disabled');
+					
+					function update(el, src) {
+						var l = src.length;
+						el.empty();
+						while(l--) {
+							el.prepend('<option value="'+src[l].id+'">'+src[l].name+'</option>');
+						}
+						el.children(':first').attr('selected', 'on');
+					}
+					
+					data.delivery && data.delivery.length && update(delivery, data.delivery);
+					data.payment && data.payment.length && update(payment, data.payment);
+					data.fee && fee.children(':last').text(data.fee);
+					data.comment && comment.children(':last').text(data.comment);
+					// toggleComment();
+
+				}
+			});
+			
+		});
+		
+	});
+</script>
+

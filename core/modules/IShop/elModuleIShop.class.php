@@ -111,14 +111,7 @@ class elModuleIShop extends elModule
 			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $url);
 		}
 		
-		$data = array(
-			'page_id' => $this->pageID,
-			'i_id'    => $item->ID,
-			'code'    => '',
-			'name'    => '',
-			'price'   => 0,
-			'props'   => array()
-			);
+		
 		$currency = &elSingleton::getObj('elCurrency');
 		$curOpts = array(
 			'precision'   => (int)$this->_conf('pricePrec'),
@@ -130,7 +123,7 @@ class elModuleIShop extends elModule
 		$data = array(
 			'page_id' => $this->pageID,
 			'i_id'    => $item->ID,
-			'm_id'    => '',
+			'm_id'    => 0,
 			'code'    => $this->_conf('displayCode') ? $item->code : '',
 			'name'    => $item->name,
 			'price'   => $currency->convert($item->price, $curOpts),

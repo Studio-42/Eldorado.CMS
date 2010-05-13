@@ -998,7 +998,7 @@ class elSiteRenderer
 			$currency = &elSingleton::getObj('elCurrency');
 			$data     = array(
 				'iCartQnt'     => $ICart->qnt, 
-				'iCartAmount'  => $ICart->amount
+				'iCartAmount'  => $ICart->amountFormated.' '.$currency->getSymbol()
 			);
 			$this->_te->assignBlockVars('ICART_SUMMARY',  $data);
 		}

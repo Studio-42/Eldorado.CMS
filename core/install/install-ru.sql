@@ -224,7 +224,8 @@ CREATE TABLE `el_icart_conf` (
 	`region_id`   int(5) NOT NULL,
 	`delivery_id` int(5) NOT NULL,
 	`payment_id`  int(5) NOT NULL,
-	`fee`         mediumtext,
+	`fee`         double(10,2),
+	`formula`     mediumtext,
 	`comment`     mediumtext,
 	PRIMARY KEY(`region_id`, `delivery_id`, `payment_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

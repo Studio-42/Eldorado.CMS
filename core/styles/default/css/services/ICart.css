@@ -7,24 +7,42 @@
 
 #icart-nav {
 	width:220px;
+/*	padding:.5em 1em;*/
 	float: right; 
 	display:inline; 
 }
 
-#icart-nav ul { }
-#icart-nav ul li { list-style:none; padding:.5em; }
+#icart-nav ul { list-style:none; margin-top:1em;}
+#icart-nav ul li {  padding:.5em; color:#666; }
 
 #icart-content { 
 	margin-right:220px; 
 	padding:.5em 1em;
 	background:#fff;
-	-moz-border-top-left-radius: 5px; 
-	-moz-border-bottom-left-radius: 5px; 
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-	border:1px solid #fff;
+	min-height:300px;
+
 }
-#icart-content table.nice { margin-bottom:1em;}
+#icart-content table { margin-bottom:1em;}
+#icart-content table th { white-space: nowrap;}
+#icart-content table th, #icart-content table td {
+/*	border:1px solid #111;*/
+	padding:5px;
+}
+
+#icart-content table th.text-right, 
+#icart-content table td.text-right {
+	text-align:right;
+}
+
+#icart-content table th.text-center, 
+#icart-content table td.text-center {
+	text-align:center;
+}
+
+#icart-content table thead th,
+#icart-content table tfoot th,
+#icart-content table tr.foot td { border-bottom:2px solid #ccc; }
+#icart-content table tbody td { border-bottom:1px solid #ccc; }
+
+#icart-content table .icons { margin:0 auto;}
 

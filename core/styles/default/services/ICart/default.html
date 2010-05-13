@@ -1,3 +1,4 @@
+<h3>{m('Order')}</h3>
 <div id="icart" class="rounded-5 clearfix">
 	<div id="icart-nav">
 		<ul>
@@ -6,11 +7,13 @@
 		  <!-- END ICART_STEP -->
 		</ul>
 	</div>
-	<div id="icart-content">
-		<h4>{iCartStepTitle}</h4>
-		  <form action="{URL}__icart__/{stepID}/" method="POST" id="icart_">
-		  {ICART_CONTENT}
-		  </form>
+	<div id="icart-content" class="rounded-left-5">
+		<h4>{_iCartStepTitle}</h4>
+		<form action="{URL}__icart__/{stepID}/" method="POST">
+			<input type="hidden" name="action" value="next" />
+			{ICART_CONTENT}
+			<div class="icart-continue"><input type="submit" class="form-submit" value="{buttonText}" /></div>
+		</form>
 	</div>
 
 </div>

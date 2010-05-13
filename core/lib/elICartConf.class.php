@@ -42,7 +42,8 @@ class elICartConf {
 
 	function precision($v=null) {
 		if (is_null($v)) {
-			return (bool)$this->_conf->get('precision', $this->_confID);
+			$p = (int)$this->_conf->get('precision', $this->_confID);
+			return $p > 0 ? 2 : 0;
 		} else {
 			$this->_conf->set('precision', $v>0 ? 2 : 0, $this->_confID);
 			$this->_conf->save();
@@ -50,27 +51,70 @@ class elICartConf {
 	}
 
 	function get($regionID, $deliveryID, $paymentID) {
-		$sql = 'SELECT region_id, delivery_id, payment_id, fee, comment FROM '.$this->_tb.' WHERE region_id=%d AND delivery_id=%d AND payment_id=%d';
+		$sql = 'SELECT region_id, delivery_id, payment_id, fee, formula, comment '
+				.'FROM '.$this->_tb.' WHERE region_id=%d AND delivery_id=%d AND payment_id=%d';
 		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID);
 		$this->_db->query($sql);
-		if ($this->_db->numRows()) {
-			return $this->_db->nextRecord();
-		}
+		return $this->_db->numRows()
+			? $this->_db->nextRecord()
+			: array('region_id'=>0, 'delivery_id'=>0, 'payment_id'=>0, 'fee'=>'', 'comment'=>'');
 	}
 
 	function getAll() {
-		$sql = 'SELECT c.region_id, c.delivery_id, c.payment_id, c.fee, '
-				.'IF(r.value IS NULL, "'.m('All regions').'", r.value) AS region, d.value AS delivery, p.value AS payment '
-				.'FROM '.$this->_tb.' AS c LEFT JOIN el_directory_icart_region AS r ON r.id=c.region_id, '
+		$sql = 'SELECT c.region_id, c.delivery_id, c.payment_id, c.fee, c.formula, c.comment, '
+				.'r.value AS region, d.value AS delivery, p.value AS payment '
+				.'FROM '.$this->_tb.' AS c, el_directory_icart_region AS r, '
 				.'el_directory_icart_delivery AS d, el_directory_icart_payment AS p '
-				.'WHERE c.delivery_id=d.id AND c.payment_id=p.id '
+				.'WHERE c.region_id=r.id AND c.delivery_id=d.id AND c.payment_id=p.id '
 				.'ORDER BY region, delivery, payment';
 		return $this->_db->queryToArray($sql);
 	}
 
-	function set($regionID, $deliveryID, $paymentID, $fee, $comment) {
-		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%s", comment="%s"';
-		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID, mysql_real_escape_string($fee), mysql_real_escape_string($comment));
+	/**
+	 * return regions list
+	 *
+	 * @return array
+	 **/
+	function getRegions() {
+		$sql = 'SELECT c.region_id AS id, r.value AS name '
+				.'FROM '.$this->_tb.' AS c, el_directory_icart_region AS r '
+				.'WHERE c.region_id=r.id '
+				.'GROUP BY c.region_id '
+				.'ORDER BY IF(r.sort_ndx>0, LPAD(r.sort_ndx, 4, "0"), "9999"), r.value';
+		return $this->_db->queryToArray($sql);
+	}
+
+	/**
+	 * return delivery list for region
+	 *
+	 * @return array
+	 **/
+	function getDelivery($regionID) {
+		$sql = 'SELECT c.delivery_id AS id, d.value AS name '
+				.'FROM '.$this->_tb.' AS c, el_directory_icart_delivery AS d '
+				.'WHERE c.region_id='.intval($regionID).' AND d.id=c.delivery_id '
+				.'GROUP BY c.delivery_id '
+				.'ORDER BY IF(d.sort_ndx>0, LPAD(d.sort_ndx, 4, "0"), "9999"), d.value';
+		return $this->_db->queryToArray($sql);		
+	}
+
+	/**
+	 * return payment list for region/delivery
+	 *
+	 * @return array
+	 **/
+	function getPayment($regionID, $deliveryID) {
+		$sql = 'SELECT c.payment_id AS id, p.value AS name '
+				.'FROM '.$this->_tb.' AS c, el_directory_icart_payment AS p '
+				.'WHERE c.region_id='.intval($regionID).' AND c.delivery_id='.intval($deliveryID).' AND p.id=c.payment_id '
+				.'ORDER BY IF(p.sort_ndx>0, LPAD(p.sort_ndx, 4, "0"), "9999"), p.value';
+		return $this->_db->queryToArray($sql);	
+	}
+	
+
+	function set($regionID, $deliveryID, $paymentID, $fee, $formula, $comment) {
+		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%s", formula="%s", comment="%s"';
+		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID, mysql_real_escape_string($fee), mysql_real_escape_string($formula), mysql_real_escape_string($comment));
 		return $this->_db->query($sql);
 	}
 

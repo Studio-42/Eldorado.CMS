@@ -21,9 +21,23 @@ $elMsg['Delivery price'] = 'Стоимость доставки';
 $elMsg['Comment'] = 'Комментарий';
 $elMsg['Free'] = 'Бесплатно';
 
+// 
 $elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+
+
+
+
 
 $elMsg['Shopping cart information']           = 'Информация о товарах';
 $elMsg['Delivery informatiom']                = 'Информация о доставке';

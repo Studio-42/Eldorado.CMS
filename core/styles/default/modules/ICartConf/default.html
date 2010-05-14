@@ -32,6 +32,7 @@
 	<tr>
 		<th colspan="6">
 			<ul class="adm-icons">
+				
 				<li><a href="{URL}edit/"  class="icons create" title="{m('New conf')}"></a></li>
 				<li><a href="{URL}rm/" class="icons clean" title="{m('Clean')}"></a></li>
 			</ul>
@@ -66,6 +67,7 @@
 	<tr>
 		<th style="width:33%;border-right:1px solid #ccc">
 			<ul class="adm-icons">
+				<li><a href="#" rel="icart_region" class="icons sort-num" title="{m('Sort')}"></a></li>
 				<li><a href="#" rel="icart_region" class="icons create" title="{m('New regions')}"></a></li>
 				<li><a href="#" rel="icart_region" class="icons clean" title="{m('Clean regions')}"></a></li>
 			</ul>
@@ -73,6 +75,7 @@
 		</th>
 		<th style="width:33%;border-right:1px solid #ccc">
 			<ul class="adm-icons">
+				<li><a href="#" rel="icart_delivery" class="icons sort-num" title="{m('Sort')}"></a></li>
 				<li><a href="#" rel="icart_delivery" class="icons create" title="{m('New delivery types')}"></a></li>
 				<li><a href="#" rel="icart_delivery" class="icons clean" title="{m('New delivery types')}"></a></li>
 			</ul>
@@ -80,6 +83,7 @@
 		</th>
 		<th>
 			<ul class="adm-icons">
+				<li><a href="#" rel="icart_payment" class="icons sort-num" title="{m('Sort')}"></a></li>
 				<li><a href="#" rel="icart_payment"  class="icons create" title="{m('New payment types')}"></a></li>
 				<li><a href="#" rel="icart_payment"  class="icons clean" title="{m('New payment types')}"></a></li>
 			</ul>
@@ -197,9 +201,21 @@
 			}
 		});
 	
-		$('.clean, .delete', '.icart-conf')
-			.add($('.clean, .delete', '.mod-icartconf .form-tb'))
-			.click(function(e) {
+		$('.sort-num', '.icart-dirs').click(function(e) {
+			e.preventDefault();
+			
+			var spinner = $('<div class="spinner">{m('Loading...')}</div>'),
+				form = $('<form method="post" action="{URL}dir_edit/'+$(this).attr('rel')+'/"/>').append(spinner),
+				dialog = $('<div/>').append(form);
+				
+			dialog.dialog({
+				title : "{m('Sort')}"
+			})
+				
+		})
+		
+		
+		$('.clean, .delete', '.icart-conf').add($('.clean, .delete', '.mod-icartconf .form-tb')).click(function(e) {
 				e.preventDefault();
 				if (confirm("{m('Do You really want to delete')}?")) {
 					$('<form method="post" action="'+$(this).attr('href')+'"/>')

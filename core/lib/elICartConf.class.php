@@ -57,7 +57,7 @@ class elICartConf {
 		$this->_db->query($sql);
 		return $this->_db->numRows()
 			? $this->_db->nextRecord()
-			: array('region_id'=>0, 'delivery_id'=>0, 'payment_id'=>0, 'fee'=>'', 'comment'=>'');
+			: array('region_id'=>0, 'delivery_id'=>0, 'payment_id'=>0, 'fee'=>'', 'formula' => '', 'comment'=>'');
 	}
 
 	function getAll() {

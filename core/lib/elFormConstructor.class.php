@@ -101,8 +101,8 @@ class elFormConstructor {
 		
 		$label = '
 			<ul class="adm-icons">
-				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
 				<li><a href="'.$url.'field_sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
+				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
 				<li><a href="'.$url.'field_rm/" class="icons clean" title="'.m('Clean').'"></a></li>
 			</ul>
 			';
@@ -445,7 +445,7 @@ class elFormConstructorElement extends elDataMapping {
 		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
 		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
 		$this->_form->add(new elSelect('required',  m('Required'),       $this->required, $GLOBALS['yn']));
-		$this->_form->add(new elSelect('rule',      m('Type'),           $this->rule, $rules));
+		$this->_form->add(new elSelect('rule',      m('Validation rule'),           $this->rule, $rules));
 		$this->_form->add(new elSelect('file_size', m('Max file size in Mb.'), $this->fileSize, $fileSizes, null, null, false));
 		$this->_form->add(new elText('file_type',   m('Allowed file extensions list (separeted by semicolon)'),  $this->fileType));
 		$this->_form->add(new elText('error',       m('Error message'),  $this->error));

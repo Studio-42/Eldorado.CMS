@@ -4,11 +4,12 @@ class elICartRnd {
 	var $_te = null;
 	var $url = '';
 	var $_steps = array(
-		'icart'    => 'Products',
+		'cart'    => 'Products',
 		'delivery' => 'Delivery/payment',
 		'address'  => 'Address',
-		'complete' => 'Confirmation'
+		'confirm'  => 'Confirmation'
 		);
+	var $stepStates = array();
 	
 	/**
 	 * undocumented function
@@ -30,7 +31,7 @@ class elICartRnd {
 	 * @return void
 	 **/
 	function rndICart($icart) {
-		$this->_rndCommon('icart');
+		$this->_rndCommon('cart');
 		$this->_te->setFile('ICART_CONTENT', 'services/ICart/icart.html');
 		
 		$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
@@ -65,20 +66,39 @@ class elICartRnd {
 	 * @return void
 	 **/
 	function rndDelivery($regions, $delivery, $payment, $val) {
+		
 		$this->_rndCommon('delivery');
 		$this->_te->setFile('ICART_CONTENT', 'services/ICart/delivery.html');
 		
-		$this->_te->assignBlockFromArray('ICART_REGION',   $regions);
-		$this->_te->assignBlockFromArray('ICART_DELIVERY', $delivery);
-		$this->_te->assignBlockFromArray('ICART_PAYMENT',  $payment);
+		foreach ($regions as $one) {
+			$one['selected'] = $one['id'] == $val['region_id'] ? ' selected="on"' : '';
+			$this->_te->assignBlockVars('ICART_REGION', $one);
+		}
+		foreach ($delivery as $one) {
+			$one['selected'] = $one['id'] == $val['delivery_id'] ? ' selected="on"' : '';
+			$this->_te->assignBlockVars('ICART_DELIVERY', $one);
+		}
+		foreach ($payment as $one) {
+			$one['selected'] = $one['id'] == $val['payment_id'] ? ' selected="on"' : '';
+			$this->_te->assignBlockVars('ICART_PAYMENT', $one);
+		}
+
 		$this->_te->assignVars(array(
 			'delivery_fee'=>$val['fee'],
 			'delivery_comment' => $val['comment']
 			));
-		// $this->_te->assignVars('delivery_fee', $val['fee']);
-		
 		
 		$this->_te->parse('ICART_CONTENT');	
+	}
+	
+	
+	/**
+	 * render address form
+	 *
+	 * @return void
+	 **/
+	function rndAddress() {
+		$this->_rndCommon('address');
 	}
 	
 	
@@ -90,20 +110,32 @@ class elICartRnd {
 	 * @return void
 	 **/
 	function _rndCommon($step) {
+		
 		$this->_te->setFile('PAGE', 'services/ICart/default.html');
 		$this->_te->assignVars('iCartStepTitle', $this->_steps[$step]);
 		$this->_te->assignVars('iCartURL', $this->url.'__icart__/');
-		$this->_te->assignVars('buttonText', $step == 'complete' ? m('Complete') : m('Continue').' &raquo;');
-		$allow = true;
+		$this->_te->assignVars('buttonText', $step == 'confirm' ? m('Complete') : m('Continue').' &raquo;');
+		$this->_te->assignVars('stepID', $step);
 		foreach ($this->_steps as $k=>$v) {
-			$link = $allow ? '<a href="'.$this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/').'">'.$v.'</a>': $v;
-			
-			$this->_te->assignBlockVars('ICART_STEP', array('link' => $link));
-			$this->_te->assignVars('stepID', $step);
-			if ($allow && $k == $step) {
-				$allow = false;
-			}
+			$block = $this->stepStates[$k] ? 'ICART_STEP_AVAIL' : 'ICART_STEP_DISABLE';
+			$data = array(
+				'url' => $this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/'),
+				'name' => $v,
+				'cssClass' => $k == $step ? 'icart-nav-active' : ''
+				);
+			$this->_te->assignBlockVars('ICART_STEP.'.$block, $data);
 		}
+		
+		// $allow = true;
+		// foreach ($this->_steps as $k=>$v) {
+		// 	$link = $allow ? '<a href="'.$this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/').'">'.$v.'</a>': $v;
+		// 	
+		// 	$this->_te->assignBlockVars('ICART_STEP', array('link' => $link));
+		// 	$this->_te->assignVars('stepID', $step);
+		// 	if ($allow && $k == $step) {
+		// 		$allow = false;
+		// 	}
+		// }
 	}
 	
 	

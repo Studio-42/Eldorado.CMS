@@ -106,7 +106,7 @@ class elDirectoryManager {
 	function get($id, $list=true) {
 		$dir = array();
 		if ($this->directoryExists($id)) {
-			$sql = 'SELECT id, value FROM el_directory_'.$id.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value';
+			$sql = 'SELECT id, value, sort_ndx FROM el_directory_'.$id.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value';
 			$ret = $list ? $this->_db->queryToArray($sql, 'id', 'value') : $this->_db->queryToArray($sql);
 		}
 		return $ret;
@@ -163,6 +163,19 @@ class elDirectoryManager {
 	 * @return int|bool
 	 **/
 	function addRecords($id, $value) {
+		
+		if (is_string($value)) {
+			$v    = array();
+			$_tmp = explode("\n", str_replace("\r", '', $value));
+			foreach ($_tmp as $val) {
+				$val = trim($val);
+				if (!empty($val)) {
+					$v[] = $val;
+				}
+			}
+			$value = $v;
+		}
+		
 		if ($this->directoryExists($id) && !empty($value) && is_array($value)) {
 			$value = array_map('mysql_real_escape_string', $value);
 			$value = '("'.implode('"), ("', $value).'")';

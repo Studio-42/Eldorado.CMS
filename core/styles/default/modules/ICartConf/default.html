@@ -204,12 +204,39 @@
 		$('.sort-num', '.icart-dirs').click(function(e) {
 			e.preventDefault();
 			
-			var spinner = $('<div class="spinner">{m('Loading...')}</div>'),
-				form = $('<form method="post" action="{URL}dir_edit/'+$(this).attr('rel')+'/"/>').append(spinner),
+			var dir = $(this).attr('rel'),
+				spinner = $('<div class="spinner">{m('Loading...')}</div>'),
+				table = $('<table/>'),
+				form = $('<form method="post" action="{URL}dir_sort/'+dir+'/"/>').append(spinner).append(table),
 				dialog = $('<div/>').append(form);
 				
 			dialog.dialog({
 				title : "{m('Sort')}"
+			});
+			
+			$.ajax({
+				url : "{BASE_URL}__dir__/"+dir+'/',
+				dataType : 'json',
+				success : function(data) {
+
+					spinner.hide();
+					if (data.error) {
+						return form.append(data.error);
+					}
+					
+					var l = data.length, el;
+					while(l--) {
+						el = '<tr><td>'+data[l].value+'</td><td><input type="text" name="dir_sort['+data[l].id+']" value="'+data[l].sort_ndx+'" size="5" /></td></tr>';
+						table.prepend(el);
+					}
+
+					dialog.dialog('option', {
+						buttons : {
+							Cancel : function() { $(this).dialog('close'); },
+							Ok     : function() { form.submit();  $(this).dialog('close'); }
+						}
+					})
+				}
 			})
 				
 		})

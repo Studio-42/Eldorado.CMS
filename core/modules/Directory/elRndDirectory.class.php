@@ -2,15 +2,14 @@
 
 class elRndDirectory extends elModuleRenderer
 {
-	var $_tpls = array('list' => 'list.html');
 	
-	function rndList($dir)
+	function rndList($dirs)
 	{
-		$this->_setFile('list');
-		foreach ($dir as $d)
+		$this->_setFile();
+		foreach ($dirs as $d)
 		{
-			$d['count'] = count(explode(',', $d['value']));
-			$this->_te->assignBlockVars('DIR', $d);
+			// $d['count'] = count(explode(',', $d['value']));
+			$this->_te->assignBlockVars('SYS_DIRECTORY', $d);
 		}
 	}
 

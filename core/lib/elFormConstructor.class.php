@@ -426,7 +426,8 @@ class elFormConstructorElement extends elDataMapping {
 			'checkbox' => m('Checkboxes'), 
 			'date'     => m('Date selector'), 
 			'file'     => m('File upload field'), 
-			'captcha'  => m('Captcha: image with code and input field (Spam protection)')
+			'captcha'  => m('Captcha: image with code and input field (Spam protection)'),
+			'directory' => m('System directory')
 			);
 		$rules = array(
 			''                 => m('Any'),
@@ -438,6 +439,8 @@ class elFormConstructorElement extends elDataMapping {
 			);
 		$fileSizes = range(1, 10) + array(15, 20, 30, 40, 50, 60, 70, 80, 90, 100);
 		$req = ' <span class="form-req">*</span>';
+		
+		$dm = & elSingleton::getObj('elDirectoryManager');
 		
 		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),   $this->sortNdx, range(1, $params['cnt']), null, null, false));
 		$this->_form->add(new elText('label',       m('Name').$req,      $this->label));

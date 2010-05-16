@@ -29,7 +29,8 @@ class elCore
 				'__logout__'      => '',
 				'__clean_cache__' => '',
 				'__authkey__'     => 'UpdateAuth',
-				'__capt__'        => ''
+				'__capt__'        => '',
+				'__dir__'         => 'Directory'
 				);
 
 	// ******************** PUBLIC METHODS ******************** //

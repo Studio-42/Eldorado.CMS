@@ -1,0 +1,24 @@
+.mod-dir-directory {
+	border:1px solid #ccc;
+	margin-bottom:5px;
+	padding:3px;
+}
+.mod-dir-directory a.el-collapsed { 
+	line-height:2em;
+/*	background-position:-4px -1827px;*/
+	}
+	
+.mod-dir-directory-content {
+/*	border:1px solid #111;*/
+	padding:12px 5px 0 19px;
+	display:none;
+}
+
+.mod-dir-directory-content div {
+	border-bottom:1px solid #ccc;
+	margin-bottom:5px;
+	padding:3px;
+	clear:both;
+}
+
+.mod-dir-directory-content div.spinner { border:0px solid; padding-bottom:25px;}

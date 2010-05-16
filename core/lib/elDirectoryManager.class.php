@@ -49,6 +49,29 @@ class elDirectoryManager {
 	}
 	
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function getDetails() {
+		$tbs = array();
+		$what = array();
+		
+		$ret = array();
+		$sql = 'SELECT COUNT(id) AS num FROM el_directory_%s';
+		foreach ($this->_list as $id=>$label) {
+			$this->_db->query(sprintf($sql, $id));
+			$r = $this->_db->nextRecord();
+			$ret[] = array(
+				'id'    => $id,
+				'label' => $label,
+				'num'   => $r['num']
+				);
+		}
+		return $ret;
+	}
+	
+	/**
 	 * Return true if directory with this id exists
 	 *
 	 * @param  string  $id
@@ -80,6 +103,20 @@ class elDirectoryManager {
 	}
 
 	/**
+	 * Rename directory
+	 *
+	 * @param  string  $id
+	 * @return bool
+	 **/
+	function rename($id, $label) {
+		if ($this->directoryExists($id)) {
+			$sql = 'UPDATE '.$this->_tb.' SET label="'.mysql_real_escape_string($label).'" WHERE id="'.mysql_real_escape_string($id).'"';
+			$this->_db->query($sql);
+		} 
+	}
+	
+
+	/**
 	 * Remove directory
 	 *
 	 * @param  string  $id
@@ -95,6 +132,20 @@ class elDirectoryManager {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * update sort indexes for directory
+	 *
+	 * @param  string  $id
+	 * @param  array   $ndxs
+	 * @return void
+	 **/
+	function sort($id, $ndxs) {
+		$sql = 'UPDATE el_directory_'.$id.' SET sort_ndx=%d WHERE id=%d LIMIT 1';
+		foreach ($ndxs as $id=>$ndx) {
+			$this->_db->query(sprintf($sql, $ndx, $id));
+		}
 	}
 	
 	/**

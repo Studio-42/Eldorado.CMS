@@ -11,7 +11,7 @@ class elModuleICartConf extends elModule {
 	var $_mMap = array(
 		'conf'       => array('m' => 'orderConf'),
 		'dir_rec'    => array('m' => 'dirRecord'),
-		'dir_sort_ndx' => array('m' => 'dirSortNdxs'),
+		'dir_sort'   => array('m' => 'dirSort'),
 		'dir_edit'   => array('m' => 'dirEdit'),
 		'dir_clean'  => array('m' => 'dirClean'),
 		'edit'       => array('m' => 'edit'),
@@ -87,13 +87,17 @@ class elModuleICartConf extends elModule {
 	
 	
 	/**
-	 * undocumented function
+	 * sort directory
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
-	function dirSortNdxs() {
-		exit(elJSON::encode(array('ok' => 'ok')));
+	function dirSort() {
+		$dir = $this->_arg();
+
+		if ($this->_dm->directoryExists($dir) && !empty($_POST['dir_sort']) && is_array($_POST['dir_sort'])) {
+			$this->_dm->sort($dir, $_POST['dir_sort']);
+		}
+		elLocation(EL_URL);
 	}
 	
 	function dirEdit() {

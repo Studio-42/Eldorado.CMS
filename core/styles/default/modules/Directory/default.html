@@ -1,0 +1,208 @@
+
+<!-- BEGIN SYS_DIRECTORY -->
+<div class="mod-dir-directory rounded-5">
+	<ul class="adm-icons">
+		<li><a href="{URL}rename/{id}/"      rel="{id}" class="icons edit"     title="{m('Edit')}"></a></li>
+		<li><a href="{URL}add_records/{id}/" rel="{id}" class="icons create"   title="{m('New records')}"></a></li>
+		<li><a href="{URL}sort/{id}/"        rel="{id}" class="icons sort-num" title="{m('Sort')}"></a></li>
+		<li><a href="{URL}clean/{id}/"       rel="{id}" class="icons clean"    title="{m('Remove all records')}"></a></li>
+		<li><a href="{URL}rm/{id}/"          rel="{id}" class="icons delete"   title="{m('Delete')}"></a></li>
+	</ul>
+	<div class="float-right" style="margin-right:25px">{m('Records')} : {num}</div>
+	<a href="#{id}" class="el-collapsed">{label}</a>
+
+	<div class="mod-dir-directory-content"></div>
+
+	<div class="clearfix"></div>
+</div>
+<!-- END SYS_DIRECTORY -->
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		// rename directory
+		$('.mod-dir-directory>ul>li .edit').click(function(e) {
+			e.preventDefault();
+			var name   = $(this).parents('.mod-dir-directory').eq(0).find('.el-collapsed').text(),
+				err    = $('<div class="ui-state-error"/>').text("{m('Field could not be empty')}").hide(),
+				input  = $('<input type="text" name="name" value="'+name+'"/>'),
+				form   = $('<form method="post" action="'+$(this).attr('href')+'"/>').append(input),
+				dialog = $('<div/>').append(err).append(form)
+
+			dialog.dialog({
+				title : "{m('Rename directory')}",
+				buttons : {
+					Cancel : function() { $(this).dialog('close'); },
+					Ok : function() { 
+						var v = $.trim(input.val());
+						if (!$.trim(input.val()).length) {
+							err.show();
+						} else {
+							err.hide();
+							form.submit(); 
+							$(this).dialog('close');
+						}
+						 
+					}
+				}
+			});
+		})
+		
+		// remove directory
+		$('.mod-dir-directory>ul>li .delete').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Do You really want to delete')}?")) {
+				var form = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="rm" value="1"/></form>').appendTo('body').submit();
+			}
+		});
+		
+		// clean directory
+		$('.mod-dir-directory>ul>li .clean').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Remove all records')}?")) {
+				var form = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="clean" value="1"/></form>').appendTo('body').submit();
+			}
+		});
+		
+		// add new records
+		$('.mod-dir-directory .create').click(function(e) {
+			e.preventDefault();
+			
+			var form = $('<form method="post" action="'+$(this).attr('href')+'">{m('One value per line')}<textarea name="value" cols="34" rows="12" /></form>'),
+				dialog = $('<div/>').append(form);
+				
+			dialog.dialog({
+				title : "{m('New records')}",
+				buttons : {
+					Cancel : function() { $(this).dialog('close'); },
+					Ok : function() { form.submit(); $(this).dialog('close'); }
+				}
+			})
+			
+		});
+		
+		// sort directory
+		$('.mod-dir-directory .sort-num').click(function(e) {
+			e.preventDefault();
+
+			var dir     = $(this).attr('rel'),
+				spinner = $('<div class="spinner">{m('Loading...')}</div>'),
+				table   = $('<table/>'),
+				form    = $('<form method="post" action="'+$(this).attr('href')+'"/>').append(spinner).append(table),
+				dialog  = $('<div/>').append(form);
+				
+			dialog.dialog({
+				title : "{m('Sort')}"
+			});
+			
+			$.ajax({
+				url      : "{BASE_URL}__dir__/"+dir+'/',
+				dataType : 'json',
+				error    : function() { spinner.hide(); dialog.append("{m('Load data error!')}"); }, 
+				success  : function(data) {
+					spinner.hide();
+					if (data.error) {
+						return form.append(data.error);
+					}
+					
+					var l = data.length, el;
+					while(l--) {
+						el = '<tr><td>'+data[l].value+'</td><td><input type="text" name="dir_sort['+data[l].id+']" value="'+data[l].sort_ndx+'" size="5" /></td></tr>';
+						table.prepend(el);
+					}
+
+					dialog.dialog('option', {
+						buttons : {
+							Cancel : function() { $(this).dialog('close'); },
+							Ok : function() { form.submit();  $(this).dialog('close'); }
+						}
+					});
+				}
+			});
+			
+		});
+		
+		// show/hide directory
+		$('.mod-dir-directory .el-collapsed').click(function(e) {
+			var c = $(this).parents('.mod-dir-directory').eq(0).find('.mod-dir-directory-content'),
+				spinner = $('<div class="spinner">{m('Loading')}...</div>');
+				
+			e.preventDefault();
+			
+			if ($(this).hasClass('loaded')) {
+				$(this).toggleClass('el-expanded');
+				c.toggle();
+			} else {
+				var dir = $(this).attr('href').substring(1);
+				$(this).addClass('loaded').toggleClass('el-expanded');
+				c.append(spinner).show();
+				$.ajax({
+					url      : "{BASE_URL}__dir__/"+dir+'/0/',
+					dataType : 'json',
+					error    : function() { spinner.remove(); c.append("{m('Load data error!')}"); },
+					success  : function(data) {
+						var l, row;
+						
+						spinner.remove();
+						
+						if (data.error) {
+							return c.append(data.error);
+						} 
+						l = data.length;
+						if (!l) {
+							return c.append("{m('There are no one records in this directory')}");
+						}
+						
+						while(l--) {
+							row = '<div>'
+								+'<ul class="adm-icons">'
+								+'<li><a href="{URL}edit_record/'+dir+'/" rel="'+data[l].id+'"  class="icons edit"   title="{m('Edit')}"></a></li>'
+								+'<li><a href="{URL}rm_record/'+dir+'/'+data[l].id+'/"  class="icons delete" title="{m('Delete')}"></a></li>'
+								+'</ul>'
+								+'<span>'+data[l].value+'</span>'
+								+ '</div>';
+							c.prepend(row);
+						}
+
+					}
+				});
+			}
+		});
+		
+		// edit record
+		$('.mod-dir-directory-content .edit').live('click', function(e) {
+			e.preventDefault();
+			var input = $('<input type="text" name="value" size="30" />').val($(this).parents('.adm-icons').eq(0).next().text()),
+				err    = $('<div class="ui-state-error"/>').text("{m('Field could not be empty')}").hide(),
+				form = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="id" value="'+$(this).attr('rel')+'"/></form>').append(input),
+				dialog = $('<div/>').append(err).append(form);
+			
+			dialog.dialog({
+				title : "{m('Edit')}",
+				buttons : {
+					Cancel : function() { $(this).dialog('close'); },
+					Ok : function() { 
+						var v = $.trim(input.val());
+						if (!$.trim(input.val()).length) {
+							err.show();
+						} else {
+							err.hide();
+							form.submit(); 
+							$(this).dialog('close');
+						}
+
+					}
+				}
+			});
+		})
+	
+	
+		$('.mod-dir-directory-content .delete').live('click', function(e) {
+			e.preventDefault();
+			if (confirm("{m('Do You really want to delete')}?")) {
+				var form = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="rm" value="1"/></form>').appendTo('body').submit();
+			}
+		})
+	
+	});
+</script>

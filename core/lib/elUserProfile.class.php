@@ -8,29 +8,18 @@ class elUserProfile extends elDataMapping
 	var $UID         = 0;
 	var $login       = '';
 	var $email       = '';
-	// var $f_name      = '';
-	// var $s_name      = '';
-	// var $l_name      = '';
-	// var $phone_mobile= '';
-	// var $phone_home  = '';
-	// var $address_city       = '';
-	// var $address_postalcode = '';
-	// var $address_metro      = '';
-	// var $address_street     = '';
-	// var $address_housenum   = '';
-	// var $address_housesub   = '';
-	// var $address_flat       = '';
+
 
 	function toArray()
 	{
 		$ret = array();
-		$sql = 'SELECT field, label FROM el_user_profile '
-		     . 'WHERE field IN ("'.implode('", "', $this->attrsList()).'") '
-		     . 'ORDER BY sort_ndx, field';
-		$this->db->query($sql);
-		while ($r = $this->db->nextRecord()) {
-			$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['field']));
-		}
+		// $sql = 'SELECT field, label FROM el_user_profile_ '
+		//      . 'WHERE field IN ("'.implode('", "', $this->attrsList()).'") '
+		//      . 'ORDER BY sort_ndx, field';
+		// $this->db->query($sql);
+		// while ($r = $this->db->nextRecord()) {
+		// 	$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['field']));
+		// }
 		
 		return $ret;
 	}
@@ -78,7 +67,10 @@ class elUserProfile extends elDataMapping
 
 	function _initMapping()
 	{
-		$sql = 'SELECT field FROM el_user_profile WHERE rq>"0" OR field="login" OR field="email" ORDER BY sort_ndx';
+		return array('login' => 'login', 'email' => 'email', 'f_name' => 'f_name', 'l_name' => 'l_name');
+		
+		
+		$sql = 'SELECT field FROM el_user_profile_ WHERE rq>"0" OR field="login" OR field="email" ORDER BY sort_ndx';
 		$ats = & elSingleton::getObj('elATS');
 		$db  = & $ats->getACLDb();
 		$map = array('uid' => 'UID');

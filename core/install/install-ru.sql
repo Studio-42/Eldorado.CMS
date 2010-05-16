@@ -150,9 +150,10 @@ CREATE TABLE `el_form` (
 	`id`         int(5)         NOT NULL auto_increment,
 	`form_id`    varchar(255)   NOT NULL,
 	`label`      varchar(255)   NOT NULL,
-	`type`       enum('comment', 'title', 'text', 'textarea', 'select', 'checkbox', 'date', 'file', 'captcha') NOT NULL default 'comment',
+	`type`       enum('comment', 'title', 'text', 'textarea', 'select', 'checkbox', 'date', 'file', 'captcha', 'directory') NOT NULL default 'comment',
 	`value`      mediumtext     NOT NULL,
 	`opts`       mediumtext     NOT NULL,
+	`directory`  varchar(255)   NOT NULL,
 	`required`   enum('0', '1') NOT NULL default 0,
 	`rule`       enum('', 'noempty', 'email', 'url', 'phone', 'numbers', 'letters_or_space') NOT NULL default '',
 	`file_size`  int(3)         NOT NULL default 1,
@@ -190,33 +191,7 @@ LOCK TABLES `el_icart` WRITE;
 UNLOCK TABLES;
 --
 
-DROP TABLE IF EXISTS `el_icart_region`;
---
-CREATE TABLE `el_icart_region` (
-	`id` int(5) NOT NULL auto_increment,
-	`name` varchar(255) NOT NULL,
-  	PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
---
 
-DROP TABLE IF EXISTS `el_icart_delivery`;
---
-CREATE TABLE `el_icart_delivery` (
-	`id` int(5) NOT NULL auto_increment,
-	`name` varchar(255) NOT NULL,
-	PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
---
-
-DROP TABLE IF EXISTS `el_icart_payment`;
---
-CREATE TABLE `el_icart_payment` (
-	`id` int(5) NOT NULL auto_increment,
-	`name` varchar(255) NOT NULL,
-	`type` enum('cache', 'non-cache', 'online') NOT NULL default 'cache',
-	PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
---
 
 DROP TABLE IF EXISTS `el_icart_conf`;
 --
@@ -623,6 +598,22 @@ INSERT INTO el_user (uid, login, pass, f_name, s_name, l_name, email, phone, fax
 UNLOCK TABLES;
 --
 
+CREATE TABLE `el_user` (
+  `uid` int(3) NOT NULL auto_increment,
+  `login` varchar(25) collate utf8_bin NOT NULL default '',
+  `pass` varchar(32) collate utf8_bin NOT NULL default '',
+  `f_name` varchar(100) collate utf8_bin NOT NULL default '',
+  `l_name` varchar(100) collate utf8_bin NOT NULL default '',
+  `email` varchar(80) collate utf8_bin NOT NULL default '',
+  `crtime` int(11) NOT NULL default '0',
+  `mtime` int(11) NOT NULL default '0',
+  `atime` int(11) NOT NULL default '0',
+  `visits` int(3) NOT NULL default '0',
+  PRIMARY KEY  (`uid`),
+  KEY `email` (`email`),
+  KEY `login` (`login`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 
 DROP TABLE IF EXISTS `el_user_in_group`;
 --
@@ -692,3 +683,32 @@ INSERT INTO el_user_profile (field, label, type, opts, rule, is_func, rq, sort_n
 UNLOCK TABLES;
 --
 
+DROP TABLE IF EXISTS `el_user_profile`;
+
+CREATE TABLE `el_user_profile` (
+	`id`         varchar(255)   NOT NULL,
+	`label`      varchar(255)   NOT NULL,
+	`type`       enum('comment', 'title', 'text', 'textarea', 'select', 'checkbox', 'date', 'file', 'captcha', 'directory') NOT NULL default 'comment',
+	`value`      mediumtext     NOT NULL,
+	`opts`       mediumtext     NOT NULL,
+	`directory`  varchar(255)   NOT NULL,
+	`required`   enum('0', '1') NOT NULL default 0,
+	`rule`       enum('', 'noempty', 'email', 'url', 'phone', 'numbers', 'letters_or_space') NOT NULL default '',
+	`file_size`  int(3)         NOT NULL default 1,
+	`error`      varchar(255)   NOT NULL default '',
+	`sort_ndx`   int(3)         NOT NULL default 0,
+	PRIMARY KEY(`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+LOCK TABLES `el_user_profile` WRITE;
+--
+INSERT INTO el_user_profile (id, label, type, value, opts, directory, required, rule, sort_ndx) VALUES 
+("login",  "Login",      "text", "", "", "", "", "", "1"), 
+("email",  "E-mail",     "text", "", "", "", "", "", "2"), 
+("f_name", "First name", "text", "", "", "", "", "", "3"), 
+("l_name", "Last name",  "text", "", "", "", "", "", "4");
+
+--
+
+UNLOCK TABLES;
+--

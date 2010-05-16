@@ -282,11 +282,17 @@ class elFormConstructorElement extends elDataMapping {
 	 **/
 	var $_value = '';
 	/**
-	 * valu variants
+	 * value variants
 	 *
 	 * @var string
 	 **/
 	var $opts = '';
+	/**
+	 * directory name
+	 *
+	 * @var string
+	 **/
+	var $directory = '';
 	/**
 	 * is field required
 	 *
@@ -399,6 +405,12 @@ class elFormConstructorElement extends elDataMapping {
 			case 'captcha':
 				$el = & new elCaptcha($this->ID, $this->label);
 				break;
+				
+			case 'directory':
+				$dm = & elSingleton::getObj('elDirectoryManager');
+				$el = &new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory));
+				
+				break;
 		}
 		return $el;
 	}
@@ -442,13 +454,14 @@ class elFormConstructorElement extends elDataMapping {
 		
 		$dm = & elSingleton::getObj('elDirectoryManager');
 		
-		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),   $this->sortNdx, range(1, $params['cnt']), null, null, false));
-		$this->_form->add(new elText('label',       m('Name').$req,      $this->label));
-		$this->_form->add(new elSelect('type',      m('Type'),           $this->type, $types));
+		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),    $this->sortNdx, range(1, $params['cnt']), null, null, false));
+		$this->_form->add(new elText('label',       m('Name').$req,       $this->label));
+		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, $types));
 		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
 		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
-		$this->_form->add(new elSelect('required',  m('Required'),       $this->required, $GLOBALS['yn']));
-		$this->_form->add(new elSelect('rule',      m('Validation rule'),           $this->rule, $rules));
+		$this->_form->add(new elSelect('directory', m('Directory'),       $this->required, $dm->getList()));
+		$this->_form->add(new elSelect('required',  m('Required'),        $this->required, $GLOBALS['yn']));
+		$this->_form->add(new elSelect('rule',      m('Validation rule'), $this->rule, $rules));
 		$this->_form->add(new elSelect('file_size', m('Max file size in Mb.'), $this->fileSize, $fileSizes, null, null, false));
 		$this->_form->add(new elText('file_type',   m('Allowed file extensions list (separeted by semicolon)'),  $this->fileType));
 		$this->_form->add(new elText('error',       m('Error message'),  $this->error));
@@ -464,32 +477,36 @@ class elFormConstructorElement extends elDataMapping {
 				
 				switch(v) {
 					case 'text':
-						$('#row_opts, #row_file_size, #row_file_type').hide();
+						$('#row_opts, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label, #row_value, #row_required, #row_rule, #row_error').show();
 						break;
 					case 'textarea':
-						$('#row_opts, #row_rule, #row_file_size, #row_file_type').hide();
+						$('#row_opts, #row_rule, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label, #row_value, #row_required, #row_error').show();
 						break;
 					case 'select':
-						$('#row_rule, #row_required, #row_error, #row_file_size, #row_file_type').hide();
+						$('#row_rule, #row_required, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
 						break;
 					case 'checkbox':
-						$('#row_rule, #row_file_size, #row_file_type').hide();
+						$('#row_rule, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
 						break;
 					case 'file':
-						$('#row_opts, #row_value, #row_rule').hide();
+						$('#row_opts, #row_value, #row_rule, #row_directory').hide();
 						$('#row_label, #row_file_size, #row_file_type').show();
 						break;
 					case 'captcha':
-						$('#row_value, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
+						$('#row_value, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label').show();
 						break;
 					case 'date':
-						$('#row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
+						$('#row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
 						$('#row_label, #row_value').show();
+						break;
+					case 'directory':
+						$('#row_opts, #row_required, #row_value, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_directory').show();
 						break;
 					default:
 						$('#row_label, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
@@ -571,6 +588,7 @@ class elFormConstructorElement extends elDataMapping {
 		    'label'     => 'label',
 		    'value'     => 'value',
 		    'opts'      => 'opts',
+			'directory' => 'directory',
 			'required'  => 'required',
 		    'rule'      => 'rule',
 		    'file_size' => 'fileSize',

@@ -64,7 +64,7 @@ class elModuleActionLog extends elModule
 			if (!empty($r['value']))
 				$m .= sprintf(" (%s: %s)", m('Value'), $r['value']);
 			if (!empty($r['link']))
-				$m .= "\n" . $r['link'];
+				$m .= "\n" . EL_BASE_URL.$r['link'];
 			$m .= "\n\n";
 		}
 		$emails  = & elSingleton::getObj('elEmailsCollection');

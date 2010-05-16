@@ -8,18 +8,18 @@ class elUserProfile extends elDataMapping
 	var $UID         = 0;
 	var $login       = '';
 	var $email       = '';
-	var $f_name      = '';
-	var $s_name      = '';
-	var $l_name      = '';
-	var $phone_mobile= '';
-	var $phone_home  = '';
-	var $address_city       = '';
-	var $address_postalcode = '';
-	var $address_metro      = '';
-	var $address_street     = '';
-	var $address_housenum   = '';
-	var $address_housesub   = '';
-	var $address_flat       = '';
+	// var $f_name      = '';
+	// var $s_name      = '';
+	// var $l_name      = '';
+	// var $phone_mobile= '';
+	// var $phone_home  = '';
+	// var $address_city       = '';
+	// var $address_postalcode = '';
+	// var $address_metro      = '';
+	// var $address_street     = '';
+	// var $address_housenum   = '';
+	// var $address_housesub   = '';
+	// var $address_flat       = '';
 
 	function toArray()
 	{
@@ -80,9 +80,17 @@ class elUserProfile extends elDataMapping
 	{
 		$sql = 'SELECT field FROM el_user_profile WHERE rq>"0" OR field="login" OR field="email" ORDER BY sort_ndx';
 		$ats = & elSingleton::getObj('elATS');
-		$db = & $ats->getACLDb();
-		$map = $db->queryToArray($sql, 'field', 'field');
-		$map['uid'] = 'UID';
+		$db  = & $ats->getACLDb();
+		$map = array('uid' => 'UID');
+		$db->query($sql);
+		while($r = $db->nextRecord()) {
+			$this->{$r['field']} = '';
+			$map[$r['field']] = $r['field'];
+		}
+		
+		// $map = $db->queryToArray($sql, 'field', 'field');
+		// $map['uid'] = 'UID';
+		// elPrintR($map);
 		return $map;
 	}
 

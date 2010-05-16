@@ -12,8 +12,20 @@
 	display:inline; 
 }
 
-#icart-nav ul { list-style:none; margin-top:1em;}
-#icart-nav ul li {  padding:.5em; color:#666; }
+#icart-nav ul { list-style:none; margin:1em 0 0 0; }
+#icart-nav ul li {  padding:.5em 0; color:#777;  }
+#icart-nav ul li div {
+	padding-left:24px;
+}
+#icart-nav a { 
+/*	border:1px solid #111;*/
+	padding-left:24px;
+}
+
+#icart-nav a.icart-nav-active {
+	text-decoration:underline;
+	background:url(../../images/links.png) 0 -19px no-repeat;
+}
 
 #icart-content { 
 	margin-right:220px; 

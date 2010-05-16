@@ -405,6 +405,12 @@ ul.items-onecol li p { text-align: justify;}
 
 .print, .hide { display:none; }
 
+.spinner {
+	text-align:center;
+	padding: 12px 0 25px 0;
+	background:url(../images/spinner.gif) center bottom no-repeat;
+}
+
 .ui-widget { font-family: Verdana,Arial,sans-serif; font-size: 1em; }
 .ui-datepicker { width: 17em; padding: 0; }
 .ui-datepicker .ui-datepicker-header { position:relative; padding:0 0 .1em; border-radius:4px 4px 0 0; -moz-border-radius:4px 4px 0 0; border-style:none none solid; }

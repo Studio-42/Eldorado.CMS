@@ -3,7 +3,13 @@
 	<div id="icart-nav">
 		<ul>
 		<!-- BEGIN ICART_STEP -->
-		  <li>{link}</li>
+			<!-- BEGIN ICART_STEP_AVAIL -->
+			<li><a href="{url}"  class="{cssClass}">{name}</a></li>
+			<!-- END ICART_STEP_AVAIL -->
+			<!-- BEGIN ICART_STEP_DISABLE -->
+			<li><div>{name}</div></li>
+			<!-- END ICART_STEP_DISABLE -->
+		  
 		  <!-- END ICART_STEP -->
 		</ul>
 	</div>

@@ -139,6 +139,3 @@ class OchkarikOrderExport
 	}
 }
 
-$a = new OchkarikOrderExport;
-$a->run();
-

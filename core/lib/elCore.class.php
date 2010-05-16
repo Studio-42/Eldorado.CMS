@@ -95,67 +95,55 @@ class elCore
 		}
 		else
 		{	
-			// backup
 			$this->_outputHTML( $conf->get('gzOutputAllow'), $conf->get('timer') ? utime() - $this->_ts : '');
-			$period = $conf->get('auto', 'backup');
-			if ($period && time()-$period*86400 > $conf->get('ts', 'backup'))
-			{
-				if ( $this->_autoBackup() )
-				{
-					$conf->set('ts', time(), 'backup');
-				}
-				else
-				{
-					@error_log( 'Could not create backup', 3, EL_DIR_LOG.$_SERVER['HTTP_HOST'].'.error-log');
-					$conf->set('auto', 0, 'backup');
-				}
-				$conf->save();
-			}
-			
-			// ActionLog
-			$nav = & elSingleton::getObj('elNavigator');
-			$module = $nav->findByModule('ActionLog');
-			$module = !empty($module[0]) ? $module[0] : 0;
-			if ($module > 0)
-			{
-				if (($conf->get('reportNext', $module) < time()) and ($conf->get('reportPeriod', $module) > 0))
-				{
-					$last    = $this->_conf['reportLast'];
-					$next    = $this->_conf['reportNext'];
-					$type    = $this->_conf['reportType'];
 
-					elSingleton::incLib('./modules/ActionLog/elModuleActionLog.class.php', true);
-					$this->module = & elSingleton::getObj('elModuleActionLog');
-					$this->module->init($this->pageID, $this->args, $this->mName, EL_FULL);
-					$this->module->report(
-						$conf->get('reportLast', $module),
-						$conf->get('reportNext', $module),
-						$conf->get('reportType', $module),
-						$conf->get('reportPeriod', $module),
-						$conf->get('reportEmail', $module)
-						);
-					$conf->set('reportLast', time(), $module);
-					$conf->set('reportNext', time() + ($conf->get('reportPeriod', $module) * 86400), $module);
-					$conf->save();
-				}
-				
+			// begin cron
+			$next = $conf->get('next', 'cron');
+			if ($next == null) // first init
+			{
+				$next = time() - 1; // make sure we run now
 			}
+
+			if ($next <= time()) // run cron
+			{
+				$conf->set('next', time() + 86400, 'cron');
+				$conf->save(); // save config and run crontabs
+
+				ignore_user_abort(true);
+				flush();
+				//set_time_limit(60);
+
+				foreach (array('./core/hook') as $dir)
+				{
+					if (is_dir($dir) && ($dh = opendir($dir)) !== false)
+					{
+						while (false !== ($cfile = readdir($dh)))
+						{
+							if (!is_file($dir.'/'.$cfile))
+							{
+								continue;
+							}
+							if (!preg_match('/^(elCron.+)\.class\.php$/', $cfile, $m))
+							{
+								continue;
+							}
+
+							$cname = $m[1];
+							if (include_once($dir.'/'.$cfile))
+							{ // run task
+								$cron = new $cname;
+								$cron->run();
+							}
+						} // end if
+					} // end while
+				} // end foreach
+			} // end if
+			// end cron
 		}
 		
 	}
 
 	// ======================   PRIVATE METHODS ========================= //
-
-	function _autoBackup( )
-	{
-		if ( elSingleton::incLib('./modules/SiteBackup/elModuleSiteBackup.class.php') )
-		{
-			$this->module = & elSingleton::getObj('elModuleSiteBackup');
-			$this->module->init( $this->pageID, $this->args, $this->mName, EL_FULL );
-			return $this->module->create(true);
-		}
-		return false;
-	}
 
 	function _loadModule( )
 	{

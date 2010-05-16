@@ -23,7 +23,7 @@ class elSingleton
 			}
 			if ( !$args )
 			{
-				$GLOBALS['_elStorage_'][$key] = & new $class;
+				$GLOBALS['_elStorage_'][$key] = new $class;
 			}
 			else
 			{

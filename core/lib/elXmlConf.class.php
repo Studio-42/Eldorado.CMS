@@ -132,32 +132,32 @@ class elXmlConf
 		$str = '';
 		foreach ( $this->groups as $n=>$gr )
 		{
-			$str .= '<GROUP name="'.htmlspecialchars($n). "\">\n";
+			$str .= "\t".'<GROUP name="'.htmlspecialchars($n). "\">\n";
 
 			foreach ( $gr as $k=>$v )
 			{
 				if ( !is_array($v) )
 				{
-					$str .= '<NODE name="'. htmlspecialchars($k).'">'.htmlspecialchars(trim($v))."</NODE>\n";;
+					$str .= "\t\t".'<NODE name="'. htmlspecialchars($k).'">'.htmlspecialchars(trim($v))."</NODE>\n";;
 				}
 				else
 				{
-					$str .= '<CONTAINER name="'.htmlspecialchars($k)."\">\n";
+					$str .= "\t\t".'<CONTAINER name="'.htmlspecialchars($k)."\">\n";
 					foreach ( $v as $k1=>$v1 )
 					{
 						if ( !is_array($v1) )
 						{
-							$str .= '<NODE name="'. htmlspecialchars($k1).'">'.htmlspecialchars(trim($v1))."</NODE>\n";
+							$str .= "\t\t\t".'<NODE name="'. htmlspecialchars($k1).'">'.htmlspecialchars(trim($v1))."</NODE>\n";
 						}
 						else
 						{
-							$str .= '<NODE name="'. htmlspecialchars($k1).'" isArray="yes">'.implode(',', $v1)."</NODE>\n";
+							$str .= "\t\t\t".'<NODE name="'. htmlspecialchars($k1).'" isArray="yes">'.implode(',', $v1)."</NODE>\n";
 						}
 					}
-					$str .= "</CONTAINER>\n";
+					$str .= "\t\t</CONTAINER>\n";
 				}
 			}
-			$str .= "</GROUP>\n";
+			$str .= "\t</GROUP>\n";
 		}
 		$str = "<?xml version=\"1.0\"?>\n<ROOT>\n" . $str . "</ROOT>\n";
 

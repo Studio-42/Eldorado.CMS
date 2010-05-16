@@ -8,6 +8,11 @@ class elUserProfile extends elDataMapping
 	var $UID         = 0;
 	var $login       = '';
 	var $email       = '';
+	var $db          = null;
+
+	function elUserProfile($db) {
+		$this->db = $db;
+	}
 
 
 	function toArray()
@@ -67,21 +72,14 @@ class elUserProfile extends elDataMapping
 
 	function _initMapping()
 	{
-		return array('login' => 'login', 'email' => 'email', 'f_name' => 'f_name', 'l_name' => 'l_name');
-		
-		
-		$sql = 'SELECT field FROM el_user_profile_ WHERE rq>"0" OR field="login" OR field="email" ORDER BY sort_ndx';
-		$ats = & elSingleton::getObj('elATS');
-		$db  = & $ats->getACLDb();
+
 		$map = array('uid' => 'UID');
-		$db->query($sql);
-		while($r = $db->nextRecord()) {
-			$this->{$r['field']} = '';
-			$map[$r['field']] = $r['field'];
+		$this->db->query('SELECT id FROM el_user_profile ORDER BY sort_ndx, label');
+		while($r = $this->db->nextRecord()) {
+			$this->{$r['id']} = '';
+			$map[$r['id']] = $r['id'];
 		}
-		
-		// $map = $db->queryToArray($sql, 'field', 'field');
-		// $map['uid'] = 'UID';
+
 		// elPrintR($map);
 		return $map;
 	}

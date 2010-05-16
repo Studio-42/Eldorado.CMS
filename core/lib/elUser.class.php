@@ -1,10 +1,11 @@
 <?php
 
-class elUser extends elMemberAttribute
+class elUser extends elDataMapping
 {
-	var $tb        = 'el_user';
+	var $_tb       = 'el_user';
 	var $db        = null;
-	var $_uniq     = 'uid';
+	var $_id       = 'uid';
+	var $__id__    = 'UID';
 	var $UID       = 0;
 	var $groups    = array();
 	var $login     = '';
@@ -15,15 +16,219 @@ class elUser extends elMemberAttribute
 	var $prefs     = array();
 	var $profile   = null;
 	var $_fullName = false;
+	var $_onlyGroups = array();
+	var $_salt = '';
 
-	function elUser()
+	function elUser($db=null, $groups=array(), $salt='', $fn=false)
 	{
-		if ( !isset($_SESSION['userPrefs']) )
-		{
-			$_SESSION['userPrefs'] = array();
-		}
-		$this->prefs = @$_SESSION['userPrefs'];
+		$this->_onlyGroups = $groups;
+		$this->_salt = $salt;
+		$this->db = $db ? $db : elSingleton::getObj('elDb');
+		$this->profile     = & new elUserProfile($this->db);
+		$this->_fullName = $fn;
 	}
+
+	/**
+	 * return true if user is root
+	 *
+	 * @return bool
+	 **/
+	function isRoot() {
+		return 1 == $this->UID;
+	}
+
+	/**
+	 * return true if user is in group root
+	 *
+	 * @return bool
+	 **/
+	function isInGroupRoot() {
+		return in_array(1, $this->groups);
+	}
+	
+	/**
+	 * return true if user authed
+	 *
+	 * @return bool
+	 **/
+	function isAuthed() {
+		return $this->UID;
+	}
+
+	/**
+	 * return user full name or login
+	 *
+	 * @param  bool  $force  return full name in any case
+	 * @return string
+	 **/
+	function getFullName($force=false) {
+		return $this->_fullName || $force ? $this->profile->getFullName() : $this->login;
+	}
+
+	/**
+	 * return user email
+	 *
+	 * @param  bool  $format  format email?
+	 * @return string
+	 **/
+	function getEmail($format=true) {
+		return $this->UID ? $profile->getEmail($format) : '';
+	}
+
+	/**
+	 * return user groups IDs
+	 *
+	 * @return array
+	 **/
+	function getGroups() {
+		return $this->groups;
+	}
+	
+	/**
+	 * return user data as array
+	 *
+	 * @return array
+	 **/
+	function toArray() {
+		return $this->profile->toArray();
+	}
+	
+	/**
+	 * autologin user
+	 *
+	 * @param  int  $sessTimeout  session timeout for root
+	 * @return bool
+	 **/
+	function autoLogin($sessTimeout) {
+		
+		$this->prefs = isset($_SESSION['userPrefs']) && is_array($_SESSION['userPrefs']) ? $_SESSION['userPrefs'] : array();
+		
+		if (!empty($_SESSION['UID']) && !empty($_SESSION['key'])) {
+			$this->UID = (int)$_SESSION['UID'];
+		
+			if ($this->_onlyGroups) {
+				$sql = 'SELECT DISTINCT '.$this->attrsToString()
+	  					.' FROM el_user, el_user_in_group WHERE '
+	  					.'uid='.intval($this->UID).' AND user_id=uid AND '
+	  					.'group_id IN (\''.implode('\',\'', $this->_onlyGroups).'\')';
+				$this->db->query($sql);
+				if ($this->db->numRows() == 1) {
+					$this->attr($this->db->nextRecord());
+					$res = true;
+				} else {
+					$res = false;
+				}
+			} else {
+				$res = $this->fetch();
+			}
+			
+			if (!$res || $this->_key() != $_SESSION['key']) {
+				$this->logout();
+				return false;
+			}
+
+			if (time() - $this->atime > $sessTimeout && $this->UID == 1) {
+				$this->logout();
+				return false;
+			}
+			$this->_onLogin();
+			return true;
+		}
+	
+	}
+
+	/**
+	 * auth user
+	 *
+	 * @param  string  $login
+	 * @param  string  $pass
+	 * @param  bool    $case is login case sensetive		
+	 * @return bool
+	 **/
+	function login($login, $pass, $case=true) {
+		
+		if ($login == 'root') {
+			$this->db->queryToArray('SELECT login FROM el_user WHERE uid=1');
+			if (!$this->db->numRows()) {
+				$this->db->query('INSERT INTO el_user (uid, login, crtime, mtime) VALUES (1, "root", '.time().', '.time().')');
+			} else {
+				$r = $this->db->nextRecord();
+				if ($r['login'] != 'root') {
+					$this->db->query('UPDATE el_user SET login="root", mtime='.time().' WHERE uid=1');
+				}
+			}
+		}
+		
+		$login = mysql_real_escape_string($case ? $login : strtolower($login));
+		$field = $case ? 'login' : 'LOWER(login)';
+		$pass = md5($pass);
+
+		if ($this->_onlyGroups) {
+			$sql = sprintf('SELECT DISTINCT %s FROM el_user, el_user_in_group WHERE %s="%s" AND pass="%s" AND user_id=uid AND group_id IN (%s)', $this->attrsToString(), $field, $login, $pass, implode(', ', $this->_onlyGroups));
+		} else {
+			$sql = sprintf('SELECT %s FROM el_user WHERE %s="%s" AND pass="%s"', $this->attrsToString(), $field, $login, $pass);
+		}
+		$this->db->query($sql);
+		if (!$this->db->numRows()) {
+			return false;
+		}
+		
+		$this->attr($this->db->nextRecord());
+		$this->_onLogin(true);
+		return true;
+		
+	}
+
+	/**
+	 * logout user
+	 *
+	 * @return void
+	 **/
+	function logout()
+	{
+		$this->_savePrefs();
+		$this->clean();
+		$this->_loadProfile();
+		$this->groups = $this->prefs = array();
+		$_SESSION['UID'] = 0;
+		$_SESSION['key'] = '';
+		$_SESSION['userPrefs'] = array();
+	}
+
+	/**
+	 * set/get prefrence
+	 *
+	 * @param  string  $name  prefrence name
+	 * @param  mixed   $value new value
+	 * @return mixed
+	 **/
+	function prefrence($name=null, $value=null) {
+		if (empty($name)) {
+			return $this->prefs;
+		}
+		if (!is_null($value)) {
+			$this->prefs[$name] = $value;
+			$_SESSION['userPrefs'] = $this->prefs;
+		}
+		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
+	}
+
+	/**
+	 * set/get prefrence
+	 *
+	 * @param  string  $name  prefrence name
+	 * @param  mixed   $value new value
+	 * @return mixed
+	 **/
+	function removePrefrence($name) {
+		if (isset($this->prefs[$name])) {
+			unset($this->prefs[$name]);
+			$_SESSION['userPrefs'] = $this->prefs;
+		}
+	}
+
+
+
 
 	function &getProfile()
 	{
@@ -38,30 +243,11 @@ class elUser extends elMemberAttribute
 		return $this->profile;
 	}
 
-	function allowFullName($allow=true)
-	{
-	  $this->_fullName = (bool)$allow;
-	}
 
-	function getFullName($force=false)
-	{
-		if ( ($this->_fullName || $force) && $this->UID )
-		{
-			$profile = & $this->getProfile();
-			return $profile->getFullName();
-		}
-		return $this->login;
-	}
 
-	function getEmail($format=true)
-	{
-		if ( $this->UID )
-		{
-			$profile = & $this->getProfile();
-			return $profile->getEmail($format);
-		}
-		return '';
-	}
+
+
+
 
 	function getProfileAttr($attr)
 	{
@@ -83,71 +269,17 @@ class elUser extends elMemberAttribute
 		return array();
 	}
 
-	function getGroups()
-	{
-		return $this->groups;
-	}
+	
 
-	function isRoot()
-	{
-		return 1 == $this->UID;
-	}
+	
 
-	function isInGroupRoot()
-	{
-		return in_array(1, $this->groups);
-	}
 
-	function isAuthed()
-	{
-		return $this->UID;
-	}
 
-	function onLogin($attrs, $dbHash, $al, $onlyGroups=null, $upVisit=false)
-	{
-		$now = time();
-		$attrs['atime'] = $now;
-		$this->setAttrs($attrs);
-		$this->_updateProfile();
-		$this->_loadGroups($onlyGroups);
-		if ( $upVisit )
-		{
-			$this->_loadPrefs();
-		}
 
-		$key = md5($this->UID.' '.$this->login.' '.$dbHash);
-		$_SESSION['UID'] = $this->UID;
-		$_SESSION['al']  = $al;
-		$_SESSION['key'] = $key;
-		$sql = 'UPDATE el_user SET atime='.$now
-					.($upVisit ? ', visits=visits+1' : '')
-					.' WHERE uid='.$this->UID;
 
-		$this->db->query($sql);
-		if ($upVisit) {
-			$this->db->query(sprintf('UPDATE el_icart SET sid="%s" WHERE uid=%d', mysql_real_escape_string(session_id()), $this->UID));
-		}
-		
-	}
 
-	function onLogout()
-	{
-		$this->_savePrefs();
-		$this->cleanAttrs();
-		$this->_updateProfile();
-		$this->groups = array();
-		$_SESSION['UID'] = 0;
-		$_SESSION['key'] = '';
-	}
 
-	function toArray()
-	{
-		$profile = & $this->getProfile();
-		return $profile->toArray();
-	}
-
-	function getPref($name)
-	{
+	function getPref($name)	{
 		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
 	}
 
@@ -169,54 +301,64 @@ class elUser extends elMemberAttribute
 	//*********************************************//
 	//        		PRIVATE METHODS									 //
 	//*********************************************//
-	function _initMapping()
-	{
-		$map = array(
-								'uid'    => 'UID',
-								'login'  => 'login',
-								'atime'  => 'aTime',
-								'crtime' => 'crTime',
-								'mtime'  => 'mTime',
-								'visits' => 'visits'
-								);
-		return $map;
-	}
 
-	function _initProfile()
-	{
-		if ( !$this->profile )
+	/**
+	 * some actions after (auto)login
+	 *
+	 * @param  bool   $newVisist update visits counter
+	 * @return void
+	 **/
+	function _onLogin($newVisist=false) {
+		$_SESSION['key'] = $this->_key();
+		$_SESSION['UID'] = $this->UID;
+		$this->_loadGroups();
+		$this->atime = time();
+		$this->db->query('UPDATE el_user SET atime='.$this->atime.($newVisist ? ', visits=visits+1' : '').' WHERE uid='.$this->UID);
+		$this->_loadProfile();
+		
+		if ( $newVisist )
 		{
-			$this->profile     = & new elUserProfile();
-			$this->profile->db = & $this->_getDb();
+			$this->_loadPrefs();
+			$db = & elSingleton::getObj('elDb');
+			$db->query(sprintf('UPDATE el_icart SET sid="%s" WHERE uid=%d', mysql_real_escape_string(session_id()), $this->UID));
 		}
+		
 	}
 
-	function _updateProfile()
-	{
-		$this->_initProfile();
-		if ( $this->UID )
-		{
+	/**
+	 * create session key
+	 *
+	 * @return string
+	 **/
+	function _key() {
+		return md5($this->UID.' '.$this->login.' '.$this->_salt);
+	}
+
+	/**
+	 * load profile data
+	 *
+	 * @return void
+	 **/
+	function _loadProfile() {
+		$this->profile->clean();
+		if ($this->UID) {
 			$this->profile->idAttr($this->UID);
 			$this->profile->fetch();
 		}
-		else
-		{
-			$this->profile->clean();
-		}
 	}
 
-	function _loadGroups($onlyGroups=null)
-	{
+	/**
+	 * load groups for authed user
+	 *
+	 * @return void
+	 **/
+	function _loadGroups() {
 		if ($this->UID )
 		{
-			if ( !$this->db )
-			{
-				$this->_getDb();
-			}
 			$sql = 'SELECT group_id FROM el_user_in_group WHERE user_id='.$this->UID;
-			if ( !empty($onlyGroups) && is_array($onlyGroups) )
+			if ( !empty($this->_onlyGroups) && is_array($this->_onlyGroups) )
 			{
-				$sql .= ' AND group_id IN (1, '.implode(',', $onlyGroups).')';
+				$sql .= ' AND group_id IN (1, '.implode(',', $this->_onlyGroups).')';
 			}
 			$this->groups = $this->db->queryToArray($sql, null, 'group_id');
 		}
@@ -224,57 +366,54 @@ class elUser extends elMemberAttribute
 
 	/**
 	 * Load prefrences and put in session
+	 *
 	 * @return viod
 	 */
 	function _loadPrefs()
 	{
-		$ats = & elSingleton::getObj('elATS');
-		$db  = & $ats->getACLDb();
 		$this->prefs = array();
-		$db->query('SELECT name, val, is_serialized FROM el_user_pref WHERE user_id=\''.$this->UID.'\'');
-		while ( $row = $db->nextRecord())
-		{
-			$this->prefs[$row['name']] = $row['is_serialized'] ? unserialize( $row['val'] ) : $row['val'];
+		$this->db->query('SELECT name, val, is_serialized FROM el_user_pref WHERE user_id=\''.$this->UID.'\'');
+		while ($row = $this->db->nextRecord()) {
+			$this->setPref($row['name'], $row['is_serialized'] ? unserialize($row['val']) : $row['val']);
 		}
-		$_SESSION['userPrefs'] = $this->prefs;
 	}
 
 	/**
-	 * Save prefrences in Db and clean it
+	 * Save prefrences in Db 
+	 *
 	 * @return void
 	 */
 	function _savePrefs()
 	{
-		if (!$this->UID)
-		{
-			return;
-		}
-		$ats = & elSingleton::getObj('elATS');
-		$db  = & $ats->getACLDb();
-		$db->query( 'DELETE FROM el_user_pref WHERE user_id=\''.$this->UID.'\'' );
-		$db->optimizeTable( 'el_user_pref' );
-		if ( $this->prefs )
-		{
-			$db->prepare( 'INSERT INTO el_user_pref (user_id, name, val, is_serialized) VALUES ',
-										'(\'%d\', \'%s\', \'%s\', \'%d\')' );
-			foreach ( $this->prefs as $n=>$v )
-			{
-				$isSerialize = (int)!is_string($v);
-				$db->prepareData( array($this->UID, $n, !$isSerialize ? $v : serialize($v), $isSerialize) );
+		if ($this->UID) {
+			$this->db->query('DELETE FROM el_user_pref WHERE user_id=\''.$this->UID.'\'' );
+			$this->db->optimizeTable( 'el_user_pref' );
+			if ( $this->prefs ) {
+				$this->db->prepare( 'INSERT INTO el_user_pref (user_id, name, val, is_serialized) VALUES ', '(\'%d\', \'%s\', \'%s\', \'%d\')' );
+				foreach ( $this->prefs as $n=>$v ) {
+					$ser = is_scalar($v);
+					$this->db->prepareData( array($this->UID, $n, $ser ? serialize($v) : $v, $ser) );
+				}
+				$this->db->execute();
 			}
-			$db->execute();
 		}
-		$this->prefs = $_SESSION['userPrefs'] = array();
 	}
 
-	function &_getDb()
-	{
-		if ( !$this->db )
-		{
-			$ats      = & elSingleton::getObj('elATS');
-			$this->db = & $ats->getAuthDb();
-		}
-		return $this->db;
+	/**
+	 * return attr mapping
+	 *
+	 * @return array
+	 **/
+	function _initMapping() {
+
+		return array(
+			'uid'    => 'UID',
+			'login'  => 'login',
+			'crtime' => 'crtime',
+			'mtime'  => 'mtime',
+			'atime'  => 'atime',
+			'visits' => 'visits'
+			);
 	}
 
 }

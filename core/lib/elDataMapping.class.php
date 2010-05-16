@@ -15,19 +15,16 @@ class elDataMapping
 	var $_formRndClass = 'elTplFormRenderer';
 	var $_objName      = 'Object';
 	var $_new          = false;
+	var $db            = null;
 	
-	function __construct( $attr=null, $tb=null, $id=null )
+
+	function elDataMapping( $attr=null, $tb=null, $id=null, $db=null )
 	{
-		$this->tb($tb);
-		$this->id($id ? $id : $this->_id);
-		$this->attr($attr);
-	}
-	
-	function elDataMapping( $attr=null, $tb=null, $id=null )
-	{
+		$this->db = $db;
 		$this->tb($tb);
 		$this->id($id);
 		$this->attr($attr);
+		
 	}
 	
 	function getObjName()
@@ -126,7 +123,7 @@ class elDataMapping
 		if ( false != ($ID = $this->idAttr()) )
 		{
 			$this->idAttr(0);
-			$db  = & elSingleton::getObj('elDb');
+			$db = $this->_db();
 			$db->query(sprintf('SELECT %s FROM %s WHERE %s="%s" LIMIT 1', $this->attrsToString(), $this->_tb, $this->_id, mysql_real_escape_string($ID)));
 			return $db->numRows() && !$this->attr( $db->nextRecord() );
 		}
@@ -134,7 +131,7 @@ class elDataMapping
 	
 	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null)
 	{
-		$db  = & elSingleton::getObj('elDb');
+		$db = $this->_db();
 		$sql = sprintf('SELECT %s FROM %s %s %s %s', 
 			$onlyFields && $onlyFields ? $this->_id.', '.$onlyFields : $this->attrsToString(), 
 			$this->_tb, 
@@ -164,7 +161,7 @@ class elDataMapping
 	
 	function namesList($name, $clause, $sort=null)
 	{
-		$db  = & elSingleton::getObj('elDb');
+		$db = $this->_db();
 		$sql = sprintf('SELECT %s, %s FROM %s %s ORDER BY %s', $this->_id, $name, $this->_tb, $clause ? 'WHERE '.$clause : '', $sort ? $sort : $this->_id );
 		return $db->queryToArray($sql, $this->_id, $field);
 	}
@@ -195,7 +192,7 @@ class elDataMapping
 
 	function save()
 	{
-		$db   = & elSingleton::getObj('elDb');
+		$db = $this->_db();
 		$vals = $this->_attrsForSave();
 		if ( !$vals[$this->_id] )
 		{
@@ -232,7 +229,7 @@ class elDataMapping
 		if ( $this->idAttr() )
 		{
 			$ID = mysql_real_escape_string( $this->idAttr() );
-			$db = & elSingleton::getObj('elDb');
+			$db = $this->_db();
 			$db->query('DELETE FROM '.$this->_tb.' WHERE '.$this->_id.'=\''.$ID.'\' LIMIT 1');
 			$db->optimizeTable($this->_tb);
 			if ( !empty($ref) && is_array($ref) )
@@ -248,7 +245,7 @@ class elDataMapping
 
 	function deleteAll()
 	{
-		$db = & elSingleton::getObj('elDb');
+		$db = $this->_db();
 		return $db->query('TRUNCATE TABLE '.$this->_tb);
 	}
 
@@ -290,6 +287,13 @@ class elDataMapping
 	function _postSave($isNew, $params=null)
 	{
 		return true;
+	}
+	
+	function _db() {
+		if (!$this->db) {
+			$this->db = & elSingleton::getObj('elDb');
+		}
+		return $this->db;
 	}
 } // END class 
 ?>

@@ -36,7 +36,7 @@ class elServiceProfile extends elService
 			<li><a href="'.EL_URL.'__profile__/passwd/" class="icons passwd" title="'.m('Change password').'"></a></li>
 			</ul>';
 		$this->_rnd->_te->assignVars('dtLabel', $label.m('User profile'));
-		$this->_rnd->render( $this->_ats->user->toArray(), null, 'DT_ROW' );
+		// $this->_rnd->render( $this->_ats->user->toArray(), null, 'DT_ROW' );
 	}
 
 	function editProfile()

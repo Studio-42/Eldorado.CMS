@@ -33,7 +33,7 @@ class elFormConstructor {
 	 *
 	 * @return void
 	 **/
-	function elFormConstructor($id, $label, $data=array()) {
+	function elFormConstructor($id, $label, $data=array(), $disabled=array()) {
 		$this->ID        = $id;
 		$this->label     = $label;
 		$el              = & new elFormConstructorElement();
@@ -41,6 +41,11 @@ class elFormConstructor {
 		foreach ($data as $id=>$val) {
 			if (isset($this->_elements[$id])) {
 				$this->_elements[$id]->setValue($val);
+			}
+		}
+		foreach ($disabled as $id) {
+			if (isset($this->_elements[$id])) {
+				$this->_elements[$id]->disabled = true;
 			}
 		}
 	}
@@ -81,9 +86,9 @@ class elFormConstructor {
 			$rndParams = $el->type=='title' ? array('rowAttrs' => ' class="form-tb-sub"') : null;
 			$this->_form->add($el->toFormElement(), $rndParams);
 			if ($el->rule) {
-				$form->setElementRule($el->ID, $el->rule, $el->required, null, $el->error);
+				$this->_form->setElementRule($el->ID, $el->rule, $el->required, null, $el->error);
 			} elseif ($el->required) {
-				$form->setRequired($el->ID);
+				$this->_form->setRequired($el->ID);
 			}
 		}
 		return $this->_form; 
@@ -331,10 +336,16 @@ class elFormConstructorElement extends elDataMapping {
 	var $sortNdx = 0;
 	
 	/**
+	 * disable input field
+	 *
+	 * @var bool
+	 **/
+	var $disabled = false;
+	
+	/**
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function setValue($v) {
 		$this->_value = $v;
@@ -354,8 +365,9 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @return object
 	 **/
-	function toFormElement($admin=false) {
+	function toFormElement() {
 		$el = null;
+		$attrs = $this->disabled ? array('disabled' => 'on') : array();
 		switch ($this->type) {
 			case 'comment':
 				$el = & new elCData($this->ID, $this->value);
@@ -364,24 +376,27 @@ class elFormConstructorElement extends elDataMapping {
 				$el = & new elCData($this->ID, $this->value);
 				break;
 			case 'text':
-				$el = & new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value);
+				$el = & new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
 				break;	
 			case 'textarea':
-				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value);
+				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
 				break;
 			case 'select':
 				$opts = explode("\n", $this->opts);
-				$el = &new elSelect($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $opts, null, false, false);
+				$el = &new elSelect($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $opts, $attrs, false, false);
 				break;
 			case 'checkbox':
 				$opts = array_map('trim', explode("\n", $this->opts)); 
 				$value = $this->_value ? implode("\n", $this->_value) : $this->value;
 				if (sizeof($opts) == 1) {
-					$attrs = $this->value ? array('checked' => '') : null;
+					if ($this->value) {
+						$attrs['checked'] = 'on';
+					}
+					// $attrs = $this->value ? array('checked' => '') : null;
 					$el = & new elCheckBox($this->ID, $this->label, 1, $attrs);
 				} else {
 					$value = array_map('trim', explode("\n", $this->value)); 
-					$el = & new elCheckBoxesGroup($this->ID, $this->label, $value, $opts, null, false, false);
+					$el = & new elCheckBoxesGroup($this->ID, $this->label, $value, $opts, $attrs, false, false);
 				}
 				break;
 			case 'date':
@@ -408,7 +423,7 @@ class elFormConstructorElement extends elDataMapping {
 				
 			case 'directory':
 				$dm = & elSingleton::getObj('elDirectoryManager');
-				$el = &new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory));
+				$el = &new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
 				
 				break;
 		}

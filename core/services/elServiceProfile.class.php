@@ -36,19 +36,19 @@ class elServiceProfile extends elService
 			<li><a href="'.EL_URL.'__profile__/passwd/" class="icons passwd" title="'.m('Change password').'"></a></li>
 			</ul>';
 		$this->_rnd->_te->assignVars('dtLabel', $label.m('User profile'));
-		// $this->_rnd->render( $this->_ats->user->toArray(), null, 'DT_ROW' );
+		$this->_rnd->render( $this->_ats->user->getProfileData(), null, 'DT_ROW' );
 	}
 
-	function editProfile()
-	{
-		if ( !$this->_ats->editUser($this->_ats->user) )
-		{
+	/**
+	 * edit user data
+	 *
+	 * @return void
+	 **/
+	function editProfile() {
+		if ( !$this->_ats->editUser($this->_ats->user) ) {
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $this->_ats->formToHtml() );
-		}
-		else
-		{
-
+		} else {
 			elMsgBox::put(m('Data saved'));
 			elLocation(EL_BASE_URL.'/__profile__/');
 		}

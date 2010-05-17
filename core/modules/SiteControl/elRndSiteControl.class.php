@@ -23,6 +23,7 @@ class elRndSiteControl extends elModuleRenderer
   function renderAccessConf( $conf )
     {
       $this->_setFile( );
+elPrintR($conf);
 
       $ats = &elSingleton::getObj('elATS');
       $groups = $ats->getGroupsList();

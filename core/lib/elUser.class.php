@@ -90,9 +90,19 @@ class elUser extends elDataMapping
 	 * @return array
 	 **/
 	function toArray() {
+		// elPrintR($this->profile);
 		return $this->profile->toArray();
 	}
 	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getProfileData() {
+		return $this->profile->get();
+	}
 	/**
 	 * autologin user
 	 *
@@ -193,6 +203,16 @@ class elUser extends elDataMapping
 		$_SESSION['UID'] = 0;
 		$_SESSION['key'] = '';
 		$_SESSION['userPrefs'] = array();
+	}
+
+	/**
+	 * save new password in db
+	 *
+	 * @param string $p    password
+	 * @return void
+	 **/
+	function passwd($p) {
+		$this->db->query(sprintf('UPDATE el_user SET pass="%s" WHERE uid=%d LIMIT 1', md5($p), $this->UID));
 	}
 
 	/**
@@ -299,7 +319,7 @@ class elUser extends elDataMapping
 	}
 
 	//*********************************************//
-	//        		PRIVATE METHODS									 //
+	//        		PRIVATE METHODS				   //
 	//*********************************************//
 
 	/**
@@ -397,6 +417,19 @@ class elUser extends elDataMapping
 				$this->db->execute();
 			}
 		}
+	}
+
+	/**
+	 * update mtime
+	 *
+	 * @return array
+	 **/
+	function _attrsForSave() {
+		$this->mtime = time();
+		if (!$this->UID || !$this->crtime) {
+			$this->crtime = time();
+		}
+		return parent::_attrsForSave();
 	}
 
 	/**

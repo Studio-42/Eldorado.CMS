@@ -46,117 +46,44 @@ class elATSManager
   	}
   }
 
-  /**
-   * Редактирование/создание нового пользователя
-   * используется модулями: profile, registration, users контрольного центра
-   * создает форму для ввода данных и сохраняет их БД
-   */
-  function editUser( &$user )
-  {
-    $isNewUser   = !$user->UID;
-    $profile     = & $user->getProfile();
-    $profileSkel = $profile->getSkel() ;
-	// elPrint($profileSkel);
-    $this->_initForm( m('User profile') );
-    foreach ( $profileSkel as $k=>$v )
-    {
-    	$label = m($v['label']);
-    	$value = $profile->attr($k);
-    	if ('select' == $v['type'])
-    	{
-			if (strpos($v['opts'], 'directory:') !== false)
-			{
-				elSingleton::incLib('modules/Directory/elDirectory.class.php');
-				$dir = new elDirectory();
-				$opts = $dir->getOpts($v['opts']);
-			}
-			else
-			{
-				$opts = array();
-				foreach(explode(',', $v['opts']) as $opt)
-				{
-					$tmp = explode(':', $opt);
-					$opts[$tmp[0]] = m($tmp[1]);
-				}
-			}
 
-    		$this->form->add( new elSelect($k, $label, $value, $opts) );
-    	}
-    	elseif ('textarea' == $v['type'])
-    	{
-    		$this->form->add( new elTextArea($k, $label, $value, array('rows'=>4)) );
-    	}
-    	else
-    	{
-    		$this->form->add( new elText($k, $label, $value, null, !$isNewUser && 'login' == $k) );
-    	}
-    	if ( $v['is_func'] )
-    	{
-    		$this->form->registerRule($v['rule'], 'func', $v['rule'], null);
-    	}
-    	$this->form->setElementRule($k, $v['rule'], $v['rq']-1, $user->UID);
-    }
-    if ( $isNewUser )
-    {
-      $this->form->add( new elCaptcha('capt_reg', m('Enter code from picture')) );
-    }
+	/**
+	 * Редактирование/создание нового пользователя
+	 *
+	 * @param  elUser  $user
+	 * @return bool
+	 **/
+	function editUser(&$user) {
+		$isNew = !$user->UID;
+		$skel = $user->profile->getSkel();
+		$this->form = $skel->getForm(EL_URL, 'POST', $user->toArray());
+		
+		if (!$this->form->isSubmitAndValid()) {
+			return false;
+		}
+		
+		$data = $this->form->getValue();
+		$user->attr($data);
+		$user->profile->attr($data);
 
-    if ( $this->form->isSubmitAndValid() )
-    {
-      $vals = $this->form->getValue(true); //elPrintR($vals); exit();
-      if ( $isNewUser )
-      {
-      	$user->setAttrs( array('login'=>$vals['login'], 'mtime'=>time(), 'crtime'=>time()));
-      }
-      else
-      {
-      	$vals['login'] = $user->login;
-      	$user->setAttrs( array('login'=>$vals['login'], 'mtime'=>time()));
-      }
-    //  echo 'save='.$user->getAttr('atime').'<br>'; elprintR($user);
-      if ( !$user->save() )
-      {
-      	elThrow(E_USER_ERROR, 'Could save user data', '', EL_URL);
-      }
+		if (!$user->save()) {
+			return elThrow(E_USER_ERROR, 'Could save user data');
+		}
+		$user->profile->save();
+		
+		if ($isNew) {
+			$passwd = $this->_randPasswd();
+			$user->passwd($passwd);
+	        if ( 1 < ($GID = (int)$this->conf('defaultGID')) ) {
+	        	$this->_saveUserGroups($user->UID, array($GID));
+	        }
+	        //send login/pass on email and notify site admin about new user
+	        $this->_notifyUser($user, $passwd, EL_UNTF_REGISTER);
+		}
+		return true;
+	}
 
-      $profile->idAttr( $user->getUniqAttr() );
-      $profile->attr($vals);
-      $profile->save();
-
-      if ( $isNewUser )
-      {
-        // set random password and add to default group
-        $passwd = $this->_passwdRand($user);
-        $conf   = &elSingleton::getObj('elXmlConf');
-
-        if ( 1 < ($GID = (int)$conf->get('defaultGID', 'auth')) )
-        {
-          $this->_saveUserGroups($user->UID, array($GID));
-        }
-        //send login&pass on email
-        $this->_notifyUser($user->getEmail(), $user->login, $passwd, EL_UNTF_REGISTER);
-
-        //notify site admin about new user
-        if ( !$conf->get('disableAboutNewUserNotify', 'auth') )
-        {
-          $subj = sprintf( m('New user was registered on %s (%s)'), $conf->get('siteName', 'common'), EL_BASE_URL );
-          $msg = '';
-          foreach ( $profile->toArray() as $one )
-          {
-            $msg .= m($one['label']).': '.$one['value']."\n";
-          }
-          $emails   = & elSingleton::getObj('elEmailsCollection');
-          $postman  = & elSingleton::getObj('elPostman');
-          $postman->newMail($emails->getDefault(), $emails->getDefault(), $subj, $msg, false, $sign);
-          $postman->deliver();
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  function passwd(&$user, $do=EL_PASSWD_INPUT)
+  function passwd_(&$user, $do=EL_PASSWD_INPUT)
   {
   	switch ($do)
     {
@@ -168,6 +95,24 @@ class elATSManager
     		return $this->_passwdInput( $user );
     }
   }
+
+	/**
+	 * change user password
+	 *
+	 * @param  elUser  $user
+	 * @return void
+	 **/
+	function passwd(&$user) {
+		$this->_initForm( sprintf( m('Change password for user "%s"'), $user->login ) );
+	    $this->form->add( new elPasswordDoubledField('pass', m('Password twice')) );
+	    $this->form->setElementRule('pass', 'password', 1, null);
+		if ($this->form->isSubmitAndValid()) {
+	        $passwd = $this->form->getElementValue('pass');
+			$user->passwd($passwd);
+	        $this->_notifyUser($user, $passwd, EL_UNTF_PASSWD);
+	        return true;
+	      }
+	}
 
   //смена пароля
   function _passwdInput( &$user )
@@ -401,47 +346,62 @@ class elATSManager
 
   /////////////////////////////////////   * PRIVATE  * ///////////////////////////
 
-  //оповещение пользователя по email о регистрации/смене пароля
-  function _notifyUser($email, $login, $passwd, $type=EL_UNTF_REMIND )
-  {
-    $conf     = &elSingleton::getObj('elXmlConf');
+  
+	/**
+	 * оповещение пользователя по email о регистрации/смене пароля
+	 *
+	 * @param  string  $email
+	 * @param  string  $login
+	 * @param  string  $passwd
+	 * @param  int     $type
+	 * @return void
+	 **/
+	function _notifyUser($user, $passwd, $type=EL_UNTF_REMIND ) {
+		
+		$conf     = &elSingleton::getObj('elXmlConf');
+		$siteName = $conf->get('siteName', 'common');
+		$emails   = & elSingleton::getObj('elEmailsCollection');
+		$postman  = & elSingleton::getObj('elPostman');
 
-    if (EL_UNTF_REMIND == $type )
-    {
-      $subj = m('Changing password notification');
-      $msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-    }
-    elseif ( EL_UNTF_REGISTER == $type && !$conf->get('disableUserRegisterNotify', 'auth') )
-    {
-      $subj = m('New user registration notification');
-      $msg  = m("You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-    }
-    elseif ( EL_UNTF_PASSWD == $type   &&  !$conf->get('disableUserPasswdNotify', 'auth') )
-    {
-      $subj = m('Changing password notification');
-      $msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-    }
-    else
-    {
-      return;
-    }
+		if (EL_UNTF_REMIND == $type ) {
+			$subj = m('Changing password notification');
+			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} elseif ( EL_UNTF_REGISTER == $type) {
+			
+			if ($conf->get('newUserAdminNotify') ) {
+				$subj = sprintf( m('New user was registered on %s (%s)'), $siteName, EL_BASE_URL );
+				$msg = '';
+				foreach ( $user->getProfileData() as $one ) {
+					$msg .= m($one['label']).': '.$one['value']."\n";
+				}
+				$postman->newMail($emails->getDefault(), $emails->getDefault(), $subj, $msg, false, $sign);
+				$postman->deliver();
+	        }
+			
+			if (!$this->_ats->conf('newUserNotify')) {
+				return;
+			}
+			
+			$subj = m('New user registration notification');
+			$msg  = m("You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} elseif ( EL_UNTF_PASSWD == $type   &&  $this->_ats->conf('changePasswordNotify') ) {
+			$subj = m('Changing password notification');
+			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} else {
+			return;
+		}
 
-    $msg  = sprintf( $msg, $conf->get('siteName', 'common'), EL_BASE_URL, $login, $passwd );
-    $sign = sprintf( m("With best wishes\n%s\n"), $conf->get('owner', 'common') );
+		$msg  = sprintf( $msg, $siteName, EL_BASE_URL, $user->login, $passwd );
+		$sign = sprintf( m("With best wishes\n%s\n"), $conf->get('owner', 'common') );
 
-    $emails   = & elSingleton::getObj('elEmailsCollection');
-    $postman  = & elSingleton::getObj('elPostman');
+		$postman->newMail($emails->getDefault(), $user->getEmail(), $subj, $msg, false, $sign);
 
-    $postman->newMail($emails->getDefault(), $email, $subj, $msg, false, $sign);
-
-    if ( !$postman->deliver() )
-    {
-      elThrow( E_USER_WARNING,
-        m("Sending e-mail to address %s was failed.\n Here is message conent: %s\n\n"),
-        array(htmlspecialchars($email), $msg));
-     	elDebug($postman->error);
-    }
-  }
+		if ( !$postman->deliver() ) {
+			elThrow( E_USER_WARNING, m("Sending e-mail to address %s was failed.\n Here is message conent: %s\n\n"), array(htmlspecialchars($email), $msg));
+			elDebug($postman->error);
+		}
+	}
+	
   //сохраняет список групп пользователя
   function _saveUserGroups( $UID, $GIDs )
   {

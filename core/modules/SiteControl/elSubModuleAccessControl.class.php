@@ -3,16 +3,17 @@
 class elSubModuleAccessControl extends elModule
 {
 
-  var $_conf = array('sessionTimeOut'            => 86400, 
-                     'registrAllow'              => 0, 
-                     'defaultGID'                => 2, 
-                     'authDb'                    => array(),
-                     'disableUserRegisterNotify' => 0,
-                     'disableUserPasswdNotify'   => 0,
-                     'disableAboutNewUserNotify' => 0,
-					'loginCaseSensitive'         => 1
-                    );
-                    
+  var $_conf = array(
+	'sessionTimeOut'        => 86400, 
+	'registrAllow'          => 0, 
+	'defaultGID'            => 2, 
+	'authDb'                => array(),
+	'newUserNotify'         => 1,
+	'changePasswordNotify'  => 1,
+	'newUserAdminNotify'    => 1,
+	'loginCaseSensetive'    => 1
+	);
+
   var  $_timeOuts = array(
         1800    => '30 min',
         3600    => '1 hour',
@@ -24,12 +25,10 @@ class elSubModuleAccessControl extends elModule
         2592000 => '1 month'
         );
 
-  var $_yn     = array( 'No', 'Yes');
   var $_aTypes = array('"Local" authorization (in this site database)', 
                        '"Remote" authorization (on other database)');
-  var $_prnt   = false;
+
   var $_confID = 'auth';
-  var $_groups = array();
   var $_params = array();
 
 
@@ -43,44 +42,64 @@ class elSubModuleAccessControl extends elModule
 
   // =====================  PRIVATE METHODS  ========================== //
 
-  function _onInit()
-    {
-      $this->_ats = & elSingleton::getObj('elATS');
+	function _onInit() {
+		$this->_ats = & elSingleton::getObj('elATS');
+		$this->_timeOuts = array_map('m', $this->_timeOuts);
+		$this->_aTypes   = array_map('m', $this->_aTypes);
+		$aType = (int)(!$this->_ats->isLocalAuth());
+		$this->_groups = $this->_ats->getGroupsList();
+		unset($this->_groups[1]);
 
-      $this->_groups   = $this->_ats->getGroupsList();  
-      unset($this->_groups[1]);
-      $this->_timeOuts = array_map('m', $this->_timeOuts);
-      $GLOBALS['yn']       = array_map('m', $GLOBALS['yn']);
-      $this->_aTypes   = array_map('m', $this->_aTypes);
-
-      $aType = (int)(!$this->_ats->isLocalAuth());
-      $defGID = $this->_ats->getDefaultGID();
-      $defGroupName = isset($this->_groups[$defGID]) 
-        ? $this->_groups[$defGID] 
-        : m('Undefined');
-      $to = isset($this->_timeOuts[$this->_conf('sessionTimeOut')]) 
-        ? $this->_timeOuts[$this->_conf('sessionTimeOut')] 
-        : $this->_timeOuts[86400];
+		if (!isset($this->_timeOuts[$this->_conf['sessionTimeOut']])) {
+			$this->_conf['sessionTimeOut'] = 86400;
+		}
       
-      $this->_params = array ( 
-            array('label'=>m('Session timeout'),  
-                  'val'=>$to ),
-			array('label' => m('Login case sensitive'), 
-					'val' => $GLOBALS['yn'][(int)$this->_conf('loginCaseSensitive')]),
-            array('label'=>m('Allow new user registration'), 
-                  'val'=>$GLOBALS['yn'][(int)$this->_ats->isRegistrationAllowed()] ),
-            array('label'=>m('Default group for new users'), 
-                  'val'=>$defGroupName ),
-            array('label'=>m('Block user registration e-mail notify'), 
-                  'val'=>$GLOBALS['yn'][$this->_conf('disableUserRegisterNotify')] ),
-            array('label'=>m('Block changing password e-mail notify'), 
-                  'val'=>$GLOBALS['yn'][$this->_conf('disableUserPasswdNotify')] ),
-            array('label'=>m('Block notify about new user to default e-mail'), 
-                  'val'=>$GLOBALS['yn'][$this->_conf('disableAboutNewUserNotify')] ),                  
-            array('label'=>m('Authorization type'), 
-                  'val'=>$this->_aTypes[$aType] ),
+		$this->_params = array ( 
+            'sessionTimeOut' => array(
+				'label' => m('Session timeout'),  
+                'val'   => $this->_timeOuts[$this->_conf['sessionTimeOut']],
+				'raw'   => $this->_conf['sessionTimeOut'],
+				'vars'  => $this->_timeOuts
+				),
+			'loginCaseSensetive' => array(
+				'label' => m('Login case sensitive'), 
+				'val'   => $GLOBALS['yn'][(int)$this->_conf('loginCaseSensetive')],
+				'raw'   => $this->_conf('loginCaseSensetive')
+				),
+            'registrAllow' => array(
+				'label' => m('Allow new user registration'), 
+                'val'   => $GLOBALS['yn'][(int)$this->_conf('registrAllow')],
+				'raw'   => $this->_conf('registrAllow')
+				),
+            'defaultGID' => array(
+				'label' => m('Default group for new users'), 
+                'val'   => $this->_ats->getDefaultGroupName(),
+				'raw'   => $this->_ats->getDefaultGID(),
+				'vars'  => $this->_groups
+				),
+            'newUserNotify' => array(
+				'label' => m('Notify new user after registration by e-mail'), 
+                'val'   => $GLOBALS['yn'][$this->_conf('newUserNotify')],
+				'raw'   => $this->_conf('newUserNotify')
+				),
+            'changePasswordNotify' => array(
+				'label' => m('Send new password on e-mail after changing'), 
+                'val'   => $GLOBALS['yn'][$this->_conf('changePasswordNotify')],
+				'raw'   => $this->_conf('changePasswordNotify')
+				),
+            'newUserAdminNotify' => array(
+				'label' => m('Notify site admin about new user'), 
+                'val'   => $GLOBALS['yn'][$this->_conf('newUserAdminNotify')],
+				'raw'   => $this->_conf('newUserAdminNotify') 
+				),                  
+            'isRemoteAuth' => array(
+				'label' => m('Authorization type'), 
+                'val'   => $this->_aTypes[$aType], 
+				'raw'   => $aType,
+				'vars'  => $this->_aTypes
+				),
              );
-    }
+	}
 
   /**
    * create config edit form. Overloading parent's method
@@ -89,26 +108,18 @@ class elSubModuleAccessControl extends elModule
     {
       $form = & parent::_makeConfForm();
       $form->setLabel( m('Edit site access configuration') );
-      $form->addJsSrc( '$("#isRemoteAuth").trigger("change")', EL_JS_SRC_ONREADY );
+      $form->addJsSrc( '$("#isRemoteAuth").change(function() {
+			if (this.value == "1") { 
+				$(this).parents("tr").eq(0).nextAll().show();
+			} else { 
+				$(this).parents("tr").eq(0).nextAll().hide(); 
+			}
+		}).trigger("change")', EL_JS_SRC_ONREADY );
 
-      $form->add( new elSelect('sessionTimeOut', m('Session timeout'),             
-             (int)$this->_conf('sessionTimeOut'), $this->_timeOuts) );
-		$form->add( new elSelect('loginCaseSensitive', m('Login case sensitive'), 
-	             (int)$this->_conf('loginCaseSensitive'),   $GLOBALS['yn']) );
-      $form->add( new elSelect('registrAllow', m('Allow new user registration'), 
-             (int)$this->_conf('registrAllow'),   $GLOBALS['yn']) );
-      $form->add( new elSelect('defaultGID',     m('Default group for new users'), 
-             (int)$this->_conf('defaultGID'),     $this->_groups) );
-      $form->add( new elSelect('disableUserRegisterNotify', m('Block user registration e-mail notify'), 
-              (int)$this->_conf('disableUserRegisterNotify'),   $GLOBALS['yn']) );             
-      $form->add( new elSelect('disableUserPasswdNotify', m('Block changing password e-mail notify'), 
-              (int)$this->_conf('disableUserPasswdNotify'),   $GLOBALS['yn']) );                           
-      $form->add( new elSelect('disableAboutNewUserNotify', m('Block notify about new user to default e-mail'), 
-              (int)$this->_conf('disableAboutNewUserNotify'),   $GLOBALS['yn']) );                                         
-      $form->add( new elSelect('isRemoteAuth',   m('Authorization type'), 
-             (int)!$this->_ats->isLocalAuth(),    $this->_aTypes,
-             array('onChange'=>"if (this.value == '1') { $(this).parents('tr').eq(0).nextAll().show();} else { $(this).parents('tr').eq(0).nextAll().hide(); }")), array('cellElAttrs'=>'width="40%"') );
-      
+		foreach ($this->_params as $id=>$v) {
+			$form->add(new elSelect($id, $v['label'], $v['raw'], isset($v['vars']) ? $v['vars'] : $GLOBALS['yn'] ), array('cellElAttrs'=>'width="40%"'));
+		}
+
       $db = array('host'=>'localhost', 'db'=>'', 'user'=>'', 'pass'=>'', 'sock'=>'');
       if ( !$this->_ats->isLocalAuth() )
       {
@@ -145,6 +156,7 @@ class elSubModuleAccessControl extends elModule
       }
 
       //check default group for new users
+	
       if ( !isset($vals['defaultGID']) || !isset($this->_groups[$vals['defaultGID']]) )
       {
         $vals['defaultGID'] = 0;
@@ -200,9 +212,9 @@ class elSubModuleAccessControl extends elModule
       }
 
       // is it php bug ???
-  		$testDbNew = $newDb;    unset($testDbNew['db']);//elPrintR($testDbNew);
-  		$testDbAuth  = $authDb; unset($testDbAuth['db']); //elPrintR($testDbAuth); 
-  		$testDbLocal  = $localDb; unset($testDbLocal['db']); //elPrintR($testDbLocal); 
+  		$testDbNew = $newDb;    unset($testDbNew['db']);
+  		$testDbAuth  = $authDb; unset($testDbAuth['db']);
+  		$testDbLocal  = $localDb; unset($testDbLocal['db']);
 			if ((!empty($authDb) && !array_diff($testDbAuth, $testDbNew) && !array_diff($testDbNew, $testDbAuth)) 
 			|| (!array_diff($testDbNew, $testDbLocal) && !array_diff($testDbLocal, $testDbNew)) )
 			{

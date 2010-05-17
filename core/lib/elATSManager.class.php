@@ -69,12 +69,13 @@ class elATSManager
 		if (!$user->save()) {
 			return elThrow(E_USER_ERROR, 'Could save user data');
 		}
+		// $user->profile->UID
 		$user->profile->save();
 		
 		if ($isNew) {
 			$passwd = $this->_randPasswd();
 			$user->passwd($passwd);
-	        if ( 1 < ($GID = (int)$this->conf('defaultGID')) ) {
+	        if ( 1 < ($GID = (int)$this->_ats->conf('defaultGID')) ) {
 	        	$this->_saveUserGroups($user->UID, array($GID));
 	        }
 	        //send login/pass on email and notify site admin about new user

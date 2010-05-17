@@ -72,7 +72,7 @@ class elUser extends elDataMapping
 	 * @return string
 	 **/
 	function getEmail($format=true) {
-		return $this->UID ? $profile->getEmail($format) : '';
+		return $this->UID ? $this->profile->getEmail($format) : '';
 	}
 
 	/**
@@ -160,7 +160,7 @@ class elUser extends elDataMapping
 		if ($login == 'root') {
 			$this->db->queryToArray('SELECT login FROM el_user WHERE uid=1');
 			if (!$this->db->numRows()) {
-				$this->db->query('INSERT INTO el_user (uid, login, crtime, mtime) VALUES (1, "root", '.time().', '.time().')');
+				$this->db->query('INSERT INTO el_user (uid, login, pass, crtime, mtime) VALUES (1, "root", "'.md5("eldorado-cms").'" '.time().', '.time().')');
 			} else {
 				$r = $this->db->nextRecord();
 				if ($r['login'] != 'root') {
@@ -417,6 +417,18 @@ class elUser extends elDataMapping
 				$this->db->execute();
 			}
 		}
+	}
+
+	/**
+	 * Update profile id for new user
+	 *
+	 * @return bool
+	 */
+	function _postSave($isNew, $params=null) {
+		if ($isNew) {
+			$this->profile->UID = $this->UID;
+		}
+		return true;
 	}
 
 	/**

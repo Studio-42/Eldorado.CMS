@@ -171,11 +171,7 @@ class elDataMapping
 		if ( $this->_form->isSubmitAndValid() && $this->_validForm() )
 		{
 			$this->attr( $this->_form->getValue() );
-			$this->_new = !(bool)$this->idAttr();
-			if ( $this->save() )
-			{
-				return $this->_postSave($this->_new, $params);
-			}
+			return $this->save($params);
 		}
 	}
 
@@ -188,9 +184,10 @@ class elDataMapping
 		return $this->_form->toHtml();
 	}
 
-	function save()
+	function save($params=null)
 	{
 		$db = $this->_db();
+		$isNew = !(bool)$this->idAttr();
 		$vals = $this->_attrsForSave();
 		if ( !$vals[$this->_id] )
 		{
@@ -218,7 +215,7 @@ class elDataMapping
 		{
 			$this->idAttr( $db->insertID() );
 		}
-		return true;
+		return $this->_postSave($isNew, $params);
 	}
 	
 	

@@ -118,7 +118,7 @@ class elUserProfileSkel extends elFormConstructor {
 	 * @return void
 	 **/
 	function elUserProfileSkel($data=array()) {
-		$this->label     = m('User profile');
+		
 		$el              = & new elUserProfileField();
 		$this->_elements = $el->collection(true, true, '', 'sort_ndx');
 		foreach ($data as $id=>$val) {
@@ -140,9 +140,14 @@ class elUserProfileSkel extends elFormConstructor {
 	 * @return object
 	 **/
 	function getForm($url=EL_URL, $method='POST') {
+		$this->label = $this->UID ? m('User profile') : m('New user registration');
 		$form = parent::getForm($url, $method);
 		$form->registerRule('elCheckUserUniqFields', 'func', 'elCheckUserUniqFields', null);
 		$form->setElementRule('email', 'elCheckUserUniqFields', true, $this->UID);
+		if (!$this->UID) {
+			// $form->add(new elCaptcha('__reg__', m('Enter code from picture')));
+		}
+		
 		return $form;
 	}
 	

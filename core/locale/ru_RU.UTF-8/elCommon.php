@@ -53,6 +53,7 @@ $elMsg['Password']                  = 'Пароль';
 $elMsg['User profile']              = 'Профайл пользователя';
 $elMsg['Comments']                  = 'Комментарии';
 $elMsg['Alternative name']          = 'Альтернативное название';
+$elMsg['Enter code from picture']   = 'Введите код с картинки';
 $elMsg['You entered invalid code']  = 'Введенный код не совпадает с кодом, изображенным на картинке';
 
 //append to e-mails

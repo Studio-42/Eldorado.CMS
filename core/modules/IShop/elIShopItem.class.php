@@ -502,8 +502,6 @@ class elIShopItem extends elCatalogItem
   {
 		elLoadJQueryUI();
 		elAddCss('elfinder.css',          EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.form.min.js',     EL_JS_CSS_FILE);
 		elAddJs('elfinder.min.js',        EL_JS_CSS_FILE);
 		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
 		{

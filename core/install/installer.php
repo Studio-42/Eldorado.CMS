@@ -23,7 +23,7 @@ class elInstaller {
 		'user'     => array('m' => 'createUser',     'l' => 'Create administrator account'),
 		'style'    => array('m' => 'styleSelect',    'l' => 'Select site style'),
 		'misc'     => array('m' => 'miscConf',       'l' => 'Site options'),
-		'complite' => array('m' => 'complite',       'l' => 'Instalation complite')
+		'complete' => array('m' => 'complete',       'l' => 'Instalation complete')
 		);
 		
 	var $_step ='lang';
@@ -126,7 +126,7 @@ class elInstaller {
 			else
 			{
 				$_SESSION = array();
-				return $this->_rnd->rndError('License was not accepted!<br />Unable to complite installation!');
+				return $this->_rnd->rndError('License was not accepted!<br />Unable to complete installation!');
 			}
 		}
 		$this->_rnd->rndLicense();
@@ -136,7 +136,7 @@ class elInstaller {
 	{
 		if (!is_writable($this->_rootDir) || (!elFS::mkdir($this->_rootDir.'tmp')))
 		{
-			return $this->_rnd->rndError('Site directory has no write permissions!<br />Unable to complite installation!');
+			return $this->_rnd->rndError('Site directory has no write permissions!<br />Unable to complete installation!');
 		}
 
 		$files = $this->_isFilesExists();
@@ -224,7 +224,7 @@ class elInstaller {
 			$conf = $this->_getConf();
 			if (!$conf)
 			{
-				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complete installation.');
 			}
 			$conf->set('host',   $host, 'db');
 			!empty($sock) && $conf->set('sock', $sock, 'db');
@@ -234,21 +234,25 @@ class elInstaller {
 			$conf->set('locale', $this->_locales[$this->_lang], 'common');
 			if (!$conf->save())
 			{
-				$this->_rnd->rndError('Unable to save config file!<br />Unable to complite installation.');
+				$this->_rnd->rndError('Unable to save config file!<br />Unable to complete installation.');
 			}
 			
 			if (!include_once($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elDbDump.class.php'))
 			{
-				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+				$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complete installation.');
 			}
 			
 			$installDir = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
-			$file = file_exists($installDir.'install-'.$this->_lang.'.sql') ? $installDir.'install-'.$this->_lang.'.sql' : $installDir.'install.sql';
+			$file = file_exists($installDir.'data-'.$this->_lang.'.sql') ? $installDir.'data-'.$this->_lang.'.sql' : $installDir.'data.sql';
 			
 			$dump = & new elDbDump($db);
+			if (!$dump->restore($installDir.'structure.sql'))
+			{
+				return $this->_rnd->rndError('Unable to insert data into data base!<br />Unable to complete installation.');
+			}
 			if (!$dump->restore($file))
 			{
-				return $this->_rnd->rndError('Unable to insert data into data base!<br />Unable to complite installation.');
+				return $this->_rnd->rndError('Unable to insert data into data base!<br />Unable to complete installation.');
 			}
 			
 			$_SESSION['step'] = 'user';
@@ -288,7 +292,7 @@ class elInstaller {
 				.'(1, "root", "'.md5($p1).'", "'.$email.'", "Administrator", '.$t.', '.$t.')';
 			if (!$db->query($sql))
 			{
-				return $this->_rnd->rndUserPassword('Unable to create user! Unable to complite install.');
+				return $this->_rnd->rndUserPassword('Unable to create user! Unable to complete install.');
 			}
 			$_SESSION['step'] = 'style';
 			header('Location: '.$_SERVER['REQUEST_URI']);
@@ -308,7 +312,7 @@ class elInstaller {
 		{
 			if (!$this->_setStyle($styles[0]))
 			{
-				return $this->_rnd->rndError('Unable to set site style! Unable to complite installation.');
+				return $this->_rnd->rndError('Unable to set site style! Unable to complete installation.');
 			}
 			else
 			{
@@ -367,12 +371,11 @@ class elInstaller {
 				$style = !empty($_POST['style']) && in_array($_POST['style'], $styles) ? $_POST['style'] : $styles[0];
 				if (!$this->_setStyle($style))
 				{
-					return $this->_rnd->rndError('Unable to set site style! Unable to complite installation.');
+					return $this->_rnd->rndError('Unable to set site style! Unable to complete installation.');
 				}
 			}
 			$_SESSION['step'] = 'misc';
 			header('Location: '.$_SERVER['REQUEST_URI']);
-			
 		}
 		$this->_rnd->rndStyleSelect($styles);
 	}
@@ -391,7 +394,7 @@ class elInstaller {
 				$conf = $this->_getConf();
 				if (!$conf)
 				{
-					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complete installation.');
 				}
 				$name     && $conf->set('siteName', $name,     'common');
 				$contacts && $conf->set('contacts', $contacts, 'common');
@@ -403,19 +406,19 @@ class elInstaller {
 				$db = $this->_getDb();
 				if (!$db)
 				{
-					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complite installation.');
+					$this->_rnd->rndError('Unable to include required file! Check installation archive!<br />Unable to complete installation.');
 				}
 				$db->query('TRUNCATE el_email');
 				$db->query('INSERT INTO el_email (label, email, is_default) VALUES ("default", "'.mysql_real_escape_string($email).'", 1)');
 			}
-			$_SESSION['step'] = 'complite';
+			$_SESSION['step'] = 'complete';
 			header('Location: '.$_SERVER['REQUEST_URI']);
 		}
 		
 		$this->_rnd->rndMiscConf();
 	}
 	
-	function complite()
+	function complete()
 	{
 		//$path = preg_replace('|(~[^/]+/)|i', '', $_SERVER['REQUEST_URI']);
 		//$path = str_replace('/'.basename(__FILE__), '', $path);
@@ -425,15 +428,22 @@ class elInstaller {
 			$path = '/';
 		}
 
-		$ht  = "RewriteEngine On\n";
-		$ht .= "RewriteBase  ".$path."\n";
-		$ht .= "RewriteRule ^conf\/(.*)\.(sql|xml) index.php [NS,F]\n";
-		$ht .= "RewriteRule ^(index\.php|robots\.txt)(.*) $1$2 [L]\n";
-		$ht .= "RewriteRule (.*)\.(php|phtml) index.php [L]\n";
-		$ht .= "RewriteRule ^storage(.*)  storage$1 [L]\n";
-		$ht .= "RewriteRule ^style/(.*) style/$1 [L]\n";
-		$ht .= "RewriteRule ^(.*)\.(jpg|gif|png|swf|ico|html|css|js|xml|gz|txt|htc)(.*) $1.$2$3 [L]\n";
-		$ht .= "RewriteRule (.*) index.php [L]\n";
+		$ht = <<<EOF
+RewriteEngine On
+RewriteBase   $path
+
+# this should disable useless 404 in access_log
+RewriteRule   ^favicon.ico style/favicon.ico [L]
+
+# the all-in-one rule
+RewriteCond   %{REQUEST_URI} !(cache/|core/js/|style/|storage/|robots\.txt)
+RewriteRule   (.*) index.php?$1 [L]
+
+# this should secure from unwanted phps
+RewriteCond   %{REQUEST_URI} \.(php|php3|php4|php5|php6|phtml)$
+RewriteRule   (.*) - [F,L]
+
+EOF;
 
 		$err = '';
 		if (false == ($fp = fopen($this->_rootDir.'.htaccess', 'w')))
@@ -441,7 +451,8 @@ class elInstaller {
 			$err = $this->_tr->translate('Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.');
 			$err .= '<br />'.nl2br($ht);
 		}
-		else {
+		else
+		{
 			fwrite($fp, $ht);
 			fclose($fp);
 		}
@@ -457,15 +468,15 @@ class elInstaller {
 		
 		if (!copy($this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR.'index.php', $this->_rootDir.'index.php'))
 		{
-			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complite installation.');
+			return $this->_rnd->rndError('Unable to copy "index.php" file! <br />Unable to complete installation.');
 		}
-		$this->_rnd->url = 'http'.(isset($_SERVER['HTTPS']) ? 's' : '').'://'.$_SERVER['SERVER_NAME'].substr($_SERVER['REQUEST_URI'], 0, -strlen(basename(__FILE__)));
-		$this->_rnd->rndComplite($err);
+		$this->_rnd->url = 'http'.(isset($_SERVER['HTTPS']) ? 's' : '').'://'.$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']).$path;
+		$this->_rnd->rndComplete($err);
 		session_destroy();
 		$_SESSION = array();
 		
 		@file_get_contents('http://www.eldorado-cms.ru/counter.php');
-		@unlink(__FILE__);
+		// @unlink(__FILE__); // no more needed as we block in .htaccess
 	}
 	
 	/*************************************************************/
@@ -502,8 +513,9 @@ class elInstaller {
 		}
 		
 		if (!is_file($core.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elCore.class.php')
-		||  !is_file($install.'main.conf.xml') 
-		||  !is_file($install.'install.sql') 
+		||  !is_file($install.'main.conf.xml')
+		||  !is_file($install.'structure.sql')
+		||  !is_file($install.'data.sql')
 		||  !is_file($install.'index.php'))
 		{
 			return false;
@@ -565,7 +577,7 @@ class elInstaller {
 				return $this->_install('files');
 			}
 			$_SESSION = array();
-			return $this->_rnd->rndError('Invalid password! Unable to complite installation');
+			return $this->_rnd->rndError('Invalid password! Unable to complete installation');
 		}
 		return $this->_rnd->rndRootPasswd();
 	}
@@ -640,7 +652,7 @@ class elInstaller {
 		if (!elFS::mkdir($this->_rootDir.'conf')
 		||  !elFS::mkdir($this->_rootDir.'storage'))
 		{
-			return $this->_rnd->rndError('Unable to create directories!<br />Unable to complite installation!');
+			return $this->_rnd->rndError('Unable to create directories!<br />Unable to complete installation!');
 		}
 		$warn = '';
 		if (!elFS::mkdir($this->_rootDir.'backup'))
@@ -659,11 +671,11 @@ class elInstaller {
 		$installDir = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
 		if (!@copy($installDir.'main.conf.xml', $this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml'))
 		{
-			return $this->_rnd->rndError('Unable to copy config file!<br />Unable to complite installation!');
+			return $this->_rnd->rndError('Unable to copy config file!<br />Unable to complete installation!');
 		}
 		if (!is_writable($this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml') && !@chmod($this->_rootDir.'conf'.DIRECTORY_SEPARATOR.'main.conf.xml', 0666))
 		{
-			return $this->_rnd->rndError('Unable to set write permissions for config file!<br />Unable to complite installation!');
+			return $this->_rnd->rndError('Unable to set write permissions for config file!<br />Unable to complete installation!');
 		}
 		
 		if ($warn)
@@ -699,7 +711,7 @@ class elInstaller {
 		if (!elFS::move($tmpDir.'core', $this->_rootDir))
 		{
 			elFS::rmdir($tmpDir);
-			return 'Unable to copy "core" directories!<br />Unable to complite installation!';
+			return 'Unable to copy "core" directories!<br />Unable to complete installation!';
 		}
 		
 		if (is_dir($this->_rootDir.'style'))
@@ -722,26 +734,35 @@ class elInstaller {
 	
 	function _setStyle($style)
 	{
-		$style = $this->_rootDir.'core'.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$style;
-		if (is_dir($style))
+		$styleDir = 'core'.DIRECTORY_SEPARATOR.'styles'.DIRECTORY_SEPARATOR.$style;
+		if (is_dir($this->_rootDir.$styleDir))
 		{
-			if (!symlink($style, 'style'))
+			$cwd = getcwd();
+			chdir($this->_rootDir);
+			if (!symlink($styleDir, 'style'))
 			{
-				if (!elFS::copy($style, $this->_rootDir))
+				if (!elFS::copy($this->_rootDir.$styleDir, $this->_rootDir))
 				{
 					return false;
 				}
+				else
+				{
+					rename($this->_rootDir.$style, $this->_rootDir.'style');
+				}
 			}
+			chdir($cwd);
 			$this->_copyIcons();
 			return true;
-			
 		}
+		return false;
 	}
 	
 	function _copyIcons()
 	{
-		elFS::copy($this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'pageIcons', $this->_rootDir.'storage');
-		elFS::copy($this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'forum'.DIRECTORY_SEPARATOR.'avatars',   $this->_rootDir.'storage');
+		$pageIcons = $this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'pageIcons';
+		$forumAvatars = $this->_rootDir.'style'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'forum'.DIRECTORY_SEPARATOR.'avatars';
+		elFS::copy($pageIcons,    $this->_rootDir.'storage');
+		elFS::copy($forumAvatars, $this->_rootDir.'storage');
 	}
 	
 }
@@ -860,23 +881,24 @@ class elInstallerRnd {
 		{
 			$content .= '<p class="err">'.$this->tr->translate($err).'</p>';
 		}
-		if (sizeof($styles)==1)
+		if (sizeof($styles)>=1)
 		{
-			$content .= '<p>'.$this->tr->translate('You use default site design or upload You own (archive with "style" directory).').'</p>';
-		}
-		else
-		{
+			array_push($styles, $this->tr->translate('Upload style'));
 			$content .= '<p>'.$this->tr->translate('You may select one of existed site designs or upload You own (archive with "style" directory).').'</p>';
-			$sel = '<select name="style">';
+			$js  = "document.getElementById('upload').style.display=this.value == '".$this->tr->translate('Upload style')."' ? 'block' : 'none' ";
+			$sel = '<select name="style" onchange="'.$js.'">';
 			foreach ($styles as $s)
 			{
 				$sel .= '<option value="'.$s.'">'.$s.'</option>';
 			}
 			$sel .= '</select>';
 			$content .= '<p><label>'.$this->tr->translate('Select style').'</label> '.$sel.'</p>';
+			$content .= '<p id="upload" style="display:none"><label>'.$this->tr->translate('Upload style').'</label><input type="file" name="upl_style" /></p>';
 		}
-		
-		$content .= '<p><label>'.$this->tr->translate('Upload style').'</label><input type="file" name="upl_style" /></p>';
+		else
+		{
+			$content .= '<p id="upload"><label>'.$this->tr->translate('Upload style').'</label><input type="file" name="upl_style" /></p>';
+		}
 		return $this->_rnd('', $content);
 	}
 	
@@ -892,7 +914,7 @@ class elInstallerRnd {
 		return $this->_rnd('', $content);
 	}
 	
-	function rndComplite($err)
+	function rndComplete($err)
 	{
 		$content = '';
 		if ($err)
@@ -954,7 +976,7 @@ class elInstallerRnd {
 					-moz-border-radius:9px;
 					-webkit-border-radius:9px;
 					padding: 25px 9px 9px;
-					background: #fff url(./core/logo2.png) 10px 10px no-repeat;
+					background: #fff url(../logo2.png) 10px 10px no-repeat;
 					
 					position:relative;
 				}
@@ -1060,7 +1082,7 @@ class elInstallerTranslator {
 			'Thanks for choosing ELDORADO.CMS!<br />Before install, please, read license.' => 'Спасибо, что выбрали ELDORADO.CMS!<br />Перед установкой, пожалуйста, ознакомьтесь с условиями лицензионного соглашения',
 			'Not accept' => 'Не принимаю',
 			'Accept'     => 'Принимаю',
-			'License was not accepted!<br />Unable to complite installation!' => 'Вы не приняли условия лицензионного соглашения! <br />Установка прервана!',
+			'License was not accepted!<br />Unable to complete installation!' => 'Вы не приняли условия лицензионного соглашения! <br />Установка прервана!',
 			'To install ELDORADO.CMS select installation source' => 'Укажите, из какого источника установить ELDORADO.CMS.',
 			'To install ELDORADO.CMS You have to upload archive' => 'Чтобы установить ELDORADO.CMS необходимо загрузить архив с системой на сервер.',
 			'Install from' => 'Установить из',
@@ -1075,32 +1097,32 @@ class elInstallerTranslator {
 			'Unable to connect to MySQL server!<br />Check entered data.' => 'Не удалось соединиться с MySQL сервером! <br /> Проверьте введенные данные.',
 			'Unable to create data base! Check data base user permissions.' => 'Не удается создать базу данных! Проверить права пользователя базы данных.',
 			'Unable to connect to data base!<br />Check entered data.' => 'Не удается подключиться к базе данных! <br /> Проверьте введенные данные.',
-			'Unable to include required file! Check installation archive!<br />Unable to complite installation.' => 'Не удается подключить нужный файл! Проверьте установочный архив! <br /> Невозможно завершить установку.',
+			'Unable to include required file! Check installation archive!<br />Unable to complete installation.' => 'Не удается подключить нужный файл! Проверьте установочный архив! <br /> Невозможно завершить установку.',
 			'Unable to connect to DB server' => 'Не удается подключиться к серверу БД',
 			'Does not connected to DB server' => 'Нет соединения с сервером БД',
 			'SQL query failed' => 'Ошибка SQL запросов',
 			
 			'Archive does not contains required files' => 'Архив не содержит необходимых файлов',
 			'Unable unpack archive' => 'Невозможно распаковать архив',
-			'Unable to set write permissions for config file!<br />Unable to complite installation!' => 'Не удается установить права на запись для файла конфигурации <br /> Невозможно завершить установку',
-			'Unable to copy config file!<br />Unable to complite installation!' => 'Не удается скопировать файл конфигурации! <br /> Невозможно завершить установку!',
-			'Unable to create directories!<br />Unable to complite installation!' => 'Не удается создать папки! <br /> Невозможно завершить установку!',
+			'Unable to set write permissions for config file!<br />Unable to complete installation!' => 'Не удается установить права на запись для файла конфигурации <br /> Невозможно завершить установку',
+			'Unable to copy config file!<br />Unable to complete installation!' => 'Не удается скопировать файл конфигурации! <br /> Невозможно завершить установку!',
+			'Unable to create directories!<br />Unable to complete installation!' => 'Не удается создать папки! <br /> Невозможно завершить установку!',
 			'Selected archive does not exists' => 'Выбранный архив не существует',
 			'Please, upload ELDORADO.CMS archive' => 'Пожалуйста, загрузите архив с ELDORADO.CMS',
-			'Invalid password! Unable to complite installation' => 'Неправильный пароль! Невозможно завершить установку!',
+			'Invalid password! Unable to complete installation' => 'Неправильный пароль! Невозможно завершить установку!',
 			'Passwords not equal' => 'Пароли не совпадают',
 			'Password could not be empty' => 'Поле "Пароль" не может быть пустым',
-			'Unable to copy "index.php" file! <br />Unable to complite installation.' => 'Невозможно скопировать "файл index.php"! <br /> Невозможно завершить установку!',
+			'Unable to copy "index.php" file! <br />Unable to complete installation.' => 'Невозможно скопировать "файл index.php"! <br /> Невозможно завершить установку!',
 			'Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.' => 'Не удается записать .htaccess файл! <br /> Запишите следующие строки в .htaccess файл',
-			'Unable to set site style! Unable to complite installation.' => 'Не удается установить стили для сайта! Невозможно завершить установку!',
+			'Unable to set site style! Unable to complete installation.' => 'Не удается установить стили для сайта! Невозможно завершить установку!',
 			'Unable to move "style" directory.' => 'Не удается переместить папку "style".',
 			'Archive does not contains "style" directory.' => 'Архив не содержит папку "style"',
-			'Unable to create user! Unable to complite install.' => 'Невозможно создать пользователя! Невозможно завершить установку!',
+			'Unable to create user! Unable to complete install.' => 'Невозможно создать пользователя! Невозможно завершить установку!',
 			'Unable connect to data base!' => 'Не удается подключиться к базе данных!',
 			'Password should contains not less then 6 alfanumeric and/or punctuation sybmbols' => 'Пароль должен содержать не менее 6 символов',
 			'Passwords not equal!' => 'Пароли не совпадают',
 			'Password could not be empty!' => 'Поле "Пароль" не может быть пустым',
-			'Unable to insert data into data base!<br />Unable to complite installation.' => 'Не удается вставить данные в базу данных! <br /> Невозможно завершить установку.',
+			'Unable to insert data into data base!<br />Unable to complete installation.' => 'Не удается вставить данные в базу данных! <br /> Невозможно завершить установку.',
 			'Main administrator in ELDORADO.CMS has login "root".<br /> Please, enter new password and e-mail for user "root".' => 'Логин главного администратора сайта - "root"<br/> Пожалуйста, введите для него пароль и e-mail адрес.',
 			'ELDORADO.CMS was succesfully instaled!<br /> Press "Ok" to go to You new site.' => 'Поздравляем! ELDORADO.CMS успешно установлена <br /> нажмите "ОК", чтобы перейди на сайт.',
 			'Do You really interrupt installation?' => 'Вы действительно хотите прервать установку?',
@@ -1119,7 +1141,7 @@ class elInstallerTranslator {
 			'Host' => 'Хост',
 			'Socket' => 'Сокет',
 			'Installed copy of ELDORADO.CMS was detected!<br />If You continue, all existed data will be lost!<br />To continue enter site administrator password!' => 'Найдена установленная копия ELDORADO.CMS! <br /> Если вы продолжите установку, все существовали данные будут потеряны! <br /> Чтобы продолжить введите пароль администратора сайта!',
-			'Unable to save config file!<br />Unable to complite installation.' => 'Не удается сохранить файл конфигурации! <br /> Невозможно завершить установку!',
+			'Unable to save config file!<br />Unable to complete installation.' => 'Не удается сохранить файл конфигурации! <br /> Невозможно завершить установку!',
 			'Unable to switch to required DB' => 'Не удаеться подключиться к БД',
 			'Unable to copy %s to %s' => 'Не удается скопировать %s в %s',
 			'File %s has no write permissions' => 'Файл %s не имеет прав на запись',
@@ -1132,7 +1154,7 @@ class elInstallerTranslator {
 			'Thanks for choosing ELDORADO.CMS!<br />Before install, please, read license.' => 'Дякуємо, що обрали ELDORADO.CMS! <br /> Перед установкою, будь ласка, ознайомтеся з умовами ліцензійної угоди',
 			'Not accept' => 'Не приймаю',
 			'Accept'     => 'Приймаю',
-			'License was not accepted!<br />Unable to complite installation!' => 'Ви не погодилися з умовами ліцензійної угоди! <br />Установка перервана!',
+			'License was not accepted!<br />Unable to complete installation!' => 'Ви не погодилися з умовами ліцензійної угоди! <br />Установка перервана!',
 			'To install ELDORADO.CMS select installation source' => 'Вкажіть, з якого джерела встановити ELDORADO.CMS.',
 			'To install ELDORADO.CMS You have to upload archive' => 'Щоб встановити ELDORADO.CMS необхідно завантажити архів з системою на сервер.',
 			'Install from' => 'Встановити з',
@@ -1147,32 +1169,32 @@ class elInstallerTranslator {
 			'Unable to connect to MySQL server!<br />Check entered data.' => 'Не вдалося з&rsquo;єднатися з сервером MySQL! <br /> Перевірте введені дані.',
 			'Unable to create data base! Check data base user permissions.' => 'Не вдається створити базу даних! Перевірити права користувача бази даних.',
 			'Unable to connect to data base!<br />Check entered data.' => 'Не вдається підключитися до бази даних! <br /> Перевірте введені дані.',
-			'Unable to include required file! Check installation archive!<br />Unable to complite installation.' => 'Не вдається підключити потрібний файл! Перевірте установочний архів! <br /> Неможливо завершити установку.',
+			'Unable to include required file! Check installation archive!<br />Unable to complete installation.' => 'Не вдається підключити потрібний файл! Перевірте установочний архів! <br /> Неможливо завершити установку.',
 			'Unable to connect to DB server' => 'Не вдається підключитися до сервера БД',
 			'Does not connected to DB server' => 'Немає з&rsquo;єднання з сервером БД',
 			'SQL query failed' => 'Помилка SQL запитів',
-			'Site directory has no write permissions!<br />Unable to complite installation!' => 'Папка захищена від запису! <br />Продовжити встановлення неможливо. Виправте будь ласка.',
+			'Site directory has no write permissions!<br />Unable to complete installation!' => 'Папка захищена від запису! <br />Продовжити встановлення неможливо. Виправте будь ласка.',
 			'Archive does not contains required files' => 'Архів не містить необхідних файлів',
 			'Unable unpack archive' => 'Неможливо розпакувати архів',
-			'Unable to set write permissions for config file!<br />Unable to complite installation!' => 'Не вдається встановити права на запис для файлу конфігурації <br /> Неможливо завершити установку',
-			'Unable to copy config file!<br />Unable to complite installation!' => 'Не вдається скопіювати файл конфігурації! <br /> Неможливо завершити установку!',
-			'Unable to create directories!<br />Unable to complite installation!' => 'Не вдається створити папки! <br /> Неможливо завершити установку!',
+			'Unable to set write permissions for config file!<br />Unable to complete installation!' => 'Не вдається встановити права на запис для файлу конфігурації <br /> Неможливо завершити установку',
+			'Unable to copy config file!<br />Unable to complete installation!' => 'Не вдається скопіювати файл конфігурації! <br /> Неможливо завершити установку!',
+			'Unable to create directories!<br />Unable to complete installation!' => 'Не вдається створити папки! <br /> Неможливо завершити установку!',
 			'Selected archive does not exists' => 'Обраний архів не існує',
 			'Please, upload ELDORADO.CMS archive' => 'Будь ласка, завантажте архів з ELDORADO.CMS',
-			'Invalid password! Unable to complite installation' => 'Неправильний пароль! Неможливо завершити установку!',
+			'Invalid password! Unable to complete installation' => 'Неправильний пароль! Неможливо завершити установку!',
 			'Passwords not equal' => 'Паролі не збігаються',
 			'Password could not be empty' => 'Поле "Пароль" не може бути порожнім',
-			'Unable to copy "index.php" file! <br />Unable to complite installation.' => 'Неможливо скопіювати "файл index.php"! <br /> Неможливо завершити установку!',
+			'Unable to copy "index.php" file! <br />Unable to complete installation.' => 'Неможливо скопіювати "файл index.php"! <br /> Неможливо завершити установку!',
 			'Unable to write to .htaccess file!<br />You have to manually put following lines into .htaccess file.' => 'Не вдається записати. Htaccess файл! <br /> Запишіть наступні рядки в .htaccess файл',
-			'Unable to set site style! Unable to complite installation.' => 'Не вдається встановити стилі для сайту! Неможливо завершити установку!',
+			'Unable to set site style! Unable to complete installation.' => 'Не вдається встановити стилі для сайту! Неможливо завершити установку!',
 			'Unable to move "style" directory.' => 'Не вдається перемістити папку "style".',
 			'Archive does not contains "style" directory.' => 'Архів не містить папку "style"',
-			'Unable to create user! Unable to complite install.' => 'Неможливо створити користувача! Неможливо завершити установку!',
+			'Unable to create user! Unable to complete install.' => 'Неможливо створити користувача! Неможливо завершити установку!',
 			'Unable connect to data base!' => 'Не вдається підключитися до бази даних!',
 			'Password should contains not less then 6 alfanumeric and/or punctuation sybmbols' => 'Пароль повинен містити не менше 6 символів',
 			'Passwords not equal!' => 'Паролі не збігаються',
 			'Password could not be empty!' => 'Паролі не збігаються',
-			'Unable to insert data into data base!<br />Unable to complite installation.' => 'Не вдається вставити дані в базу даних! <br /> Неможливо завершити установку.',
+			'Unable to insert data into data base!<br />Unable to complete installation.' => 'Не вдається вставити дані в базу даних! <br /> Неможливо завершити установку.',
 			'Main administrator in ELDORADO.CMS has login "root".<br /> Please, enter new password and e-mail for user "root".' => 'Логін головного адміністратора сайту - "root" <br/> Будь ласка, введіть для нього пароль та e-mail адресу.',
 			'ELDORADO.CMS was succesfully instaled!<br /> Press "Ok" to go to You new site.' => 'Вітаємо! ELDORADO.CMS успішно встановлено <br /> натисніть "ОК", щоб перейди на сайт.',
 			'Do You really interrupt installation?' => 'Ви дійсно хочете перервати встановлення?',
@@ -1191,7 +1213,7 @@ class elInstallerTranslator {
 			'Host' => 'Хост',
 			'Socket' => 'Сокет',
 			'Installed copy of ELDORADO.CMS was detected!<br />If You continue, all existed data will be lost!<br />To continue enter site administrator password!' => 'Знайдена встановлена копія ELDORADO.CMS! <br /> Якщо ви продовжите, всі існували дані будуть втрачені! <br /> Щоб продовжити введіть пароль адміністратора сайту!',
-			'Unable to save config file!<br />Unable to complite installation.' => 'Не вдається зберегти файл конфігурації! <br /> Неможливо завершити установку!',
+			'Unable to save config file!<br />Unable to complete installation.' => 'Не вдається зберегти файл конфігурації! <br /> Неможливо завершити установку!',
 			'Unable to switch to required DB' => 'Не вдається підключитися до БД',
 			'Unable to copy %s to %s' => 'Не вдається скопіювати %s в %s',
 			'File %s has no write permissions' => 'не має прав на запис',

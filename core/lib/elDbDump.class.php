@@ -169,22 +169,22 @@ class elDbDump {
 		{
 			elThrow(E_USER_WARNING, 'File %s is empty', $file, EL_URL);
 		}
-		
-		$parts = explode("\n--\n", $raw); 
-		for ($i=0, $s=sizeof($parts); $i < $s; $i++) 
-		{ 
-			$sql = trim($parts[$i]);
-			if (!empty($sql))
+
+		$queries = preg_split("/;+(?=([^'|^\\\']*['|\\\'][^'|^\\\']*['|\\\'])*[^'|^\\\']*[^'|^\\\']$)/", $raw);
+		foreach ($queries as $sql)
+		{
+			if (strlen(trim($sql)) > 0)
 			{
 				if ( !$this->_db->query($sql) )
 				{
-					elThrow(E_USER_WARNING, 'MySQL quiery failed: %s', mysql_error(), EL_URL);
+					elThrow(E_USER_WARNING, 'MySQL query failed: %s', mysql_error(), EL_URL);
+					return false;
 				}
 			}
 		}
 		return true;
 	}
-	
+
 }
 
 ?>

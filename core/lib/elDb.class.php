@@ -369,6 +369,16 @@ class elDb
 	return false;
   }
 
+	function fieldsNames($tb) {
+		$ret = array();
+		$this->query('SHOW COLUMNS FROM '.$tb);
+		while ( $r = $this->nextRecord() )
+		{
+			$ret[] = $r['Field'];
+		}
+		return $ret;
+	}
+
   function close()
   {
     if( $this->LID )

@@ -293,7 +293,7 @@ class elCore
 				break;
 
 			case "__passwd__":
-				$this->ats->passwd( $this->ats->getUser(), EL_PASSWD_REMIND );
+				$this->ats->remindPasswd();
 				break;
 
 			case "__auth__":

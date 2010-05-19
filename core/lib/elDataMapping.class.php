@@ -18,11 +18,14 @@ class elDataMapping
 	var $db            = null;
 	
 
-	function elDataMapping( $attr=null, $tb=null, $id=null)
+	function elDataMapping( $attr=null, $tb=null, $id=null, $map=null)
 	{
 		$this->tb($tb);
 		$this->id($id);
 		$this->attr($attr);
+		if (!empty($map) && !is_array($map)) {
+			$GLOBALS['mapping'][get_class($this)] = $map;
+		}
 	}
 	
 	function getObjName()
@@ -182,6 +185,13 @@ class elDataMapping
 			$this->_makeForm();
 		}
 		return $this->_form->toHtml();
+	}
+
+	function getForm($params=null) {
+		if ( !$this->_form ) {
+			$this->_makeForm($params);
+		}
+		return $this->_form;
 	}
 
 	function save($params=null)

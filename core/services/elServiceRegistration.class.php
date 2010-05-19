@@ -21,7 +21,7 @@ class elServiceRegistration extends elService
 			$this->_rnd->addToContent( $this->_ats->formToHtml() );
 		} else {
 			$this->_ats->user->UID = 0;
-			elMsgBox::put( m('Congratulation! Registration was successfully complited. Your login and password was send on your e-mail.') );
+			elMsgBox::put( m('Registration complite! Password was sent on Your e-mail address') );
 			elLocation(EL_BASE_URL);
 		}		
 	}

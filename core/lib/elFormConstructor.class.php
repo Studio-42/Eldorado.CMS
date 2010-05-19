@@ -4,6 +4,12 @@ include_once EL_DIR_CORE.'forms'.DIRECTORY_SEPARATOR.'elForm.class.php';
 
 class elFormConstructor {
 	/**
+	 * undocumented class variable
+	 *
+	 * @var string
+	 **/
+	var $_tb = 'el_form';
+	/**
 	 * form id
 	 *
 	 * @var string
@@ -27,23 +33,51 @@ class elFormConstructor {
 	 * @var string
 	 **/
 	var $label = '';
+	/**
+	 * data for form
+	 *
+	 * @var string
+	 **/
+	var $_data = array();
+	/**
+	 * disabled elements ids
+	 *
+	 * @var string
+	 **/
+	var $_disabled = array();
+
+	var $_clause = '';
+	
+	var $_map = null;
 	
 	/**
 	 * constructor
 	 *
 	 * @return void
 	 **/
-	function elFormConstructor($id, $label, $data=array(), $disabled=array()) {
+	function elFormConstructor($id, $label='', $data=array(), $disabled=array()) {
 		$this->ID        = $id;
 		$this->label     = $label;
-		$el              = & new elFormConstructorElement();
-		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($id).'"', 'sort_ndx');
-		foreach ($data as $id=>$val) {
+		$this->_data     = $data;
+		$this->_disabled = $disabled;
+		$this->_load();
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _load() {
+		$el = & new elFormConstructorElement(null, $this->_tb, null, $this->_map);
+		$this->_elements = $el->collection(true, true, mysql_real_escape_string($this->ID), 'sort_ndx, label');
+		foreach ($this->_data as $id=>$val) {
 			if (isset($this->_elements[$id])) {
 				$this->_elements[$id]->setValue($val);
 			}
 		}
-		foreach ($disabled as $id) {
+		foreach ($this->_disabled as $id) {
 			if (isset($this->_elements[$id])) {
 				$this->_elements[$id]->disabled = true;
 			}
@@ -576,7 +610,7 @@ class elFormConstructorElement extends elDataMapping {
 	
 	function _postSave($isNew, $params=null)
 	{
-		$db  = & elSingleton::getObj('elDb');
+		$db  = $this->_db();
 		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE form_id="'.$this->formID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
 		$i = 1;
 		$s = sizeof($indexes);

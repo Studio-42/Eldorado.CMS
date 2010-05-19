@@ -34,6 +34,8 @@ $elMsg['New user was registered on site %s [%s]. His(her) login is: %s. Profile 
 	= 'Новый пользователь зарегистрировался на форуме сайта %s [%s]. Логин: %s. Профайл: %s';
 $elMsg['Wellcome back, master!'] = 'おかえりなさい、ごしゅじんさま！';
 
+// registration
+
 $elMsg['Registration complite! Password was sent on Your e-mail address'] 
 	= 'Регистрация завершена! Пароль для входа на сайт выслан на указанный Вами e-mail';
 ?>

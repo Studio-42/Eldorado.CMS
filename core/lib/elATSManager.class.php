@@ -55,6 +55,14 @@ class elATSManager
 	 **/
 	function editUser(&$user) {
 		$isNew = !$user->UID;
+		
+		if (!$user->editAndSave()) {
+			$this->form = $user->getForm();
+			// echo $this->form->isValid();
+		}
+		
+		
+		return;
 		$skel = $user->profile->getSkel();
 		$this->form = $skel->getForm(EL_URL, 'POST', $user->toArray());
 		

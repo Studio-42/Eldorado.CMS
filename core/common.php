@@ -140,9 +140,9 @@ else
 	include_once EL_DIR_CORE.'lib/elDataMapping.class.php';
 }
 
-include_once EL_DIR_CORE.'lib/elDataMappingExtended.class.php';
+// include_once EL_DIR_CORE.'lib/elDataMappingExtended.class.php';
 include_once EL_DIR_CORE.'lib/elUser.class.php';
-include_once EL_DIR_CORE.'lib/elUserProfile.class.php';
+// include_once EL_DIR_CORE.'lib/elUserProfile.class.php';
 
 error_reporting( E_ALL );
 register_shutdown_function('shutdown');

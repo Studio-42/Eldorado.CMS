@@ -238,10 +238,7 @@ class elCore
 
 	function _outputHTML( $compress=true, $timer=0 )
 	{
-		$this->rnd             = & elSingleton::getObj('elSiteRenderer');
-		$this->rnd->userName   = $this->ats->isUserAuthed() ? $this->ats->user->getFullName() : '';
-		$this->rnd->isRegAllow = $this->ats->isUserRegAllow();
-		$this->rnd->adminMode  = $this->ats->allow(EL_WRITE);
+		$this->rnd = & elSingleton::getObj('elSiteRenderer');
 
 		if ( EL_WM_NORMAL == EL_WM )
 		{
@@ -271,10 +268,7 @@ class elCore
 		{
 			ob_start("ob_gzhandler");
 		}
-		$this->rnd->display( $timer,
-							$this->ats->user->getFullName(),
-							$this->ats->isUserAuthed(),
-							$this->ats->isUserRegAllow() );
+		$this->rnd->display( $timer);
 	}
 
 	function _service()
@@ -299,7 +293,7 @@ class elCore
 				break;
 
 			case "__passwd__":
-				$this->ats->passwd( $this->ats->getUser(), EL_PASSWD_REMIND );
+				$this->ats->remindPasswd();
 				break;
 
 			case "__auth__":

@@ -17,13 +17,14 @@ class elDataMapping
 	var $_new          = false;
 	var $db            = null;
 	
-	function __construct( $attr=null, $tb=null, $id=null, $b=null )
+	function __construct( $attr=null, $tb=null, $id=null, $map=null)
 	{
-		$this->db = $db;
 		$this->tb($tb);
 		$this->id($id ? $id : $this->_id);
 		$this->attr($attr);
-		
+		if (!empty($map) && is_array($map)) {
+			$GLOBALS['mapping'][get_class($this)] = $map;
+		}
 	}
 	
 	function getObjName()
@@ -175,11 +176,7 @@ class elDataMapping
 		if ( $this->_form->isSubmitAndValid() && $this->_validForm() )
 		{
 			$this->attr( $this->_form->getValue() );
-			$this->_new = !(bool)$this->idAttr();
-			if ( $this->save() )
-			{
-				return $this->_postSave($this->_new, $params);
-			}
+			return $this->save($params);
 		}
 	}
 
@@ -192,9 +189,17 @@ class elDataMapping
 		return $this->_form->toHtml();
 	}
 
-	function save()
+	function getForm($params=null) {
+		if ( !$this->_form ) {
+			$this->_makeForm($params);
+		}
+		return $this->_form;
+	}
+
+	function save($params=null)
 	{
 		$db = $this->_db();
+		$isNew = !(bool)$this->idAttr();
 		$vals = $this->_attrsForSave();
 		if ( !$vals[$this->_id] )
 		{
@@ -222,7 +227,7 @@ class elDataMapping
 		{
 			$this->idAttr( $db->insertID() );
 		}
-		return true;
+		return $this->_postSave($isNew, $params);;
 	}
 	
 	

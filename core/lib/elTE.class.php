@@ -241,7 +241,8 @@ class elTE
 		}
 		else
 		{
-			while ($one = array_shift($data) )
+			foreach ($data as $one)
+			// while ($one = array_shift($data) )
 			{
 				foreach ( $blocks as $block )
 				{

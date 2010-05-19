@@ -60,9 +60,9 @@ $elMsg['1 month']                                       = '1 місяць';
 $elMsg['Allow new user registration']                   = 'Дозволити реєстрацію нових користувачів';
 $elMsg['Default group for new users']                   = 'Група для нових користувачів';
 $elMsg['Display login form']                            = 'Показувати форму для авторизації';
-$elMsg['Block user registration e-mail notify']         = 'Блокувати повідомлення по e-mail про реєстрацію користувача';
-$elMsg['Block changing password e-mail notify']         = 'Блокувати повідомлення по e-mail про зміну пароля';
-$elMsg['Block notify about new user to default e-mail'] = 'Блокувати повідомлення про реєстрацію нового користувача на адресу за замовчуванням';
+$elMsg['Notify new user after registration by e-mail']  = 'Уведомлять пользователя о регистрации по e-mail';
+$elMsg['Send new password on e-mail after changing']    = 'Уведомлять пользователя о смене пароля по e-mail';
+$elMsg['Notify site admin about new user']              = 'Уведомлять администратора сайта о регистрации нового пользователя на адрес по умолчанию';
 $elMsg['Login case sensitive']                          = 'Ім&rsquo;я користувача чутливе до регістру';
 
 

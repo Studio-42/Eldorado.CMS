@@ -130,10 +130,9 @@ class elSiteRenderer
 
 	var $_curPageID  = 0;
 	var $indexTpl    = true;
-	var $userName    = '';
-	var $isRegAllow  = false;
-	var $adminMode   = false;
-	var $_isAdmin    = false;
+	var $_userName    = '';
+	var $_regAllow  = false;
+	var $_adminMode   = false;
 	var $_jsCacheTime = 0;
 
 	function elSiteRenderer()
@@ -141,7 +140,9 @@ class elSiteRenderer
 		$this->_te        = &elSingleton::getObj('elTE');
 		$this->_conf      = &elSingleton::getObj('elXmlConf');
 		$ats              = & elSingleton::getObj('elATS');
-		$this->_isAdmin   = $ats->allow(EL_WRITE);
+		$this->_adminMode = $ats->allow(EL_WRITE);
+		$this->_userName  = $ats->user->getFullName();
+		$this->_regAllow  = $ats->isRegistrationAllowed();
 		$this->_nav       = &elSingleton::getObj('elNavigator');
 		$this->_curPageID = $this->_nav->getCurrentPageID();
 		$this->_jsCacheTime = (int)$this->_conf->get('jsCacheTime', 'common')*60*60;
@@ -182,7 +183,7 @@ class elSiteRenderer
 		return $this->_te->getVar('main', 1);
 	}
 
-	function display( $timer)//, $userName, $userAuthed, $regAuth )
+	function display( $timer)
 	{
 		$this->_renderMessages();
 		if ( EL_WM == EL_WM_NORMAL )
@@ -224,7 +225,7 @@ class elSiteRenderer
 
             $this->_te->assignBlockFromArray('META', $meta );
 			$cntFile = EL_DIR_CONF.'counters.html';
-			if ( !$this->adminMode && is_readable($cntFile) )
+			if ( !$this->_adminMode && is_readable($cntFile) )
 			{
 				$this->_te->assignBlockIfExists('COUNTERS', array('COUNTERS'=>file_get_contents($cntFile)));
 			}
@@ -286,7 +287,7 @@ class elSiteRenderer
 		// elPrintR($GLOBALS['_js_'][EL_JS_CSS_FILE]);
 		
 		$cache = '';
-		if (!$this->_isAdmin || !$this->_conf->get('debug', 'common'))
+		if (!$this->_adminMode || !$this->_conf->get('debug', 'common'))
 		{
 			$file = crc32(implode('|', $GLOBALS['_js_'][EL_JS_CSS_FILE])).'.js';
 			$path = EL_DIR_CACHE.$file;
@@ -359,7 +360,7 @@ class elSiteRenderer
 		$GLOBALS['_css_'][EL_JS_CSS_FILE][] = 'print.css';
 		// elPrintR($GLOBALS['_css_'][EL_JS_CSS_FILE]);
 		$cache = '';
-		if (!$this->_isAdmin || !$this->_conf->get('debug', 'common'))
+		if (!$this->_adminMode || !$this->_conf->get('debug', 'common'))
 		{
 			$file = crc32(implode('|', $GLOBALS['_css_'][EL_JS_CSS_FILE])).'.css';
 			// $dir  = EL_DIR_STYLES.'css-cache';
@@ -947,10 +948,10 @@ class elSiteRenderer
     */
 	function _renderUserInfo( $prepare=false )
 	{
-		if ( $this->userName )
+		if ( $this->_userName )
 		{
 			$tpl = $this->_processMiscTpl('uInfo', $this->_conf->get('userInfoPosition', 'layout'));
-			$this->_te->assignVars( 'userName', $this->userName );
+			$this->_te->assignVars( 'userName', $this->_userName );
 			$this->_te->setFile($tpl[0], $tpl[1]);
 			$this->_te->parse($tpl[0]);
 		}
@@ -959,7 +960,7 @@ class elSiteRenderer
 			elLoadMessages('Auth');
 			$tpl = $this->_processMiscTpl('uAuth', $pos);
 			$this->_te->setFile($tpl[0], $tpl[1]);
-			if ($this->isRegAllow && $this->_te->isBlockExists('USER_REG') )
+			if ($this->_regAllow && $this->_te->isBlockExists('USER_REG') )
 			{
 				$this->_te->assignBlockVars('USER_REG');
 			}

@@ -334,6 +334,8 @@ function elClosePopupWindow()
 
 
 
+
+
 function getPluginsManageList()
 {
 	$pID = getPluginsCtlPageID();

@@ -1,91 +1,114 @@
 <?php
 
-class elUserProfile extends elDataMapping
-{
-	var $_tb         = 'el_user';
-	var $_id         = 'uid';
-	var $__id__      = 'UID';
-	var $UID         = 0;
-	var $login       = '';
-	var $email       = '';
-	var $db          = null;
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFormConstructor.class.php';
 
-	function elUserProfile($db) {
+class elUserProfile extends elFormConstructor {
+	var $_tb = 'el_user_profile';
+	var $UID  = 0;
+	var $db   = null;
+	var $_map = array( 
+		'id'        => 'ID',
+	    'type'      => 'type',
+	    'label'     => 'label',
+	    'value'     => 'value',
+	    'opts'      => 'opts',
+		'directory' => 'directory',
+		'required'  => 'required',
+	    'rule'      => 'rule',
+	    'file_size' => 'fileSize',
+		'file_type' => 'fileType',
+	    'error'     => 'error',
+	    'sort_ndx'  => 'sortNdx'
+	);
+	/**
+	 * constructor
+	 *
+	 * @return void
+	 **/
+	function elUserProfile($db, $data=array()) {
 		$this->db = $db;
-	}
+		parent::elFormConstructor(0, $data['uid'] ? m('User profile') : m('New user registration'), $data);
 
-
-	function toArray()
-	{
-		$ret = array();
-		// $sql = 'SELECT field, label FROM el_user_profile_ '
-		//      . 'WHERE field IN ("'.implode('", "', $this->attrsList()).'") '
-		//      . 'ORDER BY sort_ndx, field';
-		// $this->db->query($sql);
-		// while ($r = $this->db->nextRecord()) {
-		// 	$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['field']));
-		// }
-		
-		return $ret;
-	}
-
-	function getSkelConf()
-	{
-		$ats  = & elSingleton::getObj('elATS');
-		$db   = & $ats->getACLDb();
-		$sql  = 'SELECT field, label, rq, sort_ndx FROM el_user_profile ORDER BY sort_ndx, field';
-		$conf =  $db->queryToArray($sql, 'field');
-		return $conf;
-	}
-
-	function setSkelConf($conf)
-	{
-		$ats  = & elSingleton::getObj('elATS');
-		$db   = & $ats->getACLDb();
-		$sql = 'UPDATE el_user_profile SET rq="%d", sort_ndx="%d" WHERE field="%s"';
-		foreach ( $conf as $k=>$v )
-			$db->safeQuery($sql, $v['rq'], $v['sort_ndx'], $k);
-	}
-
-	function getSkel()
-	{
-		$ats  = & elSingleton::getObj('elATS');
-		$db   = & $ats->getACLDb();
-		$sql  = 'SELECT field, label, type, opts, rule, is_func, rq, sort_ndx FROM el_user_profile '
-		      . 'WHERE field IN ("'.implode('", "', $this->attrsList()).'") ORDER BY sort_ndx, field';
-		$skel = $db->queryToArray($sql, 'field');
-		return $skel;
-	}
-
-	function getFullName()
-	{
-		// TODO
-		$name = null;
-		$name = trim($this->attr('f_name').' '.$this->attr('s_name').' '.$this->attr('l_name'));
-		return $name ? $name : $this->attr('login');
-	}
-
-	function getEmail($format=true)
-	{
-	  return $format ? '"'.$this->getFullName().'"<'.$this->attr('email').'>' : $this->attr('email');
-	}
-
-	function _initMapping()
-	{
-
-		$map = array('uid' => 'UID');
-		$this->db->query('SELECT id FROM el_user_profile ORDER BY sort_ndx, label');
-		while($r = $this->db->nextRecord()) {
-			$this->{$r['id']} = '';
-			$map[$r['id']] = $r['id'];
+		return;
+		$this->label     = $data['uid'] ? m('User profile') : m('New user registration');
+		$this->_data     = $data;
+		$this->_disabled = $data['uid'] ? array('login') : array();
+		$this->_load();
+		return;
+		$el = & new elUserProfileField();
+		$this->_elements = $el->collection(true, true, '', 'sort_ndx');
+		foreach ($data as $id=>$val) {
+			if (isset($this->_elements[$id])) {
+				$this->_elements[$id]->setValue($val);
+			}
 		}
-
-		// elPrintR($map);
-		return $map;
+		if (!empty($data['login'])) {
+			$this->_elements['login']->disabled = true;
+			unset($this->_elements['login']);
+		}
+		$this->UID = $data['uid'];
 	}
-
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function _load() {
+		parent::_load();
+		// $el = & new elUserProfileField();
+		// $this->_elements = $el->collection(true, true, '', 'sort_ndx, label');
+		// foreach ($this->_data as $id=>$val) {
+		// 	if (isset($this->_elements[$id])) {
+		// 		$this->_elements[$id]->setValue($val);
+		// 	}
+		// }
+		if (!empty($this->_data['login'])) {
+			unset($this->_elements['login']);
+		}
+	}
+	/**
+	 * return complete form
+	 *
+	 * @return object
+	 **/
+	function getForm($url=EL_URL, $method='POST') {
+		// $this->label = $this->UID ? m('User profile') : m('New user registration');
+		$form = parent::getForm($url, $method);
+		$form->registerRule('validUserForm', 'func', 'validUserForm', null);
+		$form->setElementRule('login', 'validUserForm', true, $this->UID);
+		$form->setElementRule('email', 'validUserForm', true, $this->UID);
+		if (!$this->UID) {
+			// $form->add(new elCaptcha('__reg__', m('Enter code from picture')));
+		}
+		
+		return $form;
+	}
+	
 }
 
+class elUserProfileField extends elFormConstructorElement {
+	
+	var $_tb = 'el_user_profile';
+	
+	function _initMapping()
+  	{
+    	return array( 
+			'id'        => 'ID',
+		    'type'      => 'type',
+		    'label'     => 'label',
+		    'value'     => 'value',
+		    'opts'      => 'opts',
+			'directory' => 'directory',
+			'required'  => 'required',
+		    'rule'      => 'rule',
+		    'file_size' => 'fileSize',
+			'file_type' => 'fileType',
+		    'error'     => 'error',
+		    'sort_ndx'  => 'sortNdx'
+		);
+	}
+}
 
 
 ?>

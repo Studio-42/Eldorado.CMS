@@ -1,5 +1,7 @@
 <?php
 
+elLoadMessages('Auth');
+
 define ('EL_PASSWD_INPUT',   1);
 define ('EL_PASSWD_RAND',    2);
 define ('EL_PASSWD_REMIND',  3);
@@ -14,47 +16,45 @@ define ('EL_UNTF_PASSWD',    3);
 
 class elATS
 {
-  var $user          = null;
-  var $_dbAuth       = null;
-  var $_dbACL        = null;
-  var $_isLocalAuth  = true;
-  var $_sessTO       = 86400; // 1 month
-  var $_iGroups      = array();
-  var $_ACL          = array();
-  var $_userRoot     = false;
-  var $_pageID       = 0;
-  var $_mngr         = null;
-  var $_regAllow     = true;
-  var $_defGID       = 0;
-  var $_defGroupName = '';
-  var $_userFullName = false;
-  var $_loginCaseSens = true;
-	var $_ignoreLoginCase = false;
+	var $user          = null;
+	var $_dbAuth       = null;
+	var $_dbACL        = null;
+	var $_isLocalAuth  = true;
+	var $_sessTO       = 86400; // 1 month
+	var $_iGroups      = array();
+	var $_ACL          = array();
+	var $_userRoot     = false;
+	var $_pageID       = 0;
+	var $_mngr         = null;
+	var $_regAllow     = true;
+	var $_defGID       = 0;
+	var $_defGroupName = '';
+	var $_userFullName = false;
 
-  function __construct()
-  {
-    $conf         = & elSingleton::getObj('elXmlConf');
-    $this->_dbACL = & elSingleton::getObj('elDb');
-    $this->_initAuthDb($conf->get('authDb', 'auth'), $conf->getGroup('db'), $conf->get('importGroups', 'auth'));
-	$this->_dbHash = md5($this->_dbACL->_host.' '.$this->_dbACL->_db.' '.$this->_dbACL->_user.' '.$this->_dbACL->_pass);
-
-    if ( 0 < ($to = $conf->get('sessionTimeOut', 'auth')) )
-    {
-      $this->_sessTO = (int)$to;
-    }
-    $this->_regAllow       = $conf->get('registrAllow',   'auth');
-    $this->_defGID         = $conf->get('defaultGID',     'auth');
-    $this->_userFullName   = $conf->get('userFullName',   'layout');
-	$this->_ignoreLoginCase  = $conf->get('ignoreLoginCase',   'auth');
-  }
-
-  function elATS()
-  {
-  	$this->__construct();
-  }
-
-	function init( $pageID )
+	function elATS()
 	{
+		$conf         = & elSingleton::getObj('elXmlConf');
+		$this->_conf  = $conf->getGroup('auth');
+		if (!isset($this->_conf['loginCaseSensetive'])) {
+			$this->_conf['loginCaseSensetive'] = true;
+		}
+		$this->_userFullName   = $conf->get('userFullName',   'layout');
+		$this->_dbACL = & elSingleton::getObj('elDb');
+		$this->_initAuthDb($conf->get('authDb', 'auth'), $conf->getGroup('db'), $conf->get('importGroups', 'auth'));
+		$this->_dbHash = md5($this->_dbACL->_host.' '.$this->_dbACL->_db.' '.$this->_dbACL->_user.' '.$this->_dbACL->_pass);
+
+		if ( 0 < ($to = $conf->get('sessionTimeOut', 'auth')) ) {
+			$this->_sessTO = (int)$to;
+		}
+	}
+
+	/**
+	 * create user, autologin and load acl
+	 *
+	 * @param  int   $pageID
+	 * @return void
+	 **/
+	function init( $pageID ) {
 		$this->_pageID = $pageID;
 
 		$this->user = & new elUser($this->_dbAuth, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
@@ -64,41 +64,73 @@ class elATS
 		} else {
 			$this->_loadACL();
 		}
-
 	}
 
-   /**
+	/**
+	 * return auth conf
+	 *
+	 * @return mixed
+	 **/
+	function conf($var) {
+		return isset($this->_conf[$var]) ? $this->_conf[$var] : false;
+	}
+
+	/**
+	 * return true if new users registration allowed
+	 *
+	 * @return bool
+	 **/
+	function isRegistrationAllowed() {
+		return $this->conf('registrAllow');
+	}
+
+	/**
+	 * true if auth db is local db
+	 *
+	 * @return bool
+	 **/
+	function isLocalAuth() {
+		return $this->_isLocalAuth;
+	}
+
+	/**
+	 * return true if user authed
+	 *
+	 * @return bool
+	 **/
+	function isUserAuthed() {
+		return $this->user->UID;
+	}
+
+	/**
    * Render auth form and login user
    */
-	function auth($url=EL_URL)
-	{
+	function auth($url=EL_URL) {
 		elLoadMessages('Auth');
 
+		// login via ajax
 		if (isset($_POST['ajax'])) {
 			include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
 			
 			if ( $this->user->isAuthed() )	{
 				exit(elJSON::encode(array('error' => m('You must logout before logging in'))));
-				// elThrow(E_USER_WARNING, m('You must logout before logging in'), null, EL_URL);
 			}
 			$login = trim($_POST['login']);
 			$pass  = trim($_POST['pwd']);
-			if (!$login || !$pass || !$this->user->login($login, $pass, !$this->_ignoreLoginCase)) {
+			if (!$login || !$pass || !$this->user->login($login, $pass, $this->_conf['loginCaseSensetive'])) {
 				exit(elJSON::encode(array('error' => m('Authorization failed'))));
 			} else {
+				elMsgBox::put( sprintf( m('Wellcome back %s!'), $this->user->getFullName() ) );
 				exit(elJSON::encode(array('ok' => 1)));
 			}
-			
 		}
 
-
+		// ordinary login
 		if ( $this->user->isAuthed() )	{
 			elThrow(E_USER_WARNING, m('You must logout before logging in'), null, EL_URL);
 		}
 		
-		$this->form = & elSingleton::getObj('elForm');
-		$this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-		$this->form->setLabel(m('Authorization required'));
+		$this->_initForm(m('Authorization required'));
 		$this->form->setAttr('action', EL_URL.'__auth__/');
 		$this->form->add( new elText('elLogin', m('Login')) );
 		$this->form->add( new elPassword('elPass', m('Password')) );
@@ -116,7 +148,7 @@ class elATS
 			$url  = !empty($data['url']) ? $data['url'] : EL_URL;
 
 			if ( (empty($data['elLogin']) || empty($data['elPass'])) 
-			|| !$this->user->login($data['elLogin'], $data['elPass'], !$this->_ignoreLoginCase) ) {
+			|| !$this->user->login($data['elLogin'], $data['elPass'], $this->_conf['loginCaseSensetive']) ) {
 				return elThrow(E_USER_WARNING, m('Authorization failed'));
 			}
 			
@@ -125,21 +157,104 @@ class elATS
 		}
 	}
 
+	/**
+	 * logout user
+	 *
+	 * @return void
+	 **/
+	function logOutUser( ) {
+		if ( $this->user->UID ) {
+			if ( 1 == $this->user->UID ) {
+				elCleanCache();
+			}
+			elLoadMessages('Auth');
+			elMsgBox::put( sprintf( m('Good bye %s!'), $this->user->getFullName() ) );
+			$this->user->logout();
+		}
+		elLocation(EL_BASE_URL);
+	}
 
-  function logOutUser( )
-  {
-    if ( $this->user->UID )
-    {
-      if ( 1 == $this->user->UID )
-      {
-        elCleanCache();
-      }
-      elLoadMessages('Auth');
-      elMsgBox::put( sprintf( m('Good bye %s!'), $this->user->getFullName() ) );
-      $this->user->logout();
-    }
-    elLocation(EL_BASE_URL);
-  }
+	/**
+	 * возвращает сгенерированный случайным образом пароль
+	 *
+	 * @return string
+	 **/
+	function randPasswd() {
+		return substr(md5(uniqid('')),-9,7);
+	}
+
+	/**
+	 * create/edit  user
+	 *
+	 * @param  elUser  $user
+	 * @return bool
+	 **/
+	function editUser( &$user) {
+		$isNew = !$user->UID;
+		
+		if (!$user->editAndSave()) {
+			$this->form = $user->getForm();
+		} else {
+			if ($isNew) {
+		        //send login/pass on email and notify site admin about new user
+		        $this->_notifyUser($user, $passwd, EL_UNTF_REGISTER);
+			}
+			return true;
+		}
+	}
+
+	/**
+	 * change user password
+	 *
+	 * @param  elUser  $user
+	 * @return bool
+	 **/
+	function passwd(&$user) {
+		$this->_initForm( sprintf( m('Change password for user "%s"'), $user->login ) );
+	    $this->form->add( new elPasswordDoubledField('pass', m('Password twice')) );
+	    $this->form->setElementRule('pass', 'password', 1, null);
+		if ($this->form->isSubmitAndValid()) {
+	        $passwd = $this->form->getElementValue('pass');
+			$user->passwd($passwd);
+	        $this->_notifyUser($user, $passwd, EL_UNTF_PASSWD);
+	        return true;
+	      }
+	}
+
+	/**
+	 * create new user password on request
+	 *
+	 * @return void
+	 **/
+	function remindPasswd() {
+		$this->_initForm( m('Remind login/password') );
+	    $this->form->add( new elCData(null, m('Please, enter Your login or email and new authorization data will be send on Your email')) );
+	    $this->form->add( new elText('im', m('Login or e-mail')) );
+	    $this->form->setRequired( 'im' );
+
+	    if ( !$this->form->isSubmitAndValid() )
+	    {
+	      $rnd = &elSingleton::getObj('elSiteRenderer');
+	      $rnd->setPageContent( $this->form->toHtml() );
+	      return;
+	    }
+	
+		$test = $this->form->getElementValue('im');
+		$sql  = sprintf('SELECT * FROM el_user WHERE %s="%s"', strstr($test, '@') ? 'email' : 'login', mysql_real_escape_string($test));
+	    $this->_dbAuth->query($sql);
+	    if (1 != $this->_dbAuth->numRows()) {
+	    	elThrow(E_USER_WARNING, 'User with this login/email does not exists', null, EL_URL.'__passwd__/');
+	    }
+
+		$user = & new elUser($this->_dbAuth, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
+		$user->attr($this->_dbAuth->nextRecord());
+	    $passwd = $this->randPasswd();
+		$user->passwd($passwd);
+	    $this->_notifyUser($user, $passwd, EL_UNTF_REMIND);
+	    elMsgBox::put( sprintf(m('New password was send onto e-mail - %s'), $user->email) );
+	    elLocation(EL_URL);
+	}
+
 
   /**
    * check page permissions
@@ -220,32 +335,36 @@ class elATS
     return $this->_dbAuth->numRows() ? $this->_dbAuth->nextRecord() : null;
   }
 
-  function getDefaultGID()
-  {
-    return $this->_defGID;
-  }
+	/**
+	 * return default group ID
+	 *
+	 * @return int
+	 **/
+	function getDefaultGID() {
+		return (int)$this->conf('defaultGID');
+	}
 
-  function getDefaultGroupName()
-  {
-    if ( $this->_defGID && '' == $this->_defGroupName )
-    {
-      $g = $this->getGroupInfo($this->_defGID);
-      $this->_defGroupName = !empty($g['name']) ? $g['name'] : m('Undefined');
-    }
-    return $this->_defGroupName;
-  }
+	/**
+	 * return default group name
+	 *
+	 * @return array
+	 **/
+	function getDefaultGroupName() {
+		$groups = $this->getGroupsList();
+		$gid    = $this->getDefaultGID();
+		return isset($groups[$gid]) ? $groups[$gid] : m('Undefined');
+	}
 
-  /**
-   * список групп для сайта
-   */
-  function getGroupsList()
-  {
-    if ( !$this->_iGroups )
-    {
-      return $this->_dbAuth->queryToArray('SELECT gid, name FROM el_group ORDER BY gid', 'gid', 'name');
-    }
-    return $this->_iGroups;
-  }
+	/**
+	 * return groups list
+	 *
+	 * @return array
+	 **/
+	function getGroupsList() {
+		return $this->_iGroups
+			? $this->_iGroups
+			: $this->_dbAuth->queryToArray('SELECT gid, name FROM el_group ORDER BY gid', 'gid', 'name');
+	}
 
   function getUsersList($search='', $group=null, $sf='login', $order='ASC', $start=0, $offset=30, $count=false)
   {
@@ -259,25 +378,7 @@ class elATS
     return $this->_mngr->getUsersGroupsList();
   }
 
-  function isUserRegAllow()
-  {
-  	return $this->_regAllow;
-  }
-
-  function isRegistrationAllowed()
-  {
-    return $this->_regAllow;
-  }
-
-  function isLocalAuth()
-  {
-    return $this->_isLocalAuth;
-  }
-
-  function isUserAuthed()
-  {
-    return $this->user->UID;
-  }
+	
 
   function addGroupToImportList( $GID, $name )
   {
@@ -308,25 +409,19 @@ class elATS
 
   ///////////////////  *  Манипуляции с пользователем  *  ///////////////////////////////////////
 
-  /**
-   * изменение пользовательских данных
-   * профайл
-   * регистрация пользователя
-   * управление пользователями из КЦ
-   * уведомление на email отсылается только при создании нового пользователя
-   */
-  function editUser( &$user )
-  {
-    $this->_initManager();
-    return $this->_mngr->editUser( $user );
-  }
+
+
+
+
+
+
 
   /**
    * смена пароля
    * @param $user  obj user object
    * @param $do    int action - change password, set random password or send new password
    */
-  function passwd( &$user, $do=EL_PASSWD_INPUT )
+  function _passwd( &$user, $do=EL_PASSWD_INPUT )
   {
     $this->_initManager();
     return $this->_mngr->passwd($user, $do);
@@ -356,14 +451,18 @@ class elATS
     return $this->_mngr->rmUser( $user );
   }
 
-  function formToHtml()
-  {
-    if ( isset($this->_mngr->form ))
-    {
-      return $this->_mngr->form->toHtml();
-    }
-    return '';
-  }
+	
+	/**
+	 * return form html
+	 *
+	 * @return string
+	 **/
+	function formToHtml() {
+		if (!$this->form) {
+			$this->initForm('');
+		}
+		return $this->form->toHtml();
+	}
 
   /////////////////////////   *  PRIVATE  *  ////////////////////
 
@@ -425,38 +524,90 @@ class elATS
     }
   }
 
-  function _getMasterPasswd()
-  {
-  	if ( file_exists(EL_DIR_CONF.'mp') && false != ($c = file(EL_DIR_CONF.'mp')) && 32 == strlen(trim($c[0])) )
-  	{
-  		return trim($c[0]);
-  	}
-  	return false;
-  }
+	/**
+	 * оповещение пользователя по email о регистрации/смене пароля
+	 *
+	 * @param  string  $email
+	 * @param  string  $login
+	 * @param  string  $passwd
+	 * @param  int     $type
+	 * @return void
+	 **/
+	function _notifyUser($user, $passwd, $type=EL_UNTF_REMIND ) {
+		
+		$conf     = &elSingleton::getObj('elXmlConf');
+		$siteName = $conf->get('siteName', 'common');
+		$emails   = & elSingleton::getObj('elEmailsCollection');
+		$postman  = & elSingleton::getObj('elPostman');
 
- /**
-   * Загружает таблицу привилегий пользователя
-   * доступ к странице = доступ стр по умолчанию & [доступ групп пользователя к этой странице]
-   */
-  function _loadACL()
-  {
-    if ( !$this->user->groups )
-    {
-      $sql = 'SELECT ch.id, MIN(p.perm) AS perm 
-            FROM el_menu AS p, el_menu AS ch 
-            WHERE ch._left BETWEEN p._left AND p._right AND p.level>0 GROUP BY ch.id';
-    }
-    else
-    {
-      $sql = 'SELECT ch.id, IF ( acl.perm>MIN(p.perm), acl.perm, MIN(p.perm) ) AS perm 
-            FROM el_menu AS p, el_menu AS ch 
-            LEFT JOIN el_group_acl AS acl 
-            ON page_id=ch.id 
-            AND group_id IN ('.implode(',', $this->user->groups)
-            .') WHERE ch._left BETWEEN p._left AND p._right AND p.level>0 GROUP BY ch.id'; //echo $sql;
-    }
-    $this->_ACL = $this->_dbACL->queryToArray($sql, 'id', 'perm');
-  }
+		if (EL_UNTF_REMIND == $type ) {
+			$subj = m('Changing password notification');
+			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} elseif ( EL_UNTF_REGISTER == $type) {
+			
+			if ($this->conf('newUserAdminNotify') ) {
+				$subj = sprintf( m('New user was registered on %s (%s)'), $siteName, EL_BASE_URL );
+				$msg = '';
+				foreach ( $user->getData() as $one ) {
+					$msg .= m($one['label']).': '.$one['value']."\n";
+				}
+				$postman->newMail($emails->getDefault(), $emails->getDefault(), $subj, $msg, false, $sign);
+				$postman->deliver();
+	        }
+			
+			if (!$this->conf('newUserNotify')) {
+				return;
+			}
+			
+			$subj = m('New user registration notification');
+			$msg  = m("You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} elseif ( EL_UNTF_PASSWD == $type   &&  $this->conf('changePasswordNotify') ) {
+			$subj = m('Changing password notification');
+			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+		} else {
+			return;
+		}
+
+		$msg  = sprintf( $msg, $siteName, EL_BASE_URL, $user->login, $passwd );
+		$sign = sprintf( m("With best wishes\n%s\n"), $conf->get('owner', 'common') );
+
+		$postman->newMail($emails->getDefault(), $user->getEmail(), $subj, $msg, false, $sign);
+
+		if ( !$postman->deliver() ) {
+			elThrow( E_USER_WARNING, m("Sending e-mail to address %s was failed.\n Here is message conent: %s\n\n"), array(htmlspecialchars($email), $msg));
+			elDebug($postman->error);
+		}
+	}
+
+	/**
+	* Загружает таблицу привилегий пользователя
+	* доступ к странице = доступ стр по умолчанию & [доступ групп пользователя к этой странице]
+	*/
+	function _loadACL() {
+		if ( !$this->user->groups ) {
+			$sql = 'SELECT ch.id, MIN(p.perm) AS perm FROM el_menu AS p, el_menu AS ch 
+					WHERE ch._left BETWEEN p._left AND p._right AND p.level>0 GROUP BY ch.id';
+		} else {
+			$sql = 'SELECT ch.id, IF ( acl.perm>MIN(p.perm), acl.perm, MIN(p.perm) ) AS perm 
+					FROM el_menu AS p, el_menu AS ch 
+					LEFT JOIN el_group_acl AS acl 
+					ON page_id=ch.id 
+					AND group_id IN ('.implode(',', $this->user->groups)
+					.') WHERE ch._left BETWEEN p._left AND p._right AND p.level>0 GROUP BY ch.id'; //echo $sql;
+		}
+		$this->_ACL = $this->_dbACL->queryToArray($sql, 'id', 'perm');
+	}
+
+	/**
+	 * create form object
+	 *
+	 * @param  string  $label
+	 * @return void
+	 **/
+	function _initForm($label) {
+	    $this->form = & elSingleton::getObj( 'elForm', 'mf', $label );
+	    $this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+	}
 
   function allowGuest($pageID = null)
   {

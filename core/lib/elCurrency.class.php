@@ -79,17 +79,13 @@ class elCurrency {
 	 **/
 	var $_updateTime = 0;
 	
-	function __construct() {
+	function elCurrency() {
 		$conf     = & elSingleton::getObj('elXmlConf');
 		$currency = $conf->get('currency', 'currency');
 		$this->current = isset($this->info[$currency]) 
 			? $this->info[$currency]
 			: $this->info['USD'];
 		$this->_load();
-	}
-	
-	function elCurrency() {
-		$this->__construct();
 	}
 	
 	/**

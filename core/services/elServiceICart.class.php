@@ -40,7 +40,7 @@ class elServiceICart extends elService
 		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
 		// elAppendToPageTitle('ICart', 1);
 
-		$this->_userData = $this->_user->getPref('icartData');
+		$this->_userData = $this->_user->prefrence('icartData');
 
 		if (empty($this->_userData['steps']) 
 		|| empty($this->_userData['delivery'])) {
@@ -59,7 +59,7 @@ class elServiceICart extends elService
 				'address' => array()
 				);
 				
-			$this->_user->setPref('icartData', $this->_userData);
+			$this->_user->prefrence('icartData', $this->_userData);
 		}
 
 		if ($this->_iCart->isEmpty()) {
@@ -559,7 +559,7 @@ class elServiceICart extends elService
     
     function _loadAddrNfo()
     {
-        $addrNfo          = $this->_user->getPref('iCartAddr'); //elPrintR($addrNfo);
+        $addrNfo          = $this->_user->prefrence('iCartAddr'); //elPrintR($addrNfo);
         $this->_addrNfo   = is_array( $addrNfo ) ? $addrNfo : array();
         if ( empty($this->_addrNfo) && $this->_user->UID )
         {

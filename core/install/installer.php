@@ -437,7 +437,7 @@ RewriteRule   ^favicon.ico style/favicon.ico [L]
 
 # the all-in-one rule
 RewriteCond   %{REQUEST_URI} !(cache/|core/js/|style/|storage/|robots\.txt)
-RewriteRule   (.*) index.php?$1 [L]
+RewriteRule   (.*) index.php [L]
 
 # this should secure from unwanted phps
 RewriteCond   %{REQUEST_URI} \.(php|php3|php4|php5|php6|phtml)$

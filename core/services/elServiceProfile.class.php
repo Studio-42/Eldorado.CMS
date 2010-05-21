@@ -14,7 +14,8 @@ class elServiceProfile extends elService
 	var $_mMap      = array(
 			'edit'   => array('m' => 'edit'),
 			'passwd' => array('m' => 'passwd'),
-			'reg'    => array('m' => 'registration')
+			'reg'    => array('m' => 'registration'),
+			'get'    => array('m' => 'get')
 			);
 
 
@@ -99,6 +100,25 @@ class elServiceProfile extends elService
 			elMsgBox::put( m('Registration complete! Password was sent on Your e-mail address') );
 			elLocation(EL_BASE_URL);
 		}
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function get() {
+		include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		
+		
+		$user = $this->_ats->createUser();
+		$user->IdAttr((int)$this->_args[1]);
+		if (!$user->fetch()) {
+			exit(elJSON::encode(array('error' => m('There is no such user'))));
+		}
+	
+		exit(elJSON::encode($user->getData()));
 	}
 
 }

@@ -1,5 +1,4 @@
 <?php
-//include in elATSManager and someof the elATS methods
 //auth form
 $elMsg['Authorization required'] = 'Требуется авторизация';
 $elMsg['Authorization failed']   = 'Ошибка авторизации! Неправильный логин/пароль';
@@ -38,4 +37,7 @@ $elMsg['Wellcome back, master!'] = 'おかえりなさい、ごしゅじんさ�
 
 $elMsg['Registration complete! Password was sent on Your e-mail address'] 
 	= 'Регистрация завершена! Пароль для входа на сайт выслан на указанный Вами e-mail';
+	
+$elMsg['There is no such user'] = 'Такого пользователя не существует';
+	
 ?>

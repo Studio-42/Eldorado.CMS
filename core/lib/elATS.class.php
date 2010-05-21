@@ -118,7 +118,7 @@ class elATS
 	 *
 	 * @return elUser
 	 **/
-	function &createUser() {
+	function createUser() {
 		return new elUser($this->_dbAuth, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
 	}
 	

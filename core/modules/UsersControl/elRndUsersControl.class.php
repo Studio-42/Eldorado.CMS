@@ -2,54 +2,47 @@
 
 class elRndUsersControl extends elModuleRenderer
 {
-	var $_tpls = array( 'groups'  => 'groups.html',
-						'nav'     => 'nav.html',
-						'profile' => 'profile.html' );
-
-	var $_admTpls = array('groups'=>'adminGroups.html');
+	var $_tpls = array( 
+		'groups'  => 'groups.html',
+		'profile' => 'profile.html' );
 
 	/**
-	 * Рисует список пользователей с сортируемой таблице
+	 * render users list
 	 *
-	 * @param  array  $users   массив пользователей
-	 * @param  array  $groups  массив имен групп пользователей
-	 * @param  int    $page    номер текущей стр списка
-	 * @param  int    $num	   кол-во страниц
+	 * @param  array  $users   users
+	 * @param  array  $groups  users groups
+	 * @param  int    $page    current page number
+	 * @param  int    $num	   pages number
 	 * @return void
 	 **/
 	function rndUsers( $users, $groups, $page, $num )
 	{
-		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
-		
 		$this->_setFile();
 
-		foreach ( $users as $user )
-		{
-			if ( !empty($groups[$user['uid']]) )
-			{
-				$user['groups'] = implode(', ', $groups[$user['uid']]);
-			}
-			$user['atime'] = $user['atime'] ? date('d.m.y H:i', $user['atime']) : '';
-			$this->_te->assignBlockVars('USER', $user);
-			if ($this->_admin)
-			{
-				$this->_te->assignBlockVars('USER.ADMIN', array('uid' => $user['uid'], 'login' => $user['login']), 1);
+		foreach ($users as $user) {
+			$data = array(
+				'uid'    => $user->UID,
+				'login'  => $user->login,
+				'email'  => $user->email,
+				'visits' => $user->visits,
+				'atime'  => $user->atime ? date(EL_DATE_FORMAT, $user->atime) : '',
+				'groups' => isset($groups[$user->UID]) ? implode(', ', $groups[$user->UID]) : ''
+				);
+			$this->_te->assignBlockVars('USER', $data);
+			if ($this->_admin) {
+				$this->_te->assignBlockVars('USER.ADMIN', array('uid' => $user->UID, 'login' => $user->login), 1);
 			}
 		}
 
-		if ( $num>1)
-		{
+		if ($num>1) {
 			$this->_te->setFile('PAGER', 'common/pager.html');
-			if ( $page > 1 )
-			{
+			if ($page > 1) {
 				$this->_te->assignBlockVars('PAGER.PREV', array('url'=>EL_URL, 'num'=>$num-1));
 			}
-			for ( $i=1; $i<=$num; $i++ )
-			{
+			for ($i=1; $i<=$num; $i++) {
 				$this->_te->assignBlockVars($i != $page ? 'PAGER.PAGE' : 'PAGER.CURRENT', array('url'=>EL_URL, 'num'=>$i));
 			}
-			if ( $page < $num )
-			{
+			if ($page < $num) {
 				$this->_te->assignBlockVars('PAGER.NEXT', array('url'=>EL_URL, 'num'=>$page+1));
 			}
 			$this->_te->parse('PAGER');

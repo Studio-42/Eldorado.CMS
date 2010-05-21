@@ -12,10 +12,10 @@
 		<!-- BEGIN USER -->
   		<tr>
   			<td>{uid}</td>
-    		<td><a href="#{uid}" class="uid" title="{m('User profile')}">{login}</a></td>
-    		<td>{email} &nbsp;</td>
-			<td>{groups} &nbsp;</td>
-			<td>{visits} / {atime}</td>
+    		<td><a href="#{uid}" class="user-profile" title="{m('User profile')}">{login}</a></td>
+    		<td>{email} </td>
+			<td>{groups} </td>
+			<td>{visits}/{atime}</td>
 			<td>
 				<!-- BEGIN ADMIN -->
 				<ul class="adm-icons">
@@ -26,7 +26,6 @@
 				</ul>
 				<!-- END ADMIN -->
 			</td>
-			
   		</tr>
 		<!-- END USER -->
 	</tbody>
@@ -36,24 +35,38 @@
 	$().ready(function() { 
 		$("#users-list").tablesorter(); 
 		
-		$('a.uid').click(function(e) {
+		$('a.user-profile').click(function(e) {
 			e.preventDefault();
-			var uid = $(this).attr('href').replace('#', '')
+			var spinner = $('<div class="spinner">{m('Please wait')}...</div>'),
+				d = $('<div/>')
+					.append(spinner)
+					.dialog({
+						title   : "{m('User profile')}",
+						width   : 500,
+						close   : function() { $(this).dialog('destroy'); },
+						buttons : { OK : function() { $(this).dialog('close'); } }
+					}),
+				cont, l;
+				
 			$.ajax({
-				url : "{URL}get_profile/"+uid,
-				error : function(a, b) {
-					alert(a)
-				},
+				url      : "{BASE_URL}__profile__/get/"+$(this).attr('href').replace('#', '')+"/",
+				dataType : 'json',
+				error    : function() { 
+					spinner.remove(); 
+					d.append("{m('Data transfer error')}"); },
 				success : function(data) {
-					$('<div/>').html(data)
-						.dialog({
-							title : "{m('User profile')}",
-							width : 500,
-							close : function() { $(this).dialog('destroy'); },
-							buttons : {
-								OK : function() { $(this).dialog('close'); }
-							}
-					});
+					spinner.remove(); 
+					if (data.error) {
+						cont = data.error;
+					} else {
+						cont = $('<table class="grid-tb"/>');
+						l = data.length;
+						while (l--) {
+							cont.prepend('<tr><td>'+data[l].label+'</td><td>'+data[l].value+'</td></tr>');
+						}
+					}
+					d.append(cont);
+					
 				}
 			});
 		})

@@ -86,15 +86,6 @@ class elModule
    */
 	var $_rndClass  = 'elModuleRenderer';
 
-	/**
-   * @param  bool  do we produce print version of this page
-   */
-	var $_prnt      = true;
-
-	/**
-   * @param  array list of _mMap keys on which we do not make print version
-   */
-	var $_noPrnt    = array();
 
 	/**
    * @param  int  current acces mode

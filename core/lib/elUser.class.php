@@ -23,8 +23,8 @@ class elUser extends elDataMapping
 		$this->_onlyGroups = !empty($groups) && is_array($groups) ? $groups : array();
 		$this->_salt       = $salt;
 		$this->db          = $db;
-		$this->aclDb       = $aclDb;
 		$this->_fullName   = $fn;
+		$this->_onlyGroups = array(1, 2, 3);
 	}
 
 	/**
@@ -116,6 +116,10 @@ class elUser extends elDataMapping
 		while ($r = $this->db->nextRecord()) {
 			$ret[] = array('label'=>m($r['label']), 'value'=>$this->attr($r['id']));
 		}
+		$ret[] = array(
+			'label' => m('Registration date'),
+			'value' => $this->crtime<0 ? date(EL_DATE_FORMAT, $this->crtime) : m('Unknown')
+			);
 		return $ret;
 	}
 	
@@ -295,6 +299,119 @@ class elUser extends elDataMapping
 	}
 
 
+	/**
+	 * count users
+	 *
+	 * @return int
+	 **/
+	function count($login='', $groupID='') {
+		$sql   = 'SELECT COUNT(uid) AS num FROM el_user AS u ';
+		$where = 'WHERE 1 ';
+		
+		if ($login) {
+			$where .= ' AND login LIKE "%'.mysql_real_escape_string($login).'%" ';
+		}
+		
+		if ($this->_onlyGroups) {
+			$sql   .=', el_user_in_group AS g ';
+			$where .= ' AND u.uid=g.user_id AND g.group_id IN ('.implode(',', $this->_onlyGroups).') ';
+			if ($groupID != '') {
+				$where .= ' AND g.group_id='.intval($groupID);
+			}
+		} else {
+			if ($groupID != '') {
+				if ($groupID > 0) {
+					$sql   .=', el_user_in_group AS g ';
+					$where .= ' AND u.uid=g.user_id AND g.group_id='.intval($groupID).' ';
+				} else {
+					$sql   .= ' LEFT JOIN el_user_in_group AS g ON g.user_id=u.uid ';
+					$where .= ' AND g.group_id IS NULL ';
+				}
+			}
+		}
+		// echo "$sql<br>";
+		$this->db->query($sql.$where);
+		$r = $this->db->nextRecord();
+		return $r['num'];
+	}
+
+	/**
+	 * overwrite parent method
+	 *
+	 * @param  string
+	 * @param  string
+	 * @param  int
+	 * @param  int			
+	 * @return array
+	 **/
+	function collection($login='', $groupID='', $sort='', $start=0, $offset=0) {
+		$ret    = array();
+		$sql    = 'SELECT '.$this->attrsToString('u').' FROM el_user AS u ';
+		$where  = ' WHERE 1';
+		$order  = ' ORDER BY uid ';
+		$limit  = '';
+		if ($login) {
+			$where .= ' AND login LIKE "%'.mysql_real_escape_string($login).'%" ';
+		}
+		if ($order) {
+			$sort  = ' ORDER BY '.mysql_real_escape_string($sort).' ';
+		}
+		
+		if ($offset>0) {
+			$limit = ' LIMIT '.intval($start).', '.intval($offset);
+		}
+		
+		if ($this->_onlyGroups) {
+			$sql   .=', el_user_in_group AS g ';
+			$where .= ' AND u.uid=g.user_id AND g.group_id IN ('.implode(',', $this->_onlyGroups).') ';
+			if ($groupID != '') {
+				$where .= ' AND g.group_id='.intval($groupID);
+			}
+		} else {
+			if ($groupID != '') {
+				if ($groupID > 0) {
+					$sql   .=', el_user_in_group AS g ';
+					$where .= ' AND u.uid=g.user_id AND g.group_id='.intval($groupID).' ';
+				} else {
+					$sql   .= ' LEFT JOIN el_user_in_group AS g ON g.user_id=u.uid ';
+					$where .= ' AND g.group_id IS NULL ';
+				}
+			}
+		}
+		
+		
+		$sql = $sql.$where.$sort.$limit;
+		// echo $sql;
+		$this->db->query($sql);
+		
+		while ($r = $this->db->nextRecord()) {
+			$ret[$r['uid']] = $this->copy($r);
+		}
+		return $ret;
+	}
+
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function usersGroups($ids) {
+		$ret = array();
+		if (!empty($ids) AND is_array($ids)) {
+			$sql = 'SELECT g2u.user_id AS uid, g.gid, g.name FROM el_group AS g, el_user_in_group AS g2u WHERE g2u.user_id IN ('.implode(',', $ids).') AND g.gid=g2u.group_id';
+			$this->db->query($sql);
+			while ($r = $this->db->nextRecord()) {
+				if (!isset($ret[$r['uid']])) {
+					$ret[$r['uid']] = array();
+				}
+				$ret[$r['uid']][$r['gid']] = $r['name'];
+			}
+		}
+		return $ret;
+	}
+
 	//*********************************************//
 	//        		PRIVATE METHODS				   //
 	//*********************************************//
@@ -462,22 +579,12 @@ class elUser extends elDataMapping
 		foreach ($fields as $f) {
 			if ($f == 'uid') {
 				$map['uid'] = 'UID';
-			} else {
+			} elseif ($f != 'pass') {
 				$map[$f] = $f;
 				$this->$f = '';
 			}
 		}
 		return $map;
-		elPrintR($map);
-
-		return array(
-			'uid'    => 'UID',
-			'login'  => 'login',
-			'crtime' => 'crtime',
-			'mtime'  => 'mtime',
-			'atime'  => 'atime',
-			'visits' => 'visits'
-			);
 	}
 
 }

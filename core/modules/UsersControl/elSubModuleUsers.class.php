@@ -29,7 +29,7 @@ class elSubModuleUsers extends elModule
 		'pattern' => '',
 		'group'   => '',
 		'sort'    => 'login',
-		'order'   => 'ASC',
+		// 'order'   => 'ASC',
 		'offset'  => 30
 	);
 	var $_ats = null;
@@ -42,10 +42,35 @@ class elSubModuleUsers extends elModule
 	function defaultMethod()
 	{
 		elLoadJQueryUI();
+		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+		
+		
+		
+		$page  = 0 < $this->_arg() ? (int)$this->_arg() : 1;
+		$start = ($page-1)*$this->_filter['offset'];
+		// $this->_filter['pattern'] = 'di';
+		$num   = $this->_user->count($this->_filter['pattern'], $this->_filter['group']);
+		// echo "$page $start $num";
+		if ($start > $num) {
+			elLocation(EL_URL);
+		}
+
+		$users = $this->_user->collection($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'], $start, $this->_filter['offset']);
+		// elPrintR($users);
+		$groups = $this->_user->usersGroups(array_keys($users));
+		// elPrintR($groups);
+		
 		$this->_initRenderer();
-		$ats = &elSingleton::getObj('elATS'); //echo $this->_arg();
+		$this->_rnd->rndUsers($users, $groups, $page, ceil($num/$this->_filter['offset']));
+		
+		return;
+		$ats = &elSingleton::getObj('elATS'); 
+		
+		
+		
+		//echo $this->_arg();
 		$page = 0 < $this->_arg() ? (int)$this->_arg() : 1;
-		$start = ($page-1)*$this->_filter['offset'] ;
+		$start = ($page-1)*$this->_filter['offset'];
 		$nums = $ats->getUsersList($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'],
 		  $this->_filter['order'], $start, $this->_filter['offset'], true, false);
 		if ( $start > 0 && $start > $nums )
@@ -253,8 +278,14 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function _onInit() {
+		
+		if ($this->_aMode < EL_WRITE) {
+			elThrow(E_USER_WARNING, 'Access denied', null, EL_BASE_URL);
+		}
+		
 		$this->_ats = & elSingleton::getObj('elATS');
 		$this->_user = & $this->_ats->getUser();
+
 		if (empty($_POST['filter'])) {
 			$this->_loadFilter();
 		} else {
@@ -270,8 +301,7 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function _loadFilter() {
-		$user = &elSingleton::getObj('elUser');
-		$filter = $user->prefrence('usersFilter');
+		$filter = $this->_user->prefrence('usersFilter');
 		if ( !empty($filter) && is_array($filter) ) {
 			foreach ($filter as $k=>$v) {
 				if ( isset($this->_filter[$k]) ) {
@@ -288,6 +318,7 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function _applyFilter($vals) {
+		
 		$this->_filter['pattern'] = isset($vals['pattern']) ? trim($vals['pattern']) : '';
 		$this->_filter['group']   = isset($vals['group']) ? $vals['group'] : '';
 		$this->_filter['sort']    = isset($vals['sort']) ? $vals['sort'] : 'login';
@@ -304,7 +335,6 @@ class elSubModuleUsers extends elModule
 			'pattern' => '',
 			'group'   => '',
 			'sort'    => 'login',
-			'order'   => 'ASC',
 			'offset'  => 30
 			);
 	}

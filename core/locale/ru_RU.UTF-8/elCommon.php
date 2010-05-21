@@ -42,6 +42,7 @@ $elMsg['Home']                      = 'К началу';
 $elMsg['Download']                  = 'Скачать';
 $elMsg['Sending data']              = 'Передаю данные';
 $elMsg['Reciving data']             = 'Получаю данные';
+$elMsg['Unknown']                   = 'Неизвестно';
 //login form / user info
 $elMsg['User']                      = 'Пользователь';
 $elMsg['Log out']                   = 'Выход';
@@ -49,6 +50,7 @@ $elMsg['Log in']                    = 'Войти';
 $elMsg['Registration']              = 'Регистрация';
 $elMsg['Authorization']             = 'Авторизация';
 $elMsg['Login']                     = 'Имя пользователя (login)';
+$elMsg['Registration date']         = 'Дата регистрации';
 $elMsg['Password']                  = 'Пароль';
 $elMsg['User profile']              = 'Профайл пользователя';
 $elMsg['Comments']                  = 'Комментарии';

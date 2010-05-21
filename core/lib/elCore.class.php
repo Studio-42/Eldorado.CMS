@@ -18,7 +18,6 @@ class elCore
 	var $ts      = 0;
 	var $_srvMap = array(
 				'__profile__'     => 'Profile',
-				'__reg__'         => 'Registration',
 				'__finder__'      => 'Finder',
 				'__ver__'         => 'Version',
 				'__search__'      => 'Sherlock',

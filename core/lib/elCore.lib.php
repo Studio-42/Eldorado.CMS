@@ -332,10 +332,6 @@ function elClosePopupWindow()
     elAddJs('window.opener.location.reload(); window.close();', EL_JS_SRC_ONLOAD);
 }
 
-
-
-
-
 function getPluginsManageList()
 {
 	$pID = getPluginsCtlPageID();

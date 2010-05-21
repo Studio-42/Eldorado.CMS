@@ -247,27 +247,68 @@ class elSubModuleUsers extends elModule
 
 	// ====================== PRIVATE METHODS ======================  //
 
-	function _onInit()
-	{
+	/**
+	 * some init stuff
+	 *
+	 * @return void
+	 **/
+	function _onInit() {
 		$this->_ats = & elSingleton::getObj('elATS');
-		if ( !isset($_POST['filter']) )
-		{
+		$this->_user = & $this->_ats->getUser();
+		if (empty($_POST['filter'])) {
 			$this->_loadFilter();
-		}
-		else
-		{
-			if ( $_POST['drop'] )
-			{
-				$this->_dropFilter();
-			}
-			else
-			{
-				$this->_applyFilter( $_POST );
-			}
-			$this->_saveFilter();
+		} else {
+			empty($_POST['drop']) ? $this->_applyFilter($_POST) : $this->_resetFilter() ;
+			$this->_user->prefrence('usersFilter', $this->_filter);
 			elLocation(EL_URL);
 		}
 	}
+
+	/**
+	 * load user filter from user prefrence
+	 *
+	 * @return void
+	 **/
+	function _loadFilter() {
+		$user = &elSingleton::getObj('elUser');
+		$filter = $user->prefrence('usersFilter');
+		if ( !empty($filter) && is_array($filter) ) {
+			foreach ($filter as $k=>$v) {
+				if ( isset($this->_filter[$k]) ) {
+					$this->_filter[$k] = $v;
+				}
+			}
+		}
+	}
+
+	/**
+	 * set filter values from  _POST
+	 *
+	 * @param  array
+	 * @return void
+	 **/
+	function _applyFilter($vals) {
+		$this->_filter['pattern'] = isset($vals['pattern']) ? trim($vals['pattern']) : '';
+		$this->_filter['group']   = isset($vals['group']) ? $vals['group'] : '';
+		$this->_filter['sort']    = isset($vals['sort']) ? $vals['sort'] : 'login';
+		$this->_filter['offset']  = !empty($vals['offset']) && $vals['offset']>0 ? (int)$vals['offset'] : 30;
+	}
+
+	/**
+	 * reset filter to default values
+	 *
+	 * @return void
+	 **/
+	function _resetFilter() {
+		$this->_filter = array(
+			'pattern' => '',
+			'group'   => '',
+			'sort'    => 'login',
+			'order'   => 'ASC',
+			'offset'  => 30
+			);
+	}
+
 
 
 	function _onBeforeStop()
@@ -320,55 +361,14 @@ class elSubModuleUsers extends elModule
 		return $form->toHtml();
 	}
 
-	/**
-   * загружает значения полей фильтра из предпочтений пользователя
-   */
-	function _loadFilter()
-	{
-		$user = &elSingleton::getObj('elUser');
-		$filter = $user->getPref('usersFilter');
-		if ( !empty($filter) && is_array($filter) )
-		{
-			foreach ( $filter as $k=>$v )
-			{
-				if ( isset($this->_filter[$k]) )
-				{
-					$this->_filter[$k] = $v;
-				}
-			}
-		}
-	}
 
 
-	/**
-   * устанавливает значения фильтра из POST
-   */
-	function _applyFilter( $vals )
-	{
-		$this->_filter['pattern'] = trim($vals['pattern']);
-		$this->_filter['group'] = $vals['group'];
-		$this->_filter['sort'] = $vals['sort'];
-		$this->_filter['offset'] = $vals['offset']>0 ? (int)$vals['offset'] : 30;
-	}
 
 
-	/**
-   * Сохраняет поля фильтра в предпочтениях пользователя
-   */
-	function _saveFilter()
-	{
-		$user = & elSingleton::getObj('elUser');
-		$user->setPref('usersFilter', $this->_filter);
-	}
 
-	/**
-   * Удаляет значения фильтра из предпочтений пользователя
-   */
-	function _dropFilter()
-	{
-		$user = & elSingleton::getObj('elUser');
-		$user->dropPref('usersFilter');
-	}
+
+	
+
 
 
 	function &_makeConfForm()

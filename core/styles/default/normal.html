@@ -21,9 +21,10 @@
   	<!-- END CSS -->
 
 	<script type="text/javascript" charset="utf-8">
-		var el_lang = "{LANG}";
-		var elBaseURL = "{BASE_URL}"; 
-		var elURL = "{URL}";
+		var el_lang   = "{LANG}",
+			elBaseURL = "{BASE_URL}",
+			elURL     = "{URL}",
+			waitMsg   = "{m('Please wait')}";
   		{global_js}
 	</script>
   	
@@ -43,55 +44,8 @@
 
 	<script type="text/javascript"  charset="utf-8">
   		$().ready( function() { 
-			$(':text[name="elLogin"]').parents('form').submit(function(e) {
-				e.stopPropagation();
-				e.preventDefault();
-				
-				
-				// var spinner = $('<div class="spinner"/>').hide();
-				
-				var data = {
-					login : $(this).find(':text[name="elLogin"]').val(),
-					pwd   : $(this).find(':password[name="elPass"]').val(),
-					ajax  : 1
-				},
-				spinner = $(this).prevAll('.spinner'), 
-				error   = $(this).prevAll('.warn'),
-				url     = $(this).find(':text[name="url"]').length ? $(this).find(':text[name="url"]').val() : window.location.href,
-				self = $(this);
-				
-				if (!spinner.length) {
-					spinner = $('<div class="spinner">{m('Please wait')}...</div>').insertBefore(this)
-				}
-				spinner.show();
-				error.hide();
-				
-				$(this).hide()
-				
-				$.ajax({
-					url      : "{URL}__auth__/",
-					type     : 'post',
-					dataType : 'json',
-					data     : data,
-					success  : function(data) {
-						window.console.log(data)
-						if (data.error) {
-							if (!error.length) {
-								error = $('<div class="warn"/>').insertBefore(self)
-							}
-							spinner.hide();
-							self.show();
-							error.show().text(data.error);
-						} else {
-							window.location.href = url
-						}
-						
-						
-					}
-				})
-				
-			});
-			// window.console.log($(':text[name="elLogin"]').parents('form')); 
+	
+
 		});
   	</script>
 

@@ -24,44 +24,6 @@ $GLOBALS['posNLRTB'] = array(
 														EL_POS_BOTTOM => m('bottom')
 														);
 
-/**
- *
- **/
-function elCheckUserUniqFields( $el, $errMsg, $UID )
-{
-  $field = $el->getName();
-  if ( 'login' == $field )
-    {
-      $regexp = '/^[a-z0-9_\-\/]{3,25}$/i';
-      $errMsg = m('"%s" must contain latin alfanum of underline from 3 till 25 chars');
-      $errMsg2 = m('Login already exists');
-    }
-  else
-    {
-      $regexp = '/^[a-zA-Z0-9\._-]+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,4}|[0-9]{1,4})(\]?)$/';
-      $errMsg = m('"%s" must contain valid email address');
-      $errMsg2 = m('E-mail already exists');
-    }
-
-  $value = $el->getValue();
-  if ( empty($value) || !preg_match($regexp, $value) )
-    {
-      return sprintf( $errMsg, $el->getLabel());
-    }
-  $ats = & elSingleton::getObj('elATS');
-  $db = & $ats->getAuthDb();
-
-  $sql = 'SELECT uid FROM el_user WHERE '.$field.'=\''.mysql_real_escape_string($value).'\' ';
-  if ( $UID )
-    {
-      $sql .= 'AND uid!='.$UID;
-    }
-  $db->query($sql);
-  if ( $db->numRows() )
-    {
-      return $errMsg2;
-    }
-}
 
 function getPermName( $perm )
 {

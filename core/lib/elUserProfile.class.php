@@ -28,25 +28,6 @@ class elUserProfile extends elFormConstructor {
 	function elUserProfile($db, $data=array()) {
 		$this->db = $db;
 		parent::elFormConstructor(0, $data['uid'] ? m('User profile') : m('New user registration'), $data);
-
-		return;
-		$this->label     = $data['uid'] ? m('User profile') : m('New user registration');
-		$this->_data     = $data;
-		$this->_disabled = $data['uid'] ? array('login') : array();
-		$this->_load();
-		return;
-		$el = & new elUserProfileField();
-		$this->_elements = $el->collection(true, true, '', 'sort_ndx');
-		foreach ($data as $id=>$val) {
-			if (isset($this->_elements[$id])) {
-				$this->_elements[$id]->setValue($val);
-			}
-		}
-		if (!empty($data['login'])) {
-			$this->_elements['login']->disabled = true;
-			unset($this->_elements['login']);
-		}
-		$this->UID = $data['uid'];
 	}
 	
 	/**
@@ -56,13 +37,6 @@ class elUserProfile extends elFormConstructor {
 	 **/
 	function _load() {
 		parent::_load();
-		// $el = & new elUserProfileField();
-		// $this->_elements = $el->collection(true, true, '', 'sort_ndx, label');
-		// foreach ($this->_data as $id=>$val) {
-		// 	if (isset($this->_elements[$id])) {
-		// 		$this->_elements[$id]->setValue($val);
-		// 	}
-		// }
 		if (!empty($this->_data['login'])) {
 			unset($this->_elements['login']);
 		}

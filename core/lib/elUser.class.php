@@ -19,11 +19,11 @@ class elUser extends elDataMapping
 	 *
 	 * @return void
 	 **/
-	function elUser($db, $groups=array(), $salt='', $fn=false)
-	{
-		$this->_onlyGroups = $groups;
+	function elUser($db, $groups=array(), $salt='', $fn=false) {
+		$this->_onlyGroups = !empty($groups) && is_array($groups) ? $groups : array();
 		$this->_salt       = $salt;
 		$this->db          = $db;
+		$this->aclDb       = $aclDb;
 		$this->_fullName   = $fn;
 	}
 
@@ -133,35 +133,6 @@ class elUser extends elDataMapping
 	}
 	
 	/**
-	 * set/get prefrence
-	 *
-	 * @param  string  $name  prefrence name
-	 * @param  mixed   $value new value
-	 * @return mixed
-	 **/
-	function prefrence($name=null, $value=null) {
-		if (empty($name)) {
-			return $this->prefs;
-		}
-		if (!is_null($value)) {
-			$this->prefs[$name] = $value;
-			$_SESSION['userPrefs'] = $this->prefs;
-		}
-		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
-	}
-	
-	/**
-	 * return prefrence by name DEPRICATED
-	 *
-	 * @param  string $name
-	 * @return mixed
-	 **/
-	function getPref($name)	{
-		echo 'elUser::getPref called';
-		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
-	}
-	
-	/**
 	 * autologin user
 	 *
 	 * @param  int  $sessTimeout  session timeout for root
@@ -237,7 +208,7 @@ class elUser extends elDataMapping
 	 * @return void
 	 **/
 	function logout() {
-		$this->_savePrefs();
+		$this->_savePrefrences();
 		$this->clean();
 		$this->groups = $this->prefs = array();
 		$_SESSION['UID'] = 0;
@@ -258,6 +229,7 @@ class elUser extends elDataMapping
 	/**
 	 * update user groups list
 	 *
+	 * @param  array  $gids  groups id list
 	 * @return void
 	 **/
 	function updateGroups($gids) {
@@ -279,6 +251,23 @@ class elUser extends elDataMapping
 	 * @param  mixed   $value new value
 	 * @return mixed
 	 **/
+	function prefrence($name=null, $value=null) {
+		if (empty($name)) {
+			return $this->prefs;
+		}
+		if (!is_null($value)) {
+			$this->prefs[$name] = $value;
+			$_SESSION['userPrefs'] = $this->prefs;
+		}
+		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
+	}
+	
+	/**
+	 * remove prefrence by name
+	 *
+	 * @param  string  $name  prefrence name
+	 * @return void
+	 **/
 	function removePrefrence($name) {
 		if (isset($this->prefs[$name])) {
 			unset($this->prefs[$name]);
@@ -286,89 +275,39 @@ class elUser extends elDataMapping
 		}
 	}
 
+	/**
+	 * create form/save user data
+	 *
+	 * @param  array  $params
+	 * @return bool
+	 **/
+	function editAndSave($params=null) {
+		$this->_makeForm( $params );
 
-
-
-	function &getProfile_()
-	{
-		if ( !$this->profile )
-		{
-			$this->_initProfile();
-		}
-		if ( $this->UID <> $this->profile->UID )
-		{
-			$this->_updateProfile();
-		}
-		return $this->profile;
-	}
-
-
-
-
-
-
-
-	function getProfileAttr($attr)
-	{
-	 if ( $this->UID )
-		{
-			$profile = & $this->getProfile();
-			return $profile->attr($attr);
-		}
-		return '';
-	}
-
-	function getProfileAttrs()
-	{
-	 if ( $this->UID )
-		{
-			$profile = & $this->getProfile();
-			return $profile->attr();
-		}
-		return array();
-	}
-
-	
-
-	
-
-
-
-
-
-
-
-	
-
-	function setPref($name, $val)
-	{
-		$this->prefs[$name]    = $val;
-		$_SESSION['userPrefs'] = $this->prefs;
-	}
-
-	function dropPref( $name )
-	{
-		if ( isset($this->prefs[$name]) )
-		{
-			unset($this->prefs[$name]);
-			$_SESSION['userPrefs'] = $this->prefs;
+		if ($this->_form->isSubmit()) {
+			$v1 = $this->_form->isSubmitAndValid();
+			$v2 = $this->_validForm();
+			if ($v1 && $v2) {
+				$this->attr( $this->_form->getValue() );
+				return $this->save($params);
+			}
 		}
 	}
+
 
 	//*********************************************//
 	//        		PRIVATE METHODS				   //
 	//*********************************************//
 
 	/**
-	 * create form for edit user
+	 * create session key
 	 *
-	 * @return void
+	 * @return string
 	 **/
-	function _makeForm() {
-		$this->getProfile();
-		$this->_form = $this->_profile->getForm(EL_URL, 'POST', $this->toArray());
+	function _key() {
+		return md5($this->UID.' '.$this->login.' '.$this->_salt);
 	}
-
+	
 	/**
 	 * some actions after (auto)login
 	 *
@@ -383,22 +322,11 @@ class elUser extends elDataMapping
 		$this->db->query('UPDATE el_user SET atime='.$this->atime.($newVisist ? ', visits=visits+1' : '').' WHERE uid='.$this->UID);
 		
 		if ( $newVisist ) {
-			$this->_loadPrefs();
+			$this->_loadPrefrences();
 			$db = & elSingleton::getObj('elDb');
 			$db->query(sprintf('UPDATE el_icart SET sid="%s" WHERE uid=%d', mysql_real_escape_string(session_id()), $this->UID));
 		}
 	}
-
-	/**
-	 * create session key
-	 *
-	 * @return string
-	 **/
-	function _key() {
-		return md5($this->UID.' '.$this->login.' '.$this->_salt);
-	}
-
-	
 
 	/**
 	 * load groups for authed user
@@ -406,11 +334,9 @@ class elUser extends elDataMapping
 	 * @return void
 	 **/
 	function _loadGroups() {
-		if ($this->UID )
-		{
+		if ($this->UID) {
 			$sql = 'SELECT group_id FROM el_user_in_group WHERE user_id='.$this->UID;
-			if ( !empty($this->_onlyGroups) && is_array($this->_onlyGroups) )
-			{
+			if ($this->_onlyGroups) {
 				$sql .= ' AND group_id IN (1, '.implode(',', $this->_onlyGroups).')';
 			}
 			$this->groups = $this->db->queryToArray($sql, null, 'group_id');
@@ -422,12 +348,12 @@ class elUser extends elDataMapping
 	 *
 	 * @return viod
 	 */
-	function _loadPrefs()
-	{
+	function _loadPrefrences() {
 		$this->prefs = array();
-		$this->db->query('SELECT name, val, is_serialized FROM el_user_pref WHERE user_id=\''.$this->UID.'\'');
-		while ($row = $this->db->nextRecord()) {
-			$this->setPref($row['name'], $row['is_serialized'] ? unserialize($row['val']) : $row['val']);
+		$db = & elSingleton::getObj('elDb');
+		$db->query('SELECT name, val, is_serialized FROM el_user_pref WHERE user_id=\''.$this->UID.'\'');
+		while ($row = $db->nextRecord()) {
+			$this->prefrences($row['name'], $row['is_serialized'] ? unserialize($row['val']) : $row['val']);
 		}
 	}
 
@@ -436,20 +362,30 @@ class elUser extends elDataMapping
 	 *
 	 * @return void
 	 */
-	function _savePrefs()
-	{
+	function _savePrefrences() {
 		if ($this->UID) {
-			$this->db->query('DELETE FROM el_user_pref WHERE user_id=\''.$this->UID.'\'' );
-			$this->db->optimizeTable( 'el_user_pref' );
+			$db = & elSingleton::getObj('elDb');
+			$db->query('DELETE FROM el_user_pref WHERE user_id=\''.$this->UID.'\'' );
+			$db->optimizeTable( 'el_user_pref' );
 			if ( $this->prefs ) {
-				$this->db->prepare( 'INSERT INTO el_user_pref (user_id, name, val, is_serialized) VALUES ', '(\'%d\', \'%s\', \'%s\', \'%d\')' );
+				$db->prepare( 'INSERT INTO el_user_pref (user_id, name, val, is_serialized) VALUES ', '(\'%d\', \'%s\', \'%s\', \'%d\')' );
 				foreach ( $this->prefs as $n=>$v ) {
 					$ser = is_scalar($v);
-					$this->db->prepareData( array($this->UID, $n, $ser ? serialize($v) : $v, $ser) );
+					$db->prepareData( array($this->UID, $n, $ser ? serialize($v) : $v, $ser) );
 				}
-				$this->db->execute();
+				$db->execute();
 			}
 		}
+	}
+
+	/**
+	 * create form for edit user
+	 *
+	 * @return void
+	 **/
+	function _makeForm() {
+		$this->getProfile();
+		$this->_form = $this->_profile->getForm(EL_URL, 'POST', $this->toArray());
 	}
 
 	/**
@@ -462,18 +398,18 @@ class elUser extends elDataMapping
 		
 		if (!$this->UID) {
 			if (!preg_match('/^[a-z0-9_\-\/]{3,25}$/i', $data['login'])) {
-				$this->_form->pushError('login', m('"%s" must contain latin alfanum of underline from 3 till 25 chars'));
+				$this->_form->pushError('login', sprintf(m('"%s" must contain latin alfanum of underline from 3 till 25 chars'), m('Login')));
 			} else {
 				$sql = 'SELECT uid FROM el_user WHERE login="%s"';
 				$this->db->query(sprintf($sql, mysql_real_escape_string($data['login'])));
-				if ($this->db->numRows()) {
+				if ($this->db->numRows() || 'root' == $data['login']) {
 					$this->_form->pushError('login', m('Login already exists'));
 				}
 			}
 		}
 		
 		if (!preg_match('/^[a-zA-Z0-9\._-]+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,4}|[0-9]{1,4})(\]?)$/i', $data['email'])) {
-			$this->_form->pushError('email', m('"%s" must contain valid email address'));
+			$this->_form->pushError('email', sprintf(m('"%s" must contain valid email address'), m('Email')));
 		} else {
 			$sql = 'SELECT uid FROM el_user WHERE email="%s" AND uid!="%d"';
 			$this->db->query(sprintf($sql, mysql_real_escape_string($data['email']), $this->UID));
@@ -498,25 +434,24 @@ class elUser extends elDataMapping
 	}
 
 	/**
-	 * undocumented function
+	 * after create new user, set default groups and password
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @param  bool  $isNew  is this user new?
+	 * @return bool
 	 **/
 	function _postSave($isNew) {
 		if ($isNew) {
 			$ats = &elSingleton::getObj('elATS');
 			$this->passwd($ats->randPasswd());
-			if ( 1 < ($GID = (int)$ats->conf('defaultGID')) ) {
+			if (1 < ($GID = (int)$ats->conf('defaultGID'))) {
 	        	$this->updateGroups(array($GID));
 	        }
 		}
 		return true;
 	}
 	
-
 	/**
-	 * return attr mapping
+	 * return attrs mapping
 	 *
 	 * @return array
 	 **/

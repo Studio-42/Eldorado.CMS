@@ -93,4 +93,7 @@ $elMsg['Create info block'] = 'Создать новый инфо блок';
 // plugin Polls
 $elMsg['Vote']  = 'Голосовать';
 $elMsg['Data was saved'] = 'Данные сохранены';
+
+$elMsg['Please wait'] = 'Подождите, пожалуйста';
+
 ?>

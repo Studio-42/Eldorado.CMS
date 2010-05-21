@@ -36,6 +36,6 @@ $elMsg['Wellcome back, master!'] = 'おかえりなさい、ごしゅじんさ�
 
 // registration
 
-$elMsg['Registration complite! Password was sent on Your e-mail address'] 
+$elMsg['Registration complete! Password was sent on Your e-mail address'] 
 	= 'Регистрация завершена! Пароль для входа на сайт выслан на указанный Вами e-mail';
 ?>

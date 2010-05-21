@@ -2,9 +2,9 @@
 
 elLoadMessages('Auth');
 
-define ('EL_PASSWD_INPUT',   1);
-define ('EL_PASSWD_RAND',    2);
-define ('EL_PASSWD_REMIND',  3);
+// define ('EL_PASSWD_INPUT',   1);
+// define ('EL_PASSWD_RAND',    2);
+// define ('EL_PASSWD_REMIND',  3);
 define ('EL_UNTF_REMIND',    1);
 define ('EL_UNTF_REGISTER',  2);
 define ('EL_UNTF_PASSWD',    3);
@@ -57,7 +57,8 @@ class elATS
 	function init( $pageID ) {
 		$this->_pageID = $pageID;
 
-		$this->user = & new elUser($this->_dbAuth, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
+		// $this->user = & new elUser($this->_dbAuth, $this->_dbACL, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
+		$this->user = & $this->createUser();
 
 		if ( $this->user->autoLogin($this->_sessTO) && ($this->user->isRoot() || $this->user->isInGroupRoot()) ) {
 			$this->_userRoot = true;
@@ -85,12 +86,58 @@ class elATS
 	}
 
 	/**
+	 * return auth db
+	 *
+	 * @return elDb
+	 **/
+	function &getAuthDb() {
+		return $this->_dbAuth;
+	}
+
+	/**
+	 * return acl db
+	 *
+	 * @return elDb
+	 **/
+	function &getACLDb() {
+		return $this->_dbACL;
+	}
+
+	/**
 	 * true if auth db is local db
 	 *
 	 * @return bool
 	 **/
 	function isLocalAuth() {
 		return $this->_isLocalAuth;
+	}
+
+	// USER
+	/**
+	 * create new user
+	 *
+	 * @return elUser
+	 **/
+	function &createUser() {
+		return new elUser($this->_dbAuth, array_keys($this->_iGroups), $this->_dbHash, $this->_userFullName);
+	}
+	
+	/**
+	 * return current user
+	 *
+	 * @return elUser
+	 **/
+	function &getUser() {
+		return $this->user;
+	}
+
+	/**
+	 * return current user ID
+	 *
+	 * @return int
+	 **/
+	function getUserID() {
+		return $this->user->UID;
 	}
 
 	/**
@@ -103,8 +150,11 @@ class elATS
 	}
 
 	/**
-   * Render auth form and login user
-   */
+	 * render auth form and login user
+	 *
+	 * @param  string  $url  URL for redirect after auth
+	 * @return bool
+	 **/
 	function auth($url=EL_URL) {
 		elLoadMessages('Auth');
 
@@ -136,7 +186,7 @@ class elATS
 		$this->form->add( new elPassword('elPass', m('Password')) );
 		$this->form->add( new elCData('fp', '<a href="'.EL_URL.'__passwd__/'.'">'.m('Forgot Your password?').'</a>') );
 		if ( $this->_regAllow ) {
-			$this->form->add( new elCData('reg', '<a href="'.EL_URL.'__auth__/'.'">'.m('New user registration').'</a>') );
+			$this->form->add( new elCData('reg', '<a href="'.EL_URL.'__profile__/reg/'.'">'.m('New user registration').'</a>') );
 		}
 		$this->form->add(new elHidden('url', '', $url));
 		$rnd = &elSingleton::getObj('elSiteRenderer');
@@ -255,86 +305,51 @@ class elATS
 	    elLocation(EL_URL);
 	}
 
+	/**
+	 * return form html
+	 *
+	 * @return string
+	 **/
+	function formToHtml() {
+		if (!$this->form) {
+			$this->initForm('');
+		}
+		return $this->form->toHtml();
+	}
 
-  /**
-   * check page permissions
-   */
-  function allow($mode=EL_READ, $pageID=null )
-  {
-    if ( null == $pageID )
-    {
-      $pageID = $this->_pageID;
-    }
-    elseif ( !is_numeric($pageID) )
-    {
-      $nav = & elSingleton::getObj('elNavigator');
-      $pageID = $nav->getPageID($pageID);
-    }
-    if ( $this->_userRoot )
-    {
-      return TRUE;
-    }
-    return !empty( $this->_ACL[$pageID] ) ? $this->_ACL[$pageID] >= $mode : FALSE;
-  }
+	// ACCESS
+	/**
+	 * return true if access of requeired type is allowed to page
+	 *
+	 * @param  int  $mode  access type
+	 * @param  int  $pageID page ID
+	 * @return bool
+	 **/
+	function allow($mode=EL_READ, $pageID=null) {
+		if ( null == $pageID) {
+			$pageID = $this->_pageID;
+		} elseif (!is_numeric($pageID)) {
+			$nav = & elSingleton::getObj('elNavigator');
+			$pageID = $nav->getPageID($pageID);
+		}
+		if ($this->_userRoot) {
+			return TRUE;
+		}
+		return !empty( $this->_ACL[$pageID] ) ? $this->_ACL[$pageID] >= $mode : FALSE;
+	}
 
-   // return auth DB object (remote)
-  function &getAuthDb()
-  {
-    return $this->_dbAuth;
-  }
+	/**
+	 * return current user access mode to current page
+	 *
+	 * @return int
+	 **/
+	  function getPageAccessMode() {
+		return $this->_userRoot
+			? EL_FULL
+			: (!empty( $this->_ACL[$this->_pageID] ) ? $this->_ACL[$this->_pageID] : 0);
+	  }
 
-  // return ACL DB object (local)
-  function &getACLDb()
-  {
-    return $this->_dbACL;
-  }
-
-  function &getUser()
-  {
-    return $this->user;
-  }
-
-  function getUserID()
-  {
-    return $this->user->UID;
-  }
-
- /**
-   * Возвращает права доступа к текущей странице для пользователя
-   */
-  function getPageAccessMode()
-  {
-    if ( $this->_userRoot )
-    {
-      return EL_FULL;
-    }
-    return !empty( $this->_ACL[$this->_pageID] ) ? $this->_ACL[$this->_pageID] : 0;
-  }
-
-
-  function onPageChange($pageID)
-  {
-  		$this->_initManager();
-    	$this->_mngr->onPageChange($pageID);
-  }
-
-  function onPageDelete($pageID)
-  {
-  	$this->_dbACL->query('DELETE FROM el_group_acl WHERE page_id='.$pageID);
-  	$this->_dbACL->optimizeTable('el_group_acl');
-  }
-
-  function getSessionTimeOut()
-  {
-    return $this->_sessTO;
-  }
-
-  function getGroupInfo( $GID )
-  {
-    $this->_dbAuth->query('SELECT gid, name, perm, mtime FROM el_group WHERE gid=\''.(int)$GID.'\'');
-    return $this->_dbAuth->numRows() ? $this->_dbAuth->nextRecord() : null;
-  }
-
+  	//  GROUPS
 	/**
 	 * return default group ID
 	 *
@@ -365,6 +380,35 @@ class elATS
 			? $this->_iGroups
 			: $this->_dbAuth->queryToArray('SELECT gid, name FROM el_group ORDER BY gid', 'gid', 'name');
 	}
+	
+  
+
+
+
+
+  function onPageChange($pageID)
+  {
+  		$this->_initManager();
+    	$this->_mngr->onPageChange($pageID);
+  }
+
+  function onPageDelete($pageID)
+  {
+  	$this->_dbACL->query('DELETE FROM el_group_acl WHERE page_id='.$pageID);
+  	$this->_dbACL->optimizeTable('el_group_acl');
+  }
+
+  function getSessionTimeOut()
+  {
+    return $this->_sessTO;
+  }
+
+  function getGroupInfo( $GID )
+  {
+    $this->_dbAuth->query('SELECT gid, name, perm, mtime FROM el_group WHERE gid=\''.(int)$GID.'\'');
+    return $this->_dbAuth->numRows() ? $this->_dbAuth->nextRecord() : null;
+  }
+
 
   function getUsersList($search='', $group=null, $sf='login', $order='ASC', $start=0, $offset=30, $count=false)
   {
@@ -452,17 +496,7 @@ class elATS
   }
 
 	
-	/**
-	 * return form html
-	 *
-	 * @return string
-	 **/
-	function formToHtml() {
-		if (!$this->form) {
-			$this->initForm('');
-		}
-		return $this->form->toHtml();
-	}
+	
 
   /////////////////////////   *  PRIVATE  *  ////////////////////
 
@@ -605,7 +639,7 @@ class elATS
 	 * @return void
 	 **/
 	function _initForm($label) {
-	    $this->form = & elSingleton::getObj( 'elForm', 'mf', $label );
+	    $this->form = & elSingleton::getObj( 'elForm', 'elf', $label );
 	    $this->form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 	}
 

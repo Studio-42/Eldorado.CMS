@@ -279,8 +279,8 @@ tr.form-tb-sub td { padding:.5em; text-align:center; font-weight:bold;}
 input[type $='text'], input[type $='password'] { border:1px solid #ccc; padding:1px;}
 .strip-odd { background: #dee7ed;}
 .plugins-title { background: #dee7ed;}
-
-
+label.block-label { display:block; padding:5px; }
+label.block-label input { margin:0 5px;}
 a { color:#000; }
 a:hover {text-decoration:underline;}
 

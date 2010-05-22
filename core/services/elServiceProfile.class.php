@@ -15,7 +15,8 @@ class elServiceProfile extends elService
 			'edit'   => array('m' => 'edit'),
 			'passwd' => array('m' => 'passwd'),
 			'reg'    => array('m' => 'registration'),
-			'get'    => array('m' => 'get')
+			'get'    => array('m' => 'get'),
+			'groups' => array('m' => 'groups')
 			);
 
 
@@ -103,22 +104,70 @@ class elServiceProfile extends elService
 	}
 
 	/**
-	 * undocumented function
+	 * display user profile in json
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function get() {
 		include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
-		
+		$UID = (int)$this->_args[1];
+		if (!$this->_allow($UID) && $this->_ats->user->UID != $UID) {
+			exit(elJSON::encode(array('error' => m('Access denied'))));
+		}
 		
 		$user = $this->_ats->createUser();
-		$user->IdAttr((int)$this->_args[1]);
+		$user->IdAttr($UID);
 		if (!$user->fetch()) {
 			exit(elJSON::encode(array('error' => m('There is no such user'))));
 		}
-	
 		exit(elJSON::encode($user->getData()));
+	}
+
+	/**
+	 * display user groups in json
+	 *
+	 * @return void
+	 **/
+	function groups() {
+		include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$UID = (int)$this->_args[1];
+		if (!$this->_allow($UID)) {
+			exit(elJSON::encode(array('error' => m('Access denied'))));
+		}
+		
+		$user = $this->_ats->createUser();
+		$user->IdAttr($UID);
+		if (!$user->fetch()) {
+			exit(elJSON::encode(array('error' => m('There is no such user'))));
+		}
+		$ret = array();
+		$userGroups = $user->getGroups();
+		$groups = $this->_ats->getGroupsList();
+		foreach ($groups as $id => $name) {
+			$ret[] = array(
+				'id'       => $id,
+				'name'     => $name,
+				'selected' => in_array($id, $userGroups)
+				);
+		}
+		
+		// exit(elJSON::encode($groups));
+		exit(elJSON::encode($ret));
+	}
+
+	/**
+	 * return true if current user can get user profile/groups list 
+	 *
+	 * @param  int  $UID  user id
+	 * @return bool
+	 **/
+	function _allow($UID) {
+		if ($this->_ats->user->isInGroupRoot()) {
+			return true;
+		}
+		$nav = & elSingleton::getObj('elNavigator');
+		$pid = $nav->pageByModule('UsersControl');
+		return $pid && $this->_ats->allow(EL_WRITE, $pid);
 	}
 
 }

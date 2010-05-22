@@ -97,5 +97,6 @@ $elMsg['Vote']  = 'Голосовать';
 $elMsg['Data was saved'] = 'Данные сохранены';
 
 $elMsg['Please wait'] = 'Подождите, пожалуйста';
+$elMsg['Data transfer error'] = 'Ошибка передачи данных';
 
 ?>

@@ -8,7 +8,6 @@ class elSubModuleUsers extends elModule
 		'ugroups' => array('m'=>'groups'),
 		'passwd'  => array('m'=>'passwd'),
 		'delete'  => array('m'=>'rmUser'),
-		'get_profile' => array('m'=>'getProfile'),
 		'field_rm'=> array('m'=>'profileRemove')
 	);
 	var $_mMapConf  = array(
@@ -29,180 +28,131 @@ class elSubModuleUsers extends elModule
 		'pattern' => '',
 		'group'   => '',
 		'sort'    => 'login',
-		// 'order'   => 'ASC',
 		'offset'  => 30
 	);
 	var $_ats = null;
+	var $_user = null;
 
 
 	// *************************  PUBLIC METHODS ***************************** //
 	/**
-   * показывает список пользователй
-   */
-	function defaultMethod()
-	{
+	 * display users list
+	 *
+	 * @return void
+	 **/
+	function defaultMethod() {
 		elLoadJQueryUI();
 		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
 		
-		
-		
 		$page  = 0 < $this->_arg() ? (int)$this->_arg() : 1;
 		$start = ($page-1)*$this->_filter['offset'];
-		// $this->_filter['pattern'] = 'di';
 		$num   = $this->_user->count($this->_filter['pattern'], $this->_filter['group']);
-		// echo "$page $start $num";
 		if ($start > $num) {
 			elLocation(EL_URL);
 		}
 
 		$users = $this->_user->collection($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'], $start, $this->_filter['offset']);
-		// elPrintR($users);
 		$groups = $this->_user->usersGroups(array_keys($users));
-		// elPrintR($groups);
-		
+
 		$this->_initRenderer();
 		$this->_rnd->rndUsers($users, $groups, $page, ceil($num/$this->_filter['offset']));
-		
-		return;
-		$ats = &elSingleton::getObj('elATS'); 
-		
-		
-		
-		//echo $this->_arg();
-		$page = 0 < $this->_arg() ? (int)$this->_arg() : 1;
-		$start = ($page-1)*$this->_filter['offset'];
-		$nums = $ats->getUsersList($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'],
-		  $this->_filter['order'], $start, $this->_filter['offset'], true, false);
-		if ( $start > 0 && $start > $nums )
-		{
-			elLocation(EL_URL);
-		}
-		$users = $ats->getUsersList($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'],
-		  $this->_filter['order'], $start, $this->_filter['offset'], false, false);
-		$this->_rnd->rndUsers( $users, $ats->getUsersGroupsList(), $page, ceil($nums/$this->_filter['offset']) );
 	}
 
-	function getProfile() {
-		
-		$UID = (int)$this->_arg(0);
-		$user = & new elUser();
-		$user->setUniqAttr( $UID );
-		if ( !$user->fetch() )
-		{
-			elLoadMessages('Errors');
-			$msg = sprintf(m('Object "%s" with ID="%d" does not exists'), m('User'), $UID);
-			echo '<p class="warn">'.$msg.'</p>';
-			exit();
+	/**
+	 * create/edit user
+	 *
+	 * @return void
+	 **/
+	function editUser() {
+		if (empty($_POST['action'])) {
+			elLocation( EL_URL);
 		}
-		
-		
-		elLoadMessages('UserProfile');
-		$this->_initRenderer();
-		$p = $this->_rnd->rndProfile( $user->toArray() );
-		echo $p;
-		exit();
-	}
-
-
-
-	//редактирование/создание пользователя
-	function editUser()
-	{
-		$UID = (int)$this->_arg(0);
-		$user = & new elUser();
-		$user->setUniqAttr( $UID );
+		$UID  = (int)$this->_arg(0);
+		$user = & $this->_ats->createUser();
+		$user->idAttr($UID);
 		$user->fetch();
 
-		$ats = & elSingleton::getObj('elATS');
-		if ( !$ats->editUser($user) )
-		{
+		if (!$this->_ats->editUser($user)) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $ats->formToHtml());
-		}
-		else
-		{
+			$this->_rnd->addToContent( $this->_ats->formToHtml());
+		} else {
 			elMsgBox::put( m('Data saved') );
 			elLocation( EL_URL);
 		}
 	}
 
-	//смена пароля
-	function passwd()
-	{
-		$UID = (int)$this->_arg(0);
-		$user = & new elUser();
-		$user->setUniqAttr( $UID );
-		if ( !$user->fetch() )
-		{
-			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists', array(m('User'), $UID), EL_URL );
+	/**
+	 * change user password
+	 *
+	 * @return void
+	 **/
+	function passwd() {
+		if (empty($_POST['action'])) {
+			elLocation( EL_URL);
+		}
+		$UID  = (int)$this->_arg(0);
+		$user = & $this->_ats->createUser();
+		$user->idAttr($UID);
+		if (!$user->fetch()) {
+			elThrow(E_USER_WARNING, 'There is no such user', null, EL_URL);
 		}
 
-		$ats = & elSingleton::getObj('elATS');
-		$curUser = $ats->getUser();
-		if ( 1== $user->UID && 1 != $curUser->UID )
-		{
-			elThrow(E_USER_WARNING, 'Only root can modify his password', array(m('User'), $UID), EL_URL );
+		if ($user->UID == 1 && $this->_user->UID != 1) {
+			elThrow(E_USER_WARNING, 'Only root can modify his password', null, EL_URL);
 		}
 
-		if ( !$ats->passwd($user) )
-		{
+		if (!$this->_ats->passwd($user)) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $ats->formToHtml());
-		}
-		else
-		{
+			$this->_rnd->addToContent($this->_ats->formToHtml());
+		} else {
 			elMsgBox::put( sprintf(m('Password for user "%s" was changed'), $user->login ) );
 			elLocation( EL_URL);
 		}
 	}
 
-	//изменение списка групп
-	function groups()
-	{
-		$UID = (int)$this->_arg(0);
-		$user = & new elUser();
-		$user->setUniqAttr( $UID );
-		if ( !$user->fetch() )
-		{
-			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists', array(m('User'), $UID), EL_URL );
-		}
-		if ( 1 == $UID )
-		{
-			elThrow(E_USER_WARNING, 'Groups for user "root" can not be changed', null, EL_URL );
-		}
-
-		$ats = & elSingleton::getObj('elATS');
-		if ( !$ats->userGroups($user) )
-		{
-			$this->_initRenderer();
-			$this->_rnd->addToContent( $ats->formToHtml());
-		}
-		else
-		{
+	/**
+	 * change user groups
+	 *
+	 * @return void
+	 **/
+	function groups() {
+		if (!empty($_POST['action'])) {
+			$UID = (int)$this->_arg(0); 
+			$user = & $this->_ats->createUser();
+			$user->idAttr($UID);
+			if (!$user->fetch()) {
+				elThrow(E_USER_WARNING, 'There is no such user', null, EL_URL);
+			}
+			if ($user->UID == 1 && $this->_user->UID != 1) {
+				elThrow(E_USER_WARNING, 'Only root can change his groups', null, EL_URL);
+			}
+			$user->updateGroups(isset($_POST['gids']) && is_array($_POST['gids']) ? $_POST['gids'] : array());
 			elMsgBox::put( sprintf(m('Groups list for user "%s" was changed'), $user->login ) );
-			elLocation( EL_URL);
 		}
+		elLocation( EL_URL);
 	}
 
-	//Удаление пользователя
-	function rmUser()
-	{
-		$UID = (int)$this->_arg(0);
-		$user = & new elUser();
-		$user->setUniqAttr( $UID );
-		if ( !$user->fetch() )
-		{
-			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists', array(m('User'), $UID), EL_URL );
+	/**
+	 * change user groups
+	 *
+	 * @return void
+	 **/
+	function rmUser() {
+		
+		if (!empty($_POST['action'])) {
+			$UID = (int)$this->_arg(0); 
+			$user = & $this->_ats->createUser();
+			$user->idAttr($UID);
+			if (!$user->fetch()) {
+				elThrow(E_USER_WARNING, 'There is no such user', null, EL_URL);
+			}
+			if ($user->UID == 1) {
+				elThrow(E_USER_WARNING, 'User "root" can not be deleted', null, EL_URL );
+			}
+			$user->delete();
+			elMsgBox::put( sprintf(m('User "%s" was deleted'), $user->login) );
 		}
-		if ( 1 == $UID )
-		{
-			elThrow(E_USER_WARNING, 'User "root" can not be deleted', null, EL_URL );
-		}
-
-		$ats = & elSingleton::getObj('elATS');
-		$ats->rmUser( $user );
-		elMsgBox::put( sprintf(m('User "%s" was deleted'), $user->login) );
-		elLocation( EL_URL );
+		elLocation( EL_URL);
 	}
 
 	// Добавление/Изменение поля профиля
@@ -283,7 +233,7 @@ class elSubModuleUsers extends elModule
 			elThrow(E_USER_WARNING, 'Access denied', null, EL_BASE_URL);
 		}
 		
-		$this->_ats = & elSingleton::getObj('elATS');
+		$this->_ats  = & elSingleton::getObj('elATS');
 		$this->_user = & $this->_ats->getUser();
 
 		if (empty($_POST['filter'])) {
@@ -340,30 +290,12 @@ class elSubModuleUsers extends elModule
 	}
 
 
-
-	function _onBeforeStop()
-	{
-		$this->_rnd->addOnPane( $this->_getFilterHtml() );
-	}
-
-	function _confirmRemoveForm($f)
-	{
-		$form = & elSingleton::getObj('elForm', 'confirm');
-		$form->setRenderer(elSingleton::getObj('elTplGridFormRenderer', 1));
-		$form->setLabel(sprintf(m('Delete field "%s"'), $f));
-		$form->add(new elRadioButtons('delete', null, null,
-			array('field'      => m('Delete only field'),
-			      'field_data' => m('Delete field and data'))));
-		$form->add(new elHidden('field', null, $f));
-		$form->renderer->addButton(new elSubmit('s', null, m('Delete')));
-		return $form->toHtml();
-	}
-
 	/**
-   * помещяет форму фильтра на панель под заголовком страницы
-   */
-	function _getFilterHtml()
-	{
+	 * put filter form on top panel
+	 *
+	 * @return void
+	 **/
+	function _onBeforeStop() {
 		$form = & elSingleton::getObj('elForm');
 		$form->setRenderer( elSingleton::getObj('elGridFormRenderer', 5) );
 		$form->renderer->setTpl('header', "<table>\n");
@@ -388,15 +320,23 @@ class elSubModuleUsers extends elModule
 		$buttons .= '<li><a href="#" class="icons clean" title="'.m('Clean filter').'" onclick="$(this).parents(\'form\').find(\'#drop\').val(1).end().submit()"></a></li></ul>';
 		
 		$form->add( new elCData('i', $buttons));
+		$this->_rnd->addOnPane( $form->toHtml() );
+	}
+
+	function _confirmRemoveForm($f)
+	{
+		$form = & elSingleton::getObj('elForm', 'confirm');
+		$form->setRenderer(elSingleton::getObj('elTplGridFormRenderer', 1));
+		$form->setLabel(sprintf(m('Delete field "%s"'), $f));
+		$form->add(new elRadioButtons('delete', null, null,
+			array('field'      => m('Delete only field'),
+			      'field_data' => m('Delete field and data'))));
+		$form->add(new elHidden('field', null, $f));
+		$form->renderer->addButton(new elSubmit('s', null, m('Delete')));
 		return $form->toHtml();
 	}
 
-
-
-
-
-
-
+	
 	
 
 

@@ -39,5 +39,5 @@ $elMsg['Registration complete! Password was sent on Your e-mail address']
 	= 'Регистрация завершена! Пароль для входа на сайт выслан на указанный Вами e-mail';
 	
 $elMsg['There is no such user'] = 'Такого пользователя не существует';
-	
+$elMsg['Groups for user'] = 'Группы пользователя';
 ?>

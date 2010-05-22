@@ -37,4 +37,5 @@ $elMsg['Wellcome back, master!'] = 'おかえりなさい、ごしゅじんさ�
 $elMsg['Registration complete! Password was sent on Your e-mail address'] 
 	= 'Реєстрацiя завершено! Пароль для вхіда на сайт був висланний на Ваш e-mail';
 $elMsg['There is no such user'] = 'Такого пользователя не существует';
+$elMsg['Groups for user'] = 'Группы пользователя';
 ?>

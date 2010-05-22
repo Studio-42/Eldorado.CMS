@@ -46,6 +46,7 @@ class elATS
 		if ( 0 < ($to = $conf->get('sessionTimeOut', 'auth')) ) {
 			$this->_sessTO = (int)$to;
 		}
+		// $this->_iGroups = array(1 => 'root', 2 => 'guests');
 	}
 
 	/**
@@ -239,7 +240,7 @@ class elATS
 	 * @param  elUser  $user
 	 * @return bool
 	 **/
-	function editUser( &$user) {
+	function editUser(&$user) {
 		$isNew = !$user->UID;
 		
 		if (!$user->editAndSave()) {

@@ -20,9 +20,9 @@
 				<!-- BEGIN ADMIN -->
 				<ul class="adm-icons">
 					<li><a href="{URL}edit/{uid}/"    class="icons user-edit"  title="{m('Edit')}"></a></li>
-					<li><a href="{URL}ugroups/{uid}/" class="icons user-group" title="{m('Groups')}"></a></li>
+					<li><a href="#{uid}"              class="icons user-group" title="{m('Groups')}"></a></li>
 					<li><a href="{URL}passwd/{uid}/"  class="icons lock"       title="{m('Password')}"></a></li>
-					<li><a href="{URL}delete/{uid}/"  class="icons delete"     title="{m('Delete)}" onClick="return confirm('{m('Do you realy want to delete user')} `{login}`?');"></a></li>
+					<li><a href="{URL}delete/{uid}/"  class="icons delete"     title="{m('Delete)}"></a></li>
 				</ul>
 				<!-- END ADMIN -->
 			</td>
@@ -53,11 +53,11 @@
 				dataType : 'json',
 				error    : function() { 
 					spinner.remove(); 
-					d.append("{m('Data transfer error')}"); },
+					d.append("<div class='warn'>{m('Data transfer error')}</div>"); },
 				success : function(data) {
 					spinner.remove(); 
 					if (data.error) {
-						cont = data.error;
+						cont = "<div class='warn'>"+data.error+"</div>";
 					} else {
 						cont = $('<table class="grid-tb"/>');
 						l = data.length;
@@ -70,6 +70,63 @@
 				}
 			});
 		})
+		
+		$('.user-edit, .lock').click(function(e) {
+			e.preventDefault();
+			
+			$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="1" /></form>')
+				.appendTo('body').submit();
+		});
+	
+		$('.user-group').click(function(e) {
+			e.preventDefault();
+			var l = $(this).parents('tr').eq(0).find('td').eq(1).text(),
+				s = $('<div class="spinner">{m('Please wait')}...</div>'),
+				f = $('<form action="{URL}ugroups/'+$(this).attr('href').replace('#', '')+'/" method="post"/>'),
+				d = $('<div/>').append(s).append(f)
+					.dialog({
+						title   : "{m('Groups for user')} "+l,
+						close   : function() { $(this).dialog('destroy'); },
+						buttons : { Cancel : function() { $(this).dialog('close'); } }
+					}),
+				cont, l;
+					
+				$.ajax({
+					url : "{BASE_URL}__profile__/groups/"+$(this).attr('href').replace('#', '')+"/",
+					dataType : 'json',
+					error    : function() { 
+						s.remove(); 
+						d.append("<div class='warn'>{m('Data transfer error')}</div>"); },
+					success : function(data) {
+						s.remove(); 
+						if (data.error) {
+							d.append("<div class='warn'>"+data.error+"</div>");
+							d.dialog('option', 'buttons', { OK : function() { $(this).dialog('close'); } });
+						} else {
+							l = data.length;
+							t = $('<div/>');
+							f.append('<input type="hidden" name="action" value="1"/>');
+							while(l--) {
+								f.append('<label class="block-label"><input type="checkbox" name="gids[]" value="'+data[l].id+'" '+(data[l].selected ? 'checked="on"' : '')+' />'+data[l].name+'</label>');
+							}
+							d.dialog('option', 'buttons', {
+								Cancel : function() { $(this).dialog('close'); },
+								Ok     : function() { f.submit(); $(this).dialog('close'); }
+							})
+						}
+						
+					}
+				})
+				
+		});
+		
+		$('#users-list .delete').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Do you realy want to delete user')}?")) {
+				$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="1" /></form>')
+					.appendTo('body').submit();
+			}
+		});
 		
 	});
 </script>

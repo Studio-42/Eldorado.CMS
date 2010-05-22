@@ -24,7 +24,7 @@ class elUser extends elDataMapping
 		$this->_salt       = $salt;
 		$this->db          = $db;
 		$this->_fullName   = $fn;
-		$this->_onlyGroups = array(1, 2, 3);
+		// $this->_onlyGroups = array(1, 2, 3);
 	}
 
 	/**
@@ -36,13 +36,12 @@ class elUser extends elDataMapping
 		if (!$this->_onlyGroups) {
 			return parent::fetch();
 		}
-		
 		if ( false != ($ID = $this->idAttr()) ) {
 			$this->idAttr(0);
-			$db = $this->_db();
-			$db->query(sprintf('SELECT DISTINCT %s FROM el_user, el_user_in_group WHERE %s="%s" AND user_id=uid AND group_id IN (%s)', 
-				$this->attrsToString(), $this->_id, mysql_real_escape_string($ID), implode(',', $this->_onlyGroups)));
-			return $db->numRows() && !$this->attr( $db->nextRecord() );
+			$sql = sprintf('SELECT %s FROM el_user, el_user_in_group WHERE %s="%s" AND user_id=uid AND group_id IN (%s) GROUP BY uid', 
+				$this->attrsToString(), $this->_id, mysql_real_escape_string($ID), implode(',', $this->_onlyGroups));
+			$this->db->query($sql);
+			return $this->db->numRows() && !$this->attr($this->db->nextRecord());
 		}
 	}
 
@@ -102,6 +101,9 @@ class elUser extends elDataMapping
 	 * @return array
 	 **/
 	function getGroups() {
+		if (!$this->groups) {
+			$this->_loadGroups();
+		}
 		return $this->groups;
 	}
 	
@@ -237,6 +239,13 @@ class elUser extends elDataMapping
 	 * @return void
 	 **/
 	function updateGroups($gids) {
+		if (!is_array($gids)) {
+			$gids = array();
+		}
+		if ($this->UID==1) {
+			$gids[] = 1;
+			$gids = array_unique($gids);
+		}
 		$this->db->query('DELETE FROM el_user_in_group WHERE user_id=\''.$this->UID.'\'');
 	    $this->db->optimizeTable('el_user_in_group');
 	    if ($gids) {
@@ -297,7 +306,6 @@ class elUser extends elDataMapping
 			}
 		}
 	}
-
 
 	/**
 	 * count users
@@ -390,12 +398,11 @@ class elUser extends elDataMapping
 		return $ret;
 	}
 
-
 	/**
-	 * undocumented function
+	 * return groups id/names for required users
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @param  array  $ids  users ids
+	 * @return array
 	 **/
 	function usersGroups($ids) {
 		$ret = array();
@@ -410,6 +417,18 @@ class elUser extends elDataMapping
 			}
 		}
 		return $ret;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function delete() {
+		if ($this->UID>1) {
+			parent::delete(array('el_user_in_group' => 'user_id', 'el_icart' => 'uid'));
+		}
 	}
 
 	//*********************************************//

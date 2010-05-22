@@ -95,4 +95,6 @@ $elMsg['Could not write robots.txt']    = 'Не можу записати robots
 $elMsg['robots.txt updated']    = 'Файл robots.txt оновлений.';
 $elMsg['Could not create robots.txt. Check permissions.'] = 'Не можу створити robots.txt. Перевірте права.';
 $elMsg['Data was saved'] = 'Данные сохранены';
+$elMsg['Data transfer error'] = 'Ошибка передачи данных';
+
 ?>

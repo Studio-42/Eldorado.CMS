@@ -31,8 +31,7 @@ class elATS
 	var $_defGroupName = '';
 	var $_userFullName = false;
 
-	function elATS()
-	{
+	function elATS() {
 		$conf         = & elSingleton::getObj('elXmlConf');
 		$this->_conf  = $conf->getGroup('auth');
 		if (!isset($this->_conf['loginCaseSensetive'])) {
@@ -344,13 +343,23 @@ class elATS
 	 *
 	 * @return int
 	 **/
-	  function getPageAccessMode() {
+	function getPageAccessMode() {
 		return $this->_userRoot
 			? EL_FULL
 			: (!empty( $this->_ACL[$this->_pageID] ) ? $this->_ACL[$this->_pageID] : 0);
-	  }
+	}
 
   	//  GROUPS
+
+	/**
+	 * return imported groups if exists
+	 *
+	 * @return array
+	 **/
+	function getImportGroups() {
+		return $this->_iGroups;
+	}
+
 	/**
 	 * return default group ID
 	 *
@@ -361,15 +370,32 @@ class elATS
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function createGroup() {
+		include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elUserGroup.class.php';
+		$group = & new elUserGroup();
+		$group->db = & $this->_dbAuth;
+		return $group;
+	}
+
+	/**
 	 * return default group name
 	 *
-	 * @return array
+	 * @return string
 	 **/
 	function getDefaultGroupName() {
-		$groups = $this->getGroupsList();
-		$gid    = $this->getDefaultGID();
-		return isset($groups[$gid]) ? $groups[$gid] : m('Undefined');
+		$g = $this->createGroup();
+		$g->idAttr($this->getDefaultGID());
+		return $g->fetch() ? $g->name : m('Undefined');
 	}
+
+	
+
+	
 
 	/**
 	 * return groups list
@@ -568,7 +594,7 @@ class elATS
 	 * @param  int     $type
 	 * @return void
 	 **/
-	function _notifyUser($user, $passwd, $type=EL_UNTF_REMIND ) {
+	function notifyUser($user, $passwd, $type=EL_UNTF_REMIND ) {
 		
 		$conf     = &elSingleton::getObj('elXmlConf');
 		$siteName = $conf->get('siteName', 'common');

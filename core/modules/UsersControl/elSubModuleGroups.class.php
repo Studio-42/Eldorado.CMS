@@ -11,19 +11,19 @@ class elSubModuleGroups extends elModule
 
 	var $_mMapConf  = array('conf'  => array('m'=>'configure', 'ico'=>'icoUsersGroupSet', 'l'=>'Groups export'));
 
-	var $_prnt = false;
 
 	// **************************  PUBLIC METHODS  ******************************* //
-
-	function defaultMethod()
-	{
-		$ats = & elSingleton::getObj('elATS'); 
-		$sql = 'SELECT gid, name, COUNT(uid) AS numUsers '
-					.'FROM el_group LEFT JOIN el_user_in_group ON group_id=gid '
-					.'LEFT JOIN el_user ON user_id=uid  '
-					.'WHERE gid IN ('.implode(',', array_keys($ats->getGroupsList())).')  GROUP BY gid ORDER BY gid';
+	/**
+	 * display groups list
+	 *
+	 * @return void
+	 **/
+	function defaultMethod() {
+		$igroups = $this->_ats->getImportGroups();
+		$group   = $this->_ats->createGroup();
+		$groups  = $group->collection(false, true, empty($igroups) ? null : 'gid IN ('.implode(',', array_keys($igroups)).')');
 		$this->_initRenderer();
-		$this->_rnd->rndGroups( $ats->_dbAuth->queryToArray($sql, 'gid') );
+		$this->_rnd->rndGroups($groups, $group->countUsers());
 	}
 
 
@@ -160,11 +160,9 @@ class elSubModuleGroups extends elModule
 
 	// =========================  PRIVARE METHODS  ============================ //
 
-	function _onInit()
-	{
-		$ats = &elSingleton::getObj('elATS');
-		if ( $ats->isLocalAuth() )
-		{
+	function _onInit() {
+		$this->_ats = &elSingleton::getObj('elATS');
+		if ($this->_ats->isLocalAuth()) {
 			unset($this->_mMap['conf']);
 		}
 	}

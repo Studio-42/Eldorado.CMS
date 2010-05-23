@@ -233,6 +233,26 @@ class elUser extends elDataMapping
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function changePasswd() {
+		parent::_makeForm();
+		$this->_form->label = sprintf( m('Change password for user "%s"'), $this->login);
+		$this->_form->add( new elPasswordDoubledField('pass', m('Password twice')) );
+	    $this->_form->setElementRule('pass', 'password', 1, null);
+		if ($this->_form->isSubmitAndValid()) {
+	        $passwd = $this->_form->getElementValue('pass');
+			$this->passwd($passwd);
+			$ats = & elSingleton::getObj('elATS');
+	        $ats->notifyUser($this, $passwd, EL_UNTF_PASSWD);
+	        return true;
+	      }
+	}
+
+	/**
 	 * update user groups list
 	 *
 	 * @param  array  $gids  groups id list
@@ -294,15 +314,15 @@ class elUser extends elDataMapping
 	 * @param  array  $params
 	 * @return bool
 	 **/
-	function editAndSave($params=null) {
-		$this->_makeForm( $params );
+	function editAndSave() {
+		$this->_makeForm();
 
 		if ($this->_form->isSubmit()) {
 			$v1 = $this->_form->isSubmitAndValid();
 			$v2 = $this->_validForm();
 			if ($v1 && $v2) {
-				$this->attr( $this->_form->getValue() );
-				return $this->save($params);
+				$this->attr($this->_form->getValue());
+				return $this->save();
 			}
 		}
 	}
@@ -420,10 +440,9 @@ class elUser extends elDataMapping
 	}
 
 	/**
-	 * undocumented function
+	 * delete user
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function delete() {
 		if ($this->UID>1) {
@@ -489,7 +508,7 @@ class elUser extends elDataMapping
 		$db = & elSingleton::getObj('elDb');
 		$db->query('SELECT name, val, is_serialized FROM el_user_pref WHERE user_id=\''.$this->UID.'\'');
 		while ($row = $db->nextRecord()) {
-			$this->prefrences($row['name'], $row['is_serialized'] ? unserialize($row['val']) : $row['val']);
+			$this->prefrence($row['name'], $row['is_serialized'] ? unserialize($row['val']) : $row['val']);
 		}
 	}
 
@@ -577,11 +596,16 @@ class elUser extends elDataMapping
 	 **/
 	function _postSave($isNew) {
 		if ($isNew) {
-			$ats = &elSingleton::getObj('elATS');
-			$this->passwd($ats->randPasswd());
-			if (1 < ($GID = (int)$ats->conf('defaultGID'))) {
-	        	$this->updateGroups(array($GID));
+			$ats    = &elSingleton::getObj('elATS');
+			$passwd = $ats->randPasswd();
+			$gid    = $ats->getDefaultGID();
+			$this->passwd($passwd);
+			if ($gid) {
+	        	$this->updateGroups(array($gid));
 	        }
+			if ($this->UID != $ats->user->UID) {
+				$ats->notifyUser($this, $passwd, EL_UNTF_REGISTER);
+			}
 		}
 		return true;
 	}

@@ -15,8 +15,10 @@ class elRndUsersControl extends elModuleRenderer
 	 * @param  int    $num	   pages number
 	 * @return void
 	 **/
-	function rndUsers( $users, $groups, $page, $num )
-	{
+	function rndUsers($users, $groups, $page, $num) {
+		elLoadJQueryUI();
+		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+		
 		$this->_setFile();
 
 		foreach ($users as $user) {
@@ -50,23 +52,30 @@ class elRndUsersControl extends elModuleRenderer
 	}
 
 
-	/**
-   * отрисовывает профайл пользователя
-   */
-	function rndProfile( $userData )
-	{
-		$this->_setFile('profile');
-		foreach ( $userData as $r )
-		{
-			$this->_te->assignBlockVars('PROFILE_ROW', array('label'=>m($r['label']), 'value'=>$r['value']) );
-		}
-		$this->_te->parse('PAGE', 'PAGE', true, true);
-		return $this->_te->getVar('PAGE');
-	}
 
 	//**************    GROUPS CONTROL SUBMODULE *************************//
 
-	function rndGroups( $groups)
+	/**
+	 * render groups list
+	 *
+	 * @return void
+	 **/
+	function rndGroups($groups, $cnt) {
+		elLoadJQueryUI();
+		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
+		
+		$this->_setFile('groups');
+		
+		foreach ($groups as $id=>$g) {
+			$g['numUsers'] = isset($cnt[$id]) ? $cnt[$id] : 0;
+			$this->_te->assignBlockVars('GROUP', $g);
+			if ($this->_admin) {
+				$this->_te->assignBlockVars('GROUP.ADMIN', array('gid' => $id), 1);
+			}
+		}
+	}
+
+	function _rndGroups( $groups)
 	{
 		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
 		$this->_setFile('groups');

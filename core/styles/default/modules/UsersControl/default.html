@@ -5,7 +5,12 @@
 		    <th>{m('Login')}</th>
 		    <th>{m('Email')}</th>
 			<th>{m('Groups')}</th>
-			<th colspan="2">{m('Visits')}</th>
+			<th>{m('Visits')}</th>
+			<th>
+				<ul class="adm-icons">
+					<li><a href="{URL}edit/" class="icons user-new"  title="{m('Create user')}"></a></li>
+				</ul>
+			</th>
   		</tr>
 	</thead>
 	<tbody>
@@ -33,7 +38,9 @@
 {PAGER}
 <script type="text/javascript" charset="utf-8">
 	$().ready(function() { 
-		$("#users-list").tablesorter(); 
+		$("#users-list").tablesorter({
+			headers : { 5 : { sorter : false}}
+		}); 
 		
 		$('a.user-profile').click(function(e) {
 			e.preventDefault();
@@ -71,12 +78,12 @@
 			});
 		})
 		
-		$('.user-edit, .lock').click(function(e) {
-			e.preventDefault();
-			
-			$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="1" /></form>')
-				.appendTo('body').submit();
-		});
+		// $('.user-new, .user-edit, .lock').click(function(e) {
+		// 	e.preventDefault();
+		// 	
+		// 	$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="1" /></form>')
+		// 		.appendTo('body').submit();
+		// });
 	
 		$('.user-group').click(function(e) {
 			e.preventDefault();
@@ -123,7 +130,7 @@
 		$('#users-list .delete').click(function(e) {
 			e.preventDefault();
 			if (confirm("{m('Do you realy want to delete user')}?")) {
-				$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="1" /></form>')
+				$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="rm" /></form>')
 					.appendTo('body').submit();
 			}
 		});

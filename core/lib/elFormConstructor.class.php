@@ -48,8 +48,6 @@ class elFormConstructor {
 
 	var $_clause = '';
 	
-	var $_map = null;
-	
 	/**
 	 * constructor
 	 *
@@ -70,8 +68,8 @@ class elFormConstructor {
 	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _load() {
-		$el = & new elFormConstructorElement(null, $this->_tb, null, $this->_map);
-		$this->_elements = $el->collection(true, true, mysql_real_escape_string($this->ID), 'sort_ndx, label');
+		$el = & new elFormConstructorElement(null, $this->_tb);
+		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($this->ID).'"', 'sort_ndx, label');
 		foreach ($this->_data as $id=>$val) {
 			if (isset($this->_elements[$id])) {
 				$this->_elements[$id]->setValue($val);
@@ -464,7 +462,6 @@ class elFormConstructorElement extends elDataMapping {
 		return $el;
 	}
 	
-	
 	/**
 	 * create form for edit object
 	 *
@@ -581,8 +578,7 @@ class elFormConstructorElement extends elDataMapping {
 		
 	}
 	
-	function _validForm()
-	{
+	function _validForm() {
 		elLoadMessages('formError');
 		$data = $this->_form->getValue();
 		
@@ -608,8 +604,7 @@ class elFormConstructorElement extends elDataMapping {
 		return !$this->_form->hasErrors();
 	}
 	
-	function _postSave($isNew, $params=null)
-	{
+	function _postSave($isNew, $params=null) {
 		$db  = $this->_db();
 		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE form_id="'.$this->formID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
 		$i = 1;

@@ -17,14 +17,11 @@ class elDataMapping
 	var $_new          = false;
 	var $db            = null;
 	
-	function __construct( $attr=null, $tb=null, $id=null, $map=null)
+	function __construct( $attr=null, $tb=null, $id=null)
 	{
 		$this->tb($tb);
 		$this->id($id ? $id : $this->_id);
 		$this->attr($attr);
-		if (!empty($map) && is_array($map)) {
-			$GLOBALS['mapping'][get_class($this)] = $map;
-		}
 	}
 	
 	function getObjName()

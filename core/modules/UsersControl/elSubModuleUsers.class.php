@@ -4,7 +4,7 @@ class elSubModuleUsers extends elModule
 {
 	var $_mMap      = array('view' => array('m'=>'viewProfile'));
 	var $_mMapAdmin = array(
-		'edit'    => array('m'=>'editUser', 'ico'=>'icoUserNew', 'l'=>'Create user', 'g'=>'Actions'),
+		'edit'    => array('m'=>'editUser'),
 		'ugroups' => array('m'=>'groups'),
 		'passwd'  => array('m'=>'passwd'),
 		'delete'  => array('m'=>'rmUser'),
@@ -41,9 +41,6 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function defaultMethod() {
-		elLoadJQueryUI();
-		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
-		
 		$page  = 0 < $this->_arg() ? (int)$this->_arg() : 1;
 		$start = ($page-1)*$this->_filter['offset'];
 		$num   = $this->_user->count($this->_filter['pattern'], $this->_filter['group']);
@@ -64,17 +61,21 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function editUser() {
-		if (empty($_POST['action'])) {
-			elLocation( EL_URL);
-		}
-		$UID  = (int)$this->_arg(0);
 		$user = & $this->_ats->createUser();
-		$user->idAttr($UID);
+		$user->idAttr((int)$this->_arg(0));
 		$user->fetch();
 
+		if (!$user->editAndSave()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($user->formToHtml());
+		} else {
+			elMsgBox::put(m('Data saved'));
+			elLocation( EL_URL);
+		}
+		return;
 		if (!$this->_ats->editUser($user)) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $this->_ats->formToHtml());
+			$this->_rnd->addToContent($this->_ats->formToHtml());
 		} else {
 			elMsgBox::put( m('Data saved') );
 			elLocation( EL_URL);
@@ -87,7 +88,7 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function passwd() {
-		if (empty($_POST['action'])) {
+		if (empty($_POST['action']) && empty($_POST['_form_'])) {
 			elLocation( EL_URL);
 		}
 		$UID  = (int)$this->_arg(0);
@@ -101,6 +102,13 @@ class elSubModuleUsers extends elModule
 			elThrow(E_USER_WARNING, 'Only root can modify his password', null, EL_URL);
 		}
 
+		if (!$user->changePasswd()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($user->formToHtml());
+		}
+
+
+		return;
 		if (!$this->_ats->passwd($user)) {
 			$this->_initRenderer();
 			$this->_rnd->addToContent($this->_ats->formToHtml());

@@ -3,7 +3,12 @@
 		<tr>
 		  	<th style="width:30px">ID</th>
     		<th>{m('Group name')}</th>
-		    <th colspan="2">{m('Number of users')}</th>
+		    <th>{m('Number of users')}</th>
+			<th style="width:130px">
+				<ul class="adm-icons">
+					<li><a href="{SUBMOD_URL}edit/" class="icons user-group-new" title="{m('Create group')}"></a></li>
+				</ul>
+			</th>
   		</tr>
 	</thead>
 	<tbody>
@@ -15,10 +20,10 @@
 			<td>
 				<!-- BEGIN ADMIN -->
 				<ul class="adm-icons">
-					<li><a href="{SUBMOD_URL}{SMPath}edit/{gid}/" class="icons user-group-edit" title="{m('Edit')}"></a></li>
-					<li><a href="{SUBMOD_URL}acl/{gid}/"   class="icons access"       title="{m('Permissions')}"></a></li>
-					<li><a href="{SUBMOD_URL}clean/{gid}/" class="icons clean"     title="{m('Exclude users from group')}" onclick="return confirm('{m('Do you realy want to delete all users from group')} `{name}`?');"></a></li>
-					<li><a href="{SUBMOD_URL}rm/{gid}/"   class="icons delete"   title="{m('Delete)}" onClick="return confirm('{m('Do you realy want to delete group')} `{login}`?');"></a></li>
+					<li><a href="{SUBMOD_URL}edit/{gid}/"  class="icons user-group-edit" title="{m('Edit')}"></a></li>
+					<li><a href="{SUBMOD_URL}acl/{gid}/"   class="icons access"          title="{m('Permissions')}"></a></li>
+					<li><a href="{SUBMOD_URL}clean/{gid}/" class="icons clean"           title="{m('Exclude users from group')}"></a></li>
+					<li><a href="{SUBMOD_URL}rm/{gid}/"    class="icons delete"          title="{m('Delete')}"></a></li>
 				</ul>
 				<!-- END ADMIN -->
 			</td>
@@ -27,5 +32,26 @@
 	</tbody>
 </table>
 <script type="text/javascript" charset="utf-8">
-	$().ready(function() { $("#groups-list").tablesorter( ); } );
+	$().ready(function() { 
+		$("#groups-list").tablesorter({
+			headers : { 3 : { sorter : false}}
+		}); 
+		
+		$('#groups-list .clean').click(function(e) {
+			e.preventDefault()
+			if (confirm("{m('Do you realy want to delete all users from group')}?")) {
+				$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="clean" /></form>')
+					.appendTo('body').submit();
+			}
+		});
+		
+		$('#groups-list .delete').click(function(e) {
+			e.preventDefault()
+			if (confirm("{m('Do you realy want to delete group')}?")) {
+				$('<form action="'+$(this).attr('href')+'" method="post"><input type="hidden" name="action" value="clean" /></form>')
+					.appendTo('body').submit();
+			}
+		});
+		
+	});
 </script>

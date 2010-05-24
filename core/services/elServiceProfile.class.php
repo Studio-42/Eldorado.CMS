@@ -164,18 +164,18 @@ class elServiceProfile extends elService
 		if (!$user->fetch()) {
 			exit(elJSON::encode(array('error' => m('There is no such user'))));
 		}
-		$ret = array();
+		$ret        = array();
 		$userGroups = $user->getGroups();
-		$groups = $this->_ats->getGroupsList();
-		foreach ($groups as $id => $name) {
+		$g          = $this->_ats->createGroup();
+		$groups     = $g->collection(false);
+		foreach ($groups as $gid=>$group) {
 			$ret[] = array(
-				'id'       => $id,
-				'name'     => $name,
-				'selected' => in_array($id, $userGroups)
+				'id'       => $gid,
+				'name'     => $group['name'],
+				'selected' => in_array($gid, $userGroups)
 				);
 		}
 		
-		// exit(elJSON::encode($groups));
 		exit(elJSON::encode($ret));
 	}
 

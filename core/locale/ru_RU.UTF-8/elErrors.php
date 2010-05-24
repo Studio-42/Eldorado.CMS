@@ -142,8 +142,6 @@ $elMsg['File for counters code does not exists or does not readable'] = 'Фай�
 $elMsg['File for counters does not writable']                         = 'Файл для хранения кода счетчиков не доступен на запись';
 $elMsg['Could not not save counters code in file %s']                 = 'Не удалось сохранить код счетчиков в файле %s';
 
-//  ATS
-$elMsg['User with this login/email does not exists'] = 'Пользователь с таким именем/адресом e-mail не зарегистрирован в системе.';
 //  mail failed
 $elMsg['Could not send e-mail']                                                     = 'Не удалось отправить сообщение';
 $elMsg['Sending e-mail to address %s was failed']                                   = 'Не удалось отправить сообщение на адрес %s';
@@ -163,6 +161,7 @@ $elMsg['Disk quote is exceeded! Remove older backup files or increase quote size
 // registration and user profile (services)
 $elMsg['You need to be authenticate user to edit your profile'] = 'Необходимо авторизоваться, чтобы получить доступ к своему профайлу';
 $elMsg['You need to log out before register as new user']       = 'Для того чтобы зарегистрироваться как новый пользователь необходимо выйти из авторизованного режима';
+$elMsg['Remote authorization is used. Groups cannot be modified'] = 'Используется удаленная авторизация. Изменения групп пользователей запрещены';
 // module navcontrol
 $elMsg['Module "%s" does not exists']                           = 'Модуль "%s" не существует';
 $elMsg['Error while installing module "%s"']                    = 'Ошибка при установке модуля "%s"';

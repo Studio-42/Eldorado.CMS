@@ -101,7 +101,8 @@ class elNavigator
 		{
 			if ( (!$ats->allow(EL_READ, $pID) || $p['visible'] < $displ ||
 			($p['visible_limit'] && $displLimit != $p['visible_limit'] ) ||
-			!( $p['_left']>$topParent['_left'] && $p['_right']<$topParent['_right'])) || ( (!$ats->allowGuest($pID) || $p['visible_limit'] == 2) && ($user) ) )
+			// !( $p['_left']>$topParent['_left'] && $p['_right']<$topParent['_right'])) || ( (!$ats->allowGuest($pID) || $p['visible_limit'] == 2) && ($user) ) )
+			!( $p['_left']>$topParent['_left'] && $p['_right']<$topParent['_right'])) || ( (!$ats->allow(EL_READ, $pID) || $p['visible_limit'] == 2) && ($user) ) )
 			{ 
 				continue;
 			}

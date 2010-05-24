@@ -51,10 +51,6 @@ class elRndUsersControl extends elModuleRenderer
 		}
 	}
 
-
-
-	//**************    GROUPS CONTROL SUBMODULE *************************//
-
 	/**
 	 * render groups list
 	 *
@@ -75,19 +71,6 @@ class elRndUsersControl extends elModuleRenderer
 		}
 	}
 
-	function _rndGroups( $groups)
-	{
-		elAddJs('jquery.tablesorter.min.js', EL_JS_CSS_FILE);
-		$this->_setFile('groups');
-		foreach ($groups as $g)
-		{
-			$this->_te->assignBlockVars('GROUP', $g);
-			if ($this->_admin)
-			{
-				$this->_te->assignBlockVars('GROUP.ADMIN', $g, 1);
-			}
-		}
-	}
 
 	function rndGroupsConfig($groups)
 	{

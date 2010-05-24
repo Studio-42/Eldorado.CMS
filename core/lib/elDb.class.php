@@ -303,6 +303,7 @@ class elDb
       {
         $this->prepareData( $part );
       }
+		return;
     }
 
     $data = array_map('mysql_real_escape_string', $data);

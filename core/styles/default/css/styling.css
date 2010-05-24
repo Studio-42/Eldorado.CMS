@@ -419,6 +419,7 @@ a.icons {
 .user-new        { background-position: -3px  -556px; }
 .user-edit       { background-position: -3px -1868px; }
 .user-group      { background-position: -3px -1892px; }
+.user-group-new  { background-position: -3px -1220px; }
 .user-group-edit { background-position: -3px -1914px; }
 
 a.el-collapsed {padding: 0 0 0 20px;background:url(../images/icons2.png) -4px -1829px no-repeat;}

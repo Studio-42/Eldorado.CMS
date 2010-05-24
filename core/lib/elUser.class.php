@@ -233,6 +233,55 @@ class elUser extends elDataMapping
 	}
 
 	/**
+	 * set/get prefrence
+	 *
+	 * @param  string  $name  prefrence name
+	 * @param  mixed   $value new value
+	 * @return mixed
+	 **/
+	function prefrence($name=null, $value=null) {
+		if (empty($name)) {
+			return $this->prefs;
+		}
+		if (!is_null($value)) {
+			$this->prefs[$name] = $value;
+			$_SESSION['userPrefs'] = $this->prefs;
+		}
+		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
+	}
+	
+	/**
+	 * remove prefrence by name
+	 *
+	 * @param  string  $name  prefrence name
+	 * @return void
+	 **/
+	function removePrefrence($name) {
+		if (isset($this->prefs[$name])) {
+			unset($this->prefs[$name]);
+			$_SESSION['userPrefs'] = $this->prefs;
+		}
+	}
+
+	/**
+	 * create form/save user data
+	 *
+	 * @return bool
+	 **/
+	function editAndSave() {
+		$this->_makeForm();
+
+		if ($this->_form->isSubmit()) {
+			$v1 = $this->_form->isSubmitAndValid();
+			$v2 = $this->_validForm();
+			if ($v1 && $v2) {
+				$this->attr($this->_form->getValue());
+				return $this->save();
+			}
+		}
+	}
+
+	/**
 	 * create form/change password
 	 *
 	 * @return bool
@@ -288,78 +337,15 @@ class elUser extends elDataMapping
 			return true;
 		}
 	}
-
-	/**
-	 * update user groups list
-	 *
-	 * @param  array  $gids  groups id list
-	 * @return void
-	 **/
-	function updateGroups($gids) {
-		if (!is_array($gids)) {
-			$gids = array();
-		}
-		if ($this->UID==1) {
-			$gids[] = 1;
-			$gids = array_unique($gids);
-		}
-		$this->db->query('DELETE FROM el_user_in_group WHERE user_id=\''.$this->UID.'\'');
-	    $this->db->optimizeTable('el_user_in_group');
-	    if ($gids) {
-	      $this->db->prepare('INSERT INTO el_user_in_group (user_id, group_id) VALUES ', '(%d, %d)');
-	      foreach ($gids as $gid) {
-	        $this->db->prepareData( array($this->UID, $gid) );
-	      }
-	      $this->db->execute();
-	    }
-	}
 	
 	/**
-	 * set/get prefrence
+	 * delete user
 	 *
-	 * @param  string  $name  prefrence name
-	 * @param  mixed   $value new value
-	 * @return mixed
-	 **/
-	function prefrence($name=null, $value=null) {
-		if (empty($name)) {
-			return $this->prefs;
-		}
-		if (!is_null($value)) {
-			$this->prefs[$name] = $value;
-			$_SESSION['userPrefs'] = $this->prefs;
-		}
-		return isset($this->prefs[$name]) ? $this->prefs[$name] : null;
-	}
-	
-	/**
-	 * remove prefrence by name
-	 *
-	 * @param  string  $name  prefrence name
 	 * @return void
 	 **/
-	function removePrefrence($name) {
-		if (isset($this->prefs[$name])) {
-			unset($this->prefs[$name]);
-			$_SESSION['userPrefs'] = $this->prefs;
-		}
-	}
-
-	/**
-	 * create form/save user data
-	 *
-	 * @return bool
-	 **/
-	function editAndSave() {
-		$this->_makeForm();
-
-		if ($this->_form->isSubmit()) {
-			$v1 = $this->_form->isSubmitAndValid();
-			$v2 = $this->_validForm();
-			if ($v1 && $v2) {
-				$this->attr($this->_form->getValue());
-				return $this->save();
-			}
+	function delete() {
+		if ($this->UID>1) {
+			parent::delete(array('el_user_in_group' => 'user_id', 'el_icart' => 'uid'));
 		}
 	}
 
@@ -457,35 +443,28 @@ class elUser extends elDataMapping
 	}
 
 	/**
-	 * return groups id/names for required users
+	 * update user groups list
 	 *
-	 * @param  array  $ids  users ids
-	 * @return array
-	 **/
-	function usersGroups($ids) {
-		$ret = array();
-		if (!empty($ids) AND is_array($ids)) {
-			$sql = 'SELECT g2u.user_id AS uid, g.gid, g.name FROM el_group AS g, el_user_in_group AS g2u WHERE g2u.user_id IN ('.implode(',', $ids).') AND g.gid=g2u.group_id';
-			$this->db->query($sql);
-			while ($r = $this->db->nextRecord()) {
-				if (!isset($ret[$r['uid']])) {
-					$ret[$r['uid']] = array();
-				}
-				$ret[$r['uid']][$r['gid']] = $r['name'];
-			}
-		}
-		return $ret;
-	}
-
-	/**
-	 * delete user
-	 *
+	 * @param  array  $gids  groups id list
 	 * @return void
 	 **/
-	function delete() {
-		if ($this->UID>1) {
-			parent::delete(array('el_user_in_group' => 'user_id', 'el_icart' => 'uid'));
+	function updateGroups($gids) {
+		if (!is_array($gids)) {
+			$gids = array();
 		}
+		if ($this->UID==1) {
+			$gids[] = 1;
+			$gids   = array_unique($gids);
+		}
+		$this->db->query('DELETE FROM el_user_in_group WHERE user_id=\''.$this->UID.'\'');
+	    $this->db->optimizeTable('el_user_in_group');
+	    if ($gids) {
+	    	$this->db->prepare('INSERT INTO el_user_in_group (user_id, group_id) VALUES ', '(%d, %d)');
+	      	foreach ($gids as $gid) {
+	      		$this->db->prepareData( array($this->UID, $gid) );
+	      	}
+	      	$this->db->execute();
+	    }
 	}
 
 	//*********************************************//

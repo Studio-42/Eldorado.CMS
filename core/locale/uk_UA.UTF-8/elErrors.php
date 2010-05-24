@@ -166,6 +166,8 @@ $elMsg['Disk quote is exceeded! Remove older backup files or increase quote size
 // registration and user profile (services)
 $elMsg['You need to be authenticate user to edit your profile'] = 'Необхідно авторизуватися, щоб отримати доступ до свого профайлу';
 $elMsg['You need to log out before register as new user']       = 'Для того щоб зареєструватися як новий користувач необхідно вийти з авторизованого режиму';
+$elMsg['Remote authorization is used. Groups cannot be modified'] = 'Используется удаленная авторизация. Изменения групп пользователей запрещены';
+
 // module navcontrol
 $elMsg['Module "%s" does not exists']                           = 'Модуль "%s" не існує';
 $elMsg['Error while installing module "%s"']                    = 'Помилка при встановленні модуля "%s"';

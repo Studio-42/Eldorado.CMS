@@ -4,7 +4,7 @@ class elSubModuleUsers extends elModule
 {
 	var $_mMap      = array('view' => array('m'=>'viewProfile'));
 	var $_mMapAdmin = array(
-		'edit'    => array('m'=>'editUser'),
+		'edit'    => array('m'=>'editUser', 'ico'=>'icoUserNew', 'l'=>'Create user', 'g' => 'Actions'),
 		'ugroups' => array('m'=>'groups'),
 		'passwd'  => array('m'=>'passwd'),
 		'delete'  => array('m'=>'rmUser'),
@@ -34,13 +34,13 @@ class elSubModuleUsers extends elModule
 	var $_user = null;
 
 
-	// *************************  PUBLIC METHODS ***************************** //
 	/**
 	 * display users list
 	 *
 	 * @return void
 	 **/
 	function defaultMethod() {
+		$this->_ats->onPageDelete(99);
 		$page  = 0 < $this->_arg() ? (int)$this->_arg() : 1;
 		$start = ($page-1)*$this->_filter['offset'];
 		$num   = $this->_user->count($this->_filter['pattern'], $this->_filter['group']);
@@ -49,7 +49,8 @@ class elSubModuleUsers extends elModule
 		}
 
 		$users = $this->_user->collection($this->_filter['pattern'], $this->_filter['group'], $this->_filter['sort'], $start, $this->_filter['offset']);
-		$groups = $this->_user->usersGroups(array_keys($users));
+		$group = $this->_ats->createGroup();
+		$groups = $group->usersGroups(array_keys($users));
 
 		$this->_initRenderer();
 		$this->_rnd->rndUsers($users, $groups, $page, ceil($num/$this->_filter['offset']));
@@ -72,14 +73,6 @@ class elSubModuleUsers extends elModule
 			elMsgBox::put(m('Data saved'));
 			elLocation( EL_URL);
 		}
-		return;
-		if (!$this->_ats->editUser($user)) {
-			$this->_initRenderer();
-			$this->_rnd->addToContent($this->_ats->formToHtml());
-		} else {
-			elMsgBox::put( m('Data saved') );
-			elLocation( EL_URL);
-		}
 	}
 
 	/**
@@ -88,9 +81,7 @@ class elSubModuleUsers extends elModule
 	 * @return void
 	 **/
 	function passwd() {
-		if (empty($_POST['action']) && empty($_POST['_form_'])) {
-			elLocation( EL_URL);
-		}
+
 		$UID  = (int)$this->_arg(0);
 		$user = & $this->_ats->createUser();
 		$user->idAttr($UID);
@@ -105,17 +96,11 @@ class elSubModuleUsers extends elModule
 		if (!$user->changePasswd()) {
 			$this->_initRenderer();
 			$this->_rnd->addToContent($user->formToHtml());
-		}
-
-
-		return;
-		if (!$this->_ats->passwd($user)) {
-			$this->_initRenderer();
-			$this->_rnd->addToContent($this->_ats->formToHtml());
 		} else {
 			elMsgBox::put( sprintf(m('Password for user "%s" was changed'), $user->login ) );
 			elLocation( EL_URL);
 		}
+
 	}
 
 	/**
@@ -134,14 +119,24 @@ class elSubModuleUsers extends elModule
 			if ($user->UID == 1 && $this->_user->UID != 1) {
 				elThrow(E_USER_WARNING, 'Only root can change his groups', null, EL_URL);
 			}
-			$user->updateGroups(isset($_POST['gids']) && is_array($_POST['gids']) ? $_POST['gids'] : array());
+			
+			$gids   = isset($_POST['gids']) && is_array($_POST['gids']) ? $_POST['gids'] : array();
+			$group  = $this->_ats->createGroup();
+			$groups = $group->collection(false);
+			foreach ($gids as $i => $gid) {
+				if (!isset($groups[$gid])) {
+					unset($gids[$i]);
+				}
+			}
+			
+			$user->updateGroups($gids);
 			elMsgBox::put( sprintf(m('Groups list for user "%s" was changed'), $user->login ) );
 		}
 		elLocation( EL_URL);
 	}
 
 	/**
-	 * change user groups
+	 * remove user
 	 *
 	 * @return void
 	 **/
@@ -297,7 +292,6 @@ class elSubModuleUsers extends elModule
 			);
 	}
 
-
 	/**
 	 * put filter form on top panel
 	 *
@@ -312,10 +306,13 @@ class elSubModuleUsers extends elModule
 		$form->add( new elHidden('drop',    null, 0) );
 		$form->add( new elText  ('pattern', m('Filter').':', $this->_filter['pattern'], array('size'=>16)), array('label'=>1) );
 
-		$ats = & elSingleton::getObj('elATS');
+		$group  = $this->_ats->createGroup();
+		$groups = $group->collection(false);
+		$g      = array(''=>m('Only group').':', '-1'=>m('w/o group'));
+		foreach ($groups as $_g) {
+			$g[$_g['gid']] = $_g['name'];
+		}
 
-		$g         = array(''=>m('Only group').':', '-1'=>m('w/o group'));
-		$g         = $g + $ats->getGroupsList();
 		$sort      = array(''=>m('Sort by').':', 'uid'=>'ID','login'=>m('Login'), 'email'=>m('Email'));
 		$offset    = range(9, 100);
 		$offset[0] = m('Nums');

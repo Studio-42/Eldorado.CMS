@@ -16,6 +16,7 @@ $elMsg['Remind login/password']  = 'Получить новый пароль';
 $elMsg['Please, enter Your login or email and new authorization data will be send on Your email'] = 'Пароли в системе хранятся в зашифрованном виде и потому не могут быть восстановлены.<br /> Для Вас будет сгенерирован новый пароль. <br />Пожалуйста, укажите Ваши логин или адрес e-mail и новые данные для авторизации на сайте будут высланы на адрес e-mail, указанный Вами при регистрации.';
 $elMsg['Login or e-mail']        = 'Имя пользователя или e-mail';
 $elMsg['New password was send onto e-mail - %s'] = 'Новый пароль был отправлен на адрес e-mail - %s';
+$elMsg['User with this login/email does not exists'] = 'Пользователь с таким именем/адресом e-mail не зарегистрирован в системе.';
 
 //change password forms
 $elMsg['Change password for user "%s"']         = 'Смена пароля пользователя "%s"';

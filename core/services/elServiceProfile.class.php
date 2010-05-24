@@ -15,6 +15,7 @@ class elServiceProfile extends elService
 			'edit'   => array('m' => 'edit'),
 			'passwd' => array('m' => 'passwd'),
 			'reg'    => array('m' => 'registration'),
+			'remind' => array('m' => 'remind'),
 			'get'    => array('m' => 'get'),
 			'groups' => array('m' => 'groups')
 			);
@@ -54,12 +55,13 @@ class elServiceProfile extends elService
 		if (!$this->_ats->user->isAuthed()) {
 			elThrow(E_USER_WARNING, m('You need to be authenticate user to edit your profile'), null, EL_BASE_URL);
 		}
-		if ( !$this->_ats->editUser($this->_ats->user) ) {
+		
+		if (!$this->_ats->user->editAndSave()) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $this->_ats->formToHtml() );
+			$this->_rnd->addToContent($this->_ats->user->formToHtml());
 		} else {
 			elMsgBox::put(m('Data saved'));
-			elLocation(EL_BASE_URL.'/__profile__/');
+			elLocation(EL_URL.'/__profile__/');
 		}
 	}
 
@@ -72,9 +74,10 @@ class elServiceProfile extends elService
 		if (!$this->_ats->user->isAuthed()) {
 			elThrow(E_USER_WARNING, m('You need to be authenticate user to edit your profile'), null, EL_BASE_URL);
 		}
-		if ( !$this->_ats->passwd($this->_ats->user)) {
+		
+		if (!$this->_ats->user->changePasswd()) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent( $this->_ats->formToHtml() );
+			$this->_rnd->addToContent($this->_ats->user->formToHtml());
 		} else {
 			elMsgBox::put( sprintf( m('Password for user "%s" was changed'), $this->_ats->user->login ) );
 			elLocation(EL_BASE_URL.'/__profile__/');
@@ -93,16 +96,37 @@ class elServiceProfile extends elService
 		if (!$this->_ats->isRegistrationAllowed()) { 
 			elThrow(E_USER_WARNING, m('Access denied'), null, EL_BASE_URL);
 		}
-		if ( !$this->_ats->editUser($this->_ats->user) ) {
+		
+		$user = $this->_ats->createUser();
+		
+		if (!$user->editAndSave()) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent($this->_ats->formToHtml());
+			$this->_rnd->addToContent($user->formToHtml());
 		} else {
-			$this->_ats->user->UID = 0;
 			elMsgBox::put( m('Registration complete! Password was sent on Your e-mail address') );
-			elLocation(EL_BASE_URL);
+			elLocation(EL_URL);
 		}
 	}
 
+	/**
+	 * remind password
+	 *
+	 * @return void
+	 **/
+	function remind() {
+		if ($this->_ats->user->isAuthed()) {
+			elThrow(E_USER_WARNING, m('You need to log out before register as new user'), null, EL_BASE_URL);
+		}
+		$user = $this->_ats->createUser();
+		if (!$user->remindPasswd()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($user->formToHtml());
+		} else {
+			elMsgBox::put( sprintf(m('New password was send onto e-mail - %s'), $user->email) );
+		    elLocation(EL_URL);
+		}
+	}
+	
 	/**
 	 * display user profile in json
 	 *

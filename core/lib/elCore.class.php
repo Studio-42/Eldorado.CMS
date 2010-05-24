@@ -24,7 +24,6 @@ class elCore
 				'__icart__'       => 'ICart',
 				'__pl__'          => '',
 				'__auth__'        => '',
-				'__passwd__'      => '',
 				'__logout__'      => '',
 				'__clean_cache__' => '',
 				'__authkey__'     => 'UpdateAuth',
@@ -289,10 +288,6 @@ class elCore
 			case "__clean_cache__":
 				elCleanCache();
 				elLocation(EL_URL);
-				break;
-
-			case "__passwd__":
-				$this->ats->remindPasswd();
 				break;
 
 			case "__auth__":

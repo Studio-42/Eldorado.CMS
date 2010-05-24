@@ -184,7 +184,7 @@ class elATS
 		$this->form->setAttr('action', EL_URL.'__auth__/');
 		$this->form->add( new elText('elLogin', m('Login')) );
 		$this->form->add( new elPassword('elPass', m('Password')) );
-		$this->form->add( new elCData('fp', '<a href="'.EL_URL.'__passwd__/'.'">'.m('Forgot Your password?').'</a>') );
+		$this->form->add( new elCData('fp', '<a href="'.EL_URL.'__profile__/remind/'.'">'.m('Forgot Your password?').'</a>') );
 		if ( $this->_regAllow ) {
 			$this->form->add( new elCData('reg', '<a href="'.EL_URL.'__profile__/reg/'.'">'.m('New user registration').'</a>') );
 		}
@@ -631,7 +631,7 @@ class elATS
 
 		$msg  = sprintf( $msg, $siteName, EL_BASE_URL, $user->login, $passwd );
 		$sign = sprintf( m("With best wishes\n%s\n"), $conf->get('owner', 'common') );
-
+		echo $msg;
 		$postman->newMail($emails->getDefault(), $user->getEmail(), $subj, $msg, false, $sign);
 
 		if ( !$postman->deliver() ) {

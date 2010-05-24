@@ -233,10 +233,9 @@ class elUser extends elDataMapping
 	}
 
 	/**
-	 * undocumented function
+	 * create form/change password
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return bool
 	 **/
 	function changePasswd() {
 		parent::_makeForm();
@@ -247,9 +246,47 @@ class elUser extends elDataMapping
 	        $passwd = $this->_form->getElementValue('pass');
 			$this->passwd($passwd);
 			$ats = & elSingleton::getObj('elATS');
-	        $ats->notifyUser($this, $passwd, EL_UNTF_PASSWD);
+			if ($this->UID != $ats->user->UID) {
+				$ats->notifyUser($this, $passwd, EL_UNTF_PASSWD);
+			}
 	        return true;
 	      }
+	}
+
+	/**
+	 * find user by login/email and create new password
+	 *
+	 * @return bool
+	 **/
+	function remindPasswd() {
+		parent::_makeForm();
+		$this->_form->label = m('Remind login/password');
+		$this->_form->add( new elCData(null, m('Please, enter Your login or email and new authorization data will be send on Your email')) );
+	    $this->_form->add( new elText('im', m('Login or e-mail')) );
+	    $this->_form->setRequired( 'im' );
+	
+		if ($this->_form->isSubmitAndValid()) {
+			$test = $this->_form->getElementValue('im');
+			$sql  = sprintf('SELECT uid FROM el_user WHERE %s="%s"', strstr($test, '@') ? 'email' : 'login', mysql_real_escape_string($test));
+			$this->db->query($sql);
+			
+			if ($this->db->numRows()) {
+				$r = $this->db->nextRecord();
+				$this->UID = $r['uid'];
+				$this->fetch();
+			}
+			
+			if (!$this->UID) {
+				$this->_form->pushError('im', m('User with this login/email does not exists'));
+				return false;
+			}
+			
+			$passwd = $this->_randPasswd();
+			$this->passwd($passwd);
+			$ats = & elSingleton::getObj('elATS');
+			$ats->notifyUser($this, $passwd, EL_UNTF_REMIND);
+			return true;
+		}
 	}
 
 	/**
@@ -311,7 +348,6 @@ class elUser extends elDataMapping
 	/**
 	 * create form/save user data
 	 *
-	 * @param  array  $params
 	 * @return bool
 	 **/
 	function editAndSave() {
@@ -330,6 +366,8 @@ class elUser extends elDataMapping
 	/**
 	 * count users
 	 *
+	 * @param   string  $login   login search pattern
+	 * @param   int     $groupID count users only in this group
 	 * @return int
 	 **/
 	function count($login='', $groupID='') {
@@ -534,6 +572,15 @@ class elUser extends elDataMapping
 	}
 
 	/**
+	 * return random password
+	 *
+	 * @return string
+	 **/
+	function _randPasswd() {
+		return substr(md5(uniqid('')),-9,7);
+	}
+
+	/**
 	 * create form for edit user
 	 *
 	 * @return void
@@ -588,16 +635,18 @@ class elUser extends elDataMapping
 		return parent::_attrsForSave();
 	}
 
+	
+
 	/**
 	 * after create new user, set default groups and password
 	 *
-	 * @param  bool  $isNew  is this user new?
+	 * @param  bool  $isNew  is this new user?
 	 * @return bool
 	 **/
 	function _postSave($isNew) {
 		if ($isNew) {
 			$ats    = &elSingleton::getObj('elATS');
-			$passwd = $ats->randPasswd();
+			$passwd = $this->_randPasswd();
 			$gid    = $ats->getDefaultGID();
 			$this->passwd($passwd);
 			if ($gid) {

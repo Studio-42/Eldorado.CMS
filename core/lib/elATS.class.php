@@ -50,7 +50,7 @@ class elATS {
 	 **/
 	function init( $pageID ) {
 		$this->_pageID = $pageID;
-		$this->user = & $this->createUser();
+		$this->user    = & $this->createUser();
 		if ( $this->user->autoLogin($this->_sessTO) && ($this->user->isRoot() || $this->user->isInGroupRoot()) ) {
 			$this->_userRoot = true;
 		} else {
@@ -458,7 +458,6 @@ class elATS {
 		$conf->save();
 		elDebug('Invalid auth DB params - remove it from conf file');
 	}
-
 
 	/**
 	 * load acl for user

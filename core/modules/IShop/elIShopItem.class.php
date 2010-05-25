@@ -508,7 +508,7 @@ class elIShopItem extends elCatalogItem
 			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
 		}
 
-    	$this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), $this->name )  );
+    	$this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), addslashes($this->name) )  );
 		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 		$this->_form->add( new elHidden('imgURL', '', $this->img ? EL_BASE_URL.$this->img : '') );
 		

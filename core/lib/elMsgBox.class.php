@@ -2,7 +2,7 @@
 
 class elMsgBox
 {
-  var $queues = array( EL_MSGQ=>array(), EL_WARNQ=>array() );
+  var $queues = array( EL_MSGQ=>array(), EL_WARNQ=>array(), EL_DEBUGQ=>array() );
   var $_prefix = 'el_msgq';
 
   function elMsgBox( )
@@ -15,15 +15,14 @@ class elMsgBox
     }
 
   function put($msg, $label=EL_MSGQ)
-    {//echo $msg.' - IN '.$label.'<br>';;
+    {
       $mb = & elSingleton::getObj('elMsgBox');
       $mb->putMsg($msg, $label);
-      //print_r($mb);
     }
 
   function createQueue( $label )
     {
-      $k = $this->_prefix.$label; //print_r($_SESSION);//echo (int)(isset($_SESSION[$k]) && is_array($_SESSION[$k]));
+      $k = $this->_prefix.$label; 
       $this->queues[$label] = isset($_SESSION[$k]) && is_array($_SESSION[$k])
 	? $_SESSION[$k] : array();
     }
@@ -77,7 +76,7 @@ class elMsgBox
       if ( isset($_SESSION) )
 	{
 	  foreach ($this->queues as $label=>$queue)
-	    {//echo 'SAVE '.$this->_prefix.$label.'<br>';
+	    {
 	      $_SESSION[$this->_prefix.$label] = $queue;
 	    }
 	}

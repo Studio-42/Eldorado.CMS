@@ -13,7 +13,7 @@ class elSubModuleGroups extends elModule {
 		'acl'   => array('m'=>'editAcl')
 		);
 
-	var $_mMapConf  = array('conf'  => array('m'=>'configure', 'ico'=>'icoUsersGroupSet', 'l'=>'Groups export'));
+	var $_mMapConf  = array('conf'  => array('m'=>'configure', 'ico'=>'icoConf', 'l'=>'Groups export'));
 
 	/**
 	 * display groups list
@@ -130,23 +130,46 @@ class elSubModuleGroups extends elModule {
 		}
 	}
 
-	function configure()
-	{
-		$ats = &elSingleton::getObj('elATS');
-		$this->_initRenderer();
-		if ( $this->_ats->isLocalAuth() )
-		{
-			elThrow(E_USER_WARNING, 'There is local authorization is used now. Groups export does not available.',
-			null, EL_URL.$this->_smPath);
+	/**
+	 * set imported groups from remote db
+	 *
+	 * @return void
+	 **/
+	function configure() {
+		
+		if ($this->_ats->isLocalAuth()) {
+			elThrow(E_USER_WARNING, 'There is local authorization is used now. Groups export does not available.', null, EL_URL.$this->_smPath);
 		}
-		if ( !$ats->setImportGroupsList() )
-		{
-			$this->_rnd->addToContent( $ats->formToHtml());
+		
+		$group    = $this->_ats->createGroup();
+		$groups   = $group->collection(false, false);
+		$imported = $group->collection(false);
+		$opts     = array();
+		foreach ($groups as $_g) {
+			$opts[$_g['gid']] = $_g['name'];
 		}
-		else
-		{
-			elMsgBox::put( m('Data saved') );
-			elLocation(EL_URL.$this->_smPath);
+		
+		$form = & elSingleton::getObj('elForm', 'mf'.get_class($this), m('Change import groups list'));
+		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+		$form->add(new elCheckboxesGroup('gid', m('Groups'), array_keys($imported), $opts));
+		
+		if (!$form->isSubmitAndValid()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($form->toHtml());
+		} else {
+			$data = $form->getValue();
+			$tmp  = !empty($data['gid']) && is_array($data['gid']) ? $data['gid'] : array();
+			$res  = array(1 => 'root');
+			foreach ($tmp as $gid) {
+				if (isset($groups[$gid])) {
+					$res[$gid] = $groups[$gid]['name'];
+				}
+			}
+			$conf = & elSingleton::getObj('elXmlConf');
+			$conf->set('importGroups', $res, 'auth');
+			$conf->save();
+			elMsgBox::put(m('Data saved'));
+			elLocation( EL_URL.$this->_smPath );
 		}
 	}
 

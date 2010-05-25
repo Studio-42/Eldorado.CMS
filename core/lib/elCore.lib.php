@@ -176,34 +176,13 @@ function elLocation( $uri )
 	exit( header('Location:'.$uri ) );
 }
 
-function elDebug($msg)
-{
-	static $debug;
-
-	if ( !isset($debug) )
-	{
-		$conf  = &elSingleton::getObj('elXmlConf');
-		$ats = elSingleton::getObj('elATS');
-		$debug = (int)$conf->get('debug', 'common');
-		if ( $debug )
-		{
-			$msgBox = & elSingleton::getObj('elMsgBox');
-			$msgBox->createQueue(EL_DEBUGQ);
+function elDebug($msg) {
+	if (is_string($msg)) {
+		elMsgBox::put( htmlspecialchars($msg), EL_DEBUGQ );
+	} elseif (is_array($msg)) {
+		foreach ($msg as $k=>$v) {
+			elMsgBox::put( htmlspecialchars($k.': '.$v), EL_DEBUGQ );
 		}
-	}
-	if ( $debug )
-	{
-	  if (is_string($msg))
-	  {
-		  elMsgBox::put( htmlspecialchars($msg), EL_DEBUGQ );
-	  }
-	  elseif (is_array($msg))
-	  {
-	    foreach ($msg as $k=>$v)
-	    {
-	      elMsgBox::put( htmlspecialchars($k.': '.$v), EL_DEBUGQ );
-	    }
-	  }
 	}
 }
 

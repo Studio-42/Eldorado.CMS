@@ -31,15 +31,45 @@ class elATS {
 		if (!isset($this->_conf['loginCaseSensetive'])) {
 			$this->_conf['loginCaseSensetive'] = true;
 		}
-		$this->_userFullName   = $conf->get('userFullName',   'layout');
-		$this->_dbACL = & elSingleton::getObj('elDb');
-		$this->_initAuthDb($conf->get('authDb', 'auth'), $conf->getGroup('db'), $conf->get('importGroups', 'auth'));
+		$this->_userFullName = $conf->get('userFullName',   'layout');
+		$this->_dbACL        = & elSingleton::getObj('elDb');
+		$dbAuthConf          = $conf->get('authDb', 'auth');
+		$dbACLConf           = $conf->getGroup('db');
+		
+		if ($dbAuthConf && !empty($dbAuthConf['db']) && !empty($dbAuthConf['user'])) {
+			$this->_dbAuth = & new elDb(
+				$dbAuthConf['user'], 
+				!empty($dbAuthConf['pass']) ? $dbAuthConf['pass'] : '', 
+				$dbAuthConf['db'],
+				!empty($dbAuthConf['host']) ? $dbAuthConf['host'] : '', 
+				!empty($dbAuthConf['sock']) ? $dbAuthConf['sock'] : '' 
+				);
+			if ($this->_dbAuth->connect(true)) {
+				$this->_isLocalAuth = false;
+				$this->_iGroups = $conf->get('importGroups', 'auth');
+				
+				if (empty($this->_iGroups) || !is_array($this->_iGroups)) {
+					$this->_iGroups = array(1 => 'root');
+				}
+				if (!isset($this->_iGroups[1])) {
+					$this->_iGroups[1] = 'root';
+				}
+			} else {
+				unset($this->_dbAuth);
+				$conf->drop('authDb', 'auth');
+				$conf->save();
+			}
+		}
+		
+		if (!$this->_dbAuth) {
+			$this->_dbAuth = & $this->_dbACL;
+		}
+		
 		$this->_dbHash = md5($this->_dbACL->_host.' '.$this->_dbACL->_db.' '.$this->_dbACL->_user.' '.$this->_dbACL->_pass);
 
 		if ( 0 < ($to = $conf->get('sessionTimeOut', 'auth')) ) {
 			$this->_sessTO = (int)$to;
 		}
-		// $this->_iGroups = array(1 => 'root');
 	}
 
 	/**
@@ -377,87 +407,7 @@ class elATS {
 		$this->_dbACL->optimizeTable('el_group_acl');
 	}
 
-
-	
-
-  function addGroupToImportList( $GID, $name )
-  {
-    $conf = &elSingleton::getObj('elXmlConf');
-    $this->_iGroups[$GID] = $name;
-    $conf->set('importGroups', $this->_iGroups, 'auth');
-    $conf->save();
-  }
-
-  function rmGroupFromImportList( $GID )
-  {
-    if ( isset($this->_groups[$GID]) )
-    {
-      $conf = &elSingleton::getObj('elXmlConf');
-      unset($this->_iGroups[$GID]);
-      $conf->set('importGroups', $this->_iGroups, 'auth');
-      $conf->save();
-    }
-  }
-
-  function setImportGroupsList()
-  {
-    $this->_initManager();
-    return $this->_mngr->setImportGroupsList();
-  }
-
-
-	
-	
-
   /////////////////////////   *  PRIVATE  *  ////////////////////
-
-	/**
-	 * init authentication db
-	 *
-	 * @param  elDb  $db     auth db (remote)
-	 * @param  elDb  $dbACL  db (local)
-	 * @param  array $importGroups  import groups list
-	 * @return void
-	 **/
-	function _initAuthDb($db, $dbACL, $importGroups=null) {
-		$testDbAuth = $db;    unset($testDbAuth['db']);
-		$testDbACL  = $dbACL; unset($testDbACL['db']);
-		if ( empty($db) || !is_array($db) || !array_diff($testDbACL, $testDbAuth) || empty($db['db']) || empty($db['user']) ) {
-			$this->_dbAuth = & $this->_dbACL;
-			if ( !empty($db) ) {
-				$this->_dropAuthDbParams();
-			}
-			return;
-		}
-		$host = !empty($db['host']) ? $db['host'] : 'localhost';
-		$pass = !empty($db['pass']) ? $db['pass'] : '';
-		$this->_dbAuth = & new elDb($db['user'], $pass, $db['db'], $host, $db['sock']);
-		if ( !$this->_dbAuth->connect(true) ) {
-			$this->_dbAuth = & $this->_dbACL;
-			return $this->_dropAuthDbParams();
-		}
-		$this->_isLocalAuth = false;
-		if ( empty($importGroups) ) {
-			$this->_iGroups = array(1 => 'root');
-		} else {
-			$this->_iGroups = $importGroups;
-			if ( !empty($this->_iGroups[1]) ) {
-				$this->_iGroups[1] = 'root';
-			}
-		}
-	}
-
-	/**
-	 * remove remote db params from config
-	 *
-	 * @return void
-	 **/
-	function _dropAuthDbParams() {
-		$conf = & elSingleton::getObj('elXmlConf');
-		$conf->drop('authDb', 'auth');
-		$conf->save();
-		elDebug('Invalid auth DB params - remove it from conf file');
-	}
 
 	/**
 	 * load acl for user

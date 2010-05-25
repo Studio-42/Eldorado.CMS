@@ -1,9 +1,11 @@
 <?php
-elLoadMessages('Auth');
 
 /**
  * display/edit profile, change password, registration
+ * return profile data via ajax
  *
+ * @package services
+ * @author dio
  **/
 class elServiceProfile extends elService
 {
@@ -194,6 +196,6 @@ class elServiceProfile extends elService
 		return $pid && $this->_ats->allow(EL_WRITE, $pid);
 	}
 
-}
+} // END class 
 
 ?>

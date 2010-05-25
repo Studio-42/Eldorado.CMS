@@ -1,4 +1,5 @@
 <?php
+
 if (function_exists('date_default_timezone_set')) {
 	date_default_timezone_set('Europe/Moscow');
 }
@@ -140,7 +141,6 @@ else
 	include_once EL_DIR_CORE.'lib/elDataMapping.class.php';
 }
 
-// include_once EL_DIR_CORE.'lib/elDataMappingExtended.class.php';
 include_once EL_DIR_CORE.'lib/elUser.class.php';
 // include_once EL_DIR_CORE.'lib/elUserProfile.class.php';
 

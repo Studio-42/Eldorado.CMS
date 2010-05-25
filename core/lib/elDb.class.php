@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   eldorado
- * @author    dvl <dvl@weber.ru>
+ * @package   core
+ * @author    dio
  * @version 3.1
  */
 
@@ -41,8 +41,9 @@ class elDb
   var $prepare = array();
 
   var $supressDebug = false;
+
   /**
-   * PHP5 constructor
+   * constructor
    *
    * @param string $user
    * @param string $pass
@@ -50,36 +51,28 @@ class elDb
    * @param string $host
    * @param string $sock
    */
-  function __construct($user=null, $pass=null, $db=null, $host='localhost', $sock=null)
-  {
-  	if ( !function_exists('mysql_connect') )
-  	{
-  		dl('mysql');
-  		if (!function_exists('mysql_connect') )
-  		{
-  			elThrow(E_USER_ERROR, 'Fatal server configuration! There is no MySQL module available!', null, null, true);
-  		}
-  	}
-
- 	 	if ( empty($user))
-  	{
-  		$conf = & elSingleton::getObj('elXmlConf');
-  		$user = $conf->get('user', 'db');
-  		$pass = $conf->get('pass', 'db');
-  		$db   = $conf->get('db',   'db');
-  		$host = $conf->get('host', 'db');
-  		$sock = $conf->get('sock', 'db');
-  	}
-
-  	$this->setConnectParams($user, $pass, $db, $host, $sock);
-  }
-
-  /**
-   * PHP4 constructor
-   */
   function elDb( $user=null, $pass=null, $db=null, $host='localhost', $sock=null )
   {
-		$this->__construct($user, $pass, $db, $host, $sock);
+		if ( !function_exists('mysql_connect') )
+	  	{
+	  		dl('mysql');
+	  		if (!function_exists('mysql_connect') )
+	  		{
+	  			elThrow(E_USER_ERROR, 'Fatal server configuration! There is no MySQL module available!', null, null, true);
+	  		}
+	  	}
+
+	 	 	if ( empty($user))
+	  	{
+	  		$conf = & elSingleton::getObj('elXmlConf');
+	  		$user = $conf->get('user', 'db');
+	  		$pass = $conf->get('pass', 'db');
+	  		$db   = $conf->get('db',   'db');
+	  		$host = $conf->get('host', 'db');
+	  		$sock = $conf->get('sock', 'db');
+	  	}
+
+	  	$this->setConnectParams($user, $pass, $db, $host, $sock);
   }
 
   /**

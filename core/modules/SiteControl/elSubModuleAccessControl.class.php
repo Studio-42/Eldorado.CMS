@@ -47,9 +47,14 @@ class elSubModuleAccessControl extends elModule
 		$this->_timeOuts = array_map('m', $this->_timeOuts);
 		$this->_aTypes   = array_map('m', $this->_aTypes);
 		$aType = (int)(!$this->_ats->isLocalAuth());
-		$this->_groups = $this->_ats->getGroupsList();
-		unset($this->_groups[1]);
-
+		$g     = $this->_ats->createGroup();
+		$tmp   = $g->collection(false);
+		foreach ($tmp as $_g) {
+			if ($_g['gid'] != 1) {
+				$this->_groups[$_g['gid']] = $_g['name'];
+			}
+		}
+		
 		if (!isset($this->_timeOuts[$this->_conf['sessionTimeOut']])) {
 			$this->_conf['sessionTimeOut'] = 86400;
 		}
@@ -104,147 +109,120 @@ class elSubModuleAccessControl extends elModule
   /**
    * create config edit form. Overloading parent's method
    */
-  function &_makeConfForm()
-    {
-      $form = & parent::_makeConfForm();
-      $form->setLabel( m('Edit site access configuration') );
-      $form->addJsSrc( '$("#isRemoteAuth").change(function() {
-			if (this.value == "1") { 
+	function &_makeConfForm() {
+		$form = & parent::_makeConfForm();
+		$form->setLabel( m('Edit site access configuration') );
+		$form->addJsSrc( 
+			'$("#isRemoteAuth").change(function() {
+				if (this.value == "1") { 
 				$(this).parents("tr").eq(0).nextAll().show();
-			} else { 
+				} else { 
 				$(this).parents("tr").eq(0).nextAll().hide(); 
-			}
-		}).trigger("change")', EL_JS_SRC_ONREADY );
+				}
+			}).trigger("change")', EL_JS_SRC_ONREADY );
 
 		foreach ($this->_params as $id=>$v) {
 			$form->add(new elSelect($id, $v['label'], $v['raw'], isset($v['vars']) ? $v['vars'] : $GLOBALS['yn'] ), array('cellElAttrs'=>'width="40%"'));
 		}
 
-      $db = array('host'=>'localhost', 'db'=>'', 'user'=>'', 'pass'=>'', 'sock'=>'');
-      if ( !$this->_ats->isLocalAuth() )
-      {
-        $db = array_merge($db, $this->_conf('authDb') ) ;
-      }
+		$db = array('host'=>'localhost', 'db'=>'', 'user'=>'', 'pass'=>'', 'sock'=>'');
+		if (!$this->_ats->isLocalAuth()) {
+			$db = array_merge($db, $this->_conf('authDb')) ;
+		}
 
-      $form->add( new elText('host', m('Auth database host'),     $db['host'], array('size'=>'30')) );
-      $form->add( new elText('sock', m('Auth database socket'),   $db['sock'], array('size'=>'30')) );
-      $form->add( new elText('db',   m('Auth database name'),     $db['db'],   array('size'=>'30')) );
-      $form->add( new elText('user', m('Auth database user'),     $db['user'], array('size'=>'30')) );
-      $form->add( new elText('pass', m('Auth database password'), $db['pass'], array('size'=>'30')) );
+		$form->add( new elText('host', m('Auth database host'),     $db['host'], array('size'=>'30')) );
+		$form->add( new elText('sock', m('Auth database socket'),   $db['sock'], array('size'=>'30')) );
+		$form->add( new elText('db',   m('Auth database name'),     $db['db'],   array('size'=>'30')) );
+		$form->add( new elText('user', m('Auth database user'),     $db['user'], array('size'=>'30')) );
+		$form->add( new elText('pass', m('Auth database password'), $db['pass'], array('size'=>'30')) );
 
-      $form->setElementRule('host', 'alfanum_lat', false);
-      $form->setElementRule('db',   'alfanum_lat', false);
-      $form->setElementRule('user', 'alfanum_lat', false);
-      $form->setElementRule('pass', 'alfanum_lat', false);
+		$form->setElementRule('host', 'alfanum_lat', false);
+		$form->setElementRule('db',   'alfanum_lat', false);
+		$form->setElementRule('user', 'alfanum_lat', false);
+		$form->setElementRule('pass', 'alfanum_lat', false);
 
-      return $form;
-    }
+		return $form;
+	}
 
-  function _validConfForm( &$form )
-    {
-      $vals = $form->getValue();
+  	function _validConfForm( &$form ) {
+		$vals = $form->getValue();
 
-      $vals['sessionTimeOut'] = (int)$vals['sessionTimeOut'];
-      $vals['registrAllow']   = (int)$vals['registrAllow'];
-      $vals['isRemoteAuth']   = (int)$vals['isRemoteAuth'];
+		$vals['sessionTimeOut'] = (int)$vals['sessionTimeOut'];
+		$vals['registrAllow']   = (int)$vals['registrAllow'];
+		$vals['isRemoteAuth']   = (int)$vals['isRemoteAuth'];
+		$vals['authDb']         = array();
+		$vals['importGroups']   = array();
+		
+		// check session timeout
+		if ( !isset($this->_timeOuts[$vals['sessionTimeOut']])) {
+			$vals['sessionTimeOut'] = 86400;
+		}
 
-      // check session timeout
-      if ( !isset($this->_timeOuts[$vals['sessionTimeOut']]) )
-      {
-        $vals['sessionTimeOut'] = 86400;
-        elThrow( E_USER_NOTICE, m('Invalid session timeout value! Set it to default.') );
-      }
-
-      //check default group for new users
-	
-      if ( !isset($vals['defaultGID']) || !isset($this->_groups[$vals['defaultGID']]) )
-      {
-        $vals['defaultGID'] = 0;
-        elThrow(E_USER_NOTICE, m('Invalid default group! Default group was not defined!') );
-      }
-      if ( $vals['registrAllow'] && !$vals['defaultGID'] )
-      {
-        elMsgBox::put( m('You allow user registration. It is a good idea to define default group for all new users.') );
-      }
+      	//check default group for new users
+		if (!isset($vals['defaultGID']) || !isset($this->_groups[$vals['defaultGID']])) {
+			$vals['defaultGID'] = 0;
+		}
+		if ($vals['registrAllow'] && !$vals['defaultGID']) {
+			elMsgBox::put( m('You allow user registration. It is a good idea to define default group for all new users.') );
+		}
       
       // check auth type and Db params 
 
-      // "local" type
-      if ( !$vals['isRemoteAuth'] )
-      {
-      // auth type switch from remote to local
-        if ( $this->_conf['authDb'] )
-        {
-          elMsgBox::put( m('Authorization switched to "local"! After config was saved, You, probably, need to relogin!') );
-        }
-        return $vals;
-      }
+		// "local" type
+		if (!$vals['isRemoteAuth']) {
+			// auth type switch from remote to local
+			if ($this->_conf['authDb']) {
+				elMsgBox::put( m('Authorization switched to "local"! After config was saved, You, probably, need to relogin!') );
+			}
+			return $vals;
+		}
 
       // "remote" type
+		// empty fields
+		if (empty($vals['db']) || empty($vals['user'])) {
+			elThrow( E_USER_WARNING, m('Invalid database parameters') );
+			return $vals;
+		}
 
-      // empty fields
-      if ( empty($vals['db']) || empty($vals['user']) )
-      {
-        return elThrow( E_USER_WARNING, m('Invalid database parameters') );
-      }
+		$conf    = &elSingleton::getObj('elXmlConf');
+		$_db     = array('host'=>'localhost', 'db'=>'', 'user'=>'', 'pass'=>'', 'sock'=>'');
+		$localDb = array_merge($_db, $conf->getGroup('db'));
+		$authDb  = array_merge($_db, $this->_conf('authDb'));
+		$newDb   = array('host'=>$vals['host'], 'sock'=>$vals['sock'], 'db'=>$vals['db'], 'user'=>$vals['user'], 'pass'=>$vals['pass']);
 
-      $conf    = &elSingleton::getObj('elXmlConf');
-      $localDb = $conf->getGroup('db');
-      $newDb   = array('host'=>$vals['host'], 'sock'=>$vals['sock'], 'db'=>$vals['db'], 'user'=>$vals['user'], 'pass'=>$vals['pass']);
-      $authDb  = $this->_conf('authDb'); 
-			if (!isset($authDb['sock']))
-			{
-				$authDb['sock'] = '';
-			}
-      // try switch to local db as to remote - invalid, no db change
-      if ( !array_diff($localDb, $newDb) && !array_diff($newDb, $localDb) )
-      {
-        elThrow( E_USER_WARNING, 'Entered database parameters indenticaly to local database ones. There are will not be changed.');   
-        $vals['authDb'] = $authDb;
-        return $vals;
-      }
+		// db was not changed - do nothing
+		if (!empty($authDb['db']) && !array_diff($newDb, $authDb) && !array_diff($authDb, $newDb)) {
+			$vals['authDb'] = $authDb;
+	        return $vals;
+		}
+		
+		// try switch to local db as to remote - invalid, no db change
+		if (!array_diff($localDb, $newDb) && !array_diff($newDb, $localDb)) {
+			elThrow( E_USER_WARNING, 'Entered database parameters indenticaly to local database ones. There are will not be changed.');   
+			return $vals;
+		}
+		
+		// test new auth DB
+		$db = & new elDb($newDb['user'], $newDb['pass'], $newDb['db'], $newDb['host'], $newDb['sock']); 
+		if (!$db->connect(true)) {
+			elThrow( E_USER_WARNING, m('Invalid Data Base parameters') );
+			return $vals;
+		}
+		
+		if (!$db->isTableExists('el_user') 
+		||  !$db->isTableExists('el_group')
+		||  !$db->isTableExists('el_user_in_group')
+		||  !$db->isTableExists('el_user_profile')) {
+			elThrow( E_USER_WARNING, m('Selected database does not contains all nessecery tables') );
+			return $vals;
+		}
+		elMsgBox::put( m('Authorization switched to "remote"! After config was saved, You, probably, need to relogin!') );
+		$vals['authDb']       = $newDb;
+		$vals['importGroups'] = array(1 => 'root');
+		return $vals;
 
-      // db was not changed - do nothing
-      if ( !empty($authDb) && !array_diff($newDb, $authDb) && !array_diff($authDb, $newDb) )
-      {
-        $vals['authDb'] = $authDb;
-        return $vals;
-      }
-
-      // is it php bug ???
-  		$testDbNew = $newDb;    unset($testDbNew['db']);
-  		$testDbAuth  = $authDb; unset($testDbAuth['db']);
-  		$testDbLocal  = $localDb; unset($testDbLocal['db']);
-			if ((!empty($authDb) && !array_diff($testDbAuth, $testDbNew) && !array_diff($testDbNew, $testDbAuth)) 
-			|| (!array_diff($testDbNew, $testDbLocal) && !array_diff($testDbLocal, $testDbNew)) )
-			{
-				elThrow( E_USER_WARNING, 'Entered database connection parameters indenticaly to local database ones exclude db names. This will be not working correctly. There are will not be changed.');   
-        $vals['authDb'] = $authDb;
-        return $vals;
-			}
-  		
-      // test new auth DB
-      $db = & new elDb($newDb['user'], $newDb['pass'], $newDb['db'], $newDb['host'], $newDb['sock']); 
-      if ( !$db->connect(true) )
-      {
-        return elThrow( E_USER_WARNING, m('Invalid Data Base parameters') );
-      }
-
-      // check for nessecery tables in DB
-      $tblList = $db->queryToArray('SHOW TABLES FROM '.$db->_db, null, 'Tables_in_'.$db->_db);
-      if ( empty($tblList) || !in_array('el_group', $tblList) || !in_array('el_user', $tblList) || 
-           !in_array('el_user_in_group', $tblList) || !in_array('el_user_profile', $tblList)  )
-      {
-        return elThrow( E_USER_WARNING, m('Selected database does not contains all nessecery tables') );
-      }
-
-      elMsgBox::put( m('Authorization switched to "remote"! After config was saved, You, probably, need to relogin!') );
-      $vals['authDb'] = $newDb;
-      $conf = & elSingleton::getObj('elXmlConf');
-      $conf->set('importGroups', array(1=>'root'), 'auth');
-      $conf->save();
-      return $vals;
     }
+
 
 }
 

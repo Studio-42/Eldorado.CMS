@@ -446,35 +446,36 @@ class elNavigator
 		$this->menus[$this->defaultPageID]['url']  = EL_BASE_URL.'/';
 	}
 
-	function _loadASideMenu()
-	{
-		// load  additional side menus now because of we new current page ID
-        $this->aMenus[EL_ADD_MENU_SIDE] = array();
-		$db = & elSingleton::getObj('elDb');
-		$db->query('SELECT m.id, m.name, m.pos FROM el_amenu AS m, el_amenu_dest AS d WHERE d.p_id='.$this->curPageID.' AND m.id=d.m_id ORDER BY d.sort, m.id');
-		while ( $r = $db->nextRecord() )
-		{
-			$this->aMenus[EL_ADD_MENU_SIDE][$r['id']] = array('name'=>$r['name'], 'pos'=>$r['pos'], 'pages'=>array() );
-		}
-		$ats = &elSingleton::getObj('elATS');
-		if ( !empty($this->aMenus[EL_ADD_MENU_SIDE]) )
-		{
-			$sql = 'SELECT s.m_id, s.p_id FROM el_amenu AS m, el_amenu_source AS s WHERE s.m_id IN ('.implode(',', array_keys($this->aMenus[EL_ADD_MENU_SIDE])).') ORDER BY s.sort, s.p_id';
-			$db->query( $sql );
-			while ($r = $db->nextRecord() )
-			{
-                echo $r['p_id'].' '.intval($ats->allow(EL_READ, $r['p_id'])).' <br>';
-				if ( !empty($this->aMenus[EL_ADD_MENU_SIDE][$r['m_id']]) && $ats->allow(EL_READ, $r['p_id']) )
-				{
-					$this->aMenus[EL_ADD_MENU_SIDE][$r['m_id']]['pages'][] = array('id'    => $r['p_id'],
-                                                                                   'name'  => $this->menus[$r['p_id']]['name'],
-																				   'url'   => $this->menus[$r['p_id']]['url'],
-																				   'level' => 1//$this->menus[$r['p_id']]['level']
-                                                                                   );
-				}
-			}
-		}
-	}
+	// function _loadASideMenu()
+	// {
+	// 	echo '_loadASideMenu';
+	// 	// load  additional side menus now because of we new current page ID
+	//         $this->aMenus[EL_ADD_MENU_SIDE] = array();
+	// 	$db = & elSingleton::getObj('elDb');
+	// 	$db->query('SELECT m.id, m.name, m.pos FROM el_amenu AS m, el_amenu_dest AS d WHERE d.p_id='.$this->curPageID.' AND m.id=d.m_id ORDER BY d.sort, m.id');
+	// 	while ( $r = $db->nextRecord() )
+	// 	{
+	// 		$this->aMenus[EL_ADD_MENU_SIDE][$r['id']] = array('name'=>$r['name'], 'pos'=>$r['pos'], 'pages'=>array() );
+	// 	}
+	// 	$ats = &elSingleton::getObj('elATS');
+	// 	if ( !empty($this->aMenus[EL_ADD_MENU_SIDE]) )
+	// 	{
+	// 		$sql = 'SELECT s.m_id, s.p_id FROM el_amenu AS m, el_amenu_source AS s WHERE s.m_id IN ('.implode(',', array_keys($this->aMenus[EL_ADD_MENU_SIDE])).') ORDER BY s.sort, s.p_id';
+	// 		$db->query( $sql );
+	// 		while ($r = $db->nextRecord() )
+	// 		{
+	//                 echo $r['p_id'].' '.intval($ats->allow(EL_READ, $r['p_id'])).' <br>';
+	// 			if ( !empty($this->aMenus[EL_ADD_MENU_SIDE][$r['m_id']]) && $ats->allow(EL_READ, $r['p_id']) )
+	// 			{
+	// 				$this->aMenus[EL_ADD_MENU_SIDE][$r['m_id']]['pages'][] = array('id'    => $r['p_id'],
+	//                                                                                    'name'  => $this->menus[$r['p_id']]['name'],
+	// 																			   'url'   => $this->menus[$r['p_id']]['url'],
+	// 																			   'level' => 1//$this->menus[$r['p_id']]['level']
+	//                                                                                    );
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 
 }

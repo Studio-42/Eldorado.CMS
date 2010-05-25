@@ -99,10 +99,10 @@ $elMsg['Import Commerce ML'] 			           = 'Импорт из 1С Commerce ML'
 $elMsg['Import from 1C'] 			               = 'Импорт из 1С';
 $elMsg['CL file'] 			           			   = 'CL файл';
 $elMsg['Change item image'] 			           = 'Выбрать изображения для товара';
-$elMsg['Depend on'] = 'Зависит от';
-$elMsg['Edit/remove dependance'] = 'Изменить/удалить зависимость';
+$elMsg['Depend on']                                = 'Зависит от';
+$elMsg['Edit/remove dependance']                   = 'Изменить/удалить зависимость';
 
-
+$elMsg['This image is already in the gallery']     = 'Данное изображение уже существует в галерее товара';
 
 
 

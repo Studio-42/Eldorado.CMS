@@ -57,6 +57,7 @@ class elIShopFactory
       'tbse'      => 'el_ishop_%d_se',
       'tbst'      => 'el_ishop_%d_st',
       'tbsp'      => 'el_ishop_%d_sp',
+      'tbgal'     => 'el_ishop_%d_gallery'
       );
 
   var $_classes = array(
@@ -65,7 +66,7 @@ class elIShopFactory
           'tbs' => array('tbc', 'tbi2c')),
       EL_IS_ITEM  => array(
           'name'=> 'elIShopItem',
-          'tbs' => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm') ),
+          'tbs' => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
       EL_IS_MNF   => array(
           'name'=> 'elIShopManufacturer',
           'tbs' => array('tbmnf', 'tbi')),
@@ -77,7 +78,7 @@ class elIShopFactory
           'tbs' => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
       EL_IS_TM => array(
           'name' => 'elIShopTm',
-          'tbs'  => array('tbtm', 'tbmnf') ),
+          'tbs'  => array('tbtm', 'tbmnf')),
       );
 
 

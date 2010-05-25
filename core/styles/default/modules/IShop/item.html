@@ -44,9 +44,13 @@
 	</div>
 	<div class="mod-ishop-item-content clearfix">
 		<!-- BEGIN ITEM_IMG_TOP -->
-      	<div class="mod-ishop-iimg-center">
-        	<a href="#" onclick="return popUp('{POPUP_URL}img/{catID}/{id}/', {w}, {h})"><img src="{src}" alt="{alt}" /></a>
-      	</div>
+		<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-top rounded-3" /></a>
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons" style="float: none;">
+				<li><a href="{URL}item_img/{catID}/{id}/-1" class="icons image" title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_img/{catID}/{id}/-1"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
       	<!-- END ITEM_IMG_TOP -->
 
 		<!-- BEGIN IS_IPROPS_TOP -->
@@ -57,8 +61,34 @@
       	</div>
       	<!-- END IS_IPROPS_TOP -->
 		<!-- BEGIN ITEM_IMG -->
-		<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
+		<div>
+			<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons" style="float: none;">
+				<li><a href="{URL}item_img/{catID}/{id}/-1" class="icons image"  title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_im/g{catID}/{id}/-1"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+		</div>
   		<!-- END ITEM_IMG -->
+
+		<!-- BEGIN ITEM_GALLERY -->
+		<br><br>
+		<ul>
+			<!-- BEGIN GALLERY_IMG -->
+			<li>
+				<div>
+					<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="" /></a>
+					<!-- BEGIN GALLERY_ADMIN -->
+					<a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image"  title="{m('Change item image')}"></a>
+					<a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a>
+					<!-- END GALLERY_ADMIN -->
+				</div>
+			</li>
+			<!-- END GALLERY_IMG -->
+		</ul>
+		<!-- END ITEM_GALLERY -->
+
       	{content} 
 
 	</div>

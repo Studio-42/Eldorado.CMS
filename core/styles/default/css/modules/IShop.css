@@ -10,9 +10,9 @@
 .mod-ishop-search { padding:1em; margin-bottom:1em; }
 .mod-ishop-search input.form-submit {display:inline-block; margin-top:.5em;}
 /* плавающие превьюшки товаров */
-img.mod-ishop-iimg-left   { float:left;  display:inline; margin:0 .7em .5em 0; border:1px solid #ccc;}
+img.mod-ishop-iimg-left   { float:left;   margin:0 .7em .5em 0; border:1px solid #ccc; display:inline;}
 img.mod-ishop-iimg-right  { float:right;  margin:0 0 .5em .7em; border:1px solid #ccc;}
-img.mod-ishop-iimg-center { text-align:center; margin:0.5em; border:1px solid #ccc;}
+img.mod-ishop-iimg-top    {               margin:0.5em;         border:1px solid #ccc;}
 /* цена производитель и артикул */
 .mod-ishop-price, .mod-ishop-mnf, .mod-ishop-code { padding:0 0 .3em 0; color:#00467f}
 .mod-ishop-price { float:right; }

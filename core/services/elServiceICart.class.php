@@ -271,7 +271,7 @@ class elServiceICart extends elService
 
 		$p = $this->_user->getProfile();
 
-		elPrintR($p->getSkel());
+		// elPrintR($p->getSkel());
 
 
 		$this->_rnd->rndAddress();
@@ -496,7 +496,7 @@ class elServiceICart extends elService
 	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _go($step) {
-		$this->_user->setPref('icartData', $this->_userData);
+		$this->_user->prefrence('icartData', $this->_userData);
 		elLocation($this->_url.'__icart__/'.$step.'/');
 	}
 
@@ -509,7 +509,7 @@ class elServiceICart extends elService
 	 **/
 	function _updateUserData($var, $val) {
 		$this->_userData[$var] = $val;
-		$this->_user->setPref('icartData', $this->_userData);
+		$this->_user->prefrence('icartData', $this->_userData);
 	}
 
 

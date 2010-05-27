@@ -22,23 +22,20 @@ class elFormElement
 
   var $events = array();
 
-  function __construct($name=null, $label=null, $attrs=null)
-  {
-  
-    $this->setName($name);
-    $this->setLabel($label);
-    $this->_generateID();
-    if (is_array($attrs) )
-    {
-      $this->setAttrs($attrs);
-    }
-
-  }
+	function __construct($name=null, $label=null, $attrs=null) {
+		$this->setName($name);
+	    $this->setLabel($label);
+	    $this->_generateID();
+	    if (is_array($attrs) )
+	    {
+	      $this->setAttrs($attrs);
+	    }
+	}
 
   function elFormElement($name=null, $label=null, $attrs=null)
   {
-  
-    $this->__construct($name, $label, $attrs); 
+  	$this->__construct($name, $label, $attrs);
+    
   }
 
   // ----- get methods ----- //

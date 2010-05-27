@@ -33,16 +33,34 @@ class elUser extends elDataMapping
 	 * @return bool
 	 **/
 	function fetch() {
+
+		$res = false;
 		if (!$this->_onlyGroups) {
-			return parent::fetch();
-		}
-		if ( false != ($ID = $this->idAttr()) ) {
+			$res = parent::fetch();
+		} elseif (false != ($ID = $this->idAttr())) {
 			$this->idAttr(0);
 			$sql = sprintf('SELECT %s FROM el_user, el_user_in_group WHERE %s="%s" AND user_id=uid AND group_id IN (%s) GROUP BY uid', 
 				$this->attrsToString(), $this->_id, mysql_real_escape_string($ID), implode(',', $this->_onlyGroups));
 			$this->db->query($sql);
-			return $this->db->numRows() && !$this->attr($this->db->nextRecord());
+			$res = $this->db->numRows() && !$this->attr($this->db->nextRecord());
+		} 
+		
+		if ($res) {
+			$this->getProfile();
+			foreach ($this->_profile->_elements as $e) {
+				if ($e->type == 'directory') {
+					// echo $e->directory;
+					$dm = & elSingleton::getObj('elDirectoryManager');
+					$v = $dm->getRecord($e->directory, $this->attr($e->ID), true);
+					// echo $v;
+					$this->attr($e->ID, $v);
+				} elseif ($e->type == 'select' && !($this->attr($e->ID))) {
+					$this->attr($e->ID, $e->value);
+				}
+			}
+			return true;
 		}
+		
 	}
 
 	/**

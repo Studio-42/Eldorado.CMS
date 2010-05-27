@@ -58,7 +58,8 @@ class elForm extends elFormElement
   var $_submited;
   var $_submitedData = array();
 
-  function __construct($name='elf', $label=null, $action=null, $method='POST', $attrs=null)
+
+  function elForm($name='elf', $label=null, $action=null, $method='POST', $attrs=null)
   {
     $attrs['method'] = 'POST' == strtoupper($method) ? 'POST' : 'GET';
     $attrs['action'] = $action ? $action : 'http://'.getenv('HTTP_HOST').getenv('REQUEST_URI');
@@ -71,11 +72,6 @@ class elForm extends elFormElement
     }
     $this->validator = & new elFormValidator;
     $this->elEnv = defined('EL_VER');
-  }
-
-  function elForm($name='elf', $label=null, $action=null, $method='POST', $attrs=null)
-  {
-    $this->__construct($name, $label, $action, $method, $attrs);
   }
 
   function setSubmittedData()

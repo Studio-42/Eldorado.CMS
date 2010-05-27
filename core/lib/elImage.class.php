@@ -46,11 +46,9 @@ class elImage {
 			$w = $h = $tmbSize;
 		}
 		
-		return array($w, $h);
+		return array((int)$w, (int)$h);
 	}
-	
 
-	
 	function _cropInfo($srcW, $srcH, $dstW, $dstH) {
 		$srcRel = $srcW/$srcH;
 		$dstRel = $dstW/$dstH;

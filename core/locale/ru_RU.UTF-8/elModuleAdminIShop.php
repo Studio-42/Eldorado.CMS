@@ -103,7 +103,7 @@ $elMsg['Depend on']                                = 'Зависит от';
 $elMsg['Edit/remove dependance']                   = 'Изменить/удалить зависимость';
 
 $elMsg['This image is already in the gallery']     = 'Данное изображение уже существует в галерее товара';
-
+$elMsg['Cannot add image to this item']            = 'Не удалось добавить изображение к товару';
 
 
 ?>

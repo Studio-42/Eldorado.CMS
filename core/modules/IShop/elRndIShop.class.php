@@ -122,10 +122,34 @@ class elRndIShop extends elCatalogRenderer
 	function renderItem($item, $linkedObjs = null)
 	{
 		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
 		
+		if ($this->_admin)
+		{
+			elLoadJQueryUI();
+			elAddCss('elfinder.css',   EL_JS_CSS_FILE);
+			elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
+			if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
+			{
+				elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
+			}
+			$js =
+"	$('.ishop-sel-img').click(function(e) {
+		e.preventDefault();
+		var actionURL = $(this).attr('href');
+		$('<div />').elfinder({
+			url  : '".EL_URL."__finder__/',
+			lang : '".EL_LANG."',
+			editorCallback : function(url) {
+				$('<form action=\"'+actionURL+'\" method=\"POST\"><input type=\"hidden\" name=\"imgURL\" value=\"'+url+'\"></form>').appendTo('body').submit();
+			},
+			dialog : { width : 750, modal : true }
+		});
+	});";
+
+			elAddJs($js, EL_JS_SRC_ONREADY);
+		}
 		$this->_setFile('item');
 		$this->_te->assignVars( $item->toArray() );
 
@@ -136,13 +160,19 @@ class elRndIShop extends elCatalogRenderer
 		}
 
 		// Main image
-		if (($img = $item->getImg()) != false)
+		$galSize = 0;
+		if (($gallery = $item->getGallery()) !== false)
 		{
+			$galSize = count($gallery);
+		}
+		if ($galSize >= 1)
+		{
+			$img = current($gallery);
 			$p = $this->_conf('tmbItemCardPos');
 			$s = @getimagesize('.'.$img);
 			$vars = array(
 				'id'     => $item->ID,
-				'src'    => $item->getTmbURL('c'),
+				'tmb'    => $item->getTmbURL('c', $img),
 				'target' => EL_BASE_URL.$img,
 				'alt'    => htmlspecialchars($item->name),
 				'w'      => 120 + $s[0],
@@ -159,22 +189,22 @@ class elRndIShop extends elCatalogRenderer
 				$vars['pos'] = EL_POS_RIGHT == $p ? 'right' : 'left';
 			}
 			$this->_te->assignBlockVars($block, $vars);
-			if ($this->_admin && (!$item->getGallery()))
+			if ($this->_admin && ($galSize == 1))
 			{
-				$this->_te->assignBlockVars($block.'.ADMIN', array(), 1);
+				$this->_te->assignBlockVars($block.'.ITEM_IMG_ADMIN', array('img_id' => key($gallery)), 1);
 			}
 		}
 
 		// Gallery
-		if (($gallery = $item->getGallery()) != false)
+		if ($galSize >= 2)
 		{
 			$block = 'ITEM_GALLERY';
 			$this->_te->assignBlockVars($block, array());
-			foreach ($gallery as $img_id => $src)
+			foreach ($gallery as $img_id => $target)
 			{
 				$img = array(
-					'tmb'     => $item->getTmbURL('l', $src),
-					'target'  => $src,
+					'tmb'     => $item->getTmbURL('l', $target),
+					'target'  => $target,
 					'img_id'  => $img_id
 				);
 				$this->_te->assignBlockVars($block.'.GALLERY_IMG', $img, 1);
@@ -341,7 +371,7 @@ class elRndIShop extends elCatalogRenderer
 	  		{
 				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.PRICE', array('id'  => $item->ID, 'price'=>$item->price), 2 );
 	  		}
-			if (($img = $item->getImg()) != false)
+			if (($img = array_shift($item->getGallery())) != false)
 	  		{
 				$vars = array(
 		 			'id'  => $item->ID,
@@ -404,7 +434,7 @@ class elRndIShop extends elCatalogRenderer
 			{
 			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$item->price), 2 );
 			}
-			if (($img = $item->getImg()) != false)
+			if (($img = array_shift($item->getGallery())) != false)
 			{
 			  	$vars = array(
 			   		'id'  => $item->ID,

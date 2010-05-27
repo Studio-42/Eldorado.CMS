@@ -11,6 +11,13 @@ CREATE TABLE el_ishop_{pageID}_cat (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 INSERT INTO el_ishop_{pageID}_cat (_left, _right, level, name) VALUES (1,2,0, '{pageName}');
 
+CREATE TABLE IF NOT EXISTS el_ishop_{pageID}_gallery (
+  id   int(11)      NOT NULL AUTO_INCREMENT,
+  i_id int(11)      NOT NULL,
+  img  varchar(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Image gallery for IShopItem';
+
 DROP TABLE IF EXISTS el_ishop_{pageID}_i2c;
 CREATE TABLE el_ishop_{pageID}_i2c (
   i_id     int(3)          NOT NULL default '0',

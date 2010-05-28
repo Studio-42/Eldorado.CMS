@@ -37,17 +37,13 @@ class elCore
 	function load()
 	{
 		$this->_ts     = utime();
-		$this->ats     = & elSingleton::getObj('elATS');
-		$this->ats->init($this->pageID);
 		$nav           = & elSingleton::getObj('elNavigator');
 		$nav->init($this->_srvMap);
 		$this->pageID  = $nav->getCurrentPageID();
+		$this->ats     = & elSingleton::getObj('elATS');
+		$this->ats->init($this->pageID);
 		$this->mName   = $nav->getCurPageModuleName();
 		$this->args    = $nav->getRequestArgs();
-		
-		
-		
-		
 
 		define ('EL_URL', $nav->getURL() ); 
 

@@ -71,6 +71,43 @@ class elICartConf {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function regionExists($regionID) {
+		$sql = 'SELECT id FROM el_directory_icart_region WHERE id='.intval($regionID);
+		$this->_db->query($sql);
+		return $this->_db->numRows();
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function deliveryExists($regionID, $deliveryID) {
+		$sql = 'SELECT region_id, delivery_id '
+				.'FROM '.$this->_tb.' WHERE region_id=%d AND delivery_id=%d';
+		$sql = sprintf($sql, $regionID, $deliveryID);
+		$this->_db->query($sql);
+		return $this->_db->numRows();
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function paymentExists($regionID, $deliveryID, $paymentID) {
+		$val = $this->get($regionID, $deliveryID, $paymentID);
+		return !empty($val['payment_id']);
+	}
+
+	/**
 	 * return regions list
 	 *
 	 * @return array

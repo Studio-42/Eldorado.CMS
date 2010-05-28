@@ -10,6 +10,12 @@ class elFormConstructor {
 	 **/
 	var $_tb = 'el_form';
 	/**
+	 * element class name
+	 *
+	 * @var string
+	 **/
+	var $_elClass = 'elFormConstructorElement';
+	/**
 	 * form id
 	 *
 	 * @var string
@@ -67,27 +73,6 @@ class elFormConstructor {
 	 * @return void
 	 * @author /bin/bash: niutil: command not found
 	 **/
-	function _load() {
-		$el = & new elFormConstructorElement(null, $this->_tb);
-		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($this->ID).'"', 'sort_ndx, label');
-		foreach ($this->_data as $id=>$val) {
-			if (isset($this->_elements[$id])) {
-				$this->_elements[$id]->setValue($val);
-			}
-		}
-		foreach ($this->_disabled as $id) {
-			if (isset($this->_elements[$id])) {
-				$this->_elements[$id]->disabled = true;
-			}
-		}
-	}
-	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
-	 **/
 	function getElements() {
 		$ret = array();
 		foreach ($this->_elements as $el) {
@@ -137,7 +122,7 @@ class elFormConstructor {
 		$rnd->setFile('icartAdminForm', 'forms/simple_form.html');
 		
 		$label = '
-			<ul class="adm-icons">
+			<ul class="adm-icons form-constructor">
 				<li><a href="'.$url.'field_sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
 				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
 				<li><a href="'.$url.'field_rm/" class="icons clean" title="'.m('Clean').'"></a></li>
@@ -148,29 +133,23 @@ class elFormConstructor {
 
 		foreach ($this->_elements as $el) {
 			$e = $el->toFormElement();
+			$icons = '
+				<ul class="adm-icons form-constructor">
+					<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
+					<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
+				</ul>
+			';
 			if ($e->isCData) {
-
 				$data = array(
-					'cdata'  => '
-							<ul class="adm-icons">
-								<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
-								<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
-							</ul>
-						'.$e->toHtml(),
+					'cdata' => $icons.$e->toHtml(),
 					'rowAttrs' => $el->type=='title' ? ' class="form-tb-sub"' : ''
 					);
-
 				$rnd->assignBlockVars('FORM_BODY.CDATA', $data, 0);
 			} else {
 
 				$data = array(
 					'label' => $e->label,
-					'el'    => '
-							<ul class="adm-icons">
-								<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
-								<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
-							</ul>
-						'.$e->toHtml()
+					'el'    => $icons.$e->toHtml()
 					);
 				$rnd->assignBlockVars('FORM_BODY.ELEMENT', $data, 0);
 				if ($el->required) {
@@ -179,6 +158,16 @@ class elFormConstructor {
 			}
 		}
 		$rnd->parse('icartAdminForm');
+		
+		$js = '
+			$(".form-constructor .clean").add($(".form-constructor .delete")).click(function(e) {
+				if (!confirm("{m(\'Do You really want to delete\')}?")) {
+					e.preventDefault();
+				}
+			})
+		';
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		
 		return $rnd->getVar('icartAdminForm');
 	}
 	
@@ -200,7 +189,7 @@ class elFormConstructor {
 	 * @return bool
 	 **/
 	function edit($eID) {
-		$el = & new elFormConstructorElement(array('form_id' => $this->ID));
+		$el = & new $this->_elClass(array('form_id' => $this->ID));
 		$el->idAttr($eID);
 		$el->fetch();
 		if ($el->editAndSave(array('cnt' => count($this->_elements)))) {
@@ -235,10 +224,9 @@ class elFormConstructor {
 	}
 	
 	/**
-	 * undocumented function
+	 * create form/sort elements
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return bool
 	 **/
 	function sort()	{
 		$this->_form = & elSingleton::getObj('elForm', $this->ID, $this->label);
@@ -251,21 +239,45 @@ class elFormConstructor {
 		if ($this->_form->isSubmitAndValid()) {
 			$data = $this->_form->getValue();
 			$res  = $data['el'];
-			$db   = & elSingleton::getObj('elDb');
-			$sql  = 'UPDATE el_form SET sort_ndx=%d WHERE id=%d LIMIT 1';
+			// $db   = & elSingleton::getObj('elDb');
+			// $sql  = 'UPDATE el_form SET sort_ndx=%d WHERE id=%d LIMIT 1';
 			asort($res);
 			$i = 1;
 			foreach ($res as $id=>$ndx) {
-				if ($ndx != $i) {
-					$res[$id] = $i;
+				if (isset($this->_elements[$id])) {
+					if ($ndx != $i) {
+						$res[$id] = $i;
+					}
+					$this->_elements[$id]->updateSortNdx($ndx);
+					$i++;
 				}
-				$db->query(sprintf($sql, $res[$id], $id));
-				$i++;
+				
+				// $db->query(sprintf($sql, $res[$id], $id));
+				
 			}
 			return true;
 		}
 	}
 	
+	/**
+	 * load profile fields
+	 *
+	 * @return void
+	 **/
+	function _load() {
+		$el = & new $this->_elClass(null, $this->_tb);
+		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($this->ID).'"', 'sort_ndx, label');
+		foreach ($this->_data as $id=>$val) {
+			if (isset($this->_elements[$id])) {
+				$this->_elements[$id]->setValue($val);
+			}
+		}
+		foreach ($this->_disabled as $id) {
+			if (isset($this->_elements[$id])) {
+				$this->_elements[$id]->disabled = true;
+			}
+		}
+	}
 }
 
 class elFormConstructorElement extends elDataMapping {
@@ -366,17 +378,40 @@ class elFormConstructorElement extends elDataMapping {
 	 * @var string
 	 **/
 	var $sortNdx = 0;
-	
 	/**
 	 * disable input field
 	 *
 	 * @var bool
 	 **/
 	var $disabled = false;
+	/**
+	 * undocumented class variable
+	 *
+	 * @var string
+	 **/
+	var $_idAuto = true;
+	/**
+	 * types list
+	 *
+	 * @var array
+	 **/
+	var $_types = array(
+		'comment'   => 'Comment', 
+		'title'     => 'Title for elements group', 
+		'text'      => 'Text field', 
+		'textarea'  => 'Text area', 
+		'select'    => 'Drop down list', 
+		'checkbox'  => 'Checkboxes', 
+		'date'      => 'Date selector', 
+		'file'      => 'File upload field', 
+		'captcha'   => 'Captcha: image with code and input field (Spam protection)',
+		'directory' => 'System directory'
+		);
 	
 	/**
-	 * undocumented function
+	 * set value
 	 *
+	 * @param  string $v
 	 * @return void
 	 **/
 	function setValue($v) {
@@ -408,23 +443,22 @@ class elFormConstructorElement extends elDataMapping {
 				$el = & new elCData($this->ID, $this->value);
 				break;
 			case 'text':
-				$el = & new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
+				$el =  new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
 				break;	
 			case 'textarea':
 				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
 				break;
 			case 'select':
-				$opts = explode("\n", $this->opts);
-				$el = &new elSelect($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $opts, $attrs, false, false);
+				$opts = array_map('trim', explode("\n", $this->opts)); 
+				$el   = &new elSelect($this->ID, $this->label, $this->_value ? trim($this->_value) : trim($this->value), $opts, $attrs, false, false);
 				break;
 			case 'checkbox':
-				$opts = array_map('trim', explode("\n", $this->opts)); 
+				$opts  = array_map('trim', explode("\n", $this->opts)); 
 				$value = $this->_value ? implode("\n", $this->_value) : $this->value;
 				if (sizeof($opts) == 1) {
 					if ($this->value) {
 						$attrs['checked'] = 'on';
 					}
-					// $attrs = $this->value ? array('checked' => '') : null;
 					$el = & new elCheckBox($this->ID, $this->label, 1, $attrs);
 				} else {
 					$value = array_map('trim', explode("\n", $this->value)); 
@@ -455,11 +489,22 @@ class elFormConstructorElement extends elDataMapping {
 				
 			case 'directory':
 				$dm = & elSingleton::getObj('elDirectoryManager');
-				$el = &new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
+				$el =  new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
 				
 				break;
 		}
 		return $el;
+	}
+	
+	/**
+	 * update element sort index
+	 *
+	 * @param  int  $ndx
+	 * @return void
+	 **/
+	function updateSortNdx($ndx) {
+		$db = $this->_db();
+		$db->query(sprintf('UPDATE %s SET sort_ndx="%d" WHERE id="%s"', $this->_tb, $ndx, mysql_real_escape_string($this->ID)));
 	}
 	
 	/**
@@ -472,21 +517,9 @@ class elFormConstructorElement extends elDataMapping {
 		
 		if (!$this->ID) {
 			$this->sortNdx = 1+$params['cnt']++;
-			// echo $this->sortNdx;
 		}
-		
-		$types = array(
-			'comment'  => m('Comment'), 
-			'title'    => m('Title for elements group'), 
-			'text'     => m('Text field'), 
-			'textarea' => m('Text area'), 
-			'select'   => m('Drop down list'), 
-			'checkbox' => m('Checkboxes'), 
-			'date'     => m('Date selector'), 
-			'file'     => m('File upload field'), 
-			'captcha'  => m('Captcha: image with code and input field (Spam protection)'),
-			'directory' => m('System directory')
-			);
+		array_map('m', $this->_types);
+
 		$rules = array(
 			''                 => m('Any'),
 			'email'            => m('E-mail'),
@@ -500,9 +533,15 @@ class elFormConstructorElement extends elDataMapping {
 		
 		$dm = & elSingleton::getObj('elDirectoryManager');
 		
-		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),    $this->sortNdx, range(1, $params['cnt']), null, null, false));
+		if (!$this->_idAuto && !$this->ID) {
+			$this->_form->add(new elText('id', m('ID'), $this->ID));
+			$this->_form->setElementRule('id', 'alfanum_lat');
+			// $this->_form->setRequired('id');
+		}
+		
+		
 		$this->_form->add(new elText('label',       m('Name').$req,       $this->label));
-		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, $types));
+		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, $this->_types));
 		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
 		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
 		$this->_form->add(new elSelect('directory', m('Directory'),       $this->required, $dm->getList()));
@@ -511,6 +550,7 @@ class elFormConstructorElement extends elDataMapping {
 		$this->_form->add(new elSelect('file_size', m('Max file size in Mb.'), $this->fileSize, $fileSizes, null, null, false));
 		$this->_form->add(new elText('file_type',   m('Allowed file extensions list (separeted by semicolon)'),  $this->fileType));
 		$this->_form->add(new elText('error',       m('Error message'),  $this->error));
+		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),    $this->sortNdx, range(1, $params['cnt']), null, null, false));
 		
 		$js = "
 			$('#type').change(function() {
@@ -578,9 +618,22 @@ class elFormConstructorElement extends elDataMapping {
 		
 	}
 	
+	/**
+	 * validate form
+	 *
+	 * @return bool
+	 **/
 	function _validForm() {
 		elLoadMessages('formError');
 		$data = $this->_form->getValue();
+		
+		if (!$this->_idAuto && !$this->ID) {
+			$db  = $this->_db();
+			$db->query('SELECT id FROM '.$this->_tb.' WHERE id="'.mysql_real_escape_string($data['id']).'"');
+			if ($db->numRows()) {
+				$this->_form->pushError('id', m('Element with the same id already exists'));
+			}
+		}
 		
 		switch ($data['type']) {
 			case 'title':
@@ -599,11 +652,15 @@ class elFormConstructorElement extends elDataMapping {
 					$this->_form->pushError('label', m('Field could not be empty'));
 				}
 		}
-		
 
 		return !$this->_form->hasErrors();
 	}
 	
+	/**
+	 * update sort index
+	 *
+	 * @return bool
+	 **/
 	function _postSave($isNew, $params=null) {
 		$db  = $this->_db();
 		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE form_id="'.$this->formID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
@@ -623,8 +680,7 @@ class elFormConstructorElement extends elDataMapping {
 		return true;
 	}
 	
-	function _initMapping()
-  	{
+	function _initMapping() {
     	return array( 
 			'id'        => 'ID',
 			'form_id'   => 'formID',

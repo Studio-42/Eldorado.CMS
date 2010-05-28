@@ -52,7 +52,7 @@ class elDataMapping
 			$ret = array();
 			foreach ( $map as $a=>$m )
 			{
-				if (!$this->$m)
+				if (!isset($this->$m))
 					$this->$m = '';
 				$ret[$a] = $this->$m;
 			}

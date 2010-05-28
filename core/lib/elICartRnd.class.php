@@ -11,6 +11,8 @@ class elICartRnd {
 		);
 	var $stepStates = array();
 	
+	var $steps = array();
+	
 	/**
 	 * undocumented function
 	 *
@@ -97,12 +99,25 @@ class elICartRnd {
 	 *
 	 * @return void
 	 **/
-	function rndAddress() {
+	function rndAddress($form) {
 		$this->_rndCommon('address');
+		$this->_te->assignVars('ICART_CONTENT', $form);
 	}
 	
 	
-	function renderComplite() { }
+	function rndConfirm() { 
+		$this->_rndCommon('confirm');
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function renderComplite()
+	{
+	}
 	
 	/**
 	 * render common part of order template
@@ -111,31 +126,25 @@ class elICartRnd {
 	 **/
 	function _rndCommon($step) {
 		
+		// elPrintr($this->steps);
+		
 		$this->_te->setFile('PAGE', 'services/ICart/default.html');
 		$this->_te->assignVars('iCartStepTitle', $this->_steps[$step]);
 		$this->_te->assignVars('iCartURL', $this->url.'__icart__/');
 		$this->_te->assignVars('buttonText', $step == 'confirm' ? m('Complete') : m('Continue').' &raquo;');
 		$this->_te->assignVars('stepID', $step);
-		foreach ($this->_steps as $k=>$v) {
-			$block = $this->stepStates[$k] ? 'ICART_STEP_AVAIL' : 'ICART_STEP_DISABLE';
-			$data = array(
-				'url' => $this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/'),
-				'name' => $v,
-				'cssClass' => $k == $step ? 'icart-nav-active' : ''
-				);
-			$this->_te->assignBlockVars('ICART_STEP.'.$block, $data);
+
+		foreach ($this->steps as $k=>$v) {
+			if ($v['enable']) {
+				$block = $v['allow'] ? 'ICART_STEP_AVAIL' : 'ICART_STEP_DISABLE';
+				$data = array(
+					'url' => $this->url.'__icart__/'.($k == 'cart' ? '' : $k.'/'),
+					'name' => m($v['label']),
+					'cssClass' => $k == $step ? 'icart-nav-active' : ''
+					);
+				$this->_te->assignBlockVars('ICART_STEP.'.$block, $data);
+			}
 		}
-		
-		// $allow = true;
-		// foreach ($this->_steps as $k=>$v) {
-		// 	$link = $allow ? '<a href="'.$this->url.'__icart__/'.($k == 'icart' ? '' : $k.'/').'">'.$v.'</a>': $v;
-		// 	
-		// 	$this->_te->assignBlockVars('ICART_STEP', array('link' => $link));
-		// 	$this->_te->assignVars('stepID', $step);
-		// 	if ($allow && $k == $step) {
-		// 		$allow = false;
-		// 	}
-		// }
 	}
 	
 	

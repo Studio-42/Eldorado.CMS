@@ -17,12 +17,12 @@ class elSubModuleUsers extends elModule
 			'l'   => 'Configuration of user profile',
 			'g'   => 'Configuration'
 		),
-		'profile' => array(
-			'm'   => 'profile',
-			'ico' => 'icoMenu',
-			'l'   => 'Add profile field',
-			'g'   => 'Configuration'
-		)
+		// 'profile' => array(
+		// 	'm'   => 'profile',
+		// 	'ico' => 'icoMenu',
+		// 	'l'   => 'Add profile field',
+		// 	'g'   => 'Configuration'
+		// )
 	);
 	var $_filter   = array(
 		'pattern' => '',
@@ -30,7 +30,7 @@ class elSubModuleUsers extends elModule
 		'sort'    => 'login',
 		'offset'  => 30
 	);
-	var $_ats = null;
+	var $_ats  = null;
 	var $_user = null;
 
 
@@ -156,6 +156,63 @@ class elSubModuleUsers extends elModule
 			elMsgBox::put( sprintf(m('User "%s" was deleted'), $user->login) );
 		}
 		elLocation( EL_URL);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function configure() {
+		$user    = $this->_ats->createUser();
+		$profile = $user->getProfile();
+		$url     = EL_URL.'conf/';
+		$id      = trim($this->_arg(1));
+		if ($id == 'login' || $id == 'email') {
+			elThrow(E_USER_WARNING, 'Fields login and email cannot be modified or removed', null, $url);
+		}
+		$this->_initRenderer();
+		// echo $id;
+		// elPrintR($this->_args);
+		// elPrintr($profile);
+		switch($this->_arg()) {
+			case 'field_edit':
+				// echo 'field_edit';
+				if ($profile->edit($id)) {
+					elMsgBox::put(m('Data saved'));
+					elLocation($url);
+				} else {
+					$this->_rnd->addToContent($profile->formToHtml());
+				}
+				break;
+			case 'field_rm':
+				$id = trim($this->_arg(1));
+				if ($id) {
+					if (!$profile->fieldExists($id)) {
+						elThrow(E_USER_WARNING, 'Object "%s" with ID="%s" does not exists', array(m('Profile field'), $id), $url);
+					}
+					$profile->delete($id);
+					elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), m('Profile field'), $id));
+				} else {
+					$profile->clean();
+					elMsg::put('Fields removed');
+				}
+				elLocation($url);
+				break;
+			case 'field_sort':
+				if ($profile->sort()) {
+					elMsgBox::put(m('Data saved'));
+					elLocation($url);
+				} else {
+					$this->_rnd->addToContent($profile->formToHtml());
+				}
+				break;
+			default:
+				$html = $profile->getAdminFormHtml($url);
+				$this->_rnd->addToContent($html);
+		}
+		
 	}
 
 	// Добавление/Изменение поля профиля

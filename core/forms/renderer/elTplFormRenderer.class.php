@@ -34,7 +34,7 @@ class elTplFormRenderer extends elFormRenderer
 
   function setTpl( $fileName )
   {
-    $this->tpl = $fileName;
+    $this->tplFile = $fileName;
   }
 
   function setButtonsNames( $submit, $reset )

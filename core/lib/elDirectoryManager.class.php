@@ -7,21 +7,18 @@ class elDirectoryManager {
 	 * @var string
 	 */
 	var $_tb   = 'el_directories_list';
-	
 	/**
 	 * Directories list
 	 *
 	 * @var array
 	 **/
 	var $_list = array();
-	
 	/**
 	 * db object
 	 *
 	 * @var object
 	 **/
 	var $_db = null;
-	
 	/**
 	 * Last error text
 	 *
@@ -115,7 +112,6 @@ class elDirectoryManager {
 		} 
 	}
 	
-
 	/**
 	 * Remove directory
 	 *
@@ -164,19 +160,36 @@ class elDirectoryManager {
 	}
 	
 	/**
-	 * undocumented function
+	 * return directory record by id
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @param  string  $id     directory id
+	 * @param  string  $recID  record id
+	 * @return string
 	 **/
-	function getRecord($id, $recID)	{
+	function getRecord($id, $recID, $default=false)	{
 		if ($this->directoryExists($id)) {
 			$r = $this->_db->queryToArray('SELECT value FROM `el_directory_'.$id.'` WHERE id='.intval($recID), null, 'value');
-			return isset($r[0]) ? $r[0] : '';
+			return isset($r[0]) ? $r[0] : ($default ? $this->getDefaultRecord($id) : '');
 		}
 		return '';
 	}
 	
+	/**
+	 * return default value
+	 *
+	 * @param  string  $id  directory id
+	 * @return string
+	 **/
+	function getDefaultRecord($id) {
+		if ($this->directoryExists($id)) {
+			$sql = 'SELECT value FROM el_directory_'.$id.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value LIMIT 0, 1';
+			if ($this->_db->query($sql)) {
+				$r = $this->_db->nextRecord();
+				return $r['value'];
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * Remove all records from directory

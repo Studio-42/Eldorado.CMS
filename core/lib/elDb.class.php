@@ -159,14 +159,14 @@ class elDb
     {
 		if (!$this->supressDebug)
 		{
-		  elDebug('SQL query failed.'.$sql.mysql_error(), EL_DEBUGQ);
+		  elDebug('__SQL__ query failed. '.$sql.' '.mysql_error(), EL_DEBUGQ);
 		}
       	return elThrow(E_USER_WARNING, 'SQL query failed.');
 		
     }
     elseif (!$this->supressDebug)
     {
-      elDebug($sql, EL_DEBUGQ);
+      elDebug('__SQL__ '.$sql, EL_DEBUGQ);
     }
 
     return $this->resID;

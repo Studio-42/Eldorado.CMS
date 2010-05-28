@@ -8,6 +8,7 @@ class elIShopItem extends elCatalogItem
   var $tbmnf      = '';
   var $tbp2i      = '';
   var $tbi2c      = '';
+  var $tbgal      = '';
   var $tb         = '';
   var $ID         = 0;
   var $typeID     = 0;
@@ -19,6 +20,7 @@ class elIShopItem extends elCatalogItem
   var $content    = '';
   var $price      = 0;
   var $img        = '';
+  var $gallery    = array();
   var $crtime     = 0;
   var $mtime      = 0;
   var $propVals   = array();
@@ -440,32 +442,120 @@ class elIShopItem extends elCatalogItem
     return false;
   }
 
-  function changeImage($lSize, $cSize)
-  {
-    $this->_makeImageForm();
-    if ( !$this->_form->isSubmitAndValid() )
-    {
-      return false;
-    }
+	// Image manipulation
 
-    $sqlTpl = 'UPDATE '.$this->_tb.' SET img="%s" WHERE id="'.$this->ID.'"';
-    $data   = $this->_form->getValue(); 
-    if ( empty($data['imgURL']) )
-    {
-      $imgPath = '';
-      if ($this->img)
-      {
-        list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
-        @unlink('.'.$tmbl);
-        @unlink('.'.$tmbc);
-      }
-    }
-    else
-    {
+	// if $img_id is not set - get first (main) image, else image with $img_id
+	function getImg($img_id = false)
+	{
+		if (!$this->ID)
+		{
+			return false;
+		}
+
+		if ((!empty($this->img) || ($this->img === false)) && ($img_id === false))
+		{
+			return $this->img;
+		}
+		if ((int)$img_id > 0)
+		{
+			$sql = sprintf('SELECT img FROM %s WHERE id=%d AND i_id=%d LIMIT 1', $this->tbgal, (int)$img_id, $this->ID);
+		}
+		else
+		{
+			$sql = sprintf('SELECT img FROM %s WHERE i_id=%d ORDER BY id LIMIT 1', $this->tbgal, $this->ID);
+		}
+		$db = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		if (!$db->numRows())
+		{
+			return false;
+		}
+		$f = $db->nextRecord();
+		$this->img = $f['img'];
+		return $f['img'];
+	}
+
+	function getGallery()
+	{
+		if (!$this->ID)
+		{
+			return false;
+		}
+
+		if (!empty($this->gallery) || ($this->gallery === false))
+		{
+			return $this->gallery;
+		}
+
+		$db = & elSingleton::getObj('elDb');
+		$db->query(sprintf('SELECT id, img FROM %s WHERE i_id=%d ORDER BY id', $this->tbgal, $this->ID));
+		if ($db->numRows() < 2)
+		{
+			$this->gallery = false;
+			return false;
+		}
+
+		$gallery = array();
+		while ($r = $db->nextRecord())
+		{
+			$gallery[$r['id']] = $r['img'];
+		}
+		$this->gallery = $gallery;
+		return $gallery;
+	}
+
+	function rmImage($img_id)
+	{
+		if (!$this->ID)
+		{
+			return false;
+		}
+
+		$img = $this->getImg($img_id);
+		if (($img_id > 0) && ($img != false))
+		{
+			$sql = sprintf('DELETE FROM %s WHERE id=%d AND i_id=%d', $this->tbgal, $img_id, $this->ID);
+		}
+		elseif ($img)
+		{
+			$sql = sprintf('DELETE FROM %s WHERE i_id=%d AND img="%s"', $this->tbgal, $this->ID, $img);
+		}
+
+		if ($img)
+		{
+			list($tmbl, $tmbc) = $this->_getTmbNames($img);
+			@unlink('.'.$tmbl);
+			@unlink('.'.$tmbc);
+		}
+
+		$db = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		return false;
+	}
+
+	function changeImage($img_id, $lSize, $cSize)
+	{
+		$this->_makeImageForm($img_id);
+		if (!$this->_form->isSubmitAndValid())
+		{
+			return false;
+		}
+
+		$data = $this->_form->getValue();
+		if (empty($data['imgURL']))
+		{
+			return false;
+		}
+
+		$imgPath = str_replace(EL_BASE_URL, '', $data['imgURL']);
+		if (in_array($imgPath, $this->getGallery()))
+		{
+			return elThrow(E_USER_WARNING, 'This image is already in the gallery');
+		}
+
+		list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
 		$lSize = $lSize < 30 ? 120 : $lSize;
 		$cSize = $cSize < 30 ? 120 : $cSize;
-      	$imgPath = str_replace(EL_BASE_URL, '', $data['imgURL']);
-		list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
 		$image = & elSingleton::getObj('elImage');
 		if (!$image->tmb('.'.$imgPath, '.'.$tmbl, $lSize, ceil($lSize/(4/3))))
 		{
@@ -475,43 +565,76 @@ class elIShopItem extends elCatalogItem
 		{
 			return elThrow(E_USER_WARNING, $image->error);
 		}
-    }
-    $db = & elSingleton::getObj('elDb');
-    $db->query( sprintf($sqlTpl, mysql_real_escape_string($imgPath)) );
-    return true;
-  }
 
-  function getTmbURL($tmbType='l')
-  {
-    if ( $this->img )
-    {
-      list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
-
-      return EL_BASE_URL.('c' == $tmbType ? $tmbc : $tmbl);
-    }
-  }
-
-  function _getTmbNames($imgPath)
-  {
-    $imgName = baseName($imgPath);
-    $imgDir  = dirname($imgPath).'/';
-    return array($imgDir.'tmbl-'.$imgName, $imgDir.'tmbc-'.$imgName);
-  }
-
-  function _makeImageForm()
-  {
-		elLoadJQueryUI();
-		elAddCss('elfinder.css',          EL_JS_CSS_FILE);
-		elAddJs('elfinder.min.js',        EL_JS_CSS_FILE);
-		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js'))
+		if (($img_id > 0) || ($img_id == -1))
 		{
-			elAddJs('elfinder'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.EL_LANG.'.js', EL_JS_CSS_FILE);
+			if (($img = $this->getImg($img_id)) != false)
+			{
+				if ($img != $imgPath) // if set to the same image as before donot delete just generated thumbs 
+				{
+					list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
+					@unlink('.'.$tmbl);
+					@unlink('.'.$tmbc);
+				}
+			}
+			if ($img_id == -1)
+			{
+				$sql = sprintf('UPDATE %s SET img="%s" WHERE i_id=%d LIMIT 1', $this->tbgal, $imgPath, $this->ID);
+			}
+			else
+			{
+				$sql = sprintf('UPDATE %s SET img="%s" WHERE id=%d AND i_id=%d LIMIT 1', $this->tbgal, $imgPath, $img_id, $this->ID);			
+			}
+		}
+		else
+		{
+			$sql = sprintf('INSERT INTO %s (i_id, img) VALUES (%d, "%s")', $this->tbgal, $this->ID, $imgPath);
+		}
+		$db = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		return true;
+	}
+
+	function getTmbURL($tmbType = 'l', $thisImg = false)
+	{
+		$img = false;
+		if ($thisImg != false)
+		{
+			$img = $thisImg;
+		}
+		else
+		{
+			$img = $this->getImg();
 		}
 
-    	$this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m('Image for "%s"'), addslashes($this->name) )  );
-		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-		$this->_form->add( new elHidden('imgURL', '', $this->img ? EL_BASE_URL.$this->img : '') );
-		
+		if ($img)
+		{
+			list($tmbl, $tmbc) = $this->_getTmbNames($img);
+			return EL_BASE_URL.('c' == $tmbType ? $tmbc : $tmbl);
+		}
+	}
+
+	function _getTmbNames($imgPath)
+	{
+		$imgName = baseName($imgPath);
+		$imgDir  = dirname($imgPath).'/';
+		return array($imgDir.'tmbl-'.$imgName, $imgDir.'tmbc-'.$imgName);
+	}
+
+	function _makeImageForm($img_id = false)
+	{
+		elLoadJQueryUI();
+		elAddCss('elfinder.css',   EL_JS_CSS_FILE);
+		elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
+		if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
+		{
+			elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
+		}
+
+		$this->_form = & elSingleton::getObj('elForm', 'mf', sprintf(m('Image for "%s"'), addslashes($this->name)));
+		$this->_form->setRenderer(elSingleton::getObj('elTplFormRenderer'));
+		$this->_form->add(new elHidden('imgURL', '', ($img_id != false) ? EL_BASE_URL.$this->getImg($img_id) : ''));
+
 		$js = "
 		$('#ishop-sel-img').click(function(e) {
 			e.preventDefault();
@@ -521,10 +644,7 @@ class elIShopItem extends elCatalogItem
 				editorCallback : function(url) { $('#imgURL').val(url).trigger('change');}, 
 				dialog : { width : 750, modal : true}});
 		});
-		$('#ishop-rm-img').click(function(e) {
-			e.preventDefault();
-			$('#imgURL').val('').parents('form').submit();
-		});
+
 		$('#imgURL').bind('change', function() {
 			var p = $('#ishop-sel-prev').empty();
 			if (this.value) {
@@ -542,10 +662,8 @@ class elIShopItem extends elCatalogItem
 		";
 		elAddJs($js, EL_JS_SRC_ONREADY);
 		$this->_form->add(new elCData('img',  "<a href='#' class='link link-image' id='ishop-sel-img'>".m('Select or upload image file')."</a>"));
-		$this->_form->add(new elCData('rm',   "<a href='#' class='link link-delete' id='ishop-rm-img'>".m('Delete image')."</a> "));
 		$this->_form->add(new elCData('prev', "<fieldset id='ishop-sel-prev'><legend>".m('Preview')."</legend></fieldset>"));
-
-  }
+	}
 
   /***********************************************************/
   //                      PRIVATE                            //
@@ -730,7 +848,6 @@ class elIShopItem extends elCatalogItem
       'announce' => 'announce',
       'content'  => 'content',
       'price'    => 'price',
-      'img'      => 'img',
       'crtime'   => 'crtime',
       'mtime'    => 'mtime'
       );

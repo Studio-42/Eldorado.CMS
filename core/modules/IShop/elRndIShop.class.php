@@ -119,7 +119,7 @@ class elRndIShop extends elCatalogRenderer
     }
   }
 
-  function renderItem( $item, $linkedObjs=null )
+	function renderItem($item, $linkedObjs = null)
 	{
 		elAddJs('jquery.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.metadata.min.js', EL_JS_CSS_FILE);
@@ -128,42 +128,69 @@ class elRndIShop extends elCatalogRenderer
 		
 		$this->_setFile('item');
 		$this->_te->assignVars( $item->toArray() );
-		
+
+		// Admin menu
 		if ($this->_admin)
 		{
 			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
 		}
-		
-		if ($item->img)
-		{
-		  $p = $this->_conf('tmbItemCardPos');
-		  $s = @getimagesize('.'.$item->img);
-		  $vars = array(
-		    'id' => $item->ID,
-		    'src' => $item->getTmbURL('c'),
-			'target' => EL_BASE_URL.$item->img,
-		    'alt'=>htmlspecialchars($item->name),
-		    'w'=>120+$s[0],
-		    'h'=>150+$s[1]
-		    );
 
-		  if ( EL_POS_TOP == $p )
-		  {
-		    $block = 'ITEM_IMG_TOP';
-		  }
-		  else
-		  {
-		    $block = 'ITEM_IMG';
-		    $vars['pos'] = EL_POS_RIGHT == $this->_conf('tmbListPos') ? 'right' : 'left';
-		  }
-      $this->_te->assignBlockVars($block, $vars);
+		// Main image
+		if (($img = $item->getImg()) != false)
+		{
+			$p = $this->_conf('tmbItemCardPos');
+			$s = @getimagesize('.'.$img);
+			$vars = array(
+				'id'     => $item->ID,
+				'src'    => $item->getTmbURL('c'),
+				'target' => EL_BASE_URL.$img,
+				'alt'    => htmlspecialchars($item->name),
+				'w'      => 120 + $s[0],
+				'h'      => 150 + $s[1]
+			);
+
+			if (EL_POS_TOP == $p)
+			{
+				$block = 'ITEM_IMG_TOP';
+			}
+			else
+			{
+				$block = 'ITEM_IMG';
+				$vars['pos'] = EL_POS_RIGHT == $p ? 'right' : 'left';
+			}
+			$this->_te->assignBlockVars($block, $vars);
+			if ($this->_admin && (!$item->getGallery()))
+			{
+				$this->_te->assignBlockVars($block.'.ADMIN', array(), 1);
+			}
+		}
+
+		// Gallery
+		if (($gallery = $item->getGallery()) != false)
+		{
+			$block = 'ITEM_GALLERY';
+			$this->_te->assignBlockVars($block, array());
+			foreach ($gallery as $img_id => $src)
+			{
+				$img = array(
+					'tmb'     => $item->getTmbURL('l', $src),
+					'target'  => $src,
+					'img_id'  => $img_id
+				);
+				$this->_te->assignBlockVars($block.'.GALLERY_IMG', $img, 1);
+				if ($this->_admin)
+				{
+					$this->_te->assignBlockVars($block.'.GALLERY_IMG.GALLERY_ADMIN', $img, 2);
+				}
+			}
 
 		}
 
 		if (!empty($this->_conf['displayCode']))
 		{
-		  $this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
+			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
 		}
+
     if ( !empty($this->_conf['mnfNfo']) )
     {
       $vars = array('mnf'=>$item->mnf, 'country'=>$item->mnfCountry, 'tm'=>$item->tm);
@@ -314,7 +341,7 @@ class elRndIShop extends elCatalogRenderer
 	  		{
 				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.PRICE', array('id'  => $item->ID, 'price'=>$item->price), 2 );
 	  		}
-			if ($item->img)
+			if (($img = $item->getImg()) != false)
 	  		{
 				$vars = array(
 		 			'id'  => $item->ID,
@@ -377,7 +404,7 @@ class elRndIShop extends elCatalogRenderer
 			{
 			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$item->price), 2 );
 			}
-			if ($item->img)
+			if (($img = $item->getImg()) != false)
 			{
 			  	$vars = array(
 			   		'id'  => $item->ID,

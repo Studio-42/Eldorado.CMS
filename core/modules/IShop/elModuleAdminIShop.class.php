@@ -10,6 +10,7 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'move'        => array('m'=>'moveCat'),
 	  	'rm_item'     => array('m'=>'rmItem'),
 	  	'item_img'    => array('m'=>'itemImg'),
+	  	'rm_img'      => array('m'=>'rmItemImg'),
 	  	'types'       => array('m'=>'displayItemsTypes', 'g'=>'Actions', 'ico'=>'icoItemTypesList', 'l'=>'Items types list'),
 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 	  	'mnfs_list'   => array('m'=>'mnfList',           'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
@@ -34,7 +35,7 @@ class elModuleAdminIShop extends elModuleIShop
 		'conf_search'     => array('m'=>'configureSearch',     'ico'=>'icoSearchConf',    'l'=>'Configure advanced search'),
 		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
-		'import_comml'       => array('m' => 'importCommerceML', 'ico'=>'icoConf',          'l'=>'Import from 1C')
+		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
 	/**********    манипуляции с типами товаров   *******************/
@@ -178,21 +179,34 @@ class elModuleAdminIShop extends elModuleIShop
     elLocation(EL_URL.$this->_cat->ID);
   }
 
-  function itemImg()
-  {
-    $item = $this->_factory->getItem( (int)$this->_arg(1) );
-    if ( !$item->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
-    }
-    if ( !$item->changeImage($this->_conf('tmbListSize'), $this->_conf('tmbItemCardSize')) )
-    {
-      $this->_initRenderer();
-      return $this->_rnd->addToContent( $item->formToHtml() );
-    }
-    elMsgBox::put( m('Data saved') );
-	  elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
-  }
+	function itemImg()
+	{
+		$item = $this->_factory->getItem((int)$this->_arg(1));
+		if (!$item->ID)
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
+		}
+		if (!$item->changeImage((int)$this->_arg(2), $this->_conf('tmbListSize'), $this->_conf('tmbItemCardSize')))
+		{
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($item->formToHtml());
+		}
+		elMsgBox::put(m('Data saved'));
+		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
+	}
+
+	function rmItemImg()
+	{
+		$item = $this->_factory->getItem((int)$this->_arg(1));
+		if (!$item->ID)
+		{
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
+		}
+		$img_id = (int)$this->_arg(2);
+		$item->rmImage((int)$this->_arg(2));
+		elMsgBox::put(m('Data saved'));
+		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
+	}
   
   function sortItems()
   {
@@ -229,7 +243,7 @@ class elModuleAdminIShop extends elModuleIShop
       }
       else
       {
-        elMsgBox::put( m('Selected documents was deleted') );
+        elMsgBox::put(m('Selected documents was deleted'));
         elLocation(EL_URL.$this->_cat->ID);
       }
   }

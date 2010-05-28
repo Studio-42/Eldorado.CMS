@@ -31,8 +31,7 @@ class elModuleIShop extends elModule
 	var $_item      = null;
 	var $_jslib     = true;
 	var $_mMap      = array(
-		'item'   => array('m' =>'viewItem'), 
-		'img'   => array('m' => 'displayItemImg'),
+		'item'  => array('m' => 'viewItem'),
 		'order' => array('m' => 'order') 
 	);
 	var $_conf      = array(
@@ -161,18 +160,6 @@ class elModuleIShop extends elModule
     $this->_initRenderer();
     $clm = & $this->_getCrossLinksManager();
     $this->_rnd->renderItem( $this->_item, $clm->getLinkedObjects($this->_item->ID) );
-  }
-
-  function displayItemImg()
-  {
-    $this->_item = $this->_factory->getItem( (int)$this->_arg(1) );
-    if ( !$this->_item->ID )
-    {
-      elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-              array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
-    }
-    $this->_initRenderer();
-    $this->_rnd->rndItemImg($this->_item);
   }
 
   function toXML()

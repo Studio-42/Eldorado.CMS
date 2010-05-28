@@ -443,7 +443,7 @@ class elFormConstructorElement extends elDataMapping {
 				$el = & new elCData($this->ID, $this->value);
 				break;
 			case 'text':
-				$el = & new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
+				$el =  new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
 				break;	
 			case 'textarea':
 				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
@@ -489,7 +489,7 @@ class elFormConstructorElement extends elDataMapping {
 				
 			case 'directory':
 				$dm = & elSingleton::getObj('elDirectoryManager');
-				$el = &new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
+				$el =  new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
 				
 				break;
 		}

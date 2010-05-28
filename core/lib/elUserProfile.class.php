@@ -110,6 +110,10 @@ class elUserProfileField extends elFormConstructorElement {
 			$db->query('DELETE FROM '.$this->_tb.' WHERE id="'.$this->ID.'"');
 			return false;
 		}
+		if (!empty($attrs['value'])) {
+			$sql = sprintf('UPDATE el_user SET %s="%s" WHERE %s=""', $this->ID, $attrs['value'], $this->ID);
+			echo $sql;
+		}
 		return $this->_postSave();
 	}
 	

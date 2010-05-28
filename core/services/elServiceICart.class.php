@@ -9,7 +9,7 @@ class elServiceICart extends elService
 		'repeat_order' => array('m' => 'repeatOrder'),
 		'delivery'     => array('m' => 'delivery'),
 		'address'      => array('m' => 'address'),
-		'complete'     => array('m' => 'complete'),
+		'confirm'     => array('m' => 'confirm'),
 		'info'         => array('m' => 'deliveryInfo')
 	);
     var $_iCart     = null;
@@ -19,12 +19,38 @@ class elServiceICart extends elService
 	var $_url       = '';
 
     var $_user      = null;
-    var $_uProfile  = null;
-    var $_uProfSkel = array();
-	var $_steps = array();
+    // var $_uProfile  = null;
+    // var $_uProfSkel = array();
+	var $_steps = array(
+		'cart' => array(
+			'label'  => 'Products',
+			'enable' => true,
+			'allow'  => true
+			),
+		'delivery' => array(
+			'label'  => 'Delivery/payment',
+			'enable' => true,
+			'allow'  => true,
+			),
+		'address' => array(
+			'label'  => 'Address',
+			'enable' => true,
+			'allow'  => false
+			),
+		'confirm' => array(
+			'label'  => 'Confirmation',
+			'enable' => true,
+			'allow'  => false
+			),
+		'payment' => array(
+			'label'  => 'Online payment',
+			'enable' => false,
+			'allow'  => false
+			)
+			
+		);
     
-    function init($args)
-    {
+    function init($args) {
         $this->_args  = $args;
 		$this->_ats   = & elSingleton::getObj('elATS');
 		$this->_user  = & $this->_ats->getUser();
@@ -37,31 +63,6 @@ class elServiceICart extends elService
         $this->_rnd = & elSingleton::getObj('elICartRnd');
 		$this->_rnd->url = $this->_url;
 
-		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
-		// elAppendToPageTitle('ICart', 1);
-
-		$this->_userData = $this->_user->prefrence('icartData');
-
-		if (empty($this->_userData['steps']) 
-		|| empty($this->_userData['delivery'])) {
-			$this->_userData = array(
-				'steps' => array(
-					'cart'     => true,
-					'delivery' => true,
-					'address'  => false,
-					'confirm'  => false
-					),
-				'delivery' => array(
-					'region_id'   => 0,
-					'delivery_id' => 0,
-					'payment_id'  => 0
-					),
-				'address' => array()
-				);
-				
-			$this->_user->prefrence('icartData', $this->_userData);
-		}
-
 		if ($this->_iCart->isEmpty()) {
 			return elMsgBox::put('Your shopping cart is empty');
 		}
@@ -70,35 +71,51 @@ class elServiceICart extends elService
 			return $this->_ats->auth(EL_URL.'__icart__/');
 		}
 		
-		if ($this->_userData['delivery']['region_id'] 
-		&& $this->_userData['delivery']['delivery_id'] 
-		&& $this->_userData['delivery']['payment_id']) {
-			$this->_userData['steps']['address'] = true;
-		} else {
-			$this->_userData['steps']['address'] = false;
-			$this->_userData['steps']['confirm'] = false;
+		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
+		// $this->_user->removePrefrence('icartData');
+		$this->_userData = $this->_user->prefrence('icartData');
+
+		if (!$this->_conf->getAll()) {
+			$this->_steps['delivery']['enable'] = false;
+			$this->_steps['address']['allow'] = true;
+		} elseif (!empty($this->_userData['delivery']['region_id']) 
+				&& !empty($this->_userData['delivery']['delivery_id'])
+				&& !empty($this->_userData['delivery']['payment_id'])) {
+					
+			$test = $this->_conf->get($this->_userData['delivery']['region_id'], 
+									$this->_userData['delivery']['delivery_id'], 
+									$this->_userData['delivery']['payment_id']);
+			if ($test['region_id']) {
+				$this->_steps['address']['allow'] = true;
+			}
+			if (!empty($test['online_payment'])) {
+				$this->_steps['payment']['enable'] = true;
+			}
+		}
+
+		if (!empty($this->_userData['address'])) {
+			$this->_steps['confirm']['allow'] = true;
+		}
+
+		if ($this->_steps['payment']['enable'] 
+		&& !empty($this->_userData['confirm'])) {
+			$this->_steps['payment']['allow'] = true;
 		}
 		
-		if ($this->_userData['steps']['address'] && false) {
-			$this->_userData['steps']['confirm'] = true;
-		} else {
-			$this->_userData['steps']['confirm'] = false;
-		}
-		$this->_rnd->stepStates = $this->_userData['steps'];
-		// elPrintR($this->_userData);
+		$this->_rnd->steps = $this->_steps;
+		// elPrintR($this->_steps);
     }
     
     
     function defaultMethod() {
 	
 		if (!empty($_POST['action'])) {
-			// elPrintR($_POST);
 			
 			switch($_POST['action']) {
 				case 'next':
 					$this->_iCart->update($_POST['qnt']);
-					// $this->_allowStep('delivery');
-					$this->_go('delivery');
+					elLocation($this->_url.'__icart__/'.($this->_steps['delivery']['enable'] ? 'delivery/' : 'address/'));
+					// $this->_go('delivery');
 					break;
 				case 'delete':
 					if (!empty($_POST['id'])) {
@@ -120,54 +137,7 @@ class elServiceICart extends elService
 		if (!$this->_iCart->isEmpty()) {
 			$this->_rnd->rndICart($this->_iCart);
 		}
-		
-		
-		
-		return;
-        $ats              = & elSingleton::getObj('elATS');
-        $this->_user      = & $ats->getUser();
-        $this->_uProfile  = & $this->_user->getProfile();
-        $this->_uProfSkel = $this->_uProfile->getSkel();
 
-		$flist = array('f_name', 's_name', 'l_name', 'email', 'phone', 'address', 'company');
-		foreach ($this->_uProfSkel as $k=>$v) {
-			if (!in_array($k, $flist)) {
-				unset($this->_uProfSkel[$k]);
-			}
-		}
-		$this->_uProfSkel['email']['rule'] = 'email';
-		$this->_uProfSkel['email']['is_func'] = false;
-		
-        $this->_uProfSkel['comments'] = array('field'=>'comments', 'rq'=>1, 'label'=>'Comments', 'type'=>'textarea', 'sort_ndx'=>100, 'is_func'=>'', 'rule'=>'');
-        $this->_loadAddrNfo();
-        elLoadMessages('UserProfile');
-        $stepID = (int)$this->_arg(0);
-        $this->_checkStep($stepID);
-        if ( 0 == $this->_maxStID )
-        {
-            elThrow(E_USER_WARNING, 'Your shopping cart is empty', null, EL_URL);
-        }
-        if ( $stepID <> $this->_curStID )
-        {
-            elThrow(E_USER_WARNING, 'Please, complete all required steps', null, EL_URL.'__icart__/');
-        }
-        //elDebug('step='.$this->_curStID.' maxStep='.$this->_maxStID.'<br/>');
-        if ( $this->_isStepExcluded($this->_curStID) )
-        {
-            $this->_goNext();
-        }
-        
-        $m = $this->_steps[$stepID][0]; 
-        if ( !method_exists($this, $m) )
-        {
-            elThrow(E_USER_ERROR, 'Unexpected error!', null, EL_URL.'__icart__/');
-        }
-
-        $this->$m();
-        $conf = &elSingleton::getObj('elXmlConf');
-        $conf->set('navPathInPTitle', 3, 'layout');
-
-        elAppendToPagePath( array( 'url'=>'__icart__/', 'name'=>m('Shopping cart'))  );
     }
     
     
@@ -178,7 +148,7 @@ class elServiceICart extends elService
 	 **/
 	function delivery()	{
 
-		if (!$this->_checkStep('delivery')) {
+		if (!$this->_steps['delivery']['allow']) {
 			elLocation($this->_url.'__icart__/');
 		}
 		
@@ -199,22 +169,43 @@ class elServiceICart extends elService
 			}
 		}
 	
+		$regions = $this->_conf->getRegions();
 	
-		$regionID   = (int)$this->_userData['delivery']['region_id'];
-		$deliveryID = (int)$this->_userData['delivery']['delivery_id'];
-		$paymentID  = (int)$this->_userData['delivery']['payment_id'];
-		
-		$regions    = $this->_conf->getRegions();
-		
-		$val = $this->_conf->get($regionID, $deliveryID, $paymentID);
-		if ($val['region_id'] && $val['delivery_id'] && $val['payment_id'] ) {
-			$delivery   = $this->_conf->getDelivery($regionID);
-			$payment    = $this->_conf->getPayment($regionID, $deliveryID);
+		if (!empty($this->_userData['delivery']['region_id']) 
+		&&  $this->_userData['delivery']['region_id'] > 0) {
+			$regionID   = (int)$this->_userData['delivery']['region_id'];
 		} else {
-			$delivery   = $this->_conf->getDelivery($regions[0]['id']);
-			$payment    = $this->_conf->getPayment($regions[0]['id'], $delivery[0]['id']);
-			$val        = $this->_conf->get($regions[0]['id'], $delivery[0]['id'], $payment[0]['id']);
+			$profile = $this->_user->getProfile();
+			foreach ($profile->_elements as $e) {
+				if ($e->type == 'directory' 
+				&& $e->directory == 'icart_region') {
+					$regionID   = $this->_user->attr($e->ID);
+				}
+			}
 		}
+		
+		if (!$regionID || !$this->_conf->regionExists($regionID)) {
+			$regionID = $regions[0]['id'];
+		}
+		
+		$delivery   = $this->_conf->getDelivery($regionID);
+		
+		if (!empty($this->_userData['delivery']['delivery_id'])
+		&& $this->_conf->deliveryExists($regionID, $this->_userData['delivery']['delivery_id'])) {
+			$deliveryID = (int)$this->_userData['delivery']['delivery_id'];
+		} else {
+			$deliveryID = $delivery[0]['id'];
+		}
+
+		$payment    = $this->_conf->getPayment($regionID, $deliveryID);
+		if (!empty($this->_userData['delivery']['payment_id'])
+		&& $this->_conf->paymentExists($regionID, $deliveryID, $this->_userData['delivery']['payment_id'])) {
+			$paymentID = (int)$this->_userData['delivery']['payment_id'];
+		} else {
+			$paymentID = $payment[0]['id'];
+		}
+
+		$val = $this->_conf->get($regionID, $deliveryID, $paymentID);
 		$val['fee'] = $this->_fee($val);
 		$this->_rnd->rndDelivery($regions, $delivery, $payment, $val);
 	}
@@ -260,7 +251,7 @@ class elServiceICart extends elService
 	}
 
 	/**
-	 * undocumented function
+	 * customer address
 	 *
 	 * @return void
 	 **/
@@ -269,15 +260,95 @@ class elServiceICart extends elService
 			elLocation($this->_url.'__icart__/delivery/');
 		}
 
-		$p = $this->_user->getProfile();
+		$address = & new elICartAddress($this->_user, $this->_userData['address'], $this->_userData['delivery']['region_id']);
+		$form = $address->getForm();
+		$form->setRenderer(new elTplFormRenderer('', 'address.html'));
+		if ($form->isSubmitAndValid()) {
+			// $data = $form->getValue();
+			// elPrintR($address->toArray());
+			$this->_updateUserData('address', $address->toArray());
+			$this->_go('confirm');
+		} else {
+			$this->_rnd->rndAddress($form->toHtml());
+		}
+		
+		return;
 
+		$form = & new elForm('icartAddr');
+		$rnd  = & new elTplFormRenderer('', 'address.html');
+		$form->setRenderer($rnd);
+		$profile = $this->_user->getProfile();
+		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
+		
+		$elements = $profile->_elements+$fc->_elements;
+		// elPrintR($this->_userData);
+		foreach ($elements as $e) {
+			// elPrintR($e);
+			if ($e->type == 'directory' && $e->directory == 'icart_region') {
+				$dm = & elSingleton::getObj('elDirectoryManager');
+				$value = $dm->getRecord($e->directory, $this->_userData['delivery']['region_id'], true);
+				$form->add(new elCData2($e->ID, $e->label, $value));
+			} else {
+				$form->add($e->toFormElement());
+				if ($e->rule) {
+					$form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
+				} elseif ($e->required) {
+					$form->setRequired($e->ID);
+				}
+			}
+			
+		}
+
+		// $p = $this->_user->getProfile();
+		// $form = $this->_user->getForm();
+		// $form->label = m('Address');
+		// $form->label = '';
+		// // $renderer = & new elTplFormRenderer('./style/services/ICart/', 'address.html');
+		// $form->renderer->setTpl('address.html');
+		// // elPrintR($form->renderer);
+		// // $form->renderer->submit = '';
+		// $form->renderer->reset = '';
+		// 
+		// $fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
+		// foreach ($fc->_elements as $e) {
+		// 	// elPrintR($e);
+		// 	$form->add($e->toFormElement());
+		// 	if ($e->rule) {
+		// 		$form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
+		// 	} elseif ($e->required) {
+		// 		$form->setRequired($e->ID);
+		// 	}
+		// }
+		// $els = $fc->getElements();
+		// // elPrintR($els);
+		// foreach ($els as $e) {
+		// 	echo $e->getAttr('name').'<br>';
+		// 	// $form->add($e);
+		// }
 		// elPrintR($p->getSkel());
 
-
-		$this->_rnd->rndAddress();
+		if ($form->isSubmitAndValid()) {
+			$data = $form->getValue();
+			elPrintR($data);
+		} else {
+			$this->_rnd->rndAddress($form->toHtml());
+		}
+		
 		
 	}
 	
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function confirm() {
+		// elPrintR($this->_rnd);
+		// $this->_rnd->rndAddress();
+		$this->_rnd->rndConfirm();
+	}
 
     function stepDisplayCart()
     {
@@ -543,53 +614,7 @@ class elServiceICart extends elService
 	}
 
 
-    //     Address
-    
-    function _checkAddress()
-    {
-        foreach ($this->_uProfSkel as $k=>$v)
-        {
-            if ( 2==$v['rq'] && empty($this->_addrNfo[$k]) )
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    function _loadAddrNfo()
-    {
-        $addrNfo          = $this->_user->prefrence('iCartAddr'); //elPrintR($addrNfo);
-        $this->_addrNfo   = is_array( $addrNfo ) ? $addrNfo : array();
-        if ( empty($this->_addrNfo) && $this->_user->UID )
-        {
-            $this->_setAddrNfo( $this->_user->getProfileAttrs() );
-        }
-//        $this->_user->setPref('iCartAddr', $this->_addrNfo);
-    }
-    
-   
-    function _getAddrField($name)
-    {
-        return isset($this->_addrNfo[$name]) ? $this->_addrNfo[$name] : '';
-    }
-    
-    function _setAddrNfo( $data )
-    {
-        foreach ($this->_uProfSkel as $k=>$v)
-        {
-            if ( isset($data[$k]) )
-            {
-                $this->_addrNfo[$k] = $data[$k];
-            }
-        }
-        $this->_user->setPref('iCartAddr', $this->_addrNfo);
-    }
-    
-    function _getSummaryAmount()
-    {
-        return $this->_iCart->getAmount();
-    }
+ 
     
     function _send()
     {
@@ -674,4 +699,76 @@ class elServiceICart extends elService
 
 
 
+class elICartAddress {
+	var $_elements = array();
+	var $_user = null;
+	var $_data = array();
+	var $_regionID = 0;
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function elICartAddress($user, $data, $regionID) {
+		$this->_user = $user;
+		$this->_data = $data;
+		$this->_regionID = $regionID;
+		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
+		$profile = $this->_user->getProfile();
+		$this->_elements = $profile->_elements + $fc->_elements;
+	}
+	
+	function getForm() {
+		$this->form = & new elForm('icartAddr');
+		foreach ($this->_elements as $e) {
 
+			if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
+				$dm = & elSingleton::getObj('elDirectoryManager');
+				// $value = $dm->getRecord($e->directory, $this->_regionID, true);
+				$this->form->add(new elCData2($e->ID, $e->label, $dm->getRecord($e->directory, $this->_regionID, true)));
+			} else {
+				$this->form->add($e->toFormElement());
+				if ($e->rule) {
+					$this->form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
+				} elseif ($e->required) {
+					$this->form->setRequired($e->ID);
+				}
+			}
+			
+		}
+		return $this->form;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function toArray() {
+		$ret = array();
+		if ($this->form) {
+			$data = $this->form->getValue();
+			foreach ($this->_elements as $e) {
+				$value = isset($data[$e->ID]) ? $data[$e->ID] : '';
+				if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
+					$dm = & elSingleton::getObj('elDirectoryManager');
+					$value = $dm->getRecord($e->directory, $this->_regionID, true);
+				}
+				$ret[] = array(
+					'id'    => $e->ID,
+					'label' => $e->label,
+					'value' => $value
+					);
+			}
+		}
+		
+		return $ret;
+	}
+	
+	
+}
+
+
+?>

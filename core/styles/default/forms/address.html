@@ -1,0 +1,60 @@
+
+	{hiddens}
+<table  class="form-tb">
+	
+    <!-- BEGIN FORM_HEAD -->
+    <thead>
+	
+    <!-- BEGIN ERRORS -->
+    <tr>
+        <td colspan="2" class="form-errors" style="padding-left:30px">
+          {m('Some errors was found while proccessing form! Please fix it and try again.')}
+          <div>{errors}</div>
+        </td>
+    </tr>
+    <!-- END ERRORS -->
+	</thead>
+    <!-- END FORM_HEAD -->
+	<tbody>
+    <!-- BEGIN FORM_BODY -->
+	
+    <!-- BEGIN ELEMENT -->
+    <!-- BEGIN ERROR -->
+    <tr>
+        <td colspan="2" class="form-errors" style="padding-left:30px">{error}</td>
+    </tr>
+    <!-- END ERROR -->
+    <tr {rowAttrs}>
+        <td{cellAttrs} {cellLabelAttrs} width="30%">{label} <!-- BEGIN RQ --><span class="form-req">*</span><!-- END RQ --></td>
+        <td{cellAttrs} {cellElAttrs}>{el}</td>
+    </tr>
+    <!-- END ELEMENT -->
+    <!-- BEGIN CDATA -->
+    <tr {rowAttrs}> <td colspan="2" {cellAttrs} class="form-tb-cdata">{cdata}</td>
+    </tr>
+    <!-- END CDATA -->
+		<!-- BEGIN EDITOR -->
+    <tr {rowAttrs}>
+    	<td colspan="2" {cellElAttrs} >
+	    	<div>
+	    		{label}
+	    		<!-- BEGIN ED_RQ --><span class="form-req">*</span><!-- END ED_RQ -->
+	    		<!-- BEGIN ED_ERROR -->
+	    		<div class="form-errors">{error}</div>
+		    	<!-- END ED_ERROR -->
+	    	</div>
+	    	{el}
+    	</td>
+    </tr>
+    <!-- END EDITOR -->
+	
+    <!-- END FORM_BODY -->
+	</tbody>
+    <!-- BEGIN FORM_FOOT -->
+	
+				<!-- BEGIN BUTTON -->  <!-- END BUTTON --> 
+	  			<!-- BEGIN SUBMIT --><!-- END SUBMIT -->
+	  			<!-- BEGIN RESET --><!-- END RESET -->
+	  		
+    <!-- END FORM_FOOT -->
+</table>

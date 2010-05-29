@@ -156,7 +156,7 @@ class elDb
     $this->resID = mysql_query( $sql, $this->LID );
 
     if ( !$this->resID  )
-    {
+    {	
 		if (!$this->supressDebug)
 		{
 		  elDebug('__SQL__ query failed. '.$sql.' '.mysql_error(), EL_DEBUGQ);

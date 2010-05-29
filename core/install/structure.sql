@@ -179,15 +179,18 @@ CREATE TABLE IF NOT EXISTS `el_module` (
 
 DROP TABLE IF EXISTS `el_order`;
 CREATE TABLE IF NOT EXISTS `el_order` (
-  `id` int(5) NOT NULL AUTO_INCREMENT,
-  `uid` int(5) NOT NULL,
-  `crtime` int(11) NOT NULL,
-  `mtime` int(11) NOT NULL,
-  `state` enum('send','accept','deliver','complite','aborted') COLLATE utf8_bin NOT NULL DEFAULT 'send',
-  `amount` double(10,2) NOT NULL,
-  `discount` double(6,2) NOT NULL,
-  `delivery_price` double(6,2) NOT NULL,
-  `total` double(12,2) NOT NULL,
+	`id` int(5) NOT NULL AUTO_INCREMENT,
+	`uid` int(5) NOT NULL,
+	`crtime` int(11) NOT NULL,
+	`mtime` int(11) NOT NULL,
+	`state` enum('send','accept','deliver','complite','aborted') COLLATE utf8_bin NOT NULL DEFAULT 'send',
+	`amount` double(10,2) NOT NULL,
+	`discount` double(6,2) NOT NULL,
+	`delivery_price` double(6,2) NOT NULL,
+	`total` double(12,2) NOT NULL,
+	`region` varchar(255) NOT NULL,
+	`delivery` varchar(255) NOT NULL, 
+	`payment` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -209,7 +212,7 @@ CREATE TABLE IF NOT EXISTS `el_order_item` (
   `id` int(8) NOT NULL AUTO_INCREMENT,
   `order_id` int(5) NOT NULL,
   `uid` int(5) NOT NULL,
-  `shop` enum('IShop','TechShop') COLLATE utf8_bin NOT NULL DEFAULT 'IShop',
+  `page_id` int(5) NOT NULL,
   `i_id` int(5) NOT NULL,
   `m_id` int(5) NOT NULL,
   `code` varchar(256) COLLATE utf8_bin NOT NULL,

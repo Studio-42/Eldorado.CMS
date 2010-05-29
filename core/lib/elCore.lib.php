@@ -177,6 +177,7 @@ function elLocation( $uri )
 }
 
 function elDebug($msg) {
+
 	if (is_string($msg)) {
 		elMsgBox::put( htmlspecialchars($msg), EL_DEBUGQ );
 	} elseif (is_array($msg)) {

@@ -1,0 +1,81 @@
+<strong>{m('Order')} N {orderID}, {date}</strong><br/>
+<table style="width:95%;border-top:2px solid #ccc;border-bottom:1px solid #ccc;margin-bottom:20px" cellspacing="0">
+	<caption style="font-variant:small-caps; font-size:110%;padding-left:7px">{m('Items list')}</caption>
+	<thead>
+		<tr>
+	        <th style="border-bottom:1px solid #ccc;">{m('Product')}</th>
+	        <th style="border-bottom:1px solid #ccc;text-align:center">{m('Qnt')}</th>
+	        <th style="border-bottom:1px solid #ccc;text-align:right">{m('Price')}, {currencySign}</th>
+	        <th style="border-bottom:1px solid #ccc;text-align:right">{m('Sum')}, {currencySign}</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <!-- BEGIN ICART_ITEM -->
+	    <tr>
+	        <td>
+	            <div>{code} {name}</div>
+	            <div style="color:#ccc">{props}</div>
+	        </td>
+	        <td style="text-align:right">{qnt}</td>
+	        <td style="text-align:right">{price}</td>
+	        <td style="text-align:right">{sum}</td>
+	    </tr>    
+	    <!-- END ICART_ITEM -->
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>{m('Amount')}:</th>
+			<th></th>
+			<th></th>
+			<th style="font-weight:normal;text-align:right">{amount}</th>
+		</tr>
+		<!-- BEGIN ICART_DELIVERY_PRICE -->
+		<tr>
+    		<th colspan="3">{m('Delivery price')}</th>
+			<th style="font-weight:normal;text-align:right">{price}</th>
+    	</tr>
+		<tr>
+    		<th colspan="3">{m('Order amount')}</th>
+			<th style="font-weight:normal;text-align:right">{total}</th>
+    	</tr>
+		<!-- END ICART_DELIVERY_PRICE -->
+ 	</tfoot>
+</table>
+
+
+<!-- BEGIN ICART_DELIVERY -->
+<table style="width:95%;border-top:2px solid #ccc;border-bottom:1px solid #ccc;margin-bottom:20px" cellspacing="0" rules="rows">
+	<caption style="font-variant:small-caps; font-size:110%;padding-left:7px">{m('Delivery/payment')}</caption>
+    <tbody>
+    	<tr>
+    		<td style="width:30%">{m('Region')}</td>
+			<td>{region}</td>
+    	</tr>
+		<tr>
+    		<td>{m('Delivery')}</td>
+			<td>{delivery}</td>
+    	</tr>
+		<tr>
+    		<td>{m('Payment')}</td>
+			<td>{payment}</td>
+    	</tr>
+		<!-- BEGIN COMMENT -->
+		<tr>
+    		<td colspan="2">{comment}</td>
+    	</tr>
+		<!-- END COMMENT -->
+    </tbody> 
+</table>
+<!-- END ICART_DELIVERY -->
+
+<table style="width:95%;border-top:2px solid #ccc;border-bottom:1px solid #ccc;" cellspacing="0" rules="rows">
+    <caption style="font-variant:small-caps; font-size:110%;padding-left:7px">{m('Customer information')}</caption>
+    <!-- BEGIN ICART_ADDR -->
+    <tr>
+        <td style="width:30%">{label}:</td>
+        <td>{value}</td>  
+    </tr>
+    <!-- END ICART_ADDR -->
+</table>
+
+

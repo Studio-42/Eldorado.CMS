@@ -3,9 +3,9 @@
 class elICart
 {
 	var $_tb          = 'el_icart';
-	var $_tbo         = 'el_order';
-	var $_tboi        = 'el_order_item';
-	var $_tboc        = 'el_order_customer';
+	// var $_tbo         = 'el_order';
+	// var $_tboi        = 'el_order_item';
+	// var $_tboc        = 'el_order_customer';
 	var $_db          = null;
 	var $_SID         = '';
 	var $_UID         = 0;
@@ -20,14 +20,16 @@ class elICart
 
     function elICart()
     {
+		$ats             = & elSingleton::getObj('elATS');
+        $this->_UID      = $ats->getUserID();
         $this->_db       = & elSingleton::getObj('elDb');
         $this->_conf     = & elSingleton::getObj('elICartConf');
 		$this->_currency = & elSingleton::getObj('elCurrency');
 		$this->_precision = $this->_conf->precision() > 0 ? 2 : 0;
         $this->_SID      = mysql_real_escape_string(session_id());
-        $ats             = & elSingleton::getObj('elATS');
-        $this->_UID      = $ats->getUserID();
+        
 		$this->_load();
+
     }
     
 
@@ -76,8 +78,6 @@ class elICart
    }
     
 	function add($item) {
-		// elPrintr($item);
-		// elPrintr($this->_items);
 		if (false != ($ID = $this->_find($item))) {
 			$sql = 'UPDATE el_icart SET qnt=qnt+1, mtime=%d WHERE id=%d';
 			$sql = sprintf($sql, time(), $ID);
@@ -93,52 +93,6 @@ class elICart
 		return $this->_db->query($sql);
 	}
 
-
-
-    
-
-	function compliteOrder($customerNfo, $deliveryPrice)
-	{
-		$this->_load();
-		if (!$this->_items)
-		{
-			return false;
-		}
-		// TODO discount
-		$this->_db->query(
-			sprintf('INSERT INTO %s (uid, crtime, mtime, state, amount, delivery_price, total) 
-					VALUES (%d, %d, %d, "%s", "%s", "%s", "%s")', 
-					$this->_tbo, $this->_UID, time(), time(), "send", $this->_amount, $delivery_price, $this->_amount+$deliveryPrice)
-			);
-		if (false == ($orderID = $this->_db->insertID()))
-		{
-			echo 'HERE FUCKING ODER '.$orderID;
-			return false;
-		}
-		
-		$crtime = time();
-
-		$this->_db->prepare( 'INSERT INTO '.$this->_tboi.' (order_id, uid, shop, i_id, m_id, code, name, qnt, price, props, crtime) VALUES ',
-		 	'(%d, %d, "%s", %d, %d, "%s", "%s", %d, "%s", "%s", %d)');
-		foreach ($this->_items as $i)
-		{
-			$i['props'] = serialize($i['props']);
-			$this->_db->prepareData( array($orderID, $this->_UID, $i['shop'], $i['i_id'], $i['m_id'], $i['code'], $i['name'], $i['qnt'], $i['price'], $i['props'], time()) );
-		}
-		$this->_db->execute();
-		
-		$this->_db->prepare('INSERT INTO '.$this->_tboc.' (order_id, uid, label, value) VALUES ', '(%d, %d, "%s", "%s")');
-		foreach ($customerNfo as $nfo)
-		{
-			$this->_db->prepareData( array($orderID, $this->_UID, $nfo['label'], $nfo['value']));
-		}
-		$this->_db->execute();
-		
-		$this->_db->query('DELETE FROM '.$this->_tb.' WHERE id IN ('.implode(',', array_keys($this->_items)).')');
-		$this->_db->optimizeTable($this->_tb);
-		return $orderID;
-	}
-    
     /*******************************************************/
     /*                  PRIVATE                            */
     /*******************************************************/
@@ -155,8 +109,6 @@ class elICart
 		}
 	}
 
-
-    
     function _load()
     {
 		$opts = array('precision' => $this->_precision);

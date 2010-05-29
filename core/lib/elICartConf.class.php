@@ -51,13 +51,23 @@ class elICartConf {
 	}
 
 	function get($regionID, $deliveryID, $paymentID) {
-		$sql = 'SELECT region_id, delivery_id, payment_id, fee, formula, comment '
-				.'FROM '.$this->_tb.' WHERE region_id=%d AND delivery_id=%d AND payment_id=%d';
+		$sql = 'SELECT c.region_id, r.value AS region, c.delivery_id, d.value AS delivery, c.payment_id, p.value AS payment, c.fee, c.formula, c.comment '
+				.'FROM '.$this->_tb.' AS c, el_directory_icart_region AS r, el_directory_icart_delivery AS d, el_directory_icart_payment AS p '
+				.'WHERE region_id=%d AND delivery_id=%d AND payment_id=%d AND r.id=c.region_id AND d.id=c.delivery_id AND p.id=c.payment_id';
 		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID);
 		$this->_db->query($sql);
 		return $this->_db->numRows()
 			? $this->_db->nextRecord()
-			: array('region_id'=>0, 'delivery_id'=>0, 'payment_id'=>0, 'fee'=>'', 'formula' => '', 'comment'=>'');
+			: array('region_id'=>0, 
+					'delivery_id' => 0, 
+					'payment_id'  => 0, 
+					'fee'         =>'', 
+					'formula'     => '', 
+					'comment'     =>'', 
+					'region'      => '',
+					'delivery'    => '',
+					'payment'     => ''
+					);
 	}
 
 	function getAll() {

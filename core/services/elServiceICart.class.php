@@ -15,13 +15,9 @@ class elServiceICart extends elService
     var $_iCart     = null;
 	var $_ats       = null;
 	var $_conf      = null;
-	// var $_currency  = null;
 	var $_url       = '';
-
     var $_user      = null;
-    // var $_uProfile  = null;
-    // var $_uProfSkel = array();
-	var $_steps = array(
+	var $_steps     = array(
 		'cart' => array(
 			'label'  => 'Products',
 			'enable' => true,
@@ -63,12 +59,14 @@ class elServiceICart extends elService
         $this->_rnd = & elSingleton::getObj('elICartRnd');
 		$this->_rnd->url = $this->_url;
 
-		if ($this->_iCart->isEmpty()) {
-			return elMsgBox::put('Your shopping cart is empty');
-		}
-
 		if (!$this->_conf->allowGuest() && !$this->_ats->isUserAuthed() ) {
 			return $this->_ats->auth(EL_URL.'__icart__/');
+		}
+
+		if ($this->_user->prefrence('order_complete')) {
+			$this->_user->removePrefrence('order_complete');
+		} elseif ($this->_iCart->isEmpty()) {
+			return elMsgBox::put(m('Your shopping cart is empty'));
 		}
 		
 		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
@@ -150,6 +148,8 @@ class elServiceICart extends elService
 
 		if (!$this->_steps['delivery']['allow']) {
 			elLocation($this->_url.'__icart__/');
+		} elseif (!$this->_steps['delivery']['enable']) {
+			elLocation($this->_url.'__icart__/address/');
 		}
 		
 		if (!empty($_POST['action']) && $_POST['action'] == 'next') {
@@ -165,7 +165,7 @@ class elServiceICart extends elService
 					'payment_id'  => $paymentID
 					);
 				$this->_updateUserData('delivery', $data);
-				$this->_go('address');
+				elLocation($this->_url.'__icart__/address/');
 			}
 		}
 	
@@ -206,7 +206,11 @@ class elServiceICart extends elService
 		}
 
 		$val = $this->_conf->get($regionID, $deliveryID, $paymentID);
+		if ($data['fee']) {
+			
+		}
 		$val['fee'] = $this->_fee($val);
+		
 		$this->_rnd->rndDelivery($regions, $delivery, $payment, $val);
 	}
 
@@ -256,7 +260,7 @@ class elServiceICart extends elService
 	 * @return void
 	 **/
 	function address() {
-		if (!$this->_checkStep('address')) {
+		if (!$this->_steps['address']['allow']) {
 			elLocation($this->_url.'__icart__/delivery/');
 		}
 
@@ -264,249 +268,42 @@ class elServiceICart extends elService
 		$form = $address->getForm();
 		$form->setRenderer(new elTplFormRenderer('', 'address.html'));
 		if ($form->isSubmitAndValid()) {
-			// $data = $form->getValue();
-			// elPrintR($address->toArray());
 			$this->_updateUserData('address', $address->toArray());
-			$this->_go('confirm');
+			elLocation($this->_url.'__icart__/confirm/');
 		} else {
 			$this->_rnd->rndAddress($form->toHtml());
 		}
-		
-		return;
-
-		$form = & new elForm('icartAddr');
-		$rnd  = & new elTplFormRenderer('', 'address.html');
-		$form->setRenderer($rnd);
-		$profile = $this->_user->getProfile();
-		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
-		
-		$elements = $profile->_elements+$fc->_elements;
-		// elPrintR($this->_userData);
-		foreach ($elements as $e) {
-			// elPrintR($e);
-			if ($e->type == 'directory' && $e->directory == 'icart_region') {
-				$dm = & elSingleton::getObj('elDirectoryManager');
-				$value = $dm->getRecord($e->directory, $this->_userData['delivery']['region_id'], true);
-				$form->add(new elCData2($e->ID, $e->label, $value));
-			} else {
-				$form->add($e->toFormElement());
-				if ($e->rule) {
-					$form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
-				} elseif ($e->required) {
-					$form->setRequired($e->ID);
-				}
-			}
-			
-		}
-
-		// $p = $this->_user->getProfile();
-		// $form = $this->_user->getForm();
-		// $form->label = m('Address');
-		// $form->label = '';
-		// // $renderer = & new elTplFormRenderer('./style/services/ICart/', 'address.html');
-		// $form->renderer->setTpl('address.html');
-		// // elPrintR($form->renderer);
-		// // $form->renderer->submit = '';
-		// $form->renderer->reset = '';
-		// 
-		// $fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
-		// foreach ($fc->_elements as $e) {
-		// 	// elPrintR($e);
-		// 	$form->add($e->toFormElement());
-		// 	if ($e->rule) {
-		// 		$form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
-		// 	} elseif ($e->required) {
-		// 		$form->setRequired($e->ID);
-		// 	}
-		// }
-		// $els = $fc->getElements();
-		// // elPrintR($els);
-		// foreach ($els as $e) {
-		// 	echo $e->getAttr('name').'<br>';
-		// 	// $form->add($e);
-		// }
-		// elPrintR($p->getSkel());
-
-		if ($form->isSubmitAndValid()) {
-			$data = $form->getValue();
-			elPrintR($data);
-		} else {
-			$this->_rnd->rndAddress($form->toHtml());
-		}
-		
-		
 	}
 	
 
 	/**
-	 * undocumented function
+	 * display order data to confirm / complete order
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function confirm() {
-		// elPrintR($this->_rnd);
-		// $this->_rnd->rndAddress();
-		$this->_rnd->rndConfirm();
+		if (!$this->_steps['confirm']['allow']) {
+			elLocation($this->_url.'__icart__/address/');
+		}
+		list($delivery, $total) = $this->_delivery();
+		
+
+		if (empty($_POST['action'])) {
+			$this->_rnd->rndConfirm($this->_iCart, $delivery, $this->_userData['address'], $total);
+		} elseif (false == ($orderID = $this->_complete($delivery))) {
+			elThrow(E_USER_WARNING, 'Unable to comlete order! Please, contacts site administrator', null, $this->_url.'__icart__/confirm/');
+		} else {
+			$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
+			$this->_user->prefrence('order_complete', 1);
+			$this->_sendMessage($orderID, $msg);
+			elMsgBox::put(m('Dear customer! Thank You for your order. We contact You as soon as possible'));
+			elLocation($this->_url.'__icart__/');
+		}
+		
 	}
 
-    function stepDisplayCart()
-    {
-        if ( !empty($_POST['qnt']) && is_array($_POST['qnt']) )
-        {
-            $this->_iCart->updateQnt( $_POST['qnt'] );
-			if (empty($_POST['recalc'])) 
-			{
-				$this->_goNext();
-			}
-			else
-			{
-				elLocation(EL_URL.'__icart__');
-			}
-        }
-        else
-        {
-            if ( !empty($_GET['rmID']) && 0 < $_GET['rmID'] )
-            {
-                if ( $this->_iCart->removeItem((int)$_GET['rmID']) )
-                {
-                    elMsgBox::put( m('Item was removed from shopping cart') );
-                    elLocation( EL_URL.'__icart__/' );
-                }
-                else
-                {
-                    elThrow(E_USER_WARNING, m('Could not remove item from shopping cart'), null, EL_URL.'__icart__/' );
-                }
-            }
-            $this->_initRenderer(); 
-	        $this->_rnd->rndICart( $this->_iCart->getItems() );
-        }
-		
-    }
-    
-    function stepDelivery()
-    {
-        if ( !empty($_POST['delivery']) )
-        {
-            $this->_goNext();
-        }
-        else
-        {
-            $this->_initRenderer();
-            $this->_rnd->rndDelivery();
-        }
-    }
-    
-    function stepAddress()
-    {
-        $this->form = & elSingleton::getObj( 'elForm', 'mf' , '&nbsp;' );
-        $formRnd    = & elSingleton::getObj('elTplFormRenderer');
-        $formRnd->setButtonsNames( m('Continue'), '');
-		$this->form->setRenderer( $formRnd );
 
-        foreach ($this->_uProfSkel as $k=>$v)
-        {
-            $label = m($v['label']);
-            $value = $this->_getAddrField($k);
-            if ('select' == $v['type'])
-			{
-				if (strpos($v['opts'], 'directory:') !== false)
-				{
-					elSingleton::incLib('modules/Directory/elDirectory.class.php');
-					$dir = new elDirectory();
-					$opts = $dir->getOpts($v['opts']);
-				}
-				else
-				{
-					$opts = $v['opts'];
-				}
-				$this->form->add( new elSelect($k, $label, $value, $opts) );
-			}
-            elseif ('textarea' == $v['type'])
-            {
-                $this->form->add( new elTextArea($k, $label, $value, array('rows'=>5) ) );
-            }
-            else
-            {
-                $this->form->add( new elText($k, $label, $value) );
-            }
-            if ( $v['is_func'] )
-            {
-                $this->form->registerRule($v['rule'], 'func', $v['rule'], null);
-            }
-            $this->form->setElementRule($k, $v['rule'], $v['rq']-1);
-        }
-        
-        if ( !$this->form->isSubmitAndValid() )
-        {
-            $this->_initRenderer();
-            $this->_rnd->rndAddressForm( $this->form->toHtml() );    
-        }
-        else
-        {
-            $this->_setAddrNfo( $this->form->getValue() );
-            $this->_goNext();
-        }
-    }
-    
-    function stepSummary()
-    {
-        if ( !empty($_POST['icartSummary']) )
-        {
-            if ( $this->_send() )
-            {
-                $this->_user->dropPref('iCartAddr');
-                elMsgBox::put( m('Thank You for your order! We contact You as soon as possible') );
-                elLocation(EL_URL);
-            }
-            else
-            {
-                elThrow(E_USER_ERROR, 'Error! Could not send order! Please, contact site administrator.');
-            }
-            return;
-        }
-        
-        $this->_initRenderer();
-        $addr = array();
-		foreach ($this->_uProfSkel as $k=>$v) {
-			$addr[] = array('label'=>m($v['label']), 'value'=>$this->_addrNfo[$k]);
-		}
-        $this->_rnd->rndSummary( $this->_iCart->getItems(), $this->_getDeliveryNfo(), $this->_getSummaryAmount(), $addr );
-    }
-    
-    function toXml()
-    {
-        $retCode = false;
-        if ('rm' == $this->_args[0] && !empty($this->_args[1]) )
-        {
-            $retCode = $this->_iCart->removeItem((int)$this->_args[1]);
-        }
-        $items = $this->_iCart->getItems();  //elPrintR($items);
-        
-        $reply  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-        $reply .= "\n<response>\n";
-        $reply .= "<method>rmItem</method>\n";
-        $reply .= "<result>\n";
-        $reply .= "<code>".($retCode ? 'true' : 'false')."</code>\n";
-        $reply .= "<items>\n";
-        foreach ($items as $i)
-        {
-            $reply .= "<item>\n";
-            $reply .= "<id>".$i['id']."</id>\n";
-            $reply .= "<name>".$i['name']."</name>\n";
-            $reply .= "<qnt>".$i['qnt']."</qnt>\n";
-            $reply .= "<price>".$i['price']."</price>\n";
-            $reply .= "<sum>".$i['sum']."</sum>\n";
-            $reply .= "</item>\n";
-        }
-        $reply .= "</items>\n";
-        $reply .= "</result>\n";
-        $reply .= "</response>\n";
-		
-        return $reply;
-    }
-    
-    
+
  
 	// Repeat order from elModuleOrderHistory
 	// In fact this works like addItem but adds many items at once using POST
@@ -561,17 +358,83 @@ class elServiceICart extends elService
     /**************************************************************/
 
 	/**
-	 * undocumented function
+	 * move order data to order tables 
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @param  array  $delivery
+	 * @return int
 	 **/
-	function _go($step) {
-		$this->_user->prefrence('icartData', $this->_userData);
-		elLocation($this->_url.'__icart__/'.$step.'/');
+	function _complete($delivery) {
+		$db = & elSingleton::getObj('elDb');
+		$sql = 'INSERT INTO el_order (uid, crtime, mtime, amount, delivery_price, total, region, delivery, payment) '
+				.'VALUES (%d, %d, %d, "%s", "%s", "%s", "%s", "%s", "%s")';
+		$sql = sprintf($sql, $this->_user->UID, time(), time(), $this->_iCart->amount, $delivery['fee'], 
+							$this->_iCart->amount+$delivery['fee'], $delivery['region'], $delivery['delivery'], $delivery['payment']);
+		$db->query($sql);
+		if (false == ($orderID = $db->insertID())) {
+			return false;
+		}
+
+		$db->prepare( 'INSERT INTO el_order_item (order_id, uid, page_id, i_id, m_id, code, name, qnt, price, props, crtime) VALUES ',
+		 	'(%d, %d, %d, %d, %d, "%s", "%s", %d, "%s", "%s", %d)');
+		foreach ($this->_iCart->getItems() as $i) {
+			$i['props'] = serialize($i['props']);
+			$db->prepareData(array($orderID, $this->_user->UID, $i['page_id'], $i['i_id'], $i['m_id'], $i['code'], $i['name'], $i['qnt'], $i['price'], $i['props'], time()));
+		}
+		$db->execute();
+
+		$db->prepare('INSERT INTO el_order_customer (order_id, uid, label, value) VALUES ', '(%d, %d, "%s", "%s")');
+		foreach ($this->_userData['address'] as $v) {
+			$db->prepareData( array($orderID, $this->_user->UID, $v['label'], $v['value']));
+		}
+		$db->execute();
+		$this->_iCart->clean();
+		
+		return $orderID;
 	}
 
+	/**
+	 * send order and confirmation
+	 *
+	 * @param  int     $orderID
+	 * @param  string  $msg
+	 * @return void
+	 **/
+	function _sendMessage($orderID, $msg) {
+		$postman = & elSingleton::getObj('elPostman');
+		$ec      = & elSingleton::getObj('elEmailsCollection');
+		$subj    = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL );
+		$sender  = $ec->getDefault();
+		$rcpt    = $this->_conf->recipients();
 
+		if (empty($rcpt)) {
+			$rcpt = $sender;
+		}
+		
+		$postman->newMail($sender, $rcpt, $subj, $msg, true);
+		if (!$postman->deliver()) {
+			elDebug(m('Unable to send order message'));
+		}
+		
+		if ($this->_conf->confirm()) {
+			$userEmail = '';
+			foreach($this->_userData['address'] as $v) {
+				if ('email' == $v['id']) {
+					$userEmail = $v['value'];
+					break;
+				}
+			}
+			if ($userEmail) {
+				$subj = m('Order confirmation');
+				$msg = m('Dear customer! We get your order and contact You as soon as posible. This is confirmation message and You dont need to answer on it.')."\n"
+					.'<br/>'
+	                .$msg;
+				$postman->newMail($sender, $userEmail, $subj, $msg, true);
+				if (!$postman->deliver()) {
+					elDebug(m('Unable to send order confirmation'));
+				}
+			}
+		}
+	}
 
 	/**
 	 * update part of user data 
@@ -583,14 +446,28 @@ class elServiceICart extends elService
 		$this->_user->prefrence('icartData', $this->_userData);
 	}
 
-
 	/**
-	 * undocumented function
+	 * return delivery/payment info and order amount
 	 *
-	 * @return void
+	 * @return array
 	 **/
-	function _checkStep($step) {
-		return $this->_userData['steps'][$step];
+	function _delivery() {
+		$delivery = $this->_conf->get(
+				$this->_userData['delivery']['region_id'], 
+				$this->_userData['delivery']['delivery_id'], 
+				$this->_userData['delivery']['payment_id']
+				);
+
+		if ($delivery['fee']) {
+			$total = $this->_iCart->amount + $this->_fee($delivery, false);
+			$total = $this->_formatPrice($total);
+			$delivery['price'] = $this->_fee($delivery, true, false);
+		} else {
+			$total = $this->_iCart->amountFormated;
+			$delivery['price'] = '';
+		}
+		
+		return array($delivery, $total);
 	}
 
 	/**
@@ -598,9 +475,10 @@ class elServiceICart extends elService
 	 *
 	 * @return string
 	 **/
-	function _fee($data) {
+	function _fee($data, $format=true, $symbol=true) {
 		$fee = 0;
-		$currency   = & elSingleton::getObj('elCurrency');
+		
+
 		if ($data['fee'] > 0) {
 			$fee = $data['fee'];
 		} elseif ($data['formula']) {
@@ -608,94 +486,35 @@ class elServiceICart extends elService
 			$fee = $f($this->_iCart->qnt, $this->_iCart->amount);
 		}
 		
-		return $fee 
-			? $currency->format($fee, array('precision'=>$this->_conf->precision(), 'symbol'=>true)) 
-			: m('Free');
+		if ($format) {
+			return $fee
+				? $this->_formatPrice($fee, $symbol)
+				: m('Free');
+		}
+		return $fee; 
 	}
 
-
+	/**
+	 * format price
+	 *
+	 * @return string
+	 **/
+	function _formatPrice($price, $symbol=true) {
+		$currency  = & elSingleton::getObj('elCurrency');
+		return $currency->format($price, array('precision'=>$this->_conf->precision(), 'symbol'=>false));
+	}
  
-    
-    function _send()
-    {
-        $this->_initRenderer();
-        $addr = array();
-        $addrField = array();
-        foreach ($this->_addrNfo as $k=>$v)
-        {
-            $addr[]      = array('label'=>$this->_uProfSkel[$k]['label'], 'value'=>$v);
-            $addrField[] = array('label'=>$this->_uProfSkel[$k]['field'], 'value'=>$v);
-        }
-		$orderID  = $this->_iCart->compliteOrder($addrField, 0);
-        $msg      = $this->_rnd->getSummaryRnd( $this->_iCart->getItems(), $this->_getDeliveryNfo(), $this->_getSummaryAmount(), $addr, false, $orderID );
-        $subj     = sprintf(m('Order from %s'), EL_BASE_URL );
-        $emails   = & elSingleton::getObj('elEmailsCollection');
-        $postman  = & elSingleton::getObj('elPostman');
-        $to       = $emails->getDefault();
-        $from     = $emails->formatEmail($this->_addrNfo['f_name'].' '.$this->_addrNfo['l_name'], $this->_addrNfo['email']); 
-        
-        $postman->newMail($from, $to, $subj, $msg, false );
-
-//        echo $subj.nl2br($msg); return;
-        if ( $postman->deliver() )
-        {
-			if ( $this->_conf('sendConfirm') )
-	        {
-	            $msg = m('Dear customer! We get your order and contact You as soon as posible. This is confirmation message and You dont need to answer on it.')."\n"
-	                .m('Here is order\'s content.')."\n"
-	                .$msg;
-	            $subj = $subj.' ('.m('Confirmation').')';
-	            $postman->newMail($to, $from, $subj, $msg, false );
-	            $postman->deliver();
-	        }
-			return true;
-        }
-        return false;
-    }
-    
-    function _loadConf()
-    {
-        
-    }
-    
-    function _conf($param)
-    {
-        return isset($this->_conf[$param]) ? $this->_conf[$param] : null;
-    }
-    
-    function _arg($ndx=0)
-    {
+    /**
+	 * return argument by index
+	 *
+	 * @return string
+	 **/
+    function _arg($ndx=0) {
         return isset($this->_args[$ndx]) ? $this->_args[$ndx] : null;
     }
     
-    function _isNoEmpty()
-    {
-        return !$this->_iCart->isEmpty();
-    }
-    
-    function _initRenderer()
-    {
-		elAddCss('services/ICart.css', EL_JS_CSS_FILE);
-        $this->_rnd = & elSingleton::getObj('elICartRnd');
-		$this->_rnd->init('none', $this->_conf);
-		$this->_rnd->setDir($this->_tplDir);
-        $steps = array();
-        $excl = $this->_conf('excludeSteps'); 
-        if ( !is_array($excl) )
-        {
-            $excl = array();
-        }
-        for ($i=0; $i<sizeof($this->_steps); $i++)
-        {
-            if ( $this->_steps[$i][3] || !in_array($i, $excl) )
-            {
-                $steps[$i] = m($this->_steps[$i][2]);
-            }
-        }
-        $this->_rnd->setSteps($steps, $this->_curStID, $this->_maxStID);
-    }
-    
-}
+
+} // END class
 
 
 

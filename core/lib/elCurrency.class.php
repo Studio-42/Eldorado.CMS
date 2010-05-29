@@ -134,7 +134,7 @@ class elCurrency {
 	function format($price, $opts) { 
 		$p     = isset($opts['precision']) ? $opts['precision'] : 0;
 		$price = number_format(round($price, $p), $p, $this->current['point'], $this->current['separator']);
-		if (isset($opts['symbol'])) {
+		if (!empty($opts['symbol'])) {
 			$price .= ' '.$this->current['symbol'];
 		}
 		return $price;

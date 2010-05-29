@@ -3,15 +3,10 @@
 class elICartRnd {
 	var $_te = null;
 	var $url = '';
-	var $_steps = array(
-		'cart'    => 'Products',
-		'delivery' => 'Delivery/payment',
-		'address'  => 'Address',
-		'confirm'  => 'Confirmation'
-		);
-	var $stepStates = array();
-	
+
 	var $steps = array();
+	var $precision = 0;
+	
 	
 	/**
 	 * undocumented function
@@ -21,10 +16,17 @@ class elICartRnd {
 	 **/
 	function elICartRnd() {
 		$this->_te = & elSingleton::getObj('elTE');
-		
-		foreach ($this->_steps as $k=>$v) {
-			$this->_steps[$k] = m($v);
-		}
+
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function addToContent($str) {
+		$this->_te->assignVars('PAGE', $str, true);
 	}
 	
 	/**
@@ -39,7 +41,6 @@ class elICartRnd {
 		$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
 		$this->_te->assignVars('amount', $icart->amountFormated);
 		$items = $icart->getItems();
-		
 
 		foreach ($items as $item) {
 			$data = array(
@@ -105,8 +106,13 @@ class elICartRnd {
 	}
 	
 	
-	function rndConfirm() { 
+	function rndConfirm($icart, $delivery, $address, $total) { 
 		$this->_rndCommon('confirm');
+		$this->_te->setFile('ICART_CONTENT', 'services/ICart/summary.html');
+
+		$this->_rndSummary($icart, $delivery, $address, $total);
+
+		$this->_te->parse('ICART_CONTENT');
 	}
 	
 	/**
@@ -115,9 +121,68 @@ class elICartRnd {
 	 * @return void
 	 * @author /bin/bash: niutil: command not found
 	 **/
-	function renderComplite()
-	{
+	function rndMailContent($icart, $delivery, $address, $total, $orderID) {
+		$this->_te->setFile('ICART_MAIL', 'services/ICart/mail.html');
+		$this->_te->assignVars(array(
+			'orderID' => $orderID,
+			'date' => date(EL_DATETIME_FORMAT)
+			));
+		$this->_rndSummary($icart, $delivery, $address, $total);
+		$this->_te->parse('ICART_MAIL', 'ICART_MAIL', false, true, true);
+		return $this->_te->getVar('ICART_MAIL');
 	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _rndSummary($icart, $delivery, $address, $total) {
+		$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
+		$this->_te->assignVars('amount', $icart->amountFormated);
+		
+		$items = $icart->getItems();
+
+		foreach ($items as $item) {
+			$data = array(
+				'id'    => $item['id'],
+				'code'  => $item['code'],
+				'name'  => $item['name'],
+				'qnt'   => $item['qnt'],
+				'price' => $item['priceFormated'],
+				'sum'   => $item['sum'],
+				'props' => ''
+				);
+			if (!empty($item['props'])) {
+				foreach ($item['props'] as $k=>$v) {
+					$data['props'] .= "$k: $v<br/>";
+				}
+			}
+			$this->_te->assignBlockVars('ICART_ITEM', $data);
+		}
+		
+		if ($this->steps['delivery']['enable']) {
+			if ($delivery['fee']) {
+				$this->_te->assignBlockVars('ICART_DELIVERY_PRICE', array('price' => $delivery['price'], 'total' => $total));
+			}
+			if ($delivery['region_id']) {
+				$this->_te->assignBlockVars('ICART_DELIVERY', $delivery);
+				if ($delivery['comment']) {
+					$this->_te->assignBlockVars('ICART_DELIVERY.COMMENT', $delivery, 1);
+				}
+			}
+		}
+		
+		$this->_te->assignBlockfromArray('ICART_ADDR', $address);
+	}
+	
+	/**
+	 * need for compatibility
+	 *
+	 * @return void
+	 **/
+	function renderComplite() { }
 	
 	/**
 	 * render common part of order template
@@ -126,20 +191,18 @@ class elICartRnd {
 	 **/
 	function _rndCommon($step) {
 		
-		// elPrintr($this->steps);
-		
 		$this->_te->setFile('PAGE', 'services/ICart/default.html');
 		$this->_te->assignVars('iCartStepTitle', $this->_steps[$step]);
 		$this->_te->assignVars('iCartURL', $this->url.'__icart__/');
-		$this->_te->assignVars('buttonText', $step == 'confirm' ? m('Complete') : m('Continue').' &raquo;');
+		$this->_te->assignVars('buttonText', m('Continue').' &raquo;');
 		$this->_te->assignVars('stepID', $step);
 
 		foreach ($this->steps as $k=>$v) {
 			if ($v['enable']) {
 				$block = $v['allow'] ? 'ICART_STEP_AVAIL' : 'ICART_STEP_DISABLE';
 				$data = array(
-					'url' => $this->url.'__icart__/'.($k == 'cart' ? '' : $k.'/'),
-					'name' => m($v['label']),
+					'url'      => $this->url.'__icart__/'.($k == 'cart' ? '' : $k.'/'),
+					'name'     => m($v['label']),
 					'cssClass' => $k == $step ? 'icart-nav-active' : ''
 					);
 				$this->_te->assignBlockVars('ICART_STEP.'.$block, $data);
@@ -147,6 +210,7 @@ class elICartRnd {
 		}
 	}
 	
+
 	
 }
 

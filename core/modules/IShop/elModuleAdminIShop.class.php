@@ -188,8 +188,7 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		if (!$item->changeImage((int)$this->_arg(2), $this->_conf('tmbListSize'), $this->_conf('tmbItemCardSize')))
 		{
-			$this->_initRenderer();
-			return $this->_rnd->addToContent($item->formToHtml());
+			elThrow(E_USER_WARNING, 'Cannot add image to this item', null, EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
 		}
 		elMsgBox::put(m('Data saved'));
 		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);

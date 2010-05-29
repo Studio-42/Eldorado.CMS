@@ -2,7 +2,7 @@
 	<!-- BEGIN ITEM_ADMIN -->
 	<ul class="adm-icons">
 		<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
-		<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image" title="{m('Change item image')}"></a></li>
+		<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image ishop-sel-img" title="{m('Change item image')}"></a></li>
 		<li><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 	</ul>
 	<!-- END ITEM_ADMIN -->
@@ -44,13 +44,13 @@
 	</div>
 	<div class="mod-ishop-item-content clearfix">
 		<!-- BEGIN ITEM_IMG_TOP -->
-		<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-top rounded-3" /></a>
-			<!-- BEGIN ADMIN -->
+		<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" class="mod-ishop-iimg-top rounded-3" /></a>
+			<!-- BEGIN ITEM_IMG_ADMIN -->
 			<ul class="adm-icons" style="float: none;">
-				<li><a href="{URL}item_img/{catID}/{id}/-1" class="icons image" title="{m('Change item image')}"></a></li>
-				<li><a href="{URL}rm_img/{catID}/{id}/-1"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 			</ul>
-			<!-- END ADMIN -->
+			<!-- END ITEM_IMG_ADMIN -->
       	<!-- END ITEM_IMG_TOP -->
 
 		<!-- BEGIN IS_IPROPS_TOP -->
@@ -62,13 +62,13 @@
       	<!-- END IS_IPROPS_TOP -->
 		<!-- BEGIN ITEM_IMG -->
 		<div>
-			<a href="{target}" rel="fancy-tour"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
-			<!-- BEGIN ADMIN -->
+			<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
+			<!-- BEGIN ITEM_IMG_ADMIN -->
 			<ul class="adm-icons" style="float: none;">
-				<li><a href="{URL}item_img/{catID}/{id}/-1" class="icons image"  title="{m('Change item image')}"></a></li>
-				<li><a href="{URL}rm_im/g{catID}/{id}/-1"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 			</ul>
-			<!-- END ADMIN -->
+			<!-- END ITEM_IMG_ADMIN -->
 		</div>
   		<!-- END ITEM_IMG -->
 
@@ -80,7 +80,7 @@
 				<div>
 					<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="" /></a>
 					<!-- BEGIN GALLERY_ADMIN -->
-					<a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image"  title="{m('Change item image')}"></a>
+					<a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a>
 					<a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a>
 					<!-- END GALLERY_ADMIN -->
 				</div>
@@ -89,10 +89,10 @@
 		</ul>
 		<!-- END ITEM_GALLERY -->
 
-      	{content} 
+		{content}
 
 	</div>
-		
+
 	<!-- BEGIN IS_IPROPS_MIDDLE -->
     <div class="mod-ishop-fts-moddle">
       <!-- BEGIN IP_MIDDLE -->
@@ -116,7 +116,7 @@
     	</table>
 	</div>
 	<!-- END IS_IPROPS_TABLE -->
-	
+
 	<!-- BEGIN IS_IPROPS_BOTTOM -->
     <div class="mod-ishop-fts-bottom">
     	<!-- BEGIN IP_BOTTOM -->

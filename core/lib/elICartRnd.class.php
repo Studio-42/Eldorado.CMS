@@ -53,8 +53,8 @@ class elICartRnd {
 				'props' => ''
 				);
 			if (!empty($item['props'])) {
-				foreach ($item['props'] as $k=>$v) {
-					$data['props'] .= "$k: $v<br/>";
+				foreach ($item['props'] as $p) {
+					$data['props'] .= "$p[0]: $p[1]<br/>";
 				}
 			}
 			$this->_te->assignBlockVars('ICART_ITEM', $data);
@@ -155,8 +155,8 @@ class elICartRnd {
 				'props' => ''
 				);
 			if (!empty($item['props'])) {
-				foreach ($item['props'] as $k=>$v) {
-					$data['props'] .= "$k: $v<br/>";
+				foreach ($item['props'] as $p) {
+					$data['props'] .= "$p[0]: $p[1]<br/>";
 				}
 			}
 			$this->_te->assignBlockVars('ICART_ITEM', $data);

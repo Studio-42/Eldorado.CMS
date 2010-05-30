@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS `el_form` (
   `required` enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '0',
   `rule` enum('','noempty','email','url','phone','numbers','letters_or_space') COLLATE utf8_bin NOT NULL DEFAULT '',
   `file_size` int(3) NOT NULL DEFAULT '1',
+  `file_type` varchar(255) collate utf8_bin NOT NULL,
   `error` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
   `sort_ndx` int(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),

@@ -179,9 +179,14 @@ class elPostman
 
 	function setBody( $msg )
 	{
+		$mynl = $this->_nl;
+		if (preg_match('/\<\//', $msg))
+		{
+			$mynl = "<br>\n";
+		}
 		if ( $this->sign )
 		{
-			$msg .= $this->_nl.$this->_nl.str_repeat('-', 25).$this->_nl.$this->sign.$this->_nl;
+			$msg .= $mynl.$mynl.'--'.$mynl.$this->sign.$mynl;
 		}
 		if ( $this->_appendUrlFrom )
 		{
@@ -191,7 +196,7 @@ class elPostman
 			{
 				$patt = m($patt);
 			}
-			$msg .= $this->_nl.str_repeat('-', 25).$this->_nl.sprintf( $patt, $URL ).$this->_nl;
+			$msg .= $mynl.$mynl."--".$mynl.sprintf( $patt, $URL ).$mynl;
 		}
 		$this->msg = $this->_convert($msg);
 	}

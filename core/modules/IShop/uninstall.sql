@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS el_ishop_{pageID}_cat;
+DROP TABLE IF EXISTS el_ishop_{pageID}_gallery;
 DROP TABLE IF EXISTS el_ishop_{pageID}_i2c;
 DROP TABLE IF EXISTS el_ishop_{pageID}_item;
 DROP TABLE IF EXISTS el_ishop_{pageID}_itype;

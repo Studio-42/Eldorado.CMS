@@ -180,18 +180,18 @@ CREATE TABLE IF NOT EXISTS `el_module` (
 
 DROP TABLE IF EXISTS `el_order`;
 CREATE TABLE IF NOT EXISTS `el_order` (
-	`id` int(5) NOT NULL AUTO_INCREMENT,
-	`uid` int(5) NOT NULL,
-	`crtime` int(11) NOT NULL,
-	`mtime` int(11) NOT NULL,
-	`state` enum('send','accept','deliver','complite','aborted') COLLATE utf8_bin NOT NULL DEFAULT 'send',
-	`amount` double(10,2) NOT NULL,
-	`discount` double(6,2) NOT NULL,
-	`delivery_price` double(6,2) NOT NULL,
-	`total` double(12,2) NOT NULL,
-	`region` varchar(255) NOT NULL,
-	`delivery` varchar(255) NOT NULL, 
-	`payment` varchar(255) NOT NULL,
+  `id` int(5) NOT NULL AUTO_INCREMENT,
+  `uid` int(5) NOT NULL,
+  `crtime` int(11) NOT NULL,
+  `mtime` int(11) NOT NULL,
+  `state` enum('send','accept','deliver','complete','aborted') COLLATE utf8_bin NOT NULL DEFAULT 'send',
+  `amount` double(10,2) NOT NULL,
+  `discount` double(6,2) NOT NULL,
+  `delivery_price` double(6,2) NOT NULL,
+  `total` double(12,2) NOT NULL,
+  `region` varchar(255) NOT NULL,
+  `delivery` varchar(255) NOT NULL,
+  `payment` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -228,18 +228,18 @@ CREATE TABLE IF NOT EXISTS `el_order_item` (
 
 DROP TABLE IF EXISTS `el_page`;
 CREATE TABLE IF NOT EXISTS `el_page` (
-  `id` int(3) NOT NULL DEFAULT '0',
+  `id`      int(3) NOT NULL DEFAULT '0',
   `content` text COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 DROP TABLE IF EXISTS `el_plugin`;
 CREATE TABLE IF NOT EXISTS `el_plugin` (
-  `name` varchar(25) COLLATE utf8_bin NOT NULL,
-  `label` varchar(75) COLLATE utf8_bin NOT NULL,
+  `name`    varchar(25) COLLATE utf8_bin NOT NULL,
+  `label`   varchar(75) COLLATE utf8_bin NOT NULL,
   `descrip` varchar(200) COLLATE utf8_bin NOT NULL,
-  `is_on` enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '1',
-  `status` enum('disable','off','on') COLLATE utf8_bin NOT NULL DEFAULT 'off',
+  `is_on`   enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '1',
+  `status`  enum('disable','off','on') COLLATE utf8_bin NOT NULL DEFAULT 'off',
   PRIMARY KEY (`name`),
   KEY `is_on` (`is_on`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -315,16 +315,16 @@ CREATE TABLE IF NOT EXISTS `el_uplog` (
 
 DROP TABLE IF EXISTS `el_user`;
 CREATE TABLE IF NOT EXISTS `el_user` (
-  `uid` int(3) NOT NULL AUTO_INCREMENT,
-  `login` varchar(25) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `pass` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `uid`    int(3)  NOT NULL AUTO_INCREMENT,
+  `login`  varchar(25)  COLLATE utf8_bin NOT NULL DEFAULT '',
+  `pass`   varchar(32)  COLLATE utf8_bin NOT NULL DEFAULT '',
   `f_name` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
   `l_name` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `email` varchar(80) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `email`  varchar(80)  COLLATE utf8_bin NOT NULL DEFAULT '',
   `crtime` int(11) NOT NULL DEFAULT '0',
-  `mtime` int(11) NOT NULL DEFAULT '0',
-  `atime` int(11) NOT NULL DEFAULT '0',
-  `visits` int(3) NOT NULL DEFAULT '0',
+  `mtime`  int(11) NOT NULL DEFAULT '0',
+  `atime`  int(11) NOT NULL DEFAULT '0',
+  `visits` int(3)  NOT NULL DEFAULT '0',
   PRIMARY KEY (`uid`),
   KEY `email` (`email`),
   KEY `login` (`login`)
@@ -332,7 +332,7 @@ CREATE TABLE IF NOT EXISTS `el_user` (
 
 DROP TABLE IF EXISTS `el_user_in_group`;
 CREATE TABLE IF NOT EXISTS `el_user_in_group` (
-  `user_id` int(5) NOT NULL DEFAULT '0',
+  `user_id`  int(5) NOT NULL DEFAULT '0',
   `group_id` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`,`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -340,25 +340,26 @@ CREATE TABLE IF NOT EXISTS `el_user_in_group` (
 DROP TABLE IF EXISTS `el_user_pref`;
 CREATE TABLE IF NOT EXISTS `el_user_pref` (
   `user_id` int(3) NOT NULL DEFAULT '0',
-  `name` varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `val` text COLLATE utf8_bin,
+  `name`    varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `val`     text COLLATE utf8_bin,
   `is_serialized` enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '0',
   PRIMARY KEY (`user_id`,`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 DROP TABLE IF EXISTS `el_user_profile`;
 CREATE TABLE IF NOT EXISTS `el_user_profile` (
-  `id` varchar(255) COLLATE utf8_bin NOT NULL,
-  `label` varchar(255) COLLATE utf8_bin NOT NULL,
-  `type` enum('comment','title','text','textarea','select','checkbox','date','file','captcha','directory') COLLATE utf8_bin NOT NULL DEFAULT 'comment',
-  `value` mediumtext COLLATE utf8_bin NOT NULL,
-  `opts` mediumtext COLLATE utf8_bin NOT NULL,
+  `id`        varchar(255) COLLATE utf8_bin NOT NULL,
+  `label`     varchar(255) COLLATE utf8_bin NOT NULL,
+  `type`      enum('comment','title','text','textarea','select','checkbox','date','file','captcha','directory') COLLATE utf8_bin NOT NULL DEFAULT 'comment',
+  `value`     mediumtext COLLATE utf8_bin NOT NULL,
+  `opts`      mediumtext COLLATE utf8_bin NOT NULL,
   `directory` varchar(255) COLLATE utf8_bin NOT NULL,
-  `required` enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '0',
-  `rule` enum('','noempty','email','url','phone','numbers','letters_or_space') COLLATE utf8_bin NOT NULL DEFAULT '',
+  `required`  enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `rule`      enum('','noempty','email','url','phone','numbers','letters_or_space') COLLATE utf8_bin NOT NULL DEFAULT '',
   `file_size` int(3) NOT NULL DEFAULT '1',
-  `error` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `sort_ndx` int(3) NOT NULL DEFAULT '0',
+  `file_type` varchar(255) collate utf8_bin NOT NULL,
+  `error`     varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `sort_ndx`  int(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

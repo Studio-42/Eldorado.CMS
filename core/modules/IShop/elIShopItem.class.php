@@ -515,7 +515,7 @@ class elIShopItem extends elCatalogItem
 			return false;
 		}
 
-		$imgPath = str_replace(EL_BASE_URL, '', $_POST['imgURL']);
+		$imgPath = urldecode(str_replace(EL_BASE_URL, '', $_POST['imgURL']));
 		if (in_array($imgPath, $this->getGallery()))
 		{
 			return elThrow(E_USER_WARNING, 'This image is already in the gallery');

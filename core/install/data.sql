@@ -10,7 +10,7 @@ INSERT INTO `el_group` (`gid`, `name`, `perm`, `mtime`) VALUES
 INSERT INTO `el_menu` (`id`, `name`, `name_alt`, `page_descrip`, `dir`, `_left`, `_right`, `level`, `module`, `visible`, `visible_limit`, `perm`, `is_menu`, `redirect_url`, `ico_main`, `ico_add_menu_top`, `ico_add_menu_bot`, `in_add_menu_top`, `in_add_menu_bot`, `alt_tpl`) VALUES
 (1, '--', '', '', '', 1, 26, 0, 'Container', '2', '0', '1', '0', '', '', '', '', '0', '0', ''),
 (2, 'Home', '', '', 'home', 2, 3, 1, 'SimplePage', '2', '0', '1', '0', '', 'home.png', 'home.png', 'home.png', '0', '0', ''),
-(3, 'Feedback', '', '', 'conf', 4, 5, 1, 'Mailer', '2', '0', '1', '0', '', 'mail.png', 'mail.png', 'mail.png', '0', '0', '0'),
+(3, 'Feedback', '', '', 'feedback', 4, 5, 1, 'Mailer', '2', '0', '1', '0', '', 'mail.png', 'mail.png', 'mail.png', '0', '0', '0'),
 (5, 'Control Centre', '', '', 'cc', 6, 25, 1, 'Container', '2', '0', '0', '0', '', 'default.png', 'default.png', 'default.png', '0', '0', ''),
 (6, 'Users/Groups', '', '', 'users', 7, 8, 2, 'UsersControl', '2', '0', '0', '0', '', 'users.gif', 'default.png', 'default.png', '0', '0', '0'),
 (7, 'Navigation Control', '', '', 'menu', 9, 10, 2, 'NavigationControl', '2', '0', '1', '0', '', 'nav.gif', 'default.png', 'default.png', '0', '0', ''),

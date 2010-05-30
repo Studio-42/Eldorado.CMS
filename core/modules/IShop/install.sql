@@ -1,11 +1,11 @@
 DROP TABLE IF EXISTS el_ishop_{pageID}_cat;
 CREATE TABLE el_ishop_{pageID}_cat (
-	id      int(3) NOT NULL auto_increment,
-	_left   int(3) NOT NULL,
-	_right  int(3) NOT NULL,
-	level   tinyint(1) NOT NULL default '1',
+	id      int(3)       NOT NULL auto_increment,
+	_left   int(3)       NOT NULL,
+	_right  int(3)       NOT NULL,
+	level   tinyint(1)   NOT NULL default '1',
 	name    varchar(250) NOT NULL,
-	descrip mediumtext NOT NULL,
+	descrip mediumtext   NOT NULL,
 	PRIMARY KEY(id),
 	KEY(_left,_right,level)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -28,19 +28,19 @@ CREATE TABLE el_ishop_{pageID}_i2c (
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_item;
 CREATE TABLE el_ishop_{pageID}_item (
-	id       int(5)       NOT NULL auto_increment,
-	type_id  tinyint(3)   NOT NULL,
-	mnf_id   tinyint(3)   NOT NULL default '0',
-	tm_id    tinyint(3)   NOT NULL default '0',
-	code     varchar(255) NOT NULL,
-	name     varchar(255) NOT NULL,
+	id        int(5)       NOT NULL auto_increment,
+	type_id   tinyint(3)   NOT NULL,
+	mnf_id    tinyint(3)   NOT NULL default '0',
+	tm_id     tinyint(3)   NOT NULL default '0',
+	code      varchar(255) NOT NULL,
+	name      varchar(255) NOT NULL,
 	altername varchar(350) NOT NULL,
-	img      varchar(255) NOT NULL,
-	announce text         NOT NULL,
-	content  mediumtext   NOT NULL,
-	price    double(12,2)  NOT NULL,
-    crtime   int(11)      unsigned NOT NULL default '0',
-    mtime    int(11)      unsigned NOT NULL default '0',
+	img       varchar(255) NOT NULL,
+	announce  text         NOT NULL,
+	content   mediumtext   NOT NULL,
+	price     double(12,2) NOT NULL,
+    crtime    int(11)      unsigned NOT NULL default '0',
+    mtime     int(11)      unsigned NOT NULL default '0',
 	primary KEY(id),
 	KEY(type_id),
 	KEY(mnf_id)
@@ -54,8 +54,7 @@ CREATE TABLE el_ishop_{pageID}_itype (
   mtime  int(11)      unsigned NOT NULL default '0',
   primary KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-INSERT INTO el_ishop_{pageID}_itype (name) VALUES ("Default item");  
-
+INSERT INTO el_ishop_{pageID}_itype (name) VALUES ("Default item");
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_prop;
 CREATE TABLE el_ishop_{pageID}_prop (
@@ -89,8 +88,8 @@ CREATE TABLE el_ishop_{pageID}_prop_value (
 DROP TABLE IF EXISTS el_ishop_{pageID}_p2i;
 CREATE TABLE el_ishop_{pageID}_p2i (
   id    int(10) NOT NULL auto_increment,
-  i_id  int(5) NOT NULL,
-  p_id  int(5) NOT NULL,
+  i_id  int(5)  NOT NULL,
+  p_id  int(5)  NOT NULL,
   value text,
   pv_id int(10) NOT NULL,
   PRIMARY KEY(id)
@@ -100,12 +99,11 @@ DROP TABLE IF EXISTS el_ishop_{pageID}_prop_depend;
 CREATE TABLE el_ishop_{pageID}_prop_depend (
   id      int(10)  NOT NULL auto_increment,
   m_id    int(5)   NOT NULL,
-  m_value int(10) NOT NULL,
+  m_value int(10)  NOT NULL,
   s_id    int(5)   NOT NULL,
-  s_value int(10) NOT NULL,
+  s_value int(10)  NOT NULL,
   PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_mnf;
 CREATE TABLE el_ishop_{pageID}_mnf (
@@ -127,7 +125,6 @@ CREATE TABLE el_ishop_{pageID}_tm (
   PRIMARY KEY (id),
   KEY (mnf_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_search;
 CREATE TABLE         el_ishop_{pageID}_search (
@@ -155,7 +152,6 @@ CREATE TABLE         el_ishop_{pageID}_se (
     def_val     varchar(255) NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_sp;
 CREATE TABLE         el_ishop_{pageID}_sp (

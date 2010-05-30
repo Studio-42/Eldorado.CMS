@@ -436,7 +436,7 @@ RewriteBase   $path
 RewriteRule   ^favicon.ico style/favicon.ico [L]
 
 # the all-in-one rule
-RewriteCond   %{REQUEST_URI} !(cache/|core/js/|style/|storage/|robots\.txt)
+RewriteCond   %{REQUEST_URI} !(cache/|core/js/|core/docs/|style/|storage/|robots\.txt)
 RewriteRule   (.*) index.php [L]
 
 # this should secure from unwanted phps
@@ -976,7 +976,7 @@ class elInstallerRnd {
 					-moz-border-radius:9px;
 					-webkit-border-radius:9px;
 					padding: 25px 9px 9px;
-					background: #fff url(../logo2.png) 10px 10px no-repeat;
+					background: #fff url(logo2.png) 10px 10px no-repeat;
 					
 					position:relative;
 				}

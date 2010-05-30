@@ -33,7 +33,7 @@ class elUserProfile extends elFormConstructor {
 		$form->setElementRule('login', 'validUserForm', true, $this->UID);
 		$form->setElementRule('email', 'validUserForm', true, $this->UID);
 		if (!$this->UID) {
-			// $form->add(new elCaptcha('__reg__', m('Enter code from picture')));
+			$form->add(new elCaptcha('__reg__', m('Enter code from picture')));
 		}
 		
 		return $form;
@@ -48,6 +48,21 @@ class elUserProfile extends elFormConstructor {
 		foreach ($this->_elements as $id=>$el) {
 			if ($el != 'login' && $el != 'email') {
 				$el->delete();
+			}
+		}
+	}
+	
+	/**
+	 * add new field if not exists
+	 *
+	 * @param  elUserProfileField
+	 * @return bool
+	 **/
+	function add($el) {
+		if ($el->ID) {
+			return isset($this->_elements[$el->ID]) ? true : $el->save();
+			if (isset($this->_elements[$el->ID])) {
+				return true;
 			}
 		}
 	}
@@ -110,10 +125,9 @@ class elUserProfileField extends elFormConstructorElement {
 			$db->query('DELETE FROM '.$this->_tb.' WHERE id="'.$this->ID.'"');
 			return false;
 		}
-		if (!empty($attrs['value'])) {
-			$sql = sprintf('UPDATE el_user SET %s="%s" WHERE %s=""', $this->ID, $attrs['value'], $this->ID);
-			echo $sql;
-		}
+		// if (!empty($attrs['value'])) {
+			// $sql = sprintf('UPDATE el_user SET %s="%s" WHERE %s=""', $this->ID, $attrs['value'], $this->ID);
+		// }
 		return $this->_postSave();
 	}
 	

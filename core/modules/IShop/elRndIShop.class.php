@@ -96,9 +96,14 @@ class elRndIShop extends elCatalogRenderer
 
 	function renderItem($item, $linkedObjs = null)
 	{
+		// $currency = & elSingleton::getObj('')
+		
+
 		elAddJs('jquery.js', EL_JS_CSS_FILE);
 		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
+		
+		
 		
 		if ($this->_admin)
 		{
@@ -207,6 +212,17 @@ class elRndIShop extends elCatalogRenderer
 
     if ( 0<($item->price) )
     {
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => 1
+			);
+		$item->price = $currency->convert($item->price, $curOpts);
       $this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$item->price));
       $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
       if ( !empty($pOrder) )
@@ -308,6 +324,16 @@ class elRndIShop extends elCatalogRenderer
 	 **/
 	function _rndItemsOneColumn($items) {
 		$i = 0;
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => 1
+			);
 		foreach ($items as $item) {
 			$data = $item->toArray();
 			$data['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
@@ -319,6 +345,7 @@ class elRndIShop extends elCatalogRenderer
 				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.CODE', array('code'=>$item->code), 2 );
 	  		}
 			if ($item->price > 0) {
+				$item->price = $currency->convert($item->price, $curOpts);
 				$this->_te->assignBlockVars( 'ITEMS_ONECOL.ITEM.PRICE', array('id'  => $item->ID, 'price'=>$item->price), 2 );
 	  		}
 			if (($img = array_shift($item->getGallery())) != false) {
@@ -355,6 +382,17 @@ class elRndIShop extends elCatalogRenderer
 	function _rndItemsTwoColumns($items) {
 		$rowCnt = $i = 0;
 		$s      = sizeof($items);
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => 1
+			);
+			
 		foreach ($items as $item) {
 			$data = $item->toArray();
 			$data['cssLastClass'] = 'col-last';
@@ -371,6 +409,7 @@ class elRndIShop extends elCatalogRenderer
 			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.CODE', array('code'=>$item->code), 2 );
 			}
 			if ($item->price > 0) {
+				$item->price = $currency->convert($item->price, $curOpts);
 			  	$this->_te->assignBlockVars( 'ITEMS_TWOCOL.ITEM.PRICE', array('price'=>$item->price), 2 );
 			}
 			if (($img = array_shift($item->getGallery())) != false) {

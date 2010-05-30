@@ -57,7 +57,7 @@ class elModuleIShop extends elModule
 		'exchangeSrc'       => 'auto',
 		'commision'         => 0,
 		'rate'              => 1,
-	    'pricePrec'         => 2
+	    'pricePrec'         => 0
 	);
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //

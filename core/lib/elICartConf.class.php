@@ -51,7 +51,7 @@ class elICartConf {
 	}
 
 	function get($regionID, $deliveryID, $paymentID) {
-		$sql = 'SELECT c.region_id, r.value AS region, c.delivery_id, d.value AS delivery, c.payment_id, p.value AS payment, c.fee, c.formula, c.comment '
+		$sql = 'SELECT c.region_id, r.value AS region, c.delivery_id, d.value AS delivery, c.payment_id, p.value AS payment, c.fee, c.formula, c.comment, c.online_payment '
 				.'FROM '.$this->_tb.' AS c, el_directory_icart_region AS r, el_directory_icart_delivery AS d, el_directory_icart_payment AS p '
 				.'WHERE region_id=%d AND delivery_id=%d AND payment_id=%d AND r.id=c.region_id AND d.id=c.delivery_id AND p.id=c.payment_id';
 		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID);
@@ -66,12 +66,13 @@ class elICartConf {
 					'comment'     =>'', 
 					'region'      => '',
 					'delivery'    => '',
-					'payment'     => ''
+					'payment'     => '',
+					'online_payment' => 0
 					);
 	}
 
 	function getAll() {
-		$sql = 'SELECT c.region_id, c.delivery_id, c.payment_id, c.fee, c.formula, c.comment, '
+		$sql = 'SELECT c.region_id, c.delivery_id, c.payment_id, c.fee, c.formula, c.comment, c.online_payment, '
 				.'r.value AS region, d.value AS delivery, p.value AS payment '
 				.'FROM '.$this->_tb.' AS c, el_directory_icart_region AS r, '
 				.'el_directory_icart_delivery AS d, el_directory_icart_payment AS p '
@@ -159,9 +160,9 @@ class elICartConf {
 	}
 	
 
-	function set($regionID, $deliveryID, $paymentID, $fee, $formula, $comment) {
-		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%s", formula="%s", comment="%s"';
-		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID, mysql_real_escape_string($fee), mysql_real_escape_string($formula), mysql_real_escape_string($comment));
+	function set($regionID, $deliveryID, $paymentID, $fee, $formula, $comment, $online="0") {
+		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%s", formula="%s", comment="%s", online_payment="%d"';
+		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID, mysql_real_escape_string($fee), mysql_real_escape_string($formula), mysql_real_escape_string($comment), $online);
 		return $this->_db->query($sql);
 	}
 

@@ -9,7 +9,8 @@ class elServiceICart extends elService
 		'repeat_order' => array('m' => 'repeatOrder'),
 		'delivery'     => array('m' => 'delivery'),
 		'address'      => array('m' => 'address'),
-		'confirm'     => array('m' => 'confirm'),
+		'confirm'      => array('m' => 'confirm'),
+		'payment'      => array('m' => 'onlinePayment'),
 		'info'         => array('m' => 'deliveryInfo')
 	);
     var $_iCart     = null;
@@ -29,7 +30,7 @@ class elServiceICart extends elService
 			'allow'  => true,
 			),
 		'address' => array(
-			'label'  => 'Address',
+			'label'  => 'Customer information',
 			'enable' => true,
 			'allow'  => false
 			),
@@ -290,19 +291,29 @@ class elServiceICart extends elService
 
 		if (empty($_POST['action'])) {
 			$this->_rnd->rndConfirm($this->_iCart, $delivery, $this->_userData['address'], $total);
-		} elseif (false == ($orderID = $this->_complete($delivery))) {
+		} elseif (false == ($orderID = $this->_completeOrder($delivery))) {
 			elThrow(E_USER_WARNING, 'Unable to comlete order! Please, contacts site administrator', null, $this->_url.'__icart__/confirm/');
+		} elseif ($this->_steps['payment']['enable']) {
+			$this->_userData['confirm'] = 1;
+			elLocation($this->_url.'__icart__/payment/');
 		} else {
-			$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
-			$this->_user->prefrence('order_complete', 1);
-			$this->_sendMessage($orderID, $msg);
+			$this->_complete($delivery, $orderID, $total);
 			elMsgBox::put(m('Dear customer! Thank You for your order. We contact You as soon as possible'));
 			elLocation($this->_url.'__icart__/');
 		}
 		
 	}
 
-
+	/**
+	 * placeholder for online payment
+	 *
+	 * @return void
+	 **/
+	function onlinePayment() {
+		if (!$this->_steps['payment']['enable'] || !$this->_steps['payment']['allow']) {
+			elLocation($this->_url.'__icart__/');
+		}
+	}
 
  
 	// Repeat order from elModuleOrderHistory
@@ -363,7 +374,7 @@ class elServiceICart extends elService
 	 * @param  array  $delivery
 	 * @return int
 	 **/
-	function _complete($delivery) {
+	function _completeOrder($delivery) {
 		$db = & elSingleton::getObj('elDb');
 		$sql = 'INSERT INTO el_order (uid, crtime, mtime, amount, delivery_price, total, region, delivery, payment) '
 				.'VALUES (%d, %d, %d, "%s", "%s", "%s", "%s", "%s", "%s")';
@@ -390,6 +401,18 @@ class elServiceICart extends elService
 		$this->_iCart->clean();
 		
 		return $orderID;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _complete($delivery, $orderID, $total) {
+		$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
+		$this->_user->prefrence('order_complete', 1);
+		$this->_sendMessage($orderID, $msg);
 	}
 
 	/**
@@ -539,14 +562,22 @@ class elICartAddress {
 	}
 	
 	function getForm() {
+		
+		$data = array();
+		foreach ($this->_data as $v) {
+			$data[$v['id']] = $v['value'];
+		}
+
 		$this->form = & new elForm('icartAddr');
 		foreach ($this->_elements as $e) {
 
 			if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
 				$dm = & elSingleton::getObj('elDirectoryManager');
-				// $value = $dm->getRecord($e->directory, $this->_regionID, true);
 				$this->form->add(new elCData2($e->ID, $e->label, $dm->getRecord($e->directory, $this->_regionID, true)));
 			} else {
+				if (isset($data[$e->ID])) {
+					$e->setValue($data[$e->ID]);
+				}
 				$this->form->add($e->toFormElement());
 				if ($e->rule) {
 					$this->form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);

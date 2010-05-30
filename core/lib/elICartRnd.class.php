@@ -192,7 +192,7 @@ class elICartRnd {
 	function _rndCommon($step) {
 		
 		$this->_te->setFile('PAGE', 'services/ICart/default.html');
-		$this->_te->assignVars('iCartStepTitle', $this->_steps[$step]);
+		$this->_te->assignVars('iCartStepTitle', m($this->steps[$step]['label']));
 		$this->_te->assignVars('iCartURL', $this->url.'__icart__/');
 		$this->_te->assignVars('buttonText', m('Continue').' &raquo;');
 		$this->_te->assignVars('stepID', $step);

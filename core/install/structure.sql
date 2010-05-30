@@ -128,6 +128,7 @@ CREATE TABLE IF NOT EXISTS `el_icart_conf` (
   `fee` double(10,2) DEFAULT NULL,
   `formula` mediumtext COLLATE utf8_bin,
   `comment` mediumtext COLLATE utf8_bin,
+  `online_payment` enum('0', '1') NOT NULL default '0',
   PRIMARY KEY (`region_id`,`delivery_id`,`payment_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

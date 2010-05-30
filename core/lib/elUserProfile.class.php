@@ -107,6 +107,24 @@ class elUserProfileField extends elFormConstructorElement {
 	 * @var bool
 	 **/
 	var $_idAuto = false;
+	/**
+	 * types list
+	 *
+	 * @var array
+	 **/
+	var $_types = array(
+		// 'comment'   => 'Comment', 
+		// 'title'     => 'Title for elements group', 
+		'text'      => 'Text field', 
+		'textarea'  => 'Text area', 
+		'select'    => 'Drop down list', 
+		'checkbox'  => 'Checkboxes', 
+		'date'      => 'Date selector', 
+		// 'file'      => 'File upload field', 
+		// 'captcha'   => 'Captcha: image with code and input field (Spam protection)',
+		'directory' => 'System directory'
+		);
+
 
 	/**
 	 * save profile field
@@ -115,6 +133,9 @@ class elUserProfileField extends elFormConstructorElement {
 	 **/
 	function save() {
 		$attrs = $this->_attrsForSave();
+		if ($attr['type'] != 'directory') {
+			$attr['directory'] = '';
+		}
 		$db    = $this->_db();
 		$sql   = sprintf('REPLACE INTO el_user_profile (%s) VALUES (%s)',  implode(',', array_keys($attrs)), '"'.implode('", "', $attrs).'"');
 		if (!$db->query($sql)) {

@@ -18,10 +18,11 @@ $elMsg['Create group']                          = 'Додати групи';
 $elMsg['Apply filter']                          = 'Применить фильтр';
 $elMsg['Clean filter']                          = 'Сбросить фильтр';
 // confidure profile
-$elMsg['Configuration of user profile']         = 'Налаштування профіль користувача';
-$elMsg['Profile field']                         = 'Поле профайла';
-$elMsg['Usage']                                 = 'Використання';
-$elMsg['Sort index']                            = 'Індекс сортування';
+$elMsg['Sort'] = 'Сортировать';
+$elMsg['New field'] = 'Новое поле';
+$elMsg['Clean'] = 'Удалить все поля';
+$elMsg['Fields login and email cannot be modified or removed'] = 'Поля Login и E-mail не могут быть изменены или удалены';
+
 
 //groups subModule
 $elMsg['Users group']                           = 'Група користувачів';

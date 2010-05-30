@@ -11,6 +11,8 @@ $elMsg['Registration']           = 'Реєстрацiя';
 $elMsg['New user registration']  = 'Реєстрацiя нового користувача';
 $elMsg['Register as new user']   = 'Реєстрація нового користувача';
 $elMsg['Edit user %s profile']   = 'Редагувати профайл користувача %s';
+$elMsg['Edit']                   = 'Редакторовать';
+$elMsg['Change password']        = 'Сменить пароль';
 //remind password
 $elMsg['Forgot Your password?']  = 'Забули пароль?';
 $elMsg['Remind login/password']  = 'Отримати новий пароль';

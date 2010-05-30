@@ -117,11 +117,13 @@ class elFormConstructor {
 	 * @return void
 	 * @author /bin/bash: niutil: command not found
 	 **/
-	function getAdminFormHtml($url=EL_URL)	{
+	function getAdminFormHtml($url=EL_URL, $label='')	{
+		elLoadMessages('FormConstructor');
+		
 		$rnd = &elSingleton::getObj('elTE');
 		$rnd->setFile('icartAdminForm', 'forms/simple_form.html');
 		
-		$label = '
+		$l = '
 			<ul class="adm-icons form-constructor">
 				<li><a href="'.$url.'field_sort/" class="icons sort-num" title="'.m('Sort').'"></a></li>
 				<li><a href="'.$url.'field_edit/"  class="icons create" title="'.m('New field').'"></a></li>
@@ -129,7 +131,7 @@ class elFormConstructor {
 			</ul>
 			';
 		
-		$rnd->assignBlockVars('FORM_HEAD', array('form_label' => $label.$this->label));
+		$rnd->assignBlockVars('FORM_HEAD', array('form_label' => $l.($label ? $label : $this->label)));
 
 		foreach ($this->_elements as $el) {
 			$e = $el->toFormElement();
@@ -189,6 +191,7 @@ class elFormConstructor {
 	 * @return bool
 	 **/
 	function edit($eID) {
+		elLoadMessages('FormConstructor');
 		$el = & new $this->_elClass(array('form_id' => $this->ID));
 		$el->idAttr($eID);
 		$el->fetch();
@@ -239,8 +242,6 @@ class elFormConstructor {
 		if ($this->_form->isSubmitAndValid()) {
 			$data = $this->_form->getValue();
 			$res  = $data['el'];
-			// $db   = & elSingleton::getObj('elDb');
-			// $sql  = 'UPDATE el_form SET sort_ndx=%d WHERE id=%d LIMIT 1';
 			asort($res);
 			$i = 1;
 			foreach ($res as $id=>$ndx) {
@@ -518,7 +519,6 @@ class elFormConstructorElement extends elDataMapping {
 		if (!$this->ID) {
 			$this->sortNdx = 1+$params['cnt']++;
 		}
-		array_map('m', $this->_types);
 
 		$rules = array(
 			''                 => m('Any'),
@@ -541,7 +541,7 @@ class elFormConstructorElement extends elDataMapping {
 		
 		
 		$this->_form->add(new elText('label',       m('Name').$req,       $this->label));
-		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, $this->_types));
+		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, array_map('m', $this->_types)));
 		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
 		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
 		$this->_form->add(new elSelect('directory', m('Directory'),       $this->required, $dm->getList()));

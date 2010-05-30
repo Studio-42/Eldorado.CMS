@@ -16,13 +16,7 @@ class elSubModuleUsers extends elModule
 			'ico' => 'icoConf',
 			'l'   => 'Configuration of user profile',
 			'g'   => 'Configuration'
-		),
-		// 'profile' => array(
-		// 	'm'   => 'profile',
-		// 	'ico' => 'icoMenu',
-		// 	'l'   => 'Add profile field',
-		// 	'g'   => 'Configuration'
-		// )
+		)
 	);
 	var $_filter   = array(
 		'pattern' => '',
@@ -173,12 +167,8 @@ class elSubModuleUsers extends elModule
 			elThrow(E_USER_WARNING, 'Fields login and email cannot be modified or removed', null, $url);
 		}
 		$this->_initRenderer();
-		// echo $id;
-		// elPrintR($this->_args);
-		// elPrintr($profile);
 		switch($this->_arg()) {
 			case 'field_edit':
-				// echo 'field_edit';
 				if ($profile->edit($id)) {
 					elMsgBox::put(m('Data saved'));
 					elLocation($url);
@@ -209,76 +199,12 @@ class elSubModuleUsers extends elModule
 				}
 				break;
 			default:
-				$html = $profile->getAdminFormHtml($url);
+				$html = $profile->getAdminFormHtml($url, m('Configuration of user profile'));
 				$this->_rnd->addToContent($html);
 		}
 		
 	}
 
-	// Добавление/Изменение поля профиля
-	function profile()
-	{
-		$pc = & elSingleton::getObj('elProfileConf');
-		$pc->clean();
-		$frozen = false;
-
-		$f = $this->_arg(0);
-		if (!empty($f))
-		{
-			if (!$pc->checkFieldAllowed($f))
-				elThrow(E_USER_WARNING, 'Not allowed value for "%s"', 'Field in DB', EL_URL.'conf');
-
-			$frozen = true;
-			$pc->idAttr($f);
-			if (!($pc->checkFieldName($f) and $pc->fetch()))
-				elThrow(E_USER_WARNING, 'Object "%s" with ID="%s" does not exists', array(m('Profile field'), $f), EL_URL.'conf');
-		}
-
-		$pc->_new = !$frozen;
-		if (!$pc->editAndSave(array('frozen' => $frozen)))
-		{
-			$this->_initRenderer();
-			$this->_rnd->addToContent($pc->formToHtml());
-		}
-		else
-		{
-			elMsgBox::put(m('Data saved'));
-			elLocation(EL_URL.'conf');
-		}
-	}
-
-	// Удаление поля из профайла
-	function profileRemove()
-	{
-		$pc = & elSingleton::getObj('elProfileConf');
-		$f = $this->_arg(0);
-		if ($pc->checkFieldAllowed($f) and $pc->checkFieldExists($f))
-		{
-			if (($_POST) and (!$_POST['delete']))
-				elMsgBox::put(m('Select delete method'), EL_WARNQ);
-
-			if (!$_POST['delete'])
-			{
-				$this->_initRenderer();
-				$this->_rnd->addToContent($this->_confirmRemoveForm($f));
-			}
-			else
-			{
-				$delete_data = false;
-				if ($_POST['delete'] == 'field_data')
-					$delete_data = true;
-
-				if ($pc->deleteDataField($f, $delete_data))
-					elMsgBox::put(sprintf(m('Field "%s" deleted'), $f));
-				else
-					elMsgBox::put(sprintf(m('Cannot delete field "%s"'), $f), EL_WARNQ);
-
-				elLocation(EL_URL.'conf');
-			}
-		}
-		else
-			elThrow(E_USER_WARNING, 'Cannot delete field "%s"', $f, EL_URL.'conf');
-	}
 
 	// ====================== PRIVATE METHODS ======================  //
 

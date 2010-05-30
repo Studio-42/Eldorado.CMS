@@ -105,16 +105,19 @@ class elServiceICart extends elService
 		// elPrintR($this->_steps);
     }
     
-    
+    /**
+	 * display cart/products manipulate
+	 *
+	 * @return void
+	 **/
     function defaultMethod() {
-	
+
 		if (!empty($_POST['action'])) {
 			
 			switch($_POST['action']) {
 				case 'next':
 					$this->_iCart->update($_POST['qnt']);
 					elLocation($this->_url.'__icart__/'.($this->_steps['delivery']['enable'] ? 'delivery/' : 'address/'));
-					// $this->_go('delivery');
 					break;
 				case 'delete':
 					if (!empty($_POST['id'])) {
@@ -138,7 +141,6 @@ class elServiceICart extends elService
 		}
 
     }
-    
     
 	/**
 	 * proccess delivery/payment selection step
@@ -404,10 +406,12 @@ class elServiceICart extends elService
 	}
 
 	/**
-	 * undocumented function
+	 * send order by mail
 	 *
+	 * @param  array  $delivery
+	 * @param  int  $orderID
+	 * @param  int  $total
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _complete($delivery, $orderID, $total) {
 		$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);

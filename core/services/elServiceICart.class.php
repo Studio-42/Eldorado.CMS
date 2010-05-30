@@ -400,7 +400,7 @@ class elServiceICart extends elService
 			$db->prepareData( array($orderID, $this->_user->UID, $v['label'], $v['value']));
 		}
 		$db->execute();
-		$this->_iCart->clean();
+		
 		
 		return $orderID;
 	}
@@ -417,6 +417,7 @@ class elServiceICart extends elService
 		$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
 		$this->_user->prefrence('order_complete', 1);
 		$this->_sendMessage($orderID, $msg);
+		$this->_iCart->clean();
 	}
 
 	/**

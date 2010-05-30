@@ -593,9 +593,9 @@ class elModuleAdminIShop extends elModuleIShop
     $form->add( new elSelect('mnfNfo', m('Manufacturers / Trade marks'), $this->_conf('mnfNfo'), $params['mnf']) );
 
     $form->add( new elCData('c1', m('Item image')), array('cellAttrs'=>'class="form-tb-sub"'));
-    $form->add( new elSelect('tmbListPos', m('Image position in items list'), $this->_conf('tmbListPos'), $params['posLR']) );
+    // $form->add( new elSelect('tmbListPos', m('Image position in items list'), $this->_conf('tmbListPos'), $params['posLR']) );
     $form->add( new elSelect('tmbListSize', m('Max image size in items list (px)'), $this->_conf('tmbListSize'), $params['imgSize'], null, false, false) );
-    $form->add( new elSelect('tmbItemCardPos', m('Image position in item card'), $this->_conf('tmbItemCardPos'), $params['posLTR']) );
+    // $form->add( new elSelect('tmbItemCardPos', m('Image position in item card'), $this->_conf('tmbItemCardPos'), $params['posLTR']) );
     $form->add( new elSelect('tmbItemCardSize', m('Max image size in item card (px)'), $this->_conf('tmbItemCardSize'), $params['imgSize'], null, false, false) );
     
    $form->add( new elCData('c3',      m('Advanced search')), array('cellAttrs'=>'class="form-tb-sub"'));

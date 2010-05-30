@@ -583,6 +583,13 @@ class elIShopItem extends elCatalogItem
 		}
 	}
 
+	function getTmbPath($tmbType = 'l', $thisImg = false) {
+		$url = $this->getTmbURL($tmbType, $thisImg);
+		if (!empty($url)) {
+			return '.'.str_replace(EL_BASE_URL, '', $url);
+		}
+	}
+
 	function _getTmbNames($imgPath)
 	{
 		$imgName = baseName($imgPath);

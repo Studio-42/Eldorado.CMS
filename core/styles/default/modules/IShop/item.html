@@ -43,15 +43,39 @@
       	<!-- END IS_ITEM_ORDER -->
 	</div>
 	<div class="mod-ishop-item-content clearfix">
-		<!-- BEGIN ITEM_IMG_TOP -->
-		<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" class="mod-ishop-iimg-top rounded-3" /></a>
-			<!-- BEGIN ITEM_IMG_ADMIN -->
-			<ul class="adm-icons" style="float: none;">
-				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
-				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
-			</ul>
-			<!-- END ITEM_IMG_ADMIN -->
-      	<!-- END ITEM_IMG_TOP -->
+		
+		<!-- BEGIN IS_ITEM_GALLERY -->
+		<div id="is-item-gallery" class="float-left rounded-3">
+			<div id="is-item-preview" class="clearfix">
+				<!-- BEGIN PREVIEW_ADMIN -->
+				<ul class="adm-icons">
+					<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+					<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				</ul>
+				<!-- END PREVIEW_ADMIN -->
+				<a href="{target}" class="mod-ishop-preview"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}"  /></a>
+			</div>
+			<!-- BEGIN IS_ITEM_SLIDER -->
+			<div id="is-item-slider">
+				<div>
+				<ul>
+				<!-- BEGIN IS_ITEM_TMB --><li class="is-item-img"><a href="{target}" rel="fancy-tour">
+					<!-- BEGIN TMB_ADMIN -->
+					<ul class="adm-icons">
+						<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+						<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					</ul>
+					<!-- END TMB_ADMIN -->
+					<img src="{tmb}" alt="{alt}" /></a>
+				</li><!-- END IS_ITEM_TMB -->
+				</ul>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<!-- END IS_ITEM_SLIDER -->
+		</div>
+		<!-- END IS_ITEM_GALLERY -->
+
 
 		<!-- BEGIN IS_IPROPS_TOP -->
       	<div class="mod-ishop-fts-top">
@@ -60,34 +84,6 @@
         	<!-- END IP_TOP -->
       	</div>
       	<!-- END IS_IPROPS_TOP -->
-		<!-- BEGIN ITEM_IMG -->
-		<div>
-			<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" class="mod-ishop-iimg-{pos} rounded-3" /></a>
-			<!-- BEGIN ITEM_IMG_ADMIN -->
-			<ul class="adm-icons" style="float: none;">
-				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
-				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
-			</ul>
-			<!-- END ITEM_IMG_ADMIN -->
-		</div>
-  		<!-- END ITEM_IMG -->
-
-		<!-- BEGIN ITEM_GALLERY -->
-		<br><br>
-		<ul>
-			<!-- BEGIN GALLERY_IMG -->
-			<li>
-				<div>
-					<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="" /></a>
-					<!-- BEGIN GALLERY_ADMIN -->
-					<a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a>
-					<a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a>
-					<!-- END GALLERY_ADMIN -->
-				</div>
-			</li>
-			<!-- END GALLERY_IMG -->
-		</ul>
-		<!-- END ITEM_GALLERY -->
 
 		{content}
 
@@ -133,7 +129,25 @@
 </div>
 
 <script type="text/javascript" charset="utf-8">
-	if ($.fn.fancybox) {
-		$("a[rel='fancy-tour']:has(img)").fancybox(); 
-	}
+	
+	$().ready(function() {
+		var cnt = $('#is-item-slider li.is-item-img').length;
+		if (cnt>2) {
+			$('#is-item-slider').addClass('elslider').elslider({
+				size : 2
+			});	
+		} 
+		
+		if (cnt > 0) {
+			$('#is-item-preview a').click(function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$("#is-item-slider a[rel='fancy-tour']:has(img)").eq(0).click();
+			})
+			$("#is-item-slider a[rel='fancy-tour']:has(img)").fancybox();
+		} else {
+			$('#is-item-preview a.mod-ishop-preview').fancybox(); 
+		}
+		
+	});
 </script>

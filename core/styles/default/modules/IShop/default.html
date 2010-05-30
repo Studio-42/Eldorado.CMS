@@ -78,7 +78,7 @@
 		<!-- END ADMIN -->
 		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
 		<!-- BEGIN IMG -->
-          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
+          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a>
         <!-- END IMG -->
 		<!-- BEGIN PRICE --> 
 			<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
@@ -119,7 +119,6 @@
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
 				<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
-				<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image" title="{m('Change item image')}"></a></li>
 				<li><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 			</ul>
 			<!-- END ADMIN -->
@@ -140,8 +139,7 @@
 			<table class="full">
 				<tr><td>
 			<!-- BEGIN IMG -->
-	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-iimg-{pos}" /></a>
-
+	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a>
 			<!-- END IMG -->
 			{announce}
 			</td></tr>

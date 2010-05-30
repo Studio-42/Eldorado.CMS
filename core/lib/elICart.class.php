@@ -29,13 +29,9 @@ class elICart
         $this->_SID      = mysql_real_escape_string(session_id());
         
 		$this->_load();
-
     }
     
-
-    
-	function getItems()
-	{
+	function getItems() {
 		return $this->_items;
 	}
     
@@ -84,10 +80,10 @@ class elICart
 		} else {
 			$item['code']  = mysql_real_escape_string($item['code']);
 			$item['name']  = mysql_real_escape_string($item['name']);
-			$item['props'] = !empty($item['props']) ? serialize($item['props']) : '';
+			$item['props'] = !empty($item['props']) ? mysql_real_escape_string(serialize($item['props'])) : '';
 			
 			$sql = 'INSERT INTO el_icart (sid, uid, page_id, i_id, m_id, code, name, qnt, price, props, crtime, mtime) '
-                        .'VALUES         ("%s", %d, %d,      %d,   %d,   "%s", "%s", 1,   "%s",  "%s",  %d,     %d)';
+                        ."VALUES         ('%s', %d, %d,      %d,   %d,   '%s', '%s', 1,   '%s',  '%s',  %d,     %d)";
 			$sql = sprintf($sql, $this->_SID, $this->_UID, $item['page_id'], $item['i_id'], $item['m_id'], $item['code'], $item['name'], $item['price'], $item['props'], time(), time() );
 		}
 		return $this->_db->query($sql);

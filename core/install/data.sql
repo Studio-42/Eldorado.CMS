@@ -1,7 +1,7 @@
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 INSERT INTO `el_email` (`id`, `label`, `email`, `is_default`) VALUES
-(1, 'admin', 'admin@yoursite.com', '1');
+(1, 'admin', 'admin@eldorado-cms.ru', '1');
 
 INSERT INTO `el_group` (`gid`, `name`, `perm`, `mtime`) VALUES
 (1, 'root', 8, UNIX_TIMESTAMP()),
@@ -11,16 +11,16 @@ INSERT INTO `el_menu` (`id`, `name`, `name_alt`, `page_descrip`, `dir`, `_left`,
 (1, '--', '', '', '', 1, 26, 0, 'Container', '2', '0', '1', '0', '', '', '', '', '0', '0', ''),
 (2, 'Home', '', '', 'home', 2, 3, 1, 'SimplePage', '2', '0', '1', '0', '', 'home.png', 'home.png', 'home.png', '0', '0', ''),
 (3, 'Feedback', '', '', 'feedback', 4, 5, 1, 'Mailer', '2', '0', '1', '0', '', 'mail.png', 'mail.png', 'mail.png', '0', '0', '0'),
-(5, 'Control Centre', '', '', 'cc', 6, 25, 1, 'Container', '2', '0', '0', '0', '', 'default.png', 'default.png', 'default.png', '0', '0', ''),
-(6, 'Users/Groups', '', '', 'users', 7, 8, 2, 'UsersControl', '2', '0', '0', '0', '', 'users.gif', 'default.png', 'default.png', '0', '0', '0'),
-(7, 'Navigation Control', '', '', 'menu', 9, 10, 2, 'NavigationControl', '2', '0', '1', '0', '', 'nav.gif', 'default.png', 'default.png', '0', '0', ''),
-(8, 'Site Settings', '', '', 'site_conf', 11, 12, 2, 'SiteControl', '2', '0', '0', '0', '', 'options.gif', 'default.png', 'default.png', '0', '0', ''),
-(9, 'Files', '', '', 'fm', 13, 14, 2, 'Finder', '2', '0', '0', '0', '', 'files.gif', 'default.png', 'default.png', '0', '0', ''),
-(10, 'Plugins', '', '', 'plc', 15, 16, 2, 'PluginsControl', '2', '0', '0', '0', '', 'modules.gif', 'default.png', 'default.png', '0', '0', ''),
-(24, 'Backup', '', '', 'backup', 17, 18, 2, 'SiteBackup', '2', '0', '0', '0', '', 'backup.gif', 'default.png', 'default.png', '0', '0', ''),
-(25, 'Sitemap XML', '', '', 'sitemap', 19, 20, 2, 'SitemapGenerator', '2', '0', '0', '0', '', 'map.gif', 'default.png', 'default.png', '0', '0', ''),
-(26, 'System Update', '', '', 'update', 21, 22, 2, 'UpdateClient', '2', '0', '0', '0', '', 'updates.gif', 'default.png', 'default.png', '0', '0', ''),
-(27, 'Template Editor', '', '', 'tpl', 23, 24, 2, 'TemplatesEditor', '2', '0', '0', '0', '', 'tpl-editor.gif', 'default.png', 'default.png', '0', '0', '');
+(4, 'Control Centre', '', '', 'cc', 6, 25, 1, 'Container', '2', '0', '0', '0', '', 'default.png', 'default.png', 'default.png', '0', '0', ''),
+(5, 'Users/Groups', '', '', 'users', 7, 8, 2, 'UsersControl', '2', '0', '0', '0', '', 'users.gif', 'default.png', 'default.png', '0', '0', '0'),
+(6, 'Navigation Control', '', '', 'menu', 9, 10, 2, 'NavigationControl', '2', '0', '1', '0', '', 'nav.gif', 'default.png', 'default.png', '0', '0', ''),
+(7, 'Site Settings', '', '', 'site_conf', 11, 12, 2, 'SiteControl', '2', '0', '0', '0', '', 'options.gif', 'default.png', 'default.png', '0', '0', ''),
+(8, 'Files', '', '', 'fm', 13, 14, 2, 'Finder', '2', '0', '0', '0', '', 'files.gif', 'default.png', 'default.png', '0', '0', ''),
+(9, 'Plugins', '', '', 'plc', 15, 16, 2, 'PluginsControl', '2', '0', '0', '0', '', 'modules.gif', 'default.png', 'default.png', '0', '0', ''),
+(10, 'Backup', '', '', 'backup', 17, 18, 2, 'SiteBackup', '2', '0', '0', '0', '', 'backup.gif', 'default.png', 'default.png', '0', '0', ''),
+(11, 'Sitemap XML', '', '', 'sitemap', 19, 20, 2, 'SitemapGenerator', '2', '0', '0', '0', '', 'map.gif', 'default.png', 'default.png', '0', '0', ''),
+(12, 'System Update', '', '', 'update', 21, 22, 2, 'UpdateClient', '2', '0', '0', '0', '', 'updates.gif', 'default.png', 'default.png', '0', '0', ''),
+(13, 'Template Editor', '', '', 'tpl', 23, 24, 2, 'TemplatesEditor', '2', '0', '0', '0', '', 'tpl-editor.gif', 'default.png', 'default.png', '0', '0', '');
 
 INSERT INTO `el_module` (`module`, `descrip`, `multi`, `search`) VALUES
 ('ActionLog', 'Action Logger', '0', '0'),

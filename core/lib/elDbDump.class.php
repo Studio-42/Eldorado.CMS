@@ -169,7 +169,6 @@ class elDbDump {
 		{
 			elThrow(E_USER_WARNING, 'File %s is empty', $file, EL_URL);
 		}
-
 		$queries = preg_split("/;+(?=([^'|^\\\']*['|\\\'][^'|^\\\']*['|\\\'])*[^'|^\\\']*[^'|^\\\']$)/", $raw);
 		foreach ($queries as $sql)
 		{

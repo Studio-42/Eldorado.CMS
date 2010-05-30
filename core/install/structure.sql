@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `el_icart` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
   `sid` varchar(32) COLLATE utf8_bin NOT NULL,
   `uid` int(5) NOT NULL,
+  `page_id` int(5) NOT NULL,
   `i_id` int(5) NOT NULL,
   `m_id` int(5) NOT NULL,
   `code` varchar(256) COLLATE utf8_bin NOT NULL,
@@ -114,7 +115,6 @@ CREATE TABLE IF NOT EXISTS `el_icart` (
   `props` mediumtext COLLATE utf8_bin,
   `crtime` int(11) NOT NULL,
   `mtime` int(11) NOT NULL,
-  `page_id` int(3) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sid` (`sid`),
   KEY `uid` (`uid`)

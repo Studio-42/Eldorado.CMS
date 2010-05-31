@@ -57,7 +57,7 @@ class elModuleGoodsCatalog extends elCatalogModule
 		if ( $this->_form->isSubmitAndValid() )
 		{
 			$data = $this->_form->getValue(); 
-			$this->_user->setPref('customerInfo', $data);
+			$this->_user->prefrence('customerInfo', $data);
 			$this->_loadCustomerInfo();
 			$postman = & elSingleton::getObj('elPostman');
 			$ec = & elSingleton::getObj('elEmailsCollection');
@@ -86,7 +86,7 @@ class elModuleGoodsCatalog extends elCatalogModule
   	elLoadMessages('UserProfile');
   	$ats         = &elSingleton::getObj('elATS');
   	$this->_user =&$ats->getUser();
-    $cInfo       = $this->_user->getPref('customerInfo');
+    $cInfo       = $this->_user->prefrence('customerInfo');
     $profile     = & $this->_user->getProfile();
     $profileSkel = $profile->getSkel(); unset($profileSkel['login']);
     $this->_customerInfo = array();

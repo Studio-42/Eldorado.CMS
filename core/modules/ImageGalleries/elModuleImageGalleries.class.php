@@ -149,7 +149,7 @@ class elModuleImageGalleries extends elModule
 		$ats = & elSingleton::getObj('elATS');
 		if (isset($_POST['ig_isize']) && !empty($this->_sizes[$_POST['ig_isize']]))
 		{
-			$ats->user->setPref('ig_isize', (int)$_POST['ig_isize']);
+			$ats->user->prefrence('ig_isize', (int)$_POST['ig_isize']);
 		}
 
 

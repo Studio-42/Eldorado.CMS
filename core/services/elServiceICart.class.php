@@ -550,14 +550,16 @@ class elServiceICart extends elService
 
 class elICartAddress {
 	var $_elements = array();
-	var $_user = null;
-	var $_data = array();
+	var $_user     = null;
+	var $_data     = array();
 	var $_regionID = 0;
 	/**
-	 * undocumented function
+	 * constructor
 	 *
+	 * @param  elUser  $user
+	 * @param  array   $data address if user enter it
+	 * @param  int     $regionID
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function elICartAddress($user, $data, $regionID) {
 		$this->_user = $user;
@@ -574,13 +576,17 @@ class elICartAddress {
 		foreach ($this->_data as $v) {
 			$data[$v['id']] = $v['value'];
 		}
-
+		// elPrintR($data);
 		$this->form = & new elForm('icartAddr');
 		foreach ($this->_elements as $e) {
 
 			if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
 				$dm = & elSingleton::getObj('elDirectoryManager');
 				$this->form->add(new elCData2($e->ID, $e->label, $dm->getRecord($e->directory, $this->_regionID, true)));
+				$dm->getSlave($e->directory, $this->_regionID);
+				if (false != ($slave = $dm->getSlave($e->directory, $this->_regionID))) {
+					$this->form->add(new elSelect($slave['id'], $slave['label'], null, $slave['directory']));
+				}
 			} else {
 				if (isset($data[$e->ID])) {
 					$e->setValue($data[$e->ID]);
@@ -607,6 +613,7 @@ class elICartAddress {
 		$ret = array();
 		if ($this->form) {
 			$data = $this->form->getValue();
+			elPrintR($data);
 			foreach ($this->_elements as $e) {
 				$value = isset($data[$e->ID]) ? $data[$e->ID] : '';
 				if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {

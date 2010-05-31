@@ -33,7 +33,7 @@ class elDirectoryManager {
 	 **/
 	function elDirectoryManager() {
 		$this->_db = & elSingleton::getObj('elDb');
-		$this->_list = $this->_db->queryToArray('SELECT id, label FROM '.$this->_tb.' ORDER BY label', 'id', 'label');
+		// $this->_list = $this->_db->queryToArray('SELECT id, label FROM '.$this->_tb.' ORDER BY label', 'id', 'label');
 	}
 	
 	/**
@@ -42,30 +42,28 @@ class elDirectoryManager {
 	 * @return array
 	 **/
 	function getList() {
-		return $this->_list;
+		return $this->_db->queryToArray('SELECT id, label FROM '.$this->_tb.' ORDER BY label', 'id', 'label');;
 	}
 	
 	/**
-	 * undocumented function
+	 * return detailed directories list
 	 *
-	 * @return void
+	 * @return array
 	 **/
 	function getDetails() {
-		$tbs = array();
-		$what = array();
-		
-		$ret = array();
-		$sql = 'SELECT COUNT(id) AS num FROM el_directory_%s';
-		foreach ($this->_list as $id=>$label) {
+		$dir  = & new elSysDirectory();
+		$dirs = $dir->collection(false, true);
+		$sql  = 'SELECT COUNT(id) AS num FROM el_directory_%s';
+		foreach ($dirs as $id=>$d) {
 			$this->_db->query(sprintf($sql, $id));
 			$r = $this->_db->nextRecord();
-			$ret[] = array(
-				'id'    => $id,
-				'label' => $label,
-				'num'   => $r['num']
-				);
+			$dirs[$id]['records'] = $r['num'];
+			if ($d['master_id'] && isset($dirs[$d['master_id']])) {
+				$dirs[$id]['master']       = $dirs[$d['master_id']]['label'];
+				$dirs[$id]['master_value'] = $this->getRecord($d['master_id'], $d['master_key']);
+			}
 		}
-		return $ret;
+		return $dirs;
 	}
 	
 	/**
@@ -75,7 +73,21 @@ class elDirectoryManager {
 	 * @return bool
 	 **/
 	function directoryExists($id) {
-		return isset($this->_list[$id]);
+		$this->_db->query('SELECT id FROM '.$this->_tb.' WHERE id="'.mysql_real_escape_string($id).'"');
+		return $this->_db->numRows() > 0;
+	}
+	
+	/**
+	 * return directory object
+	 *
+	 * @param  string $id
+	 * @return elSysDirectory
+	 **/
+	function getDirectory($id='') {
+		$dir = & new elSysDirectory();
+		$dir->idAttr($id);
+		$dir->fetch();
+		return $dir;
 	}
 	
 	/**
@@ -99,36 +111,7 @@ class elDirectoryManager {
 		return $this->_db->query($sql1) && $this->_db->query($sql2);
 	}
 
-	/**
-	 * Rename directory
-	 *
-	 * @param  string  $id
-	 * @return bool
-	 **/
-	function rename($id, $label) {
-		if ($this->directoryExists($id)) {
-			$sql = 'UPDATE '.$this->_tb.' SET label="'.mysql_real_escape_string($label).'" WHERE id="'.mysql_real_escape_string($id).'"';
-			$this->_db->query($sql);
-		} 
-	}
-	
-	/**
-	 * Remove directory
-	 *
-	 * @param  string  $id
-	 * @return bool
-	 **/
-	function delete($id) {
-		if (!$this->directoryExists($id)) {
-			return true;
-		}
-		if ($this->_db->query("DROP TABLE IF EXISTS `el_directory_$id`")) {
-			$this->_db->query("DELETE FROM ".$this->_tb.' WHERE id="'.mysql_real_escape_string($id).'" LIMIT 1');
-			$this->_db->optimizeTable($this->_tb);
-			return true;
-		}
-		return false;
-	}
+
 	
 	/**
 	 * update sort indexes for directory
@@ -205,66 +188,6 @@ class elDirectoryManager {
 	}
 	
 	/**
-	 * Add record into directory
-	 *
-	 * @param  string  $id
-	 * @param  string  $value
-	 * @return bool
-	 **/
-	function addRecord($id, $value) {
-		if ($this->directoryExists($id)) {
-			return $this->_db->query('INSERT INTO `el_directory_'.$id.'` (value) VALUES ("'.mysql_real_escape_string($value).'")')
-				? $this->_db->insertID()
-				:false;
-		}
-	}
-	
-	/**
-	 * Add records into directory
-	 *
-	 * @param  string  $id
-	 * @param  array  $value
-	 * @return int|bool
-	 **/
-	function addRecords($id, $value) {
-		
-		if (is_string($value)) {
-			$v    = array();
-			$_tmp = explode("\n", str_replace("\r", '', $value));
-			foreach ($_tmp as $val) {
-				$val = trim($val);
-				if (!empty($val)) {
-					$v[] = $val;
-				}
-			}
-			$value = $v;
-		}
-		
-		if ($this->directoryExists($id) && !empty($value) && is_array($value)) {
-			$value = array_map('mysql_real_escape_string', $value);
-			$value = '("'.implode('"), ("', $value).'")';
-			
-			if ($this->_db->query('INSERT INTO `el_directory_'.$id.'` (value) VALUES '.$value)) {
-				return $this->_db->affectedRows();
-			}
-		}
-	}
-	
-	/**
-	 * Update record in directory
-	 *
-	 * @param  string  $id
-	 * @param  int    $recID
-	 * @param  array  $value
-	 * @return void
-	 **/
-	function updateRecord($id, $recID, $value) {
-		if ($this->directoryExists($id)) {
-			return $this->_db->query('UPDATE `el_directory_'.$id.'` SET value="'.mysql_real_escape_string($value).'" WHERE id='.intval($recID));
-		}
-	}
-	
-	/**
 	 * remove record from directory by id
 	 *
 	 * @param  string  $id
@@ -294,5 +217,219 @@ class elDirectoryManager {
 		}
 	}
 }
+
+/**
+ * Directory
+ *
+ * @package core
+ **/
+class elSysDirectory extends elDataMapping {
+	var $_tb       = 'el_directories_list';
+	var $ID        = '';
+	var $label     = '';
+	var $masterID  = '';
+	var $masterKey = 0;
+	var $_objName  = 'System directory';
+	
+	
+	/**
+	 * create/update directory
+	 *
+	 * @return bool
+	 **/
+	function save() {
+		$attrs = $this->_attrsForSave();
+		if (!$attrs['master_id']) {
+			$attrs['master_key'] = 0;
+		}
+		
+		
+		$dm  = &elSingleton::getObj('elDirectoryManager');
+		$db  = $this->_db();
+		$tb  = 'el_directory_'.$attrs['id'];
+		$sql = "CREATE TABLE IF NOT EXISTS `$tb` (
+				`id` int(11) NOT NULL auto_increment,
+				`value` mediumtext,
+				`sort_ndx` int(11) NOT NULL,
+				PRIMARY KEY(`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+		if (!$db->isTableExists($tb) && !$db->query($sql)) {
+			return false;
+		}
+			
+		$attrs = array_map('m', $attrs);
+		
+		if ($dm->directoryExists($attrs['id'])) {
+			$sql = 'UPDATE %s SET label="%s", master_id="%s", master_key=%d WHERE id="%s"';
+			$sql = sprintf($sql, $this->_tb, $attrs['label'], $attrs['master_id'], $attrs['master_key'], $attrs['id']);
+		} else {
+			$sql = 'INSERT INTO %s (id, label, master_id, master_key) VALUES ("%s", "%s", "%s", %d)';
+			$sql = sprintf($sql, $this->_tb, $attrs['id'], $attrs['label'], $attrs['master_id'], $attrs['master_key']);
+		}
+		return $db->query($sql);
+	}
+	
+	/**
+	 * remove directory and its table
+	 *
+	 * @return void
+	 **/
+	function delete() {
+		parent::delete();
+		$db = $this->_db();
+		$db->query("DROP TABLE IF EXISTS `el_directory_".$this->ID."`");
+	}
+	
+	/**
+	 * remove all records
+	 *
+	 * @return void
+	 **/
+	function clean() {
+		$db = $this->_db();
+		$tb = 'el_directory_'.$this->ID;
+		if ($this->ID && $db->isTableExists($tb)) {
+			$db->query('TRUNCATE `'.$tb.'`');
+		}
+	}
+	
+	/**
+	 * add new records into directory
+	 *
+	 * @param  array  $records
+	 * @return int
+	 **/
+	function add($records) {
+		if ($this->ID && is_array($records) && !empty($records)) {
+			$_r = array();
+			foreach ($records as $r) {
+				$r = trim($r);
+				if ($r) {
+					$_r[] = array(mysql_real_escape_string($r));
+				}
+			}
+			if (count($_r)) {
+				$db = $this->_db();
+				$db->prepare('INSERT INTO el_directory_'.$this->ID.' (value) VALUES ', '("%s")');
+				$db->prepareData($_r, true);
+				$db->execute();
+				return $db->affectedRows();
+			}
+		}
+		return 0;
+	}
+	
+	/**
+	 * update record by id
+	 *
+	 * @param  int     $id 
+	 * @param  string  $value
+	 * @return void
+	 **/
+	function update($id, $value) {
+		$db = $this->_db();
+		$db->query(sprintf('UPDATE el_directory_%s SET value="%s" WHERE id=%d LIMIT 1', $this->ID, mysql_real_escape_string($value), $id));
+	}
+	
+	/**
+	 * remove record by id
+	 *
+	 * @param  int     $id 
+	 * @return void
+	 **/
+	function deleteRecord($id)	{
+		$db = $this->_db();
+		$tb = 'el_directory_'.$this->ID;
+		$db->query(sprintf('DELETE FROM `%s` WHERE id=%d LIMIT 1', $tb, $id));
+		$db->optimizeTable($tb);
+	}
+	
+	/**
+	 * create form
+	 *
+	 * @return void
+	 **/
+	function _makeForm() {
+		parent::_makeForm();
+		
+		if (!$this->ID) {
+			$this->_form->add(new elText('id', 'ID'));
+			$this->_form->setElementRule('id', 'alfanum_lat');
+		}
+		$this->_form->add(new elHidden('_id_', $this->id));
+		$this->_form->add(new elText('label', m('Name'), $this->label));
+		$this->_form->setRequired('label');
+		
+		$dm = & elSingleton::getObj('elDirectoryManager');
+		$list = array('' => m('No dependes')) + $dm->getList();
+		if ($this->ID) {
+			unset($list[$this->ID]);
+		}
+		$this->_form->add(new elSelect('master_id',  m('Depend on'),   $this->masterID, $list));
+		$this->_form->add(new elSelect('master_key', m('Depends key'), $this->masterKey, array()));
+		
+		$js = '$("#mfelSysDirectory #master_id").change(function(e) {
+			var dir = $(this).val(), 
+				row = $(this).parents("tr").next(),
+				sel = row.find("select").empty();
+
+			if (!dir) {
+				row.hide();
+			} else {
+				row.show();
+				
+				$.ajax({
+					url : "'.EL_BASE_URL.'/__dir__/"+dir+"/",
+					type : "get",
+					dataType : "json",
+					success : function(data) {
+						window.console.log(data)
+						var l = data.length;
+						while (l--) {
+							sel.prepend($("<option/>").val(data[l].id).text(data[l].value));
+						}
+						sel.children().eq(0).attr("selected", "on");
+					}
+				});
+			}
+		}).change()';
+		
+		elAddJs($js, EL_JS_SRC_ONREADY);
+	}
+	
+	/**
+	 * valid form for unique dir id
+	 *
+	 * @return bool
+	 **/
+	function _validForm() {
+		$data = $this->_form->getValue();
+		if (!$this->ID) {
+			$db = $this->_db();
+			$db->query(sprintf('SELECT id FROM %s WHERE id="%s"', $this->_tb, mysql_real_escape_string($data['id'])));
+			if ($db->numRows()) {
+				$this->_form->pushError('id', m('System directory with the same name already exists'));
+			}
+		}
+		return !$this->_form->hasErrors();
+	}
+	
+	
+	/**
+	 * return attrs mapping
+	 *
+	 * @return array
+	 **/
+	function _initMapping() {
+		return array(
+			'id'         => 'ID',
+			'label'      => 'label',
+			'master_id'  => 'masterID',
+			'master_key' => 'masterKey'
+			);
+	}
+	
+} // END class 
+
 
 ?>

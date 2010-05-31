@@ -10,7 +10,8 @@
 class elModuleOrderHistory extends elModule
 {
 	var $_mMap = array(
-		'show'      => array('m' => 'showOrder')
+		'show'   => array('m' => 'showOrder'),
+		'repeat' => array('m' => 'repeatOrder')
 		);
 
 	var $_conf = array(
@@ -63,6 +64,66 @@ class elModuleOrderHistory extends elModule
 		}
 	}
 
+	function repeatOrder()
+	{
+		$order_id = (int)$_POST['order'];
+		if (
+			(!($order_id > 0)) or
+			(!($order = $this->_getOrder($order_id))) or
+			($order['uid'] != $this->_checkAuth())
+		)
+		{
+			elThrow(E_USER_WARNING, 'You do not have access to page "%s"', 'Order History', EL_URL);
+			return;
+		}
+
+		$items = $this->_getOrderItem($order_id);
+		$nav = & elSingleton::getObj('elNavigator');
+		// TODO one shop per each item in list, but we check only first one
+		$shopInfo = $nav->getPage($items[0]['page_id']);
+
+		if ($shopInfo['module'] == 'IShop')
+		{
+			elSingleton::incLib('modules/IShop/elModuleIShop.class.php', true);
+			$shop = new elModuleIShop;
+			$shop->init($shopInfo['id'], '', 'InternalCallFromOrderHistory');
+		}
+		//elseif ($shopInfo['module'] == 'TechShop') {} // TODO
+		else
+		{
+			elThrow(E_USER_WARNING, 'Critical error in module!', 'IShop module not found', EL_URL);
+			return;
+		}
+
+		$add_ok   = array();
+		$add_fail = array();
+		foreach ($items as $i)
+		{
+			$result = $shop->addToICart($i['i_id'], unserialize($i['props']), $i['qnt']);
+			if ($result)
+			{
+				$add_ok[$itemName]   = $i['name'];
+			}
+			else
+			{
+				$add_fail[$itemName] = $i['name'];
+			}
+		}
+
+		elLoadMessages('ServiceICart');
+		$msg_ok   = m('Next items "%s" were added to Your shopping cart. <br />To proceed order right now go to <a href="%s">this link</a>');
+		$msg_fail = m('Next items "%s" NOT were added to Your shopping cart');
+		if (!empty($add_fail))
+		{
+			elMsgBox::put(sprintf($msg_fail, implode(', ', $add_fail)));
+		}
+		if (!empty($add_ok))
+		{
+			elMsgBox::put(sprintf($msg_ok,   implode(', ', $add_ok), EL_URL.'__icart__/'));
+		}
+		elLocation(EL_URL.'show/'.$order_id);
+	}
+
 	function _getOrder($id = null, $offset = null, $where = null)
 	{
 		$order = & elSingleton::getObj('elOrderHistory');
@@ -85,11 +146,13 @@ class elModuleOrderHistory extends elModule
 
 		$ids = array();
 		foreach ($orders as $order)
+		{
 			array_push($ids, $order['id']);
-			
+		}
 		if (sizeof($ids) < 1)
-		 	return array();
-		
+		{
+			return array();
+		}
 		$customerNfo = $this->_getCustomerNfo($ids);
 		foreach ($orders as $id => $order)
 		{ // TODO we need only name to display in list but again using custom E-mail

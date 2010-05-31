@@ -6,7 +6,6 @@ elLoadMessages('ServiceICart');
 class elServiceICart extends elService
 {
 	var $_mMap      = array(
-		'repeat_order' => array('m' => 'repeatOrder'),
 		'delivery'     => array('m' => 'delivery'),
 		'address'      => array('m' => 'address'),
 		'confirm'      => array('m' => 'confirm'),
@@ -317,57 +316,6 @@ class elServiceICart extends elService
 		}
 	}
 
- 
-	// Repeat order from elModuleOrderHistory
-	// In fact this works like addItem but adds many items at once using POST
-	// TODO for now works only with IShop
-	function repeatOrder()
-	{
-		// get IShop pageID and virtual dir, only get first
-		$db = elSingleton::getObj('elDb');
-		$db->query('SELECT id, dir FROM el_menu WHERE module="IShop" LIMIT 1');	
-		if ($db->numRows())
-			$r = $db->nextRecord();
-		else
-			elThrow(E_USER_WARNING, 'Critical error in module! %s', 'IShop module not found', EL_URL);
-		$pageID = $r['id'];
-		$dir    = $r['dir'];
-
-		// re-arrange _POST
-		$post = array();
-		foreach ($_POST as $l => $v)
-		{
-			list($id, $l) = explode('_', $l, 2);
-			$post[$id][$l] = $v;
-		}
-
-		// Add items to ICart
-		$add_ok   = array();
-		$add_fail = array();
-		//var_dump($post);
-		foreach ($post as $v)
-			for ($i = 1; $i <= $v['qnt']; $i++)
-			{
-				//var_dump($v);
-				$itemName = $v['name'];
-				$add = $this->_iCart->add($v);
-
-				//elPrintR($itemName.' '.$v['i_id'].' '.$v['props']);
-				if ($add)
-					$add_ok[$itemName]   = $itemName;
-				else
-					$add_fail[$itemName] = $itemName;
-			}
-
-		$msg_ok   = m('Next items "%s" were added to Your shopping cart');
-		$msg_fail = m('Next items "%s" NOT were added to Your shopping cart');
-		if (!empty($add_ok))
-			elMsgBox::put(sprintf($msg_ok,   implode(', ', $add_ok)));
-		if (!empty($add_fail))
-			elMsgBox::put(sprintf($msg_fail, implode(', ', $add_fail)));
-		//elLocation(EL_BASE_URL.'/'.$dir.'/__icart__/');
-	}
-   
     /**************************************************************/
     /**                      PRIVATE                             **/
     /**************************************************************/

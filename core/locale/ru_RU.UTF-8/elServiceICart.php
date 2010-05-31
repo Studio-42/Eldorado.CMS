@@ -28,7 +28,8 @@ $elMsg['Check order details and click continue button to complete order']
 $elMsg['To edit data return on appropriate step'] = 'Чтобы изменить данные, вернитесь на соответствующий шаг.';
 $elMsg['Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'] 
 	= 'Товар "%s" был добавлен в Вашу корзину! <br />Вы можете немедленно оформить заказ, <a href="%s">перейдя по этой ссылке</a>';
-$elMsg['Next items "%s" were added to Your shopping cart'] = 'Следующие товары "%s" были добавлены в Вашу корзину';
+$elMsg['Next items "%s" were added to Your shopping cart. <br />To proceed order right now go to <a href="%s">this link</a>']
+    = 'Следующие товары "%s" были добавлены в Вашу корзину. <br />Вы можете немедленно оформить заказ, <a href="%s">перейдя по этой ссылке</a>';
 $elMsg['Next items "%s" were NOT added to Your shopping cart'] = 'Следующие товары "%s" НЕ были добавлены в Вашу корзину';
 $elMsg['Dear customer! Thank You for your order. We contact You as soon as possible']
     = 'Уважаемый покупатель! Спасибо за заказ.<br />Мы свяжемся с Вами в самое ближайшее время.';

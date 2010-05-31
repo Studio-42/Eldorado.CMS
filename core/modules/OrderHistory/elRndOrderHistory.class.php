@@ -106,17 +106,7 @@ class elRndOrderHistory extends elModuleRenderer
 		// repeat order
 		if ($reorder)
 		{
-			$this->_te->assignBlockVars('ORDER_REPEAT');
-			$i = 0;
-			foreach ($items as $item)
-			{
-				if ($item['qnt'] < 1)
-					continue;
-				$i++;
-				$item['i'] = $i;
-				$item['props'] = htmlspecialchars($item['props']);
-				$this->_te->assignBlockVars('ORDER_REPEAT.ITEM', $item, 1);
-			}
+			$this->_te->assignBlockVars('ORDER_REPEAT', array('id' => $order['id']));
 		}
 	}
 

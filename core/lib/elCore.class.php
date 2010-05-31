@@ -104,7 +104,7 @@ class elCore
 				$conf->set('next', time() + 86400, 'cron');
 				$conf->save(); // save config and run crontabs
 
-				ignore_user_abort(true);
+				ignore_user_abort(true); // detach from browser control
 				flush();
 				//set_time_limit(60);
 

@@ -97,17 +97,8 @@
 <!-- END ORDER -->
 
 <!-- BEGIN ORDER_REPEAT -->
-<form action="{URL}__icart__/repeat_order/" method="POST">
-	<!-- BEGIN ITEM -->
-	<input type="hidden" name="ro{i}_i_id"     value="{i_id}" />
-	<input type="hidden" name="ro{i}_m_id"     value="{m_id}" />
-	<input type="hidden" name="ro{i}_code"     value="{code}" />
-	<input type="hidden" name="ro{i}_name"     value="{name}" />
-	<input type="hidden" name="ro{i}_price"    value="{price}" />
-	<input type="hidden" name="ro{i}_qnt"      value="{qnt}" />
-	<input type="hidden" name="ro{i}_page_id"  value="{page_id}" />
-	<input type="hidden" name="ro{i}_props"    value="{props}" />
-	<!-- END ITEM -->
+<form action="{URL}repeat/" method="POST">
+	<input type="hidden" name="order" value="{id}" />
 	<input type="submit" value="{m('Repeat order')}" />
 </form>
 <!-- END ORDER_REPEAT -->

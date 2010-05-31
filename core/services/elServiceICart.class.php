@@ -561,7 +561,7 @@ class elICartAddress {
 		$ret = array();
 		if ($this->form) {
 			$data = $this->form->getValue();
-			elPrintR($data);
+			// elPrintR($data);
 			foreach ($this->_elements as $e) {
 				$value = isset($data[$e->ID]) ? $data[$e->ID] : '';
 				if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {

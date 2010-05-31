@@ -13,7 +13,7 @@ class elOrderHistory extends elDataMapping
 	var $delivery_price = 0;
 	var $total    = 0;
 	
-	var $status   = array('send', 'accept', 'deliver', 'complite', 'aborted');
+	var $status   = array('send', 'accept', 'deliver', 'complete', 'aborted');
 	
 	function _initMapping()
 	{

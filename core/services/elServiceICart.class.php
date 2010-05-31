@@ -344,18 +344,20 @@ class elServiceICart extends elService
 		// Add items to ICart
 		$add_ok   = array();
 		$add_fail = array();
+		//var_dump($post);
 		foreach ($post as $v)
-			if ($v['shop'] == 'IShop')
-				for ($i = 1; $i <= $v['qnt']; $i++)
-				{
-					$itemName = false;
-					$itemName = $this->_iCart->addIShopItem($pageID, (int)$v['i_id'], $v['props']);
-					//elPrintR($itemName.' '.$v['i_id'].' '.$v['props']);
-					if ($itemName)
-						$add_ok[$itemName]   = $itemName;
-					else
-						$add_fail[$itemName] = $itemName;
-				}
+			for ($i = 1; $i <= $v['qnt']; $i++)
+			{
+				//var_dump($v);
+				$itemName = $v['name'];
+				$add = $this->_iCart->add($v);
+
+				//elPrintR($itemName.' '.$v['i_id'].' '.$v['props']);
+				if ($add)
+					$add_ok[$itemName]   = $itemName;
+				else
+					$add_fail[$itemName] = $itemName;
+			}
 
 		$msg_ok   = m('Next items "%s" were added to Your shopping cart');
 		$msg_fail = m('Next items "%s" NOT were added to Your shopping cart');
@@ -363,7 +365,7 @@ class elServiceICart extends elService
 			elMsgBox::put(sprintf($msg_ok,   implode(', ', $add_ok)));
 		if (!empty($add_fail))
 			elMsgBox::put(sprintf($msg_fail, implode(', ', $add_fail)));
-		elLocation(EL_BASE_URL.'/'.$dir.'/__icart__/');
+		//elLocation(EL_BASE_URL.'/'.$dir.'/__icart__/');
 	}
    
     /**************************************************************/

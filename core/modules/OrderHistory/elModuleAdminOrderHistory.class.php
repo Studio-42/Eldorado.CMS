@@ -27,7 +27,7 @@ class elModuleAdminOrderHistory extends elModuleOrderHistory
 				'period_begin' => date('Y-m-d', strtotime($_POST['period_begin'])),
 				'period_end'   => date('Y-m-d', strtotime($_POST['period_end']))	
 			);
-			$user->setPref('period', $period);
+			$user->prefrence('period', $period);
 			$this->_setPeriod();
 		}
 		

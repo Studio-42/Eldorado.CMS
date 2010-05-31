@@ -22,7 +22,7 @@ class elOrderItem extends elDataMapping
 		return array(
 			'id'       => 'ID',
 			'order_id' => 'order_id',
-			'shop'     => 'shop',
+			'page_id'  => 'page_id',
 			'i_id'     => 'i_id',
 			'code'     => 'code',
 			'name'     => 'name',

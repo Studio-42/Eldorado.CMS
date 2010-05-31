@@ -45,19 +45,12 @@ class elOrderCustomer extends elDataMapping
 		$a = array();
 		$a = $this->fetchMerged();
 		
-		// black magick
-		$ats       = & elSingleton::getObj('elATS');
-        $user      = & $ats->getUser();
-		$uProfile  = $user->getProfile();
-		$uProfSkel = $uProfile->getSkel(); 
-
 		parent::_makeForm();
 		$this->_form->setLabel(m('Edit customer info'));
 		foreach ($a as $f => $v)
 		{
 			list($tmp, $n) = explode('__', $f);
-			// elPrintR($uProfSkel[$n]['label']);
-			$name = (!empty($uProfSkel[$n]['label']) ? $uProfSkel[$n]['label'] : $n);
+			$name = $n;
 			if ($n == 'comments')
 				$this->_form->add(new elTextArea($f, m($name), $v));
 			else
@@ -86,7 +79,7 @@ class elOrderCustomer extends elDataMapping
 			return false;
 		
 		$list = array();
-		$where = "(label IN ('f_name', 'l_name', 'email')) AND (LOWER(value) LIKE LOWER('%%".$name."%%'))";
+		$where = "(label IN ('f_name', 'l_name', 'email', 'Имя', 'Фамилия')) AND (LOWER(value) LIKE LOWER('%%".$name."%%'))";
 		$search = $this->collection(false, false, $where, false, false, false, 'order_id');		
 		foreach ($search as $s)
 			$list[$s['order_id']] = 1;
@@ -99,10 +92,9 @@ class elOrderCustomer extends elDataMapping
 			return false;
 
 		elLoadMessages('UserProfile');
-		$ats       = & elSingleton::getObj('elATS');
-		$user      = & $ats->getUser();
-		$uProfile  = $user->getProfile();
-		$uProfSkel = $uProfile->getSkel();
+		//$ats       = & elSingleton::getObj('elATS');
+		//$user      = & $ats->getUser();
+		$user = & elSingleton::getObj('elUser');
 
 		if (is_int($ids))
 		{
@@ -115,26 +107,33 @@ class elOrderCustomer extends elDataMapping
 		$customers = array();
 		foreach ($customersNfo as $nfo)
 		{
-			if (isset($customers[$nfo['order_id']], $customers))
+			$order_id = $nfo['order_id'];
+			$customers[$order_id][$nfo['label']] = $nfo['value'];
+			if (!$customers[$order_id]['uid'])
 			{
-				$push = array();
-				$push = $customers[$nfo['order_id']];
-				if ($uProfSkel[$nfo['label']]['label'])
-					$push[$uProfSkel[$nfo['label']]['label']] = $nfo['value'];
-				else
-					$push[$nfo['label']] = $nfo['value'];
-				$customers[$nfo['order_id']] = $push;
+				$customers[$order_id]['uid'] = $nfo['uid'];
+			}
+		}
+
+		foreach ($customers as $id => $c)
+		{
+			if ($c['uid'] > 0)
+			{
+				$user->idAttr($c['uid']);
+				$user->fetch();
+				$customers[$id]['full_name']  = $user->getFullName(true);
+				$customers[$id]['full_name'] .= ' ('.$user->attr('login').')';
+				$customers[$id]['email']      = $user->getEmail(false);
+				unset($customers[$id]['uid']);
 			}
 			else
 			{
-				$customers[$nfo['order_id']] = array($uProfSkel[$nfo['label']]['label'] => $nfo['value']);
+				$customers[$id]['full_name']  = implode(' ', array($c['l_name'],  $c['f_name'], $c['s_name']));
+				$customers[$id]['full_name'] .= implode(' ', array($c['Фамилия'], $c['Имя'],    $c['Отчество']));
 			}
+
 		}
-		foreach ($customers as $id => $c)
-		{
-			$c['full_name'] = implode(' ', array($c['Last name'], $c['First name'], $c['Second name']));
-			$customers[$id] = $c;
-		}
+
 		return $customers;
 	}
 }

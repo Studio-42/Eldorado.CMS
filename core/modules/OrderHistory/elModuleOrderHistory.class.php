@@ -94,7 +94,7 @@ class elModuleOrderHistory extends elModule
 		foreach ($orders as $id => $order)
 		{ // TODO we need only name to display in list but again using custom E-mail
 			$order['full_name'] = $customerNfo[$order['id']]['full_name'];
-			$order['email']     = $customerNfo[$order['id']]['E-mail'];
+			$order['email']     = $customerNfo[$order['id']]['email'];
 			$orders[$id] = $order;
 		}
 		unset($customerNfo);
@@ -136,7 +136,7 @@ class elModuleOrderHistory extends elModule
 	{
 		$ats    = & elSingleton::getObj('elATS');
 		$user   = & $ats->getUser();
-		$period = $user->getPref('period');
+		$period = $user->prefrence('period');
 		if (
 			is_array($period)
 			&& sizeof($period) == 2 

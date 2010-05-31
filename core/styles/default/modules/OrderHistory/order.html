@@ -99,10 +99,14 @@
 <!-- BEGIN ORDER_REPEAT -->
 <form action="{URL}__icart__/repeat_order/" method="POST">
 	<!-- BEGIN ITEM -->
-	<input type="hidden" name="ro{i}_i_id"  value="{i_id}" />
-	<input type="hidden" name="ro{i}_qnt"   value="{qnt}" />
-	<input type="hidden" name="ro{i}_shop"  value="{shop}" />
-	<input type="hidden" name="ro{i}_props" value="{props}" />
+	<input type="hidden" name="ro{i}_i_id"     value="{i_id}" />
+	<input type="hidden" name="ro{i}_m_id"     value="{m_id}" />
+	<input type="hidden" name="ro{i}_code"     value="{code}" />
+	<input type="hidden" name="ro{i}_name"     value="{name}" />
+	<input type="hidden" name="ro{i}_price"    value="{price}" />
+	<input type="hidden" name="ro{i}_qnt"      value="{qnt}" />
+	<input type="hidden" name="ro{i}_page_id"  value="{page_id}" />
+	<input type="hidden" name="ro{i}_props"    value="{props}" />
 	<!-- END ITEM -->
 	<input type="submit" value="{m('Repeat order')}" />
 </form>

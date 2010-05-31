@@ -35,7 +35,7 @@ INSERT INTO `el_module` (`module`, `descrip`, `multi`, `search`) VALUES
 ('GAStat', 'Statistics', '0', '0'),
 ('Glossary', 'Glossary', '1', '0'),
 ('GoodsCatalog', 'Goods Catalogue', '1', '1'),
-('ICartConf', 'Internet Cart Configuration', '0', '0'),
+('ICartConf', 'Cart/Order Configuration', '0', '0'),
 ('IShop', 'Internet Shop', '1', '1'),
 ('ImageGalleries', 'Image Gallery', '1', '0'),
 ('LinksCatalog', 'Link Catalogue', '1', '1'),

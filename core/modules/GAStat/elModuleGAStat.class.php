@@ -446,8 +446,8 @@ class elModuleGAStat extends elModule
 				date('Y-m-d', strtotime($this->reportDates[$_POST['report_period']]['start'])),
 				date('Y-m-d', strtotime($this->reportDates[$_POST['report_period']]['end']))	
 			);
-			$user->setPref('ga-period', $period);
-			$user->setPref('ga-period-type', trim($_POST['report_period']));
+			$user->prefrence('ga-period', $period);
+			$user->prefrence('ga-period-type', trim($_POST['report_period']));
 			
 		}
 		elLocation(EL_URL);
@@ -487,10 +487,10 @@ class elModuleGAStat extends elModule
 	
 	function _onInit()
 	{
-		$ats    = & elSingleton::getObj('elATS');
-		$user   = & $ats->getUser();
-		$period = $user->getPref('ga-period');
-		$dateType = $user->getPref('ga-period-type');
+		$ats      = & elSingleton::getObj('elATS');
+		$user     = & $ats->getUser();
+		$period   = $user->prefrence('ga-period');
+		$dateType = $user->prefrence('ga-period-type');
 		if (!empty($this->reportDates[$dateType]) && is_array($period) && sizeof($period) == 2 
 		&& preg_match('/\d{4}\-\d{2}\-\d{2}/i', $period[0])  && preg_match('/\d{4}\-\d{2}\-\d{2}/i', $period[1]))
 		{

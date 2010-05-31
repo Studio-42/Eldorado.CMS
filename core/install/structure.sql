@@ -53,6 +53,8 @@ DROP TABLE IF EXISTS `el_directories_list`;
 CREATE TABLE IF NOT EXISTS `el_directories_list` (
   `id` varchar(255) COLLATE utf8_bin NOT NULL,
   `label` varchar(255) COLLATE utf8_bin NOT NULL,
+	`master_id` varchar(255) COLLATE utf8_bin NOT NULL,
+	`master_key` int(11) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

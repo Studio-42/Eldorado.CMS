@@ -1,30 +1,22 @@
 <?php
-
+/**
+ * System direcrories info/manipulations
+ *
+ * @package core
+ **/
 class elDirectoryManager {
 	/**
 	 * table name
 	 *
 	 * @var string
 	 */
-	var $_tb   = 'el_directories_list';
-	/**
-	 * Directories list
-	 *
-	 * @var array
-	 **/
-	var $_list = array();
+	var $_tb = 'el_directories_list';
 	/**
 	 * db object
 	 *
 	 * @var object
 	 **/
 	var $_db = null;
-	/**
-	 * Last error text
-	 *
-	 * @var string
-	 **/
-	var $error = '';
 	
 	/**
 	 * constructor
@@ -33,7 +25,6 @@ class elDirectoryManager {
 	 **/
 	function elDirectoryManager() {
 		$this->_db = & elSingleton::getObj('elDb');
-		// $this->_list = $this->_db->queryToArray('SELECT id, label FROM '.$this->_tb.' ORDER BY label', 'id', 'label');
 	}
 	
 	/**
@@ -83,11 +74,22 @@ class elDirectoryManager {
 	 * @param  string $id
 	 * @return elSysDirectory
 	 **/
-	function getDirectory($id='') {
+	function get($id='') {
 		$dir = & new elSysDirectory();
 		$dir->idAttr($id);
 		$dir->fetch();
 		return $dir;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getRecord($dirID, $recID, $default=true) {
+		$dir = $this->get($dirID);
+		return $dir->record($recID, $default);
 	}
 	
 	/**
@@ -99,110 +101,15 @@ class elDirectoryManager {
 	function create($id, $label) {
 		if ($this->directoryExists($id)) {
 			return true;
-		} 
-		
-		$sql1 = "CREATE TABLE IF NOT EXISTS `el_directory_$id` (
-				`id` int(11) NOT NULL auto_increment,
-				`value` mediumtext,
-				`sort_ndx` int(11) NOT NULL,
-				PRIMARY KEY(`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
-		$sql2 = 'INSERT INTO '.$this->_tb.' (id, label) VALUES ("'.mysql_real_escape_string($id).'", "'.mysql_real_escape_string($label).'")';
-		return $this->_db->query($sql1) && $this->_db->query($sql2);
+		} elseif ($id && $label) {
+			$dir = & new elSysDirectory();
+			$dir->idAttr($id);
+			$dir->attr('label', $label);
+			return $dir->save();
+		}
 	}
+	
 
-
-	
-	/**
-	 * update sort indexes for directory
-	 *
-	 * @param  string  $id
-	 * @param  array   $ndxs
-	 * @return void
-	 **/
-	function sort($id, $ndxs) {
-		$sql = 'UPDATE el_directory_'.$id.' SET sort_ndx=%d WHERE id=%d LIMIT 1';
-		foreach ($ndxs as $id=>$ndx) {
-			$this->_db->query(sprintf($sql, $ndx, $id));
-		}
-	}
-	
-	/**
-	 * Return directory
-	 *
-	 * @param  string  $id
-	 * @return array
-	 **/
-	function get($id, $list=true) {
-		$dir = array();
-		if ($this->directoryExists($id)) {
-			$sql = 'SELECT id, value, sort_ndx FROM el_directory_'.$id.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value';
-			$ret = $list ? $this->_db->queryToArray($sql, 'id', 'value') : $this->_db->queryToArray($sql);
-		}
-		return $ret;
-	}
-	
-	/**
-	 * return directory record by id
-	 *
-	 * @param  string  $id     directory id
-	 * @param  string  $recID  record id
-	 * @return string
-	 **/
-	function getRecord($id, $recID, $default=false)	{
-		if ($this->directoryExists($id)) {
-			$r = $this->_db->queryToArray('SELECT value FROM `el_directory_'.$id.'` WHERE id='.intval($recID), null, 'value');
-			return isset($r[0]) ? $r[0] : ($default ? $this->getDefaultRecord($id) : '');
-		}
-		return '';
-	}
-	
-	/**
-	 * return default value
-	 *
-	 * @param  string  $id  directory id
-	 * @return string
-	 **/
-	function getDefaultRecord($id) {
-		if ($this->directoryExists($id)) {
-			$sql = 'SELECT value FROM el_directory_'.$id.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value LIMIT 0, 1';
-			if ($this->_db->query($sql)) {
-				$r = $this->_db->nextRecord();
-				return $r['value'];
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Remove all records from directory
-	 *
-	 * @param  string  $id
-	 * @return void
-	 **/
-	function clean($id) {
-		if ($this->directoryExists($id)) {
-			$this->_db->query('TRUNCATE `el_directory_'.$id.'`');
-			return true;
-		}
-	}
-	
-	/**
-	 * remove record from directory by id
-	 *
-	 * @param  string  $id
-	 * @param  int     $recID
-	 * @return void
-	 **/
-	function deleteRecord($id, $recID) {
-		if ($this->directoryExists($id)) {
-			if ($this->_db->query('DELETE FROM `el_directory_'.$id.'` WHERE id="'.intval($recID).'" LIMIT 1')) {
-				$this->_db->optimizeTable('el_directory_'.$id);
-				return true;
-			}
-		}
-	}
-	
 	/**
 	 * remove records from directory by id
 	 *
@@ -210,13 +117,13 @@ class elDirectoryManager {
 	 * @param  array   $recIDs
 	 * @return void
 	 **/
-	function deleteRecords($id, $recIDs) {
+	function _deleteRecords($id, $recIDs) {
 		if ($this->directoryExists($id) && is_array($recIDs) && !empty($recIDs)) {
 			$this->_db->query('DELETE FROM `el_directory_'.$id.'` WHERE id IN ('.implode(',', $recIDs).')');
 			$this->_db->optimizeTable('el_directory_'.$id);
 		}
 	}
-}
+} // END class 
 
 /**
  * Directory
@@ -230,7 +137,6 @@ class elSysDirectory extends elDataMapping {
 	var $masterID  = '';
 	var $masterKey = 0;
 	var $_objName  = 'System directory';
-	
 	
 	/**
 	 * create/update directory
@@ -278,6 +184,63 @@ class elSysDirectory extends elDataMapping {
 		parent::delete();
 		$db = $this->_db();
 		$db->query("DROP TABLE IF EXISTS `el_directory_".$this->ID."`");
+	}
+	
+	/**
+	 * return records
+	 *
+	 * @param  bool  $list  return records as list
+	 * @return array
+	 **/
+	function records($list=true) {
+		if ($this->ID) {
+			$db = $this->_db();
+			$tb = 'el_directory_'.$this->ID;
+			if ($db->isTableExists($tb)) {
+				$sql = 'SELECT id, value, sort_ndx FROM '.$tb.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value';
+				return $list ? $db->queryToArray($sql, 'id', 'value') : $db->queryToArray($sql);
+			}
+		}
+		return array();
+	}
+	
+	/**
+	 * return record by id
+	 *
+	 * @param  int    $id
+	 * @param  bool   $default
+	 * @return string
+	 **/
+	function record($id, $default=false) {
+		if ($this->ID) {
+			$db = $this->_db();
+			$tb = 'el_directory_'.$this->ID;
+			if ($db->isTableExists($tb)) {
+				$r = $db->queryToArray('SELECT value FROM '.$tb.' WHERE id='.intval($id), null, 'value');
+				return isset($r[0]) ? $r[0] : ($default ? $this->defaultRecord() : '');
+			}
+		}
+	}
+	
+	/**
+	 * return first record from directory
+	 *
+	 * @return string
+	 **/
+	function defaultRecord() {
+		if ($this->ID) {
+			$db = $this->_db();
+			$tb = 'el_directory_'.$this->ID;
+			if ($db->isTableExists($tb)) {
+				$sql = 'SELECT value FROM '.$tb.' ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), value LIMIT 0, 1';
+				$db->query($sql);
+				if ($db->numRows()) {
+					$r = $db->nextRecord();
+					return $r['value'];
+				}
+			}
+		}
+		return '';
 	}
 	
 	/**
@@ -345,6 +308,21 @@ class elSysDirectory extends elDataMapping {
 	}
 	
 	/**
+	 * update sort indexes for directory
+	 *
+	 * @param  string  $id
+	 * @param  array   $ndxs
+	 * @return void
+	 **/
+	function sort($ndxs) {
+		$sql = 'UPDATE el_directory_'.$this->ID.' SET sort_ndx=%d WHERE id=%d LIMIT 1';
+		$db = $this->_db();
+		foreach ($ndxs as $id=>$ndx) {
+			$db->query(sprintf($sql, $ndx, $id));
+		}
+	}
+	
+	/**
 	 * create form
 	 *
 	 * @return void
@@ -361,12 +339,12 @@ class elSysDirectory extends elDataMapping {
 		$this->_form->setRequired('label');
 		
 		$dm = & elSingleton::getObj('elDirectoryManager');
-		$list = array('' => m('No dependes')) + $dm->getList();
+		$list = array('' => m(' --- ')) + $dm->getList();
 		if ($this->ID) {
 			unset($list[$this->ID]);
 		}
-		$this->_form->add(new elSelect('master_id',  m('Depend on'),   $this->masterID, $list));
-		$this->_form->add(new elSelect('master_key', m('Depends key'), $this->masterKey, array()));
+		$this->_form->add(new elSelect('master_id',  m('Depends on'),  $this->masterID, $list));
+		$this->_form->add(new elSelect('master_key', m('Foreign key'), $this->masterKey, array()));
 		
 		$js = '$("#mfelSysDirectory #master_id").change(function(e) {
 			var dir = $(this).val(), 

@@ -98,5 +98,12 @@ $elMsg['Data was saved'] = 'Данные сохранены';
 
 $elMsg['Please wait'] = 'Подождите, пожалуйста';
 $elMsg['Data transfer error'] = 'Ошибка передачи данных';
+// directory
+$elMsg['System directory'] = 'Справочник';
+$elMsg['Depends on'] = 'Зависит от';
+$elMsg['Foreign key'] = 'Внешний ключ';
+
+
+
 
 ?>

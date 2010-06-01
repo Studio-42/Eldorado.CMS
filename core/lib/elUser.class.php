@@ -51,6 +51,8 @@ class elUser extends elDataMapping
 				if ($e->type == 'directory') {
 					// echo $e->directory;
 					$dm = & elSingleton::getObj('elDirectoryManager');
+					// $dir = $dm->get($e->directory);
+					// $v   = $dir->record($e->ID, true);
 					$v = $dm->getRecord($e->directory, $this->attr($e->ID), true);
 					// echo $v;
 					// $this->attr($e->ID, $v);

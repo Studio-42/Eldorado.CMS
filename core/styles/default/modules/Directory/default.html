@@ -112,7 +112,7 @@
 				$.ajax({
 					url      : "{BASE_URL}__dir__/"+dir+'/0/',
 					dataType : 'json',
-					error    : function() { spinner.remove(); c.append("{m('Load data error!')}"); },
+					error    : function() { spinner.remove(); c.append("{m('Data transfer error')}"); },
 					success  : function(data) {
 						var l, row;
 						
@@ -145,9 +145,9 @@
 		// edit record
 		$('.mod-dir-directory-content .edit').live('click', function(e) {
 			e.preventDefault();
-			var input = $('<input type="text" name="value" size="30" />').val($(this).parents('.adm-icons').eq(0).next().text()),
+			var input  = $('<input type="text" name="value" size="30" />').val($(this).parents('.adm-icons').eq(0).next().text()),
 				err    = $('<div class="ui-state-error"/>').text("{m('Field could not be empty')}").hide(),
-				form = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="id" value="'+$(this).attr('rel')+'"/></form>').append(input),
+				form   = $('<form method="post" action="'+$(this).attr('href')+'"><input type="hidden" name="id" value="'+$(this).attr('rel')+'"/></form>').append(input),
 				dialog = $('<div/>').append(err).append(form);
 			
 			dialog.dialog({
@@ -167,9 +167,9 @@
 					}
 				}
 			});
-		})
+		});
 	
-	
+		// delete record
 		$('.mod-dir-directory-content .delete').live('click', function(e) {
 			e.preventDefault();
 			if (confirm("{m('Do You really want to delete')}?")) {

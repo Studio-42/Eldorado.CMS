@@ -32,7 +32,11 @@ class elModuleICartConf extends elModule {
 		'icart_payment'  => 'payment_id',
 		);
 
-		
+	/**
+	 * icart config summary
+	 *
+	 * @return void
+	 **/
 	function defaultMethod() {
 		elLoadJQueryUI();
 
@@ -54,13 +58,18 @@ class elModuleICartConf extends elModule {
 						);
 	}
 	
+	/**
+	 * edit common config
+	 *
+	 * @return void
+	 **/
 	function orderConf() {
 		$ec   = & elSingleton::getObj('elEmailsCollection');
 		$form = & elSingleton::getObj( 'elForm', 'mf'.get_class($this));
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 		$form->setLabel(m('Configure order'));
 		
-		$form->add(new elCheckboxesGroup('rcpt', m('Recipients'), array_keys($this->_orderConf->recipients()), $ec->getLabels()));
+		$form->add(new elCheckboxesGroup('rcpt', m('Order recipients'), array_keys($this->_orderConf->recipients()), $ec->getLabels()));
 		$form->add(new elSelect('confirm', m('Send confirm to customer'), $this->_orderConf->confirm(), $GLOBALS['yn']));
 		$form->add(new elSelect('allowGuest', m('Allow non-authorized users send order'), $this->_orderConf->allowGuest(), $GLOBALS['yn']));
 		$formats = array(0=>m('Integer'), 2=> m('Double, two signs after dot'));
@@ -85,63 +94,78 @@ class elModuleICartConf extends elModule {
 		exit(elJSON::encode(array('value' => $this->_dm->getRecord($this->_arg(), (int)$this->_arg(1)))));
 	}
 	
+	/**
+	 * add new records/edit record
+	 *
+	 * @return void
+	 **/
+	function dirEdit() {
+		if (!empty($_POST['value'])) {
+			$dirID   = $this->_arg();
+			$recID   = (int)$this->_arg(1);
+			$value   = trim($_POST['value']);
+			$res     = false;
+			if ($this->_dm->directoryExists($dirID)) {
+				$dir = $this->_dm->get($dirID);
+				if ($recID) {
+					$dir->update($recID, $value);
+				} else {
+					$dir->add(explode("\n", str_replace("\r", '', $value)));
+				}
+				elMsgBox::put(m('Data saved'));
+			}
+		}
+		elLocation(EL_URL);
+	}
 	
 	/**
-	 * sort directory
+	 * sort records in directory
 	 *
 	 * @return void
 	 **/
 	function dirSort() {
-		$dir = $this->_arg();
+		$dirID = $this->_arg();
 
-		if ($this->_dm->directoryExists($dir) && !empty($_POST['dir_sort']) && is_array($_POST['dir_sort'])) {
-			$this->_dm->sort($dir, $_POST['dir_sort']);
+		if ($this->_dm->directoryExists($dirID) 
+		&& !empty($_POST['dir_sort']) 
+		&& is_array($_POST['dir_sort'])) {
+			$dir = $this->_dm->get($dirID);
+			$dir->sort($_POST['dir_sort']);
+			elMsgBox::put(m('Data saved'));
 		}
 		elLocation(EL_URL);
 	}
 	
-	function dirEdit() {
-		if (!empty($_POST['value'])) {
-			$dir   = $this->_arg();
-			$id    = (int)$this->_arg(1);
-			$value = trim($_POST['value']);
-			$res   = false;
-			if ($this->_dm->directoryExists($dir)) {
-				if ($id) {
-					$res = $this->_dm->updateRecord($dir, $id, $value);
-				} else {
-					$res = $this->_dm->addRecords($dir, $value);
-				}
-				
-				if ($res) {
-					elMsgBox::put(m('Data was saved'));
-				} else {
-					elThrow(E_USER_WARNING, 'Unable to save data');
-				}
-				elLocation(EL_URL);
-			}
-		}
-	}
-	
+
+	/**
+	 * clean directory
+	 *
+	 * @return void
+	 **/
 	function dirClean() {
 		if (isset($_POST['id'])) {
-			$dir = $this->_arg();
-			$id  = (int)$_POST['id'];
-			$res = false;
+			$dirID = $this->_arg();
+			$recID  = (int)$_POST['id'];
 			
-			if ($this->_dm->directoryExists($dir)) {
-				$res = $id ? $this->_dm->deleteRecord($dir, $id) : $this->_dm->clean($dir);
-			}
-			if ($res) {
+			if ($this->_dm->directoryExists($dirID)) {
+				$dir = $this->_dm->get($dirID);
+				if ($recID) {
+					$dir->deleteRecord($recID);
+				} else {
+					$dir->clean();
+				}
+				$this->_orderConf->deleteAll($this->_keys[$dirID], $recID);
 				elMsgBox::put(m('Data was removed'));
-				$this->_orderConf->deleteAll($this->_keys[$dir], $id);
-			} else {
-				elThrow(E_USER_WARNING, 'Unable to delete data');
 			}
 		}
 		elLocation(EL_URL);
 	}
 
+	/**
+	 * region/delivery/payment edit/create
+	 *
+	 * @return void
+	 **/
 	function edit() {
 		
 		if (false == ($data = $this->_orderConf->get((int)$this->_arg(), (int)$this->_arg(1), (int)$this->_arg(2)))) {
@@ -155,9 +179,13 @@ class elModuleICartConf extends elModule {
 				);
 		}
 		
-		$regions  = $this->_dm->get('icart_region');
-		$delivery = $this->_dm->get('icart_delivery');
-		$payment  = $this->_dm->get('icart_payment');
+		$r = $this->_dm->get('icart_region');
+		$d = $this->_dm->get('icart_delivery');
+		$p = $this->_dm->get('icart_payment');
+		
+		$regions  = $r->records();
+		$delivery = $d->records();
+		$payment  = $p->records();
 		
 		if (!$regions || !$delivery || !$payment) {
 			elThrow(E_USER_WARNING, 'Regions/delivery/payments list are required', null, EL_URL);
@@ -199,14 +227,14 @@ class elModuleICartConf extends elModule {
 			if ($deliveryID && $paymentID) {
 				if ($this->_orderConf->delete($regionID, $deliveryID, $paymentID)) {
 					elMsgBox::put(m('Data was removed'));
-					$this->_removeUsersPref();
+					// $this->_removeUsersPref();
 				} else {
 					elThrow(E_USER_WARNING, 'Unable to delete data');
 				}
 			} else {
 				$this->_orderConf->deleteAll();
-				elMsgBox::put(m('Data was removed'));
-				$this->_removeUsersPref();
+				elMsgBox::put(m('Data removed'));
+				// $this->_removeUsersPref();
 			}
 		}
 		elLocation(EL_URL);
@@ -218,7 +246,7 @@ class elModuleICartConf extends elModule {
 			$this->_initRenderer();
 			$this->_rnd->addToContent($this->_fc->formToHtml());
 		} else {
-			elMsgBox::put(m('Data was saved'));
+			elMsgBox::put(m('Data saved'));
 			elLocation(EL_URL);
 		}
 	}
@@ -276,10 +304,7 @@ class elModuleICartConf extends elModule {
 	function _removeUsersPref() {
 		$ats = &elSingleton::getObj('elATS');
 		$user = & $ats->getUser();
-		$user->dropPref('icartData');
-		// $db = &elSingleton::getObj('elDb');
-		// $db->query('DELETE FROM el_user_pref WHERE name="icartData"');
-		// $db->optimizeTable('el_user_pref');
+		$user->removePrefrence('icartData');
 	}
 	
 	

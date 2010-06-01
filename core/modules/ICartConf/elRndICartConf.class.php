@@ -14,10 +14,10 @@ class elRndICartConf extends elModuleRenderer {
 			
 			$this->_te->assignBlockVars('DELIVERY_PAYMENT_CONF', $one);
 		}
-		
-		$this->_te->assignBlockFromArray('REGION',   $regions);
-		$this->_te->assignBlockFromArray('DELIVERY', $deliveries);
-		$this->_te->assignBlockFromArray('PAYMENT',  $payments);
+		// elPrintr($regions);
+		$this->_te->assignBlockFromArray('REGION',   $regions->records(false));
+		$this->_te->assignBlockFromArray('DELIVERY', $deliveries->records(false));
+		$this->_te->assignBlockFromArray('PAYMENT',  $payments->records(false));
 		$this->_te->assignVars('icart_form', $form);
 		$this->_te->assignVars($orderConf);
 	}

@@ -1,4 +1,5 @@
 <?php
+
 $elMsg['Configure order']                = 'Настройки заказа';
 $elMsg['Order recipients']               = 'Получатели заказа';
 $elMsg['Emails']                         = 'Адреса email';
@@ -21,4 +22,5 @@ $elMsg['One value per line']             = 'Одно значение на ст�
 $elMsg['New delivery types']             = 'Новые типы доставки';
 $elMsg['New payment types']              = 'Новые типы оплаты';
 $elMsg['Data removed']                   = 'Данные удалены';
+
 ?>

@@ -205,7 +205,7 @@
 			e.preventDefault();
 			
 			var dir = $(this).attr('rel'),
-				spinner = $('<div class="spinner">{m('Loading...')}</div>'),
+				spinner = $('<div class="spinner">'+waitMsg+'</div>'),
 				table = $('<table/>'),
 				form = $('<form method="post" action="{URL}dir_sort/'+dir+'/"/>').append(spinner).append(table),
 				dialog = $('<div/>').append(form);

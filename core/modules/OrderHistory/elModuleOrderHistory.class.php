@@ -4,7 +4,7 @@
  * Order history, displays data from IShop and TechShop orders
  *
  * @package OrderHistory
- * @version 1.3
+ * @version 1.4
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
 class elModuleOrderHistory extends elModule
@@ -12,17 +12,15 @@ class elModuleOrderHistory extends elModule
 	var $_mMap = array(
 		'show'   => array('m' => 'showOrder'),
 		'repeat' => array('m' => 'repeatOrder')
-		);
+	);
 
 	var $_conf = array(
 		'ordersOnPage' => 50
-		);
-
-	var $_period = array();
+	);
 
 	function defaultMethod()
 	{
-		if (!$uid = $this->_checkAuth())
+		if (($uid = $this->_checkAuth()) != false)
 		{
 			elThrow(E_USER_WARNING, 'Authorization required');
 			return;
@@ -35,9 +33,9 @@ class elModuleOrderHistory extends elModule
 	function showOrder()
 	{
 		// rewrite to full url if POST
-		if (isset($_POST['id']))
-			if ((int)$_POST['id'] > 0)
-				elLocation(EL_URL.'show/'.$id);
+		if (isset($_POST['order_id']))
+			if ((int)$_POST['order_id'] > 0)
+				elLocation(EL_URL.'show/'.(int)$_POST['order_id']);
 		
 		$id = $this->_checkOrderExist();
 		$order    = $this->_getOrder($id);
@@ -189,26 +187,7 @@ class elModuleOrderHistory extends elModule
 		$items = $item->collection(false, false, $where, 'crtime DESC');
 		return $items;
 	}
-	
-	function _onInit()
-	{
-		$this->_setPeriod();
-	}
-	
-	function _setPeriod()
-	{
-		$ats    = & elSingleton::getObj('elATS');
-		$user   = & $ats->getUser();
-		$period = $user->prefrence('period');
-		if (
-			is_array($period)
-			&& sizeof($period) == 2 
-			&& preg_match('/\d{4}\-\d{2}\-\d{2}/i', $period['period_begin'])
-			&& preg_match('/\d{4}\-\d{2}\-\d{2}/i', $period['period_end'])
-			)			
-			$this->_period = $period;
-	}
-	
+
 	function _getStatus()
 	{
 		$order = & elSingleton::getObj('elOrderHistory');

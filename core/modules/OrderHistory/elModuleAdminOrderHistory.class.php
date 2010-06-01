@@ -18,31 +18,19 @@ class elModuleAdminOrderHistory extends elModuleOrderHistory
 
 	function defaultMethod()
 	{
-		// get period
-		if (!empty($_POST['period_begin']) && !empty($_POST['period_end']))
-		{
-			$ats    = & elSingleton::getObj('elATS');
-			$user   = & $ats->getUser();
-			$period = array(
-				'period_begin' => date('Y-m-d', strtotime($_POST['period_begin'])),
-				'period_end'   => date('Y-m-d', strtotime($_POST['period_end']))	
-			);
-			$user->prefrence('period', $period);
-			$this->_setPeriod();
-		}
-		
 		$where = array();
 		$filter = array();
-		
+
 		// get dates
-		if (sizeof($this->_period) == 2)
+		if (!empty($_POST['period_begin']) && !empty($_POST['period_end']))
 		{
-			$w =     '(crtime>='.strtotime($this->_period['period_begin'])
-			   . ' AND crtime<'.(strtotime($this->_period['period_end'])+86400).')';
+			$w =     '(crtime>='.strtotime($_POST['period_begin'])
+			   . ' AND crtime<'.(strtotime($_POST['period_end'])+86400).')';
 			array_push($where, $w);
-			$filter = $this->_period;
+			$filter['period_begin'] = $_POST['period_begin'];
+			$filter['period_end']   = $_POST['period_end'];
 		}
-		
+
 		// get search name
 		if (isset($_POST['search_name']) and (!empty($_POST['search_name'])))
 		{
@@ -57,13 +45,13 @@ class elModuleAdminOrderHistory extends elModuleOrderHistory
 		$pCurrent = (int)$this->_arg();
 		$pCurrent = ($pCurrent < 1 ? 1 : $pCurrent);
 		$offset   = ($pCurrent - 1) * $this->_conf['ordersOnPage'];
-		
+
 		// get orders
 		$where = implode(' AND ', $where);
 		list($orders, $count) = $this->_getOrder(null, $offset, $where);
 		$pTotal   = ceil($count / $this->_conf['ordersOnPage']);
 		$pager    = array($pCurrent, $pTotal);
-		
+
 		$this->_initRenderer();
 		$this->_rnd->rndOrderList($orders, $pager, $filter);
 	}

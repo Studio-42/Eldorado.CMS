@@ -345,9 +345,9 @@ class elServiceICart extends elService
 		}
 		$db->execute();
 
-		$db->prepare('INSERT INTO el_order_customer (order_id, uid, label, value) VALUES ', '(%d, %d, "%s", "%s")');
+		$db->prepare('INSERT INTO el_order_customer (order_id, uid, field_id, label, value) VALUES ', '(%d, %d, "%s", "%s", "%s")');
 		foreach ($this->_userData['address'] as $v) {
-			$db->prepareData( array($orderID, $this->_user->UID, $v['label'], $v['value']));
+			$db->prepareData( array($orderID, $this->_user->UID, $v['id'], $v['label'], $v['value']));
 		}
 		$db->execute();
 		

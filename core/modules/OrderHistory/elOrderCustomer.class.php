@@ -16,6 +16,7 @@ class elOrderCustomer extends elDataMapping
 			'id'       => 'ID',
 			'order_id' => 'order_id',
 			'uid'      => 'uID',
+			'field_id' => 'field_id',
 			'label'    => 'label',
 			'value'    => 'value'
 			);
@@ -79,7 +80,7 @@ class elOrderCustomer extends elDataMapping
 			return false;
 		
 		$list = array();
-		$where = "(label IN ('f_name', 'l_name', 'email', 'Имя', 'Фамилия')) AND (LOWER(value) LIKE LOWER('%%".$name."%%'))";
+		$where = "(field_id IN ('f_name', 'l_name', 'email')) AND (LOWER(value) LIKE LOWER('%%".$name."%%'))";
 		$search = $this->collection(false, false, $where, false, false, false, 'order_id');		
 		foreach ($search as $s)
 			$list[$s['order_id']] = 1;
@@ -124,14 +125,14 @@ class elOrderCustomer extends elDataMapping
 				$customers[$id]['full_name']  = $user->getFullName(true);
 				$customers[$id]['full_name'] .= ' ('.$user->attr('login').')';
 				$customers[$id]['email']      = $user->getEmail(false);
-				unset($customers[$id]['uid']);
+				unset($customers[$id]['E-mail']);
 			}
 			else
 			{
 				$customers[$id]['full_name']  = implode(' ', array($c['l_name'],  $c['f_name'], $c['s_name']));
 				$customers[$id]['full_name'] .= implode(' ', array($c['Фамилия'], $c['Имя'],    $c['Отчество']));
 			}
-
+			unset($customers[$id]['uid']);
 		}
 
 		return $customers;

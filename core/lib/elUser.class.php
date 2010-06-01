@@ -135,13 +135,21 @@ class elUser extends elDataMapping
 	function getData() {
 		$ret = array();
 		$this->getProfile();
+		$dm = & elSingleton::getObj('elDirectoryManager');
+		
 		foreach ($this->_profile->_elements as $e) {
 			$label = $e->label;
 			$value = $this->attr($e->ID);
 			
 			if ($e->type == 'directory') {
-				$dm = & elSingleton::getObj('elDirectoryManager');
-				$value = $dm->getRecord($e->directory, $this->attr($e->ID), true);
+				$value = $dm->getRecord($e->directory, $value, true);
+			} elseif ($e->type == 'slave-directory') {
+				if (false != ($master = $this->_profile->findElementDirectory($e->directory))
+				&&  false != ($dir = $dm->findSlave($master->directory, $this->attr($master->ID)))) {
+					$value = $dir->record($value, true);
+				} else {
+					continue;
+				}
 			} elseif (!$value && $e->value) {
 				$value = $e->value;
 			}

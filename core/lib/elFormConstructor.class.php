@@ -101,7 +101,7 @@ class elFormConstructor {
 		$this->_form->setRenderer(new elTplFormRenderer());
 		foreach ($this->_elements as $el) {
 			$rndParams = $el->type=='title' ? array('rowAttrs' => ' class="form-tb-sub"') : null;
-			$this->_form->add($el->toFormElement(), $rndParams);
+			$this->_form->add($el->toFormElement($this), $rndParams);
 			if ($el->rule) {
 				$this->_form->setElementRule($el->ID, $el->rule, $el->required, null, $el->error);
 			} elseif ($el->required) {
@@ -134,13 +134,14 @@ class elFormConstructor {
 		$rnd->assignBlockVars('FORM_HEAD', array('form_label' => $l.($label ? $label : $this->label)));
 
 		foreach ($this->_elements as $el) {
-			$e = $el->toFormElement();
+			$e = $el->toFormElement($this, true);
 			$icons = '
 				<ul class="adm-icons form-constructor">
 					<li><a href="'.$url.'field_edit/'.$el->ID.'/"  class="icons edit" title="'.m('Edit').'"></a></li>
 					<li><a href="'.$url.'field_rm/'.$el->ID.'/" class="icons delete" title="'.m('Delete').'"></a></li>
 				</ul>
 			';
+			
 			if ($e->isCData) {
 				$data = array(
 					'cdata' => $icons.$e->toHtml(),
@@ -259,6 +260,20 @@ class elFormConstructor {
 			return true;
 		}
 	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function findElementDirectory($dir) {
+		foreach ($this->_elements as $id=>$el) {
+			if ($el->type == 'directory' && $el->directory == $dir) {
+				return $el;
+			}
+		}
+	}
 	
 	/**
 	 * load profile fields
@@ -330,7 +345,7 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @var string
 	 **/
-	var $_value = '';
+	var $_value;
 	/**
 	 * value variants
 	 *
@@ -385,6 +400,8 @@ class elFormConstructorElement extends elDataMapping {
 	 * @var bool
 	 **/
 	var $disabled = false;
+	
+	var $freeze = false;
 	/**
 	 * undocumented class variable
 	 *
@@ -420,6 +437,16 @@ class elFormConstructorElement extends elDataMapping {
 	}
 	
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getValue() {
+		return isset($this->_value) ? $this->_value : $this->value;
+	}
+	
+	/**
 	 * return form object
 	 *
 	 * @return object
@@ -433,21 +460,21 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @return object
 	 **/
-	function toFormElement() {
+	function toFormElement(&$fc, $admin=false) {
 		$el = null;
 		$attrs = $this->disabled ? array('disabled' => 'on') : array();
 		switch ($this->type) {
 			case 'comment':
-				$el = & new elCData($this->ID, $this->value);
+				$el = & new elCData($this->ID, $this->getValue());
 				break;
 			case 'title':
-				$el = & new elCData($this->ID, $this->value);
+				$el = & new elCData($this->ID, $this->getValue());
 				break;
 			case 'text':
-				$el =  new elText($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
+				$el =  new elText($this->ID, $this->label, $this->getValue(), $attrs);
 				break;	
 			case 'textarea':
-				$el = & new elTextArea($this->ID, $this->label, $this->_value ? $this->_value : $this->value, $attrs);
+				$el = & new elTextArea($this->ID, $this->label, $this->getValue(), $attrs);
 				break;
 			case 'select':
 				$opts = array_map('trim', explode("\n", $this->opts)); 
@@ -468,7 +495,7 @@ class elFormConstructorElement extends elDataMapping {
 				break;
 			case 'date':
 				$v = 0;
-				$value = $this->_value ? $this->_value : $this->value;
+				$value = $this->getValue();
 				if ($value) {
 					list($y, $m, $d) = explode('/', $value);
 					if ($y>0 && $m>0 && $d>0) {
@@ -490,9 +517,19 @@ class elFormConstructorElement extends elDataMapping {
 				
 			case 'directory':
 				$dm = & elSingleton::getObj('elDirectoryManager');
-				$el =  new elSelect($this->ID, $this->label, $this->_value, $dm->get($this->directory), $attrs);
+				$dir = $dm->get($this->directory);
+				if ($this->freeze) {
+					$el = new elCData2($this->ID, $this->label, $dir->record($this->_value, true));
+				} else {
+					$attrs['directory'] = $this->directory;
+					$el =  new elSelect($this->ID, $this->label, $this->_value, $dir->records(), $attrs);
+				}
 				
 				break;
+				
+			// case 'slave-directory':
+			// 	$attrs['rel'] = $this->directory;
+			// 	$el = new elSelect($this->ID, $this->label, $this->_value, array(), $attrs);
 		}
 		return $el;
 	}
@@ -536,7 +573,6 @@ class elFormConstructorElement extends elDataMapping {
 		if (!$this->_idAuto && !$this->ID) {
 			$this->_form->add(new elText('id', m('ID'), $this->ID));
 			$this->_form->setElementRule('id', 'alfanum_lat');
-			// $this->_form->setRequired('id');
 		}
 		
 		

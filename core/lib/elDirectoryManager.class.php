@@ -109,20 +109,21 @@ class elDirectoryManager {
 		}
 	}
 	
-
 	/**
-	 * remove records from directory by id
+	 * undocumented function
 	 *
-	 * @param  string  $id
-	 * @param  array   $recIDs
 	 * @return void
+	 * @author /bin/bash: niutil: command not found
 	 **/
-	function _deleteRecords($id, $recIDs) {
-		if ($this->directoryExists($id) && is_array($recIDs) && !empty($recIDs)) {
-			$this->_db->query('DELETE FROM `el_directory_'.$id.'` WHERE id IN ('.implode(',', $recIDs).')');
-			$this->_db->optimizeTable('el_directory_'.$id);
+	function findSlave($masterID, $masterKey) {
+		$sql = 'SELECT id, label, master_id, master_key FROM %s WHERE master_id="%s" AND master_key=%d LIMIT 1';
+		$sql = sprintf($sql, $this->_tb, $masterID, $masterKey);
+		$this->_db->query($sql);
+		if ($this->_db->numRows()) {
+			return new elSysDirectory($this->_db->nextRecord());
 		}
 	}
+
 } // END class 
 
 /**

@@ -63,7 +63,7 @@ class elServiceProfile extends elService
 			$this->_rnd->addToContent($this->_ats->user->formToHtml());
 		} else {
 			elMsgBox::put(m('Data saved'));
-			elLocation(EL_URL.'/__profile__/');
+			elLocation(EL_URL.'__profile__/');
 		}
 	}
 
@@ -82,7 +82,7 @@ class elServiceProfile extends elService
 			$this->_rnd->addToContent($this->_ats->user->formToHtml());
 		} else {
 			elMsgBox::put( sprintf( m('Password for user "%s" was changed'), $this->_ats->user->login ) );
-			elLocation(EL_BASE_URL.'/__profile__/');
+			elLocation(EL_URL.'__profile__/');
 		}
 	}
 

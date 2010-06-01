@@ -266,6 +266,18 @@ class elServiceICart extends elService
 			elLocation($this->_url.'__icart__/delivery/');
 		}
 
+		$a = & new elICartAddress($this->_user, $this->_userData['address'], $this->_steps['delivery']['enable'], $this->_userData['delivery']['region_id']); 
+		$f = $a->getForm();
+		$f->setRenderer(new elTplFormRenderer('', 'address.html'));
+		if ($f->isSubmitAndValid()) {
+			$this->_updateUserData('address', $a->toArray());
+			elLocation($this->_url.'__icart__/confirm/');
+		} else {
+			$this->_rnd->rndAddress($f->toHtml());
+		}
+		
+		
+		return;
 		$address = & new elICartAddress($this->_user, $this->_userData['address'], $this->_userData['delivery']['region_id']);
 		$form = $address->getForm();
 		$form->setRenderer(new elTplFormRenderer('', 'address.html'));
@@ -495,92 +507,102 @@ class elServiceICart extends elService
 } // END class
 
 
-
-class elICartAddress {
+/**
+ * combine user data and icart additional fields to create and proccess form
+ *
+ * @package icart
+ **/
+class elICartAddress extends elFormConstructor {
+	
 	var $_elements = array();
-	var $_user     = null;
-	var $_data     = array();
-	var $_regionID = 0;
+	var $_form     = null;
+	
 	/**
 	 * constructor
 	 *
-	 * @param  elUser  $user
-	 * @param  array   $data address if user enter it
-	 * @param  int     $regionID
+	 * @param  elUser $user
+	 * @param  array  $data - address from user prefrence
+	 * @param  bool   $deliveryEnable
+	 * @param  int	  $regionID
 	 * @return void
 	 **/
-	function elICartAddress($user, $data, $regionID) {
-		$this->_user = $user;
-		$this->_data = $data;
-		$this->_regionID = $regionID;
+	function elICartAddress($user, $data, $deliveryEnable, $regionID) {
+		$profile = $user->getProfile();
+		$this->_elements = $profile->_elements;
 		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
-		$profile = $this->_user->getProfile();
-		$this->_elements = $profile->_elements + $fc->_elements;
-	}
-	
-	function getForm() {
-		
-		$data = array();
-		foreach ($this->_data as $v) {
-			$data[$v['id']] = $v['value'];
+		foreach ($fc->_elements as $e) {
+			if (!isset($this->_elements[$e->ID])) {
+				$this->_elements[$e->ID] = $e;
+			}
 		}
-		// elPrintR($data);
-		$this->form = & new elForm('icartAddr');
-		foreach ($this->_elements as $e) {
 
-			if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
-				$dm = & elSingleton::getObj('elDirectoryManager');
-				$this->form->add(new elCData2($e->ID, $e->label, $dm->getRecord($e->directory, $this->_regionID, true)));
-				$dm->getSlave($e->directory, $this->_regionID);
-				if (false != ($slave = $dm->getSlave($e->directory, $this->_regionID))) {
-					$this->form->add(new elSelect($slave['id'], $slave['label'], null, $slave['directory']));
-				}
-			} else {
-				if (isset($data[$e->ID])) {
-					$e->setValue($data[$e->ID]);
-				}
-				$this->form->add($e->toFormElement());
-				if ($e->rule) {
-					$this->form->setElementRule($e->ID, $e->rule, $e->required, null, $e->error);
-				} elseif ($e->required) {
-					$this->form->setRequired($e->ID);
+		if (is_array($data)) {
+			foreach ($data as $v) {
+				if (isset($v['id']) && isset($this->_elements[$v['id']])) {
+					if ($this->_elements[$v['id']]->type == 'directory'
+					|| $this->_elements[$v['id']]->type == 'slave-directory') {
+						$this->_elements[$v['id']]->setValue($v['value_id']);
+					} else {
+						$this->_elements[$v['id']]->setValue($v['value']);
+					}
+					
 				}
 			}
-			
 		}
-		return $this->form;
+		
+		if ($deliveryEnable && false != ($e = $this->findElementDirectory('icart_region'))) {
+			$this->_elements[$e->ID]->freeze = true;
+			$this->_elements[$e->ID]->setValue($regionID);
+		}
+		
 	}
 	
 	/**
-	 * undocumented function
+	 * return array of user address data get from form
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return array
 	 **/
 	function toArray() {
+		$data = $this->_form->getValue();
+		$dm   = &elSingleton::getObj('elDirectoryManager');
 		$ret = array();
-		if ($this->form) {
-			$data = $this->form->getValue();
-			// elPrintR($data);
-			foreach ($this->_elements as $e) {
-				$value = isset($data[$e->ID]) ? $data[$e->ID] : '';
-				if ($e->type == 'directory' && $e->directory == 'icart_region' && $this->_regionID) {
-					$dm = & elSingleton::getObj('elDirectoryManager');
-					$value = $dm->getRecord($e->directory, $this->_regionID, true);
+		foreach ($this->_elements as $e) {
+			
+			if ($e->type == 'slave-directory') {
+				if (!isset($data[$e->ID])) {
+					continue;
 				}
-				$ret[] = array(
-					'id'    => $e->ID,
-					'label' => $e->label,
-					'value' => $value
-					);
+				
+				$valueID = $data[$e->ID];
+				$value   = '';
+				if (false != ($m = $this->findElementDirectory($e->directory))) {
+					$mvID = isset($data[$m->ID]) ? $data[$m->ID] : $m->getValue();
+					if (false != ($dir = $dm->findSlave($m->directory, $mvID))) {
+						$value = $dir->record($valueID);
+					}
+				}
+				
+			} elseif ($e->type == 'directory') {
+				$valueID = isset($data[$e->ID]) ? $data[$e->ID] : $e->getValue();
+				$value   = $dm->getRecord($e->directory, $valueID);
+			} else {
+				$valueID = '';
+				$value   = isset($data[$e->ID]) ? $data[$e->ID] : $e->getValue();
 			}
+			$ret[] = array(
+				'id'       => $e->ID,
+				'label'    => $e->label,
+				'value'    => $value,
+				'value_id' => $valueID
+				);
 		}
-		
 		return $ret;
 	}
 	
 	
-}
+} // END class
+
+
 
 
 ?>

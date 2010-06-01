@@ -28,15 +28,17 @@ class elUserProfile extends elFormConstructor {
 	 * @return object
 	 **/
 	function getForm($url=EL_URL, $method='POST') {
-		$form = parent::getForm($url, $method);
-		$form->registerRule('validUserForm', 'func', 'validUserForm', null);
-		$form->setElementRule('login', 'validUserForm', true, $this->UID);
-		$form->setElementRule('email', 'validUserForm', true, $this->UID);
-		if (!$this->UID) {
-			$form->add(new elCaptcha('__reg__', m('Enter code from picture')));
-		}
 		
+		$form = parent::getForm($url, $method);
+
+		if (!$this->UID) {
+			$ats = &elSingleton::getObj('elATS');
+			if (!$ats->allow(EL_WRITE)) {
+				$form->add(new elCaptcha('__reg__', m('Enter code from picture')));
+			}
+		}
 		return $form;
+
 	}
 	
 	/**
@@ -83,7 +85,12 @@ class elUserProfile extends elFormConstructor {
 		}
 		if (!empty($this->_data['login'])) {
 			unset($this->_elements['login']);
+		} else {
+			$this->_elements['login']->required = true;
 		}
+		$this->_elements['email']->rule = 'email';
+		$this->_elements['email']->required = true;
+		
 	}
 	
 }
@@ -122,8 +129,34 @@ class elUserProfileField extends elFormConstructorElement {
 		'date'      => 'Date selector', 
 		// 'file'      => 'File upload field', 
 		// 'captcha'   => 'Captcha: image with code and input field (Spam protection)',
-		'directory' => 'System directory'
+		'directory' => 'System directory',
+		'slave-directory' => 'Group of directories'
 		);
+
+
+	/**
+	 * return form element
+	 *
+	 * @return object
+	 **/
+	function toFormElement(&$fc, $admin=false) {
+		if ($this->type == 'slave-directory') {
+			$master = $fc->findElementDirectory($this->directory);
+			if ($admin) {
+				return new elCData2($this->ID, $this->label, m('Depends on').': '.($master ? $master->label : m('Undefined')));
+			} else {
+				$opts = array();
+				if ($master) {
+					$dm = & elSingleton::getObj('elDirectoryManager');
+					if (false != ($dir = $dm->findSlave($master->directory, $master->getValue()))) {
+						$opts = $dir->records(true);
+					}
+				}
+				return new elSelect($this->ID, $this->label, $this->_value ? trim($this->_value) : trim($this->value), $opts, array('rel' => $this->directory));
+			}
+		}
+		return parent::toFormElement($fc, $admin);
+	}
 
 
 	/**
@@ -166,6 +199,119 @@ class elUserProfileField extends elFormConstructorElement {
 			}
 		}
 	}
+	
+	/**
+	 * create form for edit object
+	 *
+	 * @return void
+	 **/
+	function _makeForm($params) {
+		$this->_form = & elSingleton::getObj( 'elForm', 'mf'.get_class($this),  sprintf( m(!$this->{$this->__id__} ? 'Create object "%s"' : 'Edit object "%s"'), m($this->_objName))  );
+		$this->_form->setRenderer( elSingleton::getObj($this->_formRndClass) );
+		
+		if (!$this->ID) {
+			$this->sortNdx = 1+$params['cnt']++;
+		}
+
+		$rules = array(
+			''                 => m('Any'),
+			'email'            => m('E-mail'),
+            'phone'            => m('Phone number'),
+			'url'              => m('URL'),
+            'numbers'          => m('Only numbers'),
+            'letters_or_space' => m('Only letters')
+			);
+		$fileSizes = range(1, 10) + array(15, 20, 30, 40, 50, 60, 70, 80, 90, 100);
+		$req = ' <span class="form-req">*</span>';
+		
+		$dm = & elSingleton::getObj('elDirectoryManager');
+		
+		if (!$this->_idAuto && !$this->ID) {
+			$this->_form->add(new elText('id', m('ID'), $this->ID));
+			$this->_form->setElementRule('id', 'alfanum_lat');
+		}
+		
+		
+		$this->_form->add(new elText('label',       m('Name').$req,       $this->label));
+		$this->_form->add(new elSelect('type',      m('Type'),            $this->type, array_map('m', $this->_types)));
+		$this->_form->add(new elTextArea('opts',    m('Value variants one per line').$req, $this->opts, array('rows' =>7)));
+		$this->_form->add(new elTextArea('value',   m('Default value<br/>For checkboxes - one per line<br/>For date - in yyyy/mm/dd format').$req, $this->value, array('rows' =>7)));
+		$this->_form->add(new elSelect('directory', m('Directory'),       $this->required, $dm->getList()));
+		$this->_form->add(new elSelect('required',  m('Required'),        $this->required, $GLOBALS['yn']));
+		$this->_form->add(new elSelect('rule',      m('Validation rule'), $this->rule, $rules));
+		$this->_form->add(new elSelect('file_size', m('Max file size in Mb.'), $this->fileSize, $fileSizes, null, null, false));
+		$this->_form->add(new elText('file_type',   m('Allowed file extensions list (separeted by semicolon)'),  $this->fileType));
+		$this->_form->add(new elText('error',       m('Error message'),  $this->error));
+		$this->_form->add(new elSelect('sort_ndx',  m('Index number'),    $this->sortNdx, range(1, $params['cnt']), null, null, false));
+		
+		$js = "
+			$('#type').change(function() {
+				var v = $(this).val();
+				if ($(this).attr('laded')) {
+					$('#".$this->_form->getAttr('name')." .form-errors').parent().hide();
+				} else {
+					$(this).attr('laded', 1);
+				}
+				
+				switch(v) {
+					case 'text':
+						$('#row_opts, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_value, #row_required, #row_rule, #row_error').show();
+						break;
+					case 'textarea':
+						$('#row_opts, #row_rule, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_value, #row_required, #row_error').show();
+						break;
+					case 'select':
+						$('#row_rule, #row_required, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
+						break;
+					case 'checkbox':
+						$('#row_rule, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_value, #row_opts, #row_required, #row_error').show();
+						break;
+					case 'file':
+						$('#row_opts, #row_value, #row_rule, #row_directory').hide();
+						$('#row_label, #row_file_size, #row_file_type').show();
+						break;
+					case 'captcha':
+						$('#row_value, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label').show();
+						break;
+					case 'date':
+						$('#row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_value').show();
+						break;
+					case 'directory':
+					case 'slave-directory':
+						$('#row_opts, #row_required, #row_value, #row_rule, #row_error, #row_file_size, #row_file_type, #row_directory').hide();
+						$('#row_label, #row_directory').show();
+						break;
+					default:
+						$('#row_label, #row_opts, #row_required, #row_rule, #row_error, #row_file_size, #row_file_type').hide();
+						$('#row_value').show();
+				}
+				
+				if (v == 'title' || v == 'comment') {
+					$('#row_label .form-req').hide();
+					$('#row_opts .form-req').hide();
+					$('#row_value .form-req').show();
+				} else if (v == 'select' || v == 'checkboxes') {
+					$('#row_value .form-req').hide();
+					$('#row_label .form-req').show();
+					$('#row_opts .form-req').show();
+				} else {
+					$('#row_value .form-req').hide();
+					$('#row_label .form-req').show();
+					
+				}
+			}).change();
+		";
+		elAddJs($js, EL_JS_SRC_ONREADY);
+		
+	}
+	
+	
 	
 	/**
 	 * update sort indexes

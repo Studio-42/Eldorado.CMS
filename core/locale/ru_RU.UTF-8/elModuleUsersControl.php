@@ -18,6 +18,7 @@ $elMsg['Create group']                          = 'Новая группа';
 $elMsg['Apply filter']                          = 'Применить фильтр';
 $elMsg['Clean filter']                          = 'Сбросить фильтр';
 
+$elMsg['Configuration of user profile']         = 'Настройка профайла пользователя';
 $elMsg['Profile field'] = 'Поле профайла';
 $elMsg['Sort'] = 'Сортировать';
 $elMsg['New field'] = 'Новое поле';

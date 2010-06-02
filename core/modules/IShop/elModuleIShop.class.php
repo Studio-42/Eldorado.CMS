@@ -36,6 +36,7 @@ class elModuleIShop extends elModule {
 		'item'  => array('m' => 'viewItem'),
 		'order' => array('m' => 'order') 
 	);
+
 	var $_conf      = array(
 		'default_view'      => IS_VIEW_CATS,
 		'deep'              => 0,

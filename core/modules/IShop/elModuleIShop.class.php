@@ -100,43 +100,7 @@ class elModuleIShop extends elModule
 	// add items to icart from external call (now used from OrderHistory)
 	function addToICart($itemID = null, $props = array(), $qnt = false)
 	{
-		if (!$itemID and $qnt > 0)
-		{
-			return false;
-		}
-		$item = $this->_factory->getItem($itemID);
-		if (!$item->ID or !$item->price)
-		{
-			return false;
-		}
-
-		$currency = &elSingleton::getObj('elCurrency');
-		$curOpts = array(
-			'precision'   => (int)$this->_conf('pricePrec'),
-			'currency'    => $this->_conf('currency'),
-			'exchangeSrc' => $this->_conf('exchangeSrc'),
-			'commision'   => $this->_conf('commision'),
-			'rate'        => $this->_conf('rate')
-			);
-		$data = array(
-			'page_id' => $this->pageID,
-			'i_id'    => $item->ID,
-			'm_id'    => 0,
-			'code'    => $this->_conf('displayCode') ? $item->code : '',
-			'name'    => $item->name,
-			'price'   => $currency->convert($item->price, $curOpts),
-			'props'   => $props
-		);
-
-		$ICart = & elSingleton::getObj('elICart');
-		for ($i = 0; $i < $qnt; $i++)
-		{
-			if (!$ICart->add($data))
-			{
-				return false;
-			}
-		}
-		return true;
+		return $this->addToICart($itemID, $props, $qnt);
 	}
 
 	function order()
@@ -144,42 +108,12 @@ class elModuleIShop extends elModule
 		$catID  = (int)$this->_arg();
 		$itemID = (int)$this->_arg(1);
 		$url    = EL_URL.'item/'.$catID.'/'.$itemID.'/';
-		$item   = $this->_factory->getItem( $itemID );
 
-		if (!$item->ID) {
-			elThrow(E_USER_WARNING, 'Unable to find item to add into shopping cart', null, $url);
-		} elseif (!$item->price) {
-			elThrow(E_USER_WARNING, 'Unable to add into shopping cart item without price', null, $url);
-		}
-
-		$currency = &elSingleton::getObj('elCurrency');
-		$curOpts = array(
-			'precision'   => (int)$this->_conf('pricePrec'),
-			'currency'    => $this->_conf('currency'),
-			'exchangeSrc' => $this->_conf('exchangeSrc'),
-			'commision'   => $this->_conf('commision'),
-			'rate'        => $this->_conf('rate')
-			);
-		$data = array(
-			'page_id' => $this->pageID,
-			'i_id'    => $item->ID,
-			'm_id'    => 0,
-			'code'    => $this->_conf('displayCode') ? $item->code : '',
-			'name'    => $item->name,
-			'price'   => $currency->convert($item->price, $curOpts),
-			'props'   => array()
-			);
-			
-		if (!empty($_POST['prop']) && is_array($_POST['prop'])) {
-			foreach ($_POST['prop'] as $pID => $v) {
-				$data['props'][] = array($item->getPropName($pID), $v);
-			}
-		}
-			
 		// elPrintR($data);
 		elLoadMessages('ServiceICart');
 		$ICart = & elSingleton::getObj('elICart');
-		if ($ICart->add($data)) {
+
+		if ($this->addToICart($itemID)) {
 			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
 	        elMsgBox::put($msg);
 			elLocation($url);
@@ -243,6 +177,54 @@ class elModuleIShop extends elModule
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
+
+	function _addToICart($itemID = null, $props = array(), $qnt = 1)
+	{
+		if (!$itemID and $qnt > 0)
+		{
+			return false;
+		}
+		$item = $this->_factory->getItem($itemID);
+		if (!$item->ID or !$item->price)
+		{
+			return false;
+		}
+
+		// if $props is empty try to load from POST
+		if (!empty($_POST['prop']) && is_array($_POST['prop']) && empty($props)) {
+			foreach ($_POST['prop'] as $pID => $v) {
+				$props[] = array($item->getPropName($pID), $v);
+			}
+		}
+
+		$currency = &elSingleton::getObj('elCurrency');
+		$curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate')
+			);
+		$data = array(
+			'page_id' => $this->pageID,
+			'i_id'    => $item->ID,
+			'm_id'    => 0,
+			'code'    => $this->_conf('displayCode') ? $item->code : '',
+			'name'    => $item->name,
+			'price'   => $currency->convert($item->price, $curOpts),
+			'props'   => $props
+		);
+
+		$ICart = & elSingleton::getObj('elICart');
+		for ($i = 0; $i < $qnt; $i++)
+		{
+			if (!$ICart->add($data))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
   function _getPagerInfo($qnt)
   {

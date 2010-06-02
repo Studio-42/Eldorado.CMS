@@ -27,5 +27,5 @@ $elMsg['Phone number']      = 'Номер телефона';
 $elMsg['Only numbers']      = 'Только числа';
 $elMsg['Only letters']      = 'Только буквы';
 $elMsg['Validation rule']   = 'Правило проверки';
-
+$elMsg['Slave directory']   = 'Дочерний справочник';
 ?>

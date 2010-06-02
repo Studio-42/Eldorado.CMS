@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `el_directories_list` (
   `master_id`  varchar(256) COLLATE utf8_bin NOT NULL,
   `master_key` int(11) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
-	KEY(`master_id`, `master_key`)
+  KEY(`master_id`, `master_key`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 DROP TABLE IF EXISTS `el_email`;
@@ -355,7 +355,7 @@ DROP TABLE IF EXISTS `el_user_profile`;
 CREATE TABLE IF NOT EXISTS `el_user_profile` (
   `id`        varchar(256) COLLATE utf8_bin NOT NULL,
   `label`     varchar(256) COLLATE utf8_bin NOT NULL,
-  `type`      enum('text','textarea','select','checkbox','date','directory','slave-directory') COLLATE utf8_bin NOT NULL DEFAULT 'comment',
+  `type`      enum('text','textarea','select','checkbox','date','directory','slave-directory') COLLATE utf8_bin NOT NULL DEFAULT 'text',
   `value`     mediumtext COLLATE utf8_bin NOT NULL,
   `opts`      mediumtext COLLATE utf8_bin NOT NULL,
   `directory` varchar(256) COLLATE utf8_bin NOT NULL,

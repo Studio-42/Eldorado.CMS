@@ -130,7 +130,7 @@ class elUserProfileField extends elFormConstructorElement {
 		// 'file'      => 'File upload field', 
 		// 'captcha'   => 'Captcha: image with code and input field (Spam protection)',
 		'directory' => 'System directory',
-		'slave-directory' => 'Group of directories'
+		'slave-directory' => 'Slave directory'
 		);
 
 

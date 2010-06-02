@@ -81,64 +81,65 @@ class elCore
 
 	function run()
 	{
-		
-		$conf = & elSingleton::getObj('elXmlConf');
-
 		if ( EL_WM_XML == EL_WM )
 		{
 			return $this->_outputXML();
 		}
 		else
-		{	
+		{
+			$conf = & elSingleton::getObj('elXmlConf');
 			$this->_outputHTML( $conf->get('gzOutputAllow'), $conf->get('timer') ? utime() - $this->_ts : '');
-
-			// begin cron
-			$next = $conf->get('next', 'cron');
-			if ($next == null) // first init
-			{
-				$next = time() - 1; // make sure we run now
-			}
-
-			if ($next <= time()) // run cron
-			{
-				$conf->set('next', time() + 86400, 'cron');
-				$conf->save(); // save config and run crontabs
-
-				ignore_user_abort(true); // detach from browser control
-				flush();
-				//set_time_limit(60);
-
-				foreach (array('./hook') as $dir)
-				{
-					if (is_dir($dir) && ($dh = opendir($dir)) !== false)
-					{
-						while (false !== ($cfile = readdir($dh)))
-						{
-							if (!is_file($dir.'/'.$cfile))
-							{
-								continue;
-							}
-							if (!preg_match('/^(elCron.+)\.class\.php$/', $cfile, $m))
-							{
-								continue;
-							}
-
-							$cname = $m[1];
-							if (include_once($dir.'/'.$cfile))
-							{ // run task
-								$cron = new $cname;
-								$cron->run();
-							}
-						} // end if
-					} // end while
-				} // end foreach
-			} // end if
-			// end cron
+			$this->_cron();
 		}
-		
 	}
 
 	// ======================   PRIVATE METHODS ========================= //
+
+	function _cron()
+	{
+		$conf = & elSingleton::getObj('elXmlConf');
+		$next = $conf->get('next', 'cron');
+		if ($next == null) // first init
+		{
+			$next = time() - 1; // make sure we run now
+		}
+
+		if ($next <= time()) // run cron
+		{
+			$conf->set('next', time() + 86400, 'cron');
+			$conf->save(); // save config and run crontabs
+
+			ignore_user_abort(true); // detach from browser control
+			flush();
+			//set_time_limit(60);
+
+			foreach (array('./core/hook', './hook') as $dir)
+			{
+				if (is_dir($dir) && ($dh = opendir($dir)) !== false)
+				{
+					while (false !== ($cfile = readdir($dh)))
+					{
+						if (!is_file($dir.'/'.$cfile))
+						{
+							continue;
+						}
+						if (!preg_match('/^(elCron.+)\.class\.php$/', $cfile, $m))
+						{
+							continue;
+						}
+
+						$cname = $m[1];
+						if (include_once($dir.'/'.$cfile))
+						{ // run task
+							$cron = new $cname;
+							$cron->run();
+						}
+					} // end while
+				} // end if
+			} // end foreach
+		} // end if run cron
+		return true;
+	}
 
 	function _loadModule( )
 	{

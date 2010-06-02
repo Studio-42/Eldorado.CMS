@@ -74,8 +74,8 @@ INSERT INTO `el_user_in_group` (`user_id`, `group_id`) VALUES
 (1, 1);
 
 INSERT INTO `el_user_profile` (`id`, `label`, `type`, `value`, `opts`, `directory`, `required`, `rule`, `file_size`, `error`, `sort_ndx`) VALUES
-('login', 'Login', 'text', '', '', '', '', '', 1, '', 1),
-('email', 'E-mail', 'text', '', '', '', '', '', 1, '', 2),
-('f_name', 'First name', 'text', '', '', '', '', '', 1, '', 3),
-('l_name', 'Last name', 'text', '', '', '', '', '', 1, '', 4);
+('login',  'Login',      'text', '', '', '', 1, '', 1, '', 1),
+('email',  'E-mail',     'text', '', '', '', 1, '', 1, '', 2),
+('f_name', 'First name', 'text', '', '', '', 0, '', 1, '', 3),
+('l_name', 'Last name',  'text', '', '', '', 0, '', 1, '', 4);
 

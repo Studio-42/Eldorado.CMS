@@ -200,7 +200,7 @@ class elModuleICartConf extends elModule {
 		$form->add(new elSelect('delivery_id', m('Delivery'), $data['delivery_id'], $delivery));
 		$form->add(new elSelect('payment_id',  m('Payment'),  $data['payment_id'],  $payment));
 		$form->add(new elText('fee', m('Delivery price').', '.$currency->getSymbol(), $data['fee'], array('size'=>'12')));
-		$form->add(new elCData('c1', m('If you need calculate delivery price based upon order amount enter here valid PHP code. Two variable - $qnt and $amount are available here')));
+		$form->add(new elCData('c1', m('If you need to calculate delivery price based upon order amount enter here valid PHP code. Two variable - $qnt and $amount are available here. Example: <code>$amount >= 1000 ? 0 : 200;</code> - if amount is equal or more 1000 - delivery is free, else 200')));
 		$form->add(new elTextArea('formula', m('Delivery price formula'), $data['formula'], array('rows' => 5)));
 		$form->add(new elTextArea('comment', m('Comment'), $data['comment'], array('rows' => 5)));
 		

@@ -106,6 +106,7 @@ $elMsg['Could not create robots.txt. Check permissions.'] = 'Не могу со�
 $elMsg['Display linked objects'] = 'Показывать связаные объекты';
 $elMsg['By default'] = 'По умолчанию (внизу)';
 $elMsg['In tabs'] = 'В табах';
+$elMsg['Integer']        = 'Целое число';
 $elMsg['Double, two signs after dot']        = 'Десятичная дробь, два знака после запятой';
 $elMsg['Currency'] = 'Валюта';
 $elMsg['Use exchange rate'] = 'Использовать курс';

@@ -8,5 +8,5 @@ $elMsg['All records removed'] = 'Записи удалены';
 $elMsg['Directory removed'] = 'Справочник удален';
 $elMsg['There are %d records was added into "%s"'] = '%d записей добавлено в "%s"';
 $elMsg['Record removed'] = 'Запись удалена';
-
+$elMsg['Slave directory']   = 'Дочерний справочник';
 ?>

@@ -19,6 +19,7 @@ $elMsg['Apply filter']                          = 'Применить фильт
 $elMsg['Clean filter']                          = 'Сбросить фильтр';
 
 // confidure profile
+$elMsg['Configuration of user profile']         = 'Настройка профайла пользователя';
 $elMsg['Profile field'] = 'Поле профайла';
 $elMsg['Sort'] = 'Сортировать';
 $elMsg['New field'] = 'Новое поле';

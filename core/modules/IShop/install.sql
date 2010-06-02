@@ -107,9 +107,10 @@ CREATE TABLE el_ishop_{pageID}_prop_depend (
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_mnf;
 CREATE TABLE el_ishop_{pageID}_mnf (
-  id              int(3)       NOT NULL auto_increment,
-  name            varchar(255) NOT NULL,
-  country         varchar(255),
+  id       int(3)       NOT NULL auto_increment,
+  name     varchar(255) NOT NULL,
+  country  varchar(255),
+  logo     varchar(255) NOT NULL,
   announce text   NOT NULL,
   content  text   NOT NULL,
   PRIMARY KEY (id)

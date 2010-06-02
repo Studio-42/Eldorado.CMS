@@ -20,7 +20,7 @@ class elEditor extends elFormInput
 		elLoadJQueryUI();
 		elAddCss('elrte.css',      EL_JS_CSS_FILE);
 		elAddCss('elfinder.css',   EL_JS_CSS_FILE);
-		elAddJs('elrte.full.js',   EL_JS_CSS_FILE);
+		elAddJs('elrte.min.js',   EL_JS_CSS_FILE);
 		elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
 		
 		$file = 'i18n'.DIRECTORY_SEPARATOR.'elrte'.DIRECTORY_SEPARATOR.'elrte.'.EL_LANG.'.js';

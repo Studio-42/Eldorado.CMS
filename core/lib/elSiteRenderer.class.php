@@ -279,7 +279,7 @@ class elSiteRenderer
 		// elPrintR($GLOBALS['_js_']);
 		if (false !== ($dnum = array_search('eldialogform.js', $GLOBALS['_js_'][EL_JS_CSS_FILE])))
 		{
-			if (in_array('elfinder.min.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]) || in_array('elrtefinder.full.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]))
+			if (in_array('elfinder.min.js', $GLOBALS['_js_'][EL_JS_CSS_FILE]))
 			{
 				unset($GLOBALS['_js_'][EL_JS_CSS_FILE][$dmun]);
 			}

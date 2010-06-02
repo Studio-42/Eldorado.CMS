@@ -190,7 +190,7 @@ function elDebug($msg) {
 function elHalt()
 {
 	$html = '<html><body><h1 style="color:red;text-align:center">SYSTEM ERROR!</h1>
-		<img src="{URL}/core/logo.gif" style="margin:1em auto" />
+		<img src="{URL}/style/images/logo.gif" style="margin:1em auto" />
 		<p>Eldorado CMS Core version: {VER} {NAME}</p>
 		<hr />{DEBUG}</body></html>';
 

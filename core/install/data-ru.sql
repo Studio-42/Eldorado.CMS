@@ -74,16 +74,16 @@ INSERT INTO `el_user_in_group` (`user_id`, `group_id`) VALUES
 (1, 1);
 
 INSERT INTO `el_user_profile` (`id`, `label`, `type`, `value`, `opts`, `directory`, `required`, `rule`, `file_size`, `error`, `sort_ndx`) VALUES
-('login', 'Login', 'text', '', '', '', '', '', 1, '', 1),
-('email', 'E-mail', 'text', '', '', '', '', '', 1, '', 2),
-('f_name', 'Имя', 'text', '', '', '', '', '', 1, '', 3),
-('l_name', 'Фамилия', 'text', '', '', '', '', '', 1, '', 4);
+('login',  'Login',   'text', '', '', '', 1, '', 1, '', 1),
+('email',  'E-mail',  'text', '', '', '', 1, '', 1, '', 2),
+('f_name', 'Имя',     'text', '', '', '', 0, '', 1, '', 3),
+('l_name', 'Фамилия', 'text', '', '', '', 0, '', 1, '', 4);
 
 -- Special elDirectory content for russian version
-INSERT INTO `el_directories_list` (`id`, `label`) VALUES
-('city', 'Город'),
-('metro_msk', 'Метро: Москва'),
-('metro_spb', 'Метро: Санкт-Петербург');
+INSERT INTO `el_directories_list` (`id`, `label`, `master_id`, `master_key`) VALUES
+('icart_region', 'Город',                  '',             0),
+('metro_msk',    'Метро: Москва',          'icart_region', 1),
+('metro_spb',    'Метро: Санкт-Петербург', 'icart_region', 2);
 
 CREATE TABLE IF NOT EXISTS `el_directory_city` (
   `id`       int(11) NOT NULL AUTO_INCREMENT,

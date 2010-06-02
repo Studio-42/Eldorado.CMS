@@ -429,7 +429,7 @@ class elSiteRenderer
 						$b = EL_MSGQ == $queue ? 'SYS_MESSAGES.SYS_MSG' : 'SYS_MESSAGES.SYS_WARN';
 						$this->_te->assignBlockVars( $b, array('msg'=>nl2br($msg)) );
 					}
-					elseif ( $ats->allow(EL_WRITE) && $this->_te->isBlockExists('SYS_DEBUG') )
+					elseif ( $ats->allow(EL_WRITE) && $this->_conf->get('debug', 'common') && $this->_te->isBlockExists('SYS_DEBUG') )
 					{
 						$this->_te->assignBlockVars('SYS_DEBUG', array('msg'=>nl2br($msg)) );
 					}

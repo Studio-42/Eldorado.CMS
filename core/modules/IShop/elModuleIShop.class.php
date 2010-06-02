@@ -107,7 +107,6 @@ class elModuleIShop extends elModule {
 		return $this->_addToICart($itemID, $props, $qnt);
 	}
 
-
 	/**
 	 * Add item into shopping cart
 	 *
@@ -123,12 +122,13 @@ class elModuleIShop extends elModule {
 		$ICart = & elSingleton::getObj('elICart');
 
 		if ($this->_addToICart($itemID)) {
-			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
-	        elMsgBox::put($msg);
+			$item = $this->_factory->getItem($itemID);
+			$msg = sprintf(m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $item->code.' '.$item->name, EL_URL.'__icart__/' );
+			elMsgBox::put($msg);
 			elLocation($url);
 		} else {
-			$msg = sprintf( m('Error! Could not add item to Your shopping cart! Please contact site administrator.') );
-            elThrow(E_USER_WARNING, $msg, null, $url);
+			$msg = sprintf(m('Error! Could not add item to Your shopping cart! Please contact site administrator.'));
+			elThrow(E_USER_WARNING, $msg, null, $url);
 		}
 	}
 

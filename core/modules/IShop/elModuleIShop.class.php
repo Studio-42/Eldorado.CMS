@@ -1,5 +1,8 @@
 <?php
 
+define('IS_VIEW_CATS',     1);
+define('IS_VIEW_MNFS',     2);
+
 define('EL_IS_USE_MNF',    1);
 define('EL_IS_USE_TM',     2);
 define('EL_IS_USE_MNF_TM', 3);
@@ -24,8 +27,7 @@ if (!defined('EL_CAT_DESCRIP_IN_BOTH')) {
 
 
 
-class elModuleIShop extends elModule
-{
+class elModuleIShop extends elModule {
 	var $_factory   = null;
 	var $_cat       = null;
 	var $_item      = null;
@@ -35,6 +37,7 @@ class elModuleIShop extends elModule
 		'order' => array('m' => 'order') 
 	);
 	var $_conf      = array(
+		'default_view'      => IS_VIEW_CATS,
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
@@ -103,8 +106,13 @@ class elModuleIShop extends elModule
 		return $this->addToICart($itemID, $props, $qnt);
 	}
 
-	function order()
-	{
+
+	/**
+	 * Add item into shopping cart
+	 *
+	 * @return void
+	 **/
+	function order() {
 		$catID  = (int)$this->_arg();
 		$itemID = (int)$this->_arg(1);
 		$url    = EL_URL.'item/'.$catID.'/'.$itemID.'/';
@@ -282,9 +290,8 @@ class elModuleIShop extends elModule
    * - сообщает об ошибке и редиректит на корень сайта
    *
    */
-  function _onInit()
-  {
-    $catID = $this->_arg(0);
+	function _onInit() {
+    $catID = $this->_arg(0) ;
     if ( $catID <= 0 )
     {
       $catID = 1;
@@ -317,7 +324,9 @@ class elModuleIShop extends elModule
 			$conf->save();
 		}
 		
-		if ($this->_conf['currency'] != $cur->current['intCode'] && $this->_conf('exchangeSrc') == 'manual' && !($this->_conf('rate') > 0)) {
+		if ($this->_conf['currency'] != $cur->current['intCode'] 
+		&& $this->_conf('exchangeSrc') == 'manual' 
+		&& !($this->_conf('rate') > 0)) {
 			$conf = & elSingleton::getObj('elXmlConf');
 			$conf->set('exchangeSrc', 'auto', $this->pageID);
 			$conf->set('rate',         0,     $this->pageID);

@@ -527,6 +527,8 @@ class elFormConstructorElement extends elDataMapping {
 				
 				break;
 				
+			default:
+				$el = new elCData('', '');
 			// case 'slave-directory':
 			// 	$attrs['rel'] = $this->directory;
 			// 	$el = new elSelect($this->ID, $this->label, $this->_value, array(), $attrs);

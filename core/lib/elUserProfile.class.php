@@ -166,8 +166,8 @@ class elUserProfileField extends elFormConstructorElement {
 	 **/
 	function save() {
 		$attrs = $this->_attrsForSave();
-		if ($attr['type'] != 'directory') {
-			$attr['directory'] = '';
+		if ($attrs['type'] != 'directory' && $attrs['type'] != 'slave-directory') {
+			$attrs['directory'] = '';
 		}
 		$db    = $this->_db();
 		$sql   = sprintf('REPLACE INTO el_user_profile (%s) VALUES (%s)',  implode(',', array_keys($attrs)), '"'.implode('", "', $attrs).'"');

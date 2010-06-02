@@ -103,7 +103,7 @@ class elModuleIShop extends elModule {
 	// add items to icart from external call (now used from OrderHistory)
 	function addToICart($itemID = null, $props = array(), $qnt = false)
 	{
-		return $this->addToICart($itemID, $props, $qnt);
+		return $this->_addToICart($itemID, $props, $qnt);
 	}
 
 
@@ -121,7 +121,7 @@ class elModuleIShop extends elModule {
 		elLoadMessages('ServiceICart');
 		$ICart = & elSingleton::getObj('elICart');
 
-		if ($this->addToICart($itemID)) {
+		if ($this->_addToICart($itemID)) {
 			$msg = sprintf( m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $data['code'].' '.$data['name'], EL_URL.'__icart__/' );
 	        elMsgBox::put($msg);
 			elLocation($url);
@@ -188,12 +188,12 @@ class elModuleIShop extends elModule {
 
 	function _addToICart($itemID = null, $props = array(), $qnt = 1)
 	{
-		if (!$itemID and $qnt > 0)
+		if (!$itemID)
 		{
 			return false;
 		}
 		$item = $this->_factory->getItem($itemID);
-		if (!$item->ID or !$item->price)
+		if (!$item->ID or !$item->price or $qnt < 1)
 		{
 			return false;
 		}

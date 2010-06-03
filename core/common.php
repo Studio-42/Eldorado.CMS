@@ -75,6 +75,12 @@ define ('EL_POS_TOP',    't');
 define ('EL_POS_RIGHT',  'r');
 define ('EL_POS_BOTTOM', 'b');
 
+// common catalogs constants - display cat descrip
+define('EL_CAT_DESCRIP_NO',      0);
+define('EL_CAT_DESCRIP_IN_LIST', 1);
+define('EL_CAT_DESCRIP_IN_SELF', 2);
+define('EL_CAT_DESCRIP_IN_BOTH', 3);
+
 /*********  global variables - storages  **************/
 
 $GLOBALS['parseColumns'] = array( 

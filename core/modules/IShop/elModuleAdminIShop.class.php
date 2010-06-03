@@ -432,6 +432,18 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 	}
 
+	function configureCrossLinks()
+	{
+    $clm = & $this->_getCrossLinksManager();
+    if ( !$clm->confCrossLinks() )
+    {
+      $this->_initRenderer();
+		  return $this->_rnd->addToContent($clm->formToHtml());
+    }
+    elMsgBox::put( m('Configuration was saved') );
+	  elLocation( EL_URL );
+	}
+
   function configureNav()
   {
   	$conf = &elSingleton::getObj('elXmlConf');

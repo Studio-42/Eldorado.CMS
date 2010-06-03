@@ -2,12 +2,7 @@
 
 
 
-define ('EL_IS_CAT',      1);
-define ('EL_IS_ITEM',     2);
-define ('EL_IS_ITYPE',    3);
-define ('EL_IS_PROP',     4);
-define ('EL_IS_MNF',      5);
-define ('EL_IS_TM',       6);
+
 
 
 define ('EL_IS_PROP_STR',   1);
@@ -15,18 +10,18 @@ define ('EL_IS_PROP_TXT',   2);
 define ('EL_IS_PROP_LIST',  3);
 define ('EL_IS_PROP_MLIST', 4);
 
-if (!defined('EL_IS_USE_MNF'))
-{
-	define('EL_IS_USE_MNF',    1);
-	define('EL_IS_USE_TM',     2);
-	define('EL_IS_USE_MNF_TM', 3);
-
-	define('EL_IS_SORT_NAME',  1);
-	define('EL_IS_SORT_CODE',  2);
-	define('EL_IS_SORT_PRICE', 3);
-	define('EL_IS_SORT_TIME',  4);
-	
-}
+// if (!defined('EL_IS_USE_MNF'))
+// {
+// 	define('EL_IS_USE_MNF',    1);
+// 	define('EL_IS_USE_TM',     2);
+// 	define('EL_IS_USE_MNF_TM', 3);
+// 
+// 	define('EL_IS_SORT_NAME',  1);
+// 	define('EL_IS_SORT_CODE',  2);
+// 	define('EL_IS_SORT_PRICE', 3);
+// 	define('EL_IS_SORT_TIME',  4);
+// 	
+// }
 
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItem.class.php';
@@ -35,8 +30,13 @@ include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemType.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 
-class elIShopFactory
-{
+/**
+ * IShop factory
+ *
+ * @package IShop
+ **/
+ 
+class elIShopFactory {
   var $pageID = 0;
   var $_types = array();
   var $_objs  = array();
@@ -84,25 +84,33 @@ class elIShopFactory
 
     var $_conf = array();
     
-    function init($pageID, $conf)
-    {
-      $this->pageID = $pageID;
-      foreach ( $this->_tb as $k=>$tb )
-      {
-        $this->_tb[$k] = sprintf($tb, $this->pageID);
-      }
-      $this->_db    = & elSingleton::getObj('elDb');
-      $type         = $this->_create(EL_IS_ITYPE);
-      $this->_types = $type->collection(); 
-      $this->_conf  = $conf;
-      
-    }
+	/**
+	 * initilize factory
+	 *
+	 * @param  int    $pageID  current page ID
+	 * @param  array  conf     module config
+	 * @return void
+	 **/
+	function init($pageID, $conf) {
+		$this->pageID = $pageID;
+		foreach ($this->_tb as $k=>$tb) {
+			$this->_tb[$k] = sprintf($tb, $this->pageID);
+		}
+		$this->_db    = & elSingleton::getObj('elDb');
+		$type         = $this->create(EL_IS_ITYPE);
+		$this->_types = $type->collection(); 
+		$this->_conf  = $conf;
+	}
 
-
-      function getCategory($ID)
-      {
-        return $this->_create(EL_IS_CAT, $ID);
-      }
+	/**
+	 * Return category
+	 *
+	 * @param  int  $ID
+	 * @return elCatalogCategory
+	 **/
+	function getCategory($ID=0) {
+		return $this->create(EL_IS_CAT, $ID);
+	}
 
       function &getItemType($ID)
       {
@@ -110,23 +118,23 @@ class elIShopFactory
         {
           return $this->_types[$ID];
         }
-        return $this->_create(EL_IS_ITYPE, $ID);
+        return $this->create(EL_IS_ITYPE, $ID);
       }
 
       function getProperty($ID)
       {
-        return $this->_create(EL_IS_PROP, $ID);
+        return $this->create(EL_IS_PROP, $ID);
       }
 
       function getProperties()
       {
-        $prop = $this->_create(EL_IS_PROP);
+        $prop = $this->create(EL_IS_PROP);
         return $prop->collection(true, true, null, 'sort_ndx');
       }
 
       function getItem($ID, $typeID=0)
       {
-        $item = $this->_create(EL_IS_ITEM, $ID);
+        $item = $this->create(EL_IS_ITEM, $ID);
         $item->mnfNfo = $this->_conf['mnfNfo'];  
         if ( empty($item->type) && !empty($typeID) )
         {
@@ -165,18 +173,18 @@ class elIShopFactory
 
       function getMnf($ID)
       {
-        return $this->_create(EL_IS_MNF, $ID);
+        return $this->create(EL_IS_MNF, $ID);
       }
 
       function getMnfs()
       {
-        $mnf = $this->_create(EL_IS_MNF);
+        $mnf = $this->create(EL_IS_MNF);
         return $mnf->collection();
       }
 
       function getTm($ID)
       {
-        return $this->_create(EL_IS_TM, $ID);
+        return $this->create(EL_IS_TM, $ID);
       }
       
       function getSearchManager()
@@ -194,46 +202,56 @@ class elIShopFactory
         return $sa;
       }
       
-      function getTbs()
-      {
-        return $this->_tb;
-      }
-      
-      function tb($name)
-	{
-		return !empty($this->_tb[$name]) ? $this->_tb[$name] : null;
+
+	/**
+	 * return tables list
+	 *
+	 * @return array
+	 **/
+	function getTbs() {
+		return $this->_tb;
+	}
+
+	/**
+	 * return table by abbr name
+	 *
+	 * @param  string  $name  key of elIShopFactory::_tb
+	 * @return string
+	 **/
+	function tb($name) {
+		return isset($this->_tb[$name]) ? $this->_tb[$name] : null;
 	}
       /*********************************************************/
       //                     PRIVATE                           //
       /*********************************************************/
 
-      function _create( $hndl, $ID=0 )
-      {
-        if (empty($this->_classes[$hndl]))
-        {
-          return null;
-        }
+	/**
+	 * create and return object of required type
+	 *
+	 * @param  int   $hndl  obj type
+	 * @param  int   $ID    obj ID
+	 * @return object|null
+	 **/
+	function create($hndl, $ID=0) {
+		
+		if (empty($this->_classes[$hndl])) {
+			return null;
+		}
 
-			$c = $this->_classes[$hndl]['name'];
-			$this->_objs[$hndl] = new $c();
-          $tbs = $this->_classes[$hndl]['tbs'];
-          for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
-          {
-            $member = ($i==0) ? '_tb' : $tbs[$i];
-            $this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
-          }
+		$c = $this->_classes[$hndl]['name'];
+		$obj = new $c();
+		$tbs = $this->_classes[$hndl]['tbs'];
+		$i = count($tbs);
+		while ($i--) {
+			$member = ($i==0) ? '_tb' : $tbs[$i];
+			$obj->{$member} = $this->_tb[$tbs[$i]];
+		}
 
-        $obj = $this->_objs[$hndl];
-        $obj->idAttr((int)$ID);
+		$obj->idAttr((int)$ID);
+		$obj->fetch();
+		return $obj;
+	}
 
-        if ($obj->ID && !$obj->fetch())
-        {
-          $obj->clean();
-        }
-
-        return $obj;
-      }
-
-}
+} // END class 
 
 ?>

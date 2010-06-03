@@ -206,7 +206,7 @@ class elATS {
 		$this->form->add( new elText('elLogin', m('Login')) );
 		$this->form->add( new elPassword('elPass', m('Password')) );
 		$this->form->add( new elCData('fp', '<a href="'.EL_URL.'__profile__/remind/'.'">'.m('Forgot Your password?').'</a>') );
-		if ( $this->_regAllow ) {
+		if ( $this->conf('registrAllow') ) {
 			$this->form->add( new elCData('reg', '<a href="'.EL_URL.'__profile__/reg/'.'">'.m('New user registration').'</a>') );
 		}
 		$this->form->add(new elHidden('url', '', $url));

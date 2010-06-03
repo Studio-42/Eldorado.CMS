@@ -1,38 +1,37 @@
 <?php
-
+// object types
+define ('EL_IS_CAT',      1);
+define ('EL_IS_ITEM',     2);
+define ('EL_IS_ITYPE',    3);
+define ('EL_IS_PROP',     4);
+define ('EL_IS_MNF',      5);
+define ('EL_IS_TM',       6);
+// view types
 define('IS_VIEW_CATS',     1);
 define('IS_VIEW_MNFS',     2);
 
 define('EL_IS_USE_MNF',    1);
 define('EL_IS_USE_TM',     2);
 define('EL_IS_USE_MNF_TM', 3);
-
+// sort item variants
 define('EL_IS_SORT_NAME',  1);
 define('EL_IS_SORT_CODE',  2);
 define('EL_IS_SORT_PRICE', 3);
 define('EL_IS_SORT_TIME',  4);
 
-if (!defined('EL_CAT_DESCRIP_NO')) {
-	define('EL_CAT_DESCRIP_NO',      0);
-}
-if (!defined('EL_CAT_DESCRIP_IN_LIST')) {
-	define('EL_CAT_DESCRIP_IN_LIST', 1);
-}
-if (!defined('EL_CAT_DESCRIP_IN_SELF')) {
-	define('EL_CAT_DESCRIP_IN_SELF', 2);
-}
-if (!defined('EL_CAT_DESCRIP_IN_BOTH')) {
-	define('EL_CAT_DESCRIP_IN_BOTH', 3);
-}
-
-
-
+/**
+ * Internet shop module
+ *
+ * @package IShop
+ **/
 class elModuleIShop extends elModule {
 	var $_factory   = null;
 	var $_cat       = null;
 	var $_item      = null;
 	var $_jslib     = true;
 	var $_mMap      = array(
+		'cats'  => array('m' => 'viewCategories'),
+		'mnfs'  => array('m' => 'viewManufacturers'),
 		'item'  => array('m' => 'viewItem'),
 		'order' => array('m' => 'order') 
 	);
@@ -68,42 +67,95 @@ class elModuleIShop extends elModule {
  //**************************************************************************************//
  
 
-  function defaultMethod()
-  {
-    $this->_initRenderer();
-    if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) )
-    {
-        $sm = $this->_factory->getSearchManager();
-        if ( $sm->isConfigured() )
-        {
-          $this->_rnd->rndSearchForm( $sm->formToHtml(), $this->_conf('searchTitle') );
-          if ( $sm->hasSearchCriteria() )
-          {
-            if ( $sm->find() )
-            {
-              return $this->_rnd->rndSearchResult( $sm->getResult() );
-            }
-            else
-            {
-              elThrow(E_USER_WARNING, 'Nothing was found on this request');
-            }
-          }  
-        }
-        
-    }
+	function defaultMethod() {
+		
+		$this->_conf('default_view') == IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
+		
+		$this->_initRenderer();
+		if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) ) {
+		$sm = $this->_factory->getSearchManager();
+		if ( $sm->isConfigured() )
+		{
+		$this->_rnd->rndSearchForm( $sm->formToHtml(), $this->_conf('searchTitle') );
+		if ( $sm->hasSearchCriteria() )
+		{
+		if ( $sm->find() )
+		{
+		return $this->_rnd->rndSearchResult( $sm->getResult() );
+		}
+		else
+		{
+		elThrow(E_USER_WARNING, 'Nothing was found on this request');
+		}
+		}  
+		}
 
-    list($total, $current, $offset, $step) = $this->_getPagerInfo( $this->_cat->countItems() );
-    $this->_rnd->render( $this->_cat->getChilds( (int)$this->_conf('deep') ),
-                         $this->_factory->getItems( $this->_cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
-                         $total,
-                         $current,
-                         $this->_cat
-                      );
-  }
+		}
 
-	// add items to icart from external call (now used from OrderHistory)
-	function addToICart($itemID = null, $props = array(), $qnt = false)
-	{
+		list($total, $current, $offset, $step) = $this->_getPagerInfo( $this->_cat->countItems() );
+		$this->_rnd->render( $this->_cat->getChilds( (int)$this->_conf('deep') ),
+		         $this->_factory->getItems( $this->_cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
+		         $total,
+		         $current,
+		         $this->_cat
+		      );
+	}
+
+	/**
+	 * display categories
+	 *
+	 * @return void
+	 **/
+	function viewCategories() {
+		$this->_initRenderer();
+		$cat = $this->_category($this->_arg());
+
+		// elPrintr($cat);
+		list($total, $current, $offset, $step) = $this->_getPagerInfo( $cat->countItems() );
+		$this->_rnd->render( $cat->getChilds( (int)$this->_conf('deep') ),
+		         $this->_factory->getItems( $cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
+		         $total,
+		         $current,
+		         $cat
+		      );
+		echo $total;
+	}
+
+	/**
+	 * display manufacturers 
+	 *
+	 * @return void
+	 **/
+	function viewManufacturers() {
+		$this->_initRenderer();
+		echo "mnfs";
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _category($ID) {
+		$cat = $this->_factory->create(EL_IS_CAT, $ID ? $ID : 1);
+		if (!$cat->ID) {
+			header('HTTP/1.x 404 Not Found');
+			if ($ID == 1) {
+				$nav = &elSingleton::getObj('elNavigator');
+				$cat->makeRootNode($nav->getPageName($this->pageID));
+			}
+			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $ID), EL_URL);
+		}
+		return $cat;
+	}
+
+	/**
+	 * add items to icart from external call (now used from OrderHistory)
+	 *
+	 * @return void
+	 **/
+	function addToICart($itemID = null, $props = array(), $qnt = false) {
 		return $this->_addToICart($itemID, $props, $qnt);
 	}
 
@@ -117,7 +169,6 @@ class elModuleIShop extends elModule {
 		$itemID = (int)$this->_arg(1);
 		$url    = EL_URL.'item/'.$catID.'/'.$itemID.'/';
 
-		// elPrintR($data);
 		elLoadMessages('ServiceICart');
 		$ICart = & elSingleton::getObj('elICart');
 
@@ -171,31 +222,21 @@ class elModuleIShop extends elModule {
 			.$xml."";
   }
 
-  function configureCrossLinks()
-	{
-    $clm = & $this->_getCrossLinksManager();
-    if ( !$clm->confCrossLinks() )
-    {
-      $this->_initRenderer();
-		  return $this->_rnd->addToContent($clm->formToHtml());
-    }
-    elMsgBox::put( m('Configuration was saved') );
-	  elLocation( EL_URL );
-	}
+
 
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
 
-	function _addToICart($itemID = null, $props = array(), $qnt = 1)
-	{
-		if (!$itemID)
-		{
-			return false;
-		}
-		$item = $this->_factory->getItem($itemID);
-		if (!$item->ID or !$item->price or $qnt < 1)
-		{
+	/**
+	 * add to icart routine
+	 *
+	 * @return bool
+	 **/
+	function _addToICart($itemID = null, $props = array(), $qnt = 1) {
+	
+		$item = $this->_factory->getItem((int)$itemID);
+		if (!$item->ID or !$item->price or $qnt < 1) {
 			return false;
 		}
 
@@ -225,24 +266,27 @@ class elModuleIShop extends elModule {
 		);
 
 		$ICart = & elSingleton::getObj('elICart');
-		for ($i = 0; $i < $qnt; $i++)
-		{
-			if (!$ICart->add($data))
-			{
+		for ($i = 0; $i < $qnt; $i++) {
+			if (!$ICart->add($data)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-  function _getPagerInfo($qnt)
-  {
-    $cur    = 0 < $this->_arg(1) ? (int)$this->_arg(1) : 1;
-    $i      = 0 < $this->_conf('itemsPerPage') ? (int)$this->_conf('itemsPerPage') : 10;
-    $total  = ceil($qnt/$i);
-    $offset = $i*($cur-1);
-    return array($total, $cur <= $total ? $cur : 1, $offset, $i);
-  }
+	/**
+	 * return number of pages, current page number, sql offset, sql step for items in category
+	 *
+	 * @param  int   $qnt  number of items
+	 * @return array
+	 **/
+	function _getPagerInfo($qnt) {
+		$cur    = 0 < $this->_arg(1) ? (int)$this->_arg(1) : 1;
+		$i      = 0 < $this->_conf('itemsPerPage') ? (int)$this->_conf('itemsPerPage') : 10;
+		$total  = ceil($qnt/$i);
+		$offset = $i*($cur-1);
+		return array($total, $cur <= $total ? $cur : 1, $offset, $i);
+	}
 
   function _initRenderer()
   {
@@ -270,50 +314,31 @@ class elModuleIShop extends elModule {
   }
 
 
-  /**
-   * Создает  фабрику
-   * тут а не в _onInit() потому что в методы для редактирования товаров
-   * должны быть добавлены в _initAdmin() дочернего объекта,
-   * который вызывается до _onInit()
-   *
-   */
-  function _initNormal()
-  {
-    parent::_initNormal();
-    $this->_factory = & elSingleton::getObj('elIShopFactory');
-    $this->_factory->init($this->pageID, $this->_conf);
-  }
+	/**
+	* Создает  фабрику
+	* тут а не в _onInit() потому что в методы для редактирования товаров
+	* должны быть добавлены в _initAdmin() дочернего объекта,
+	* который вызывается до _onInit()
+	*
+	* @return void
+	*/
+	function _initNormal() {
+		parent::_initNormal();
+		$this->_factory = & elSingleton::getObj('elIShopFactory');
+		$this->_factory->init($this->pageID, $this->_conf);
+	}
 
     /**
-   * Создает текущую категорию
-   * если категории с  требуемым id нет - редирект на корень каталога
-   * если нет корневой категории - пытается создать - в случае неудачи
-   * - сообщает об ошибке и редиректит на корень сайта
-   *
+    * Создает текущую категорию
+    * если категории с  требуемым id нет - редирект на корень каталога
+    * если нет корневой категории - пытается создать - в случае неудачи
+    * - сообщает об ошибке и редиректит на корень сайта
+    *
+	* @return void
    */
 	function _onInit() {
-    $catID = $this->_arg(0) ;
-    if ( $catID <= 0 )
-    {
-      $catID = 1;
-    }
+		$this->_cat = $this->_factory->create(EL_IS_CAT);
 
-    $this->_cat = $this->_factory->getCategory($catID);
-
-    if ( empty($this->_cat->ID) )
-		{
-		  if (1 <> $catID)
-		  {
-			header('HTTP/1.x 404 Not Found'); 
-		    elLocation(EL_URL);
-		  }
-
-		  $nav = & elSingleton::getObj('elNavigator');
-			if ( !$this->_cat->makeRootNode( $nav->getPageName($this->pageID) ) )
-			{
-			  elThrow(EL_USER_ERROR, 'Critical error in module! %s', m('Could not create root category! Check DB tables!'), EL_BASE_URL);
-			}
-		}
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 		
 		$cur  = &elSingleton::getObj('elCurrency');
@@ -338,6 +363,6 @@ class elModuleIShop extends elModule {
 		}
   }
 
-}
+} // END class
 
 ?>

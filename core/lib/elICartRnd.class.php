@@ -87,7 +87,7 @@ class elICartRnd {
 		}
 
 		$this->_te->assignVars(array(
-			'delivery_fee'=>$val['fee'],
+			'delivery_price'   => $val['price'],
 			'delivery_comment' => $val['comment']
 			));
 		
@@ -163,9 +163,9 @@ class elICartRnd {
 		}
 		
 		if ($this->steps['delivery']['enable']) {
-			if ($delivery['fee']) {
+			//if ($delivery['fee']) {
 				$this->_te->assignBlockVars('ICART_DELIVERY_PRICE', array('price' => $delivery['price'], 'total' => $total));
-			}
+			//}
 			if ($delivery['region_id']) {
 				$this->_te->assignBlockVars('ICART_DELIVERY', $delivery);
 				if ($delivery['comment']) {

@@ -143,7 +143,7 @@ class elSubModuleCommonControl extends elModule
 			{
 				$this->_params[$k]['label'] = m($this->_params[$k]['label']);
 				$currency = &elSingleton::getObj('elCurrency');
-				$this->_params[$k]['val']   = $currency->current['name'];
+				$this->_params[$k]['val']   = m($currency->current['name']);
 			}
 			elseif('jsCacheTime' == $k)
 			{

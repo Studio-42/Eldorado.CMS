@@ -421,7 +421,7 @@ class IShopImportLexus
 			
 			// 2.5.2 insert new to db and generate tmbs
 			$_image = new myElImage;
-
+			$photo_xml = array();
 			if (isset($car['PHOTOS']) and is_array($car['PHOTOS']))
 			{
 				foreach ($car['PHOTOS'] as $photo)
@@ -431,6 +431,7 @@ class IShopImportLexus
 					{
 						$path = substr($p, strpos($p, '/storage/'));
 						//print "$p => $path\n";
+						array_push($photo_xml, $path);
 						if (in_array($path, $photo_db))
 						{
 							continue; // skip if already in db
@@ -459,7 +460,18 @@ class IShopImportLexus
 				}
 			}
 
-			// 2.5.3 remove unused images
+			// 2.5.3 remove unused images from db
+			foreach ($photo_db as $img_id => $photo)
+			{
+				if (!in_array($photo, $photo_xml))
+				{
+					print "Delete $photo\n";
+					$sql = "DELETE FROM ".$this->tb_gal." WHERE id=%d LIMIT 1";
+					$sql = sprintf($sql, $img_id);
+					mysql_query($sql);
+				}
+			}
+			//var_dump($photo_xml);
 			
 		}
 	}

@@ -24,7 +24,7 @@ class elCurrency {
 			'name'      => 'Russian Ruble',
 			'symbol'    => 'руб.',
 			'point'     => ',',
-			'separator' => '.',
+			'separator' => ' ',
 			'cbrCode'   => ''
 			),
 		'UAH' => array(

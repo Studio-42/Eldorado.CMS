@@ -1,10 +1,5 @@
 <?php
 
-
-
-
-
-
 define ('EL_IS_PROP_STR',   1);
 define ('EL_IS_PROP_TXT',   2);
 define ('EL_IS_PROP_LIST',  3);
@@ -31,11 +26,10 @@ include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 
 /**
- * IShop factory
+ * IShop factory and regisry for item types
  *
  * @package IShop
  **/
- 
 class elIShopFactory {
   var $pageID = 0;
   var $_types = array();
@@ -99,6 +93,7 @@ class elIShopFactory {
 		$this->_db    = & elSingleton::getObj('elDb');
 		$type         = $this->create(EL_IS_ITYPE);
 		$this->_types = $type->collection(); 
+		// elPrintr($this->_types);
 		$this->_conf  = $conf;
 	}
 
@@ -110,6 +105,22 @@ class elIShopFactory {
 	 **/
 	function getCategory($ID=0) {
 		return $this->create(EL_IS_CAT, $ID);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function &getType($ID) {
+		return isset($this->_types[$ID]) ? $this->_types[$ID] : $this->_types[array_pop(array_keys($this->_types))];
+		if (isset($this->_types[$ID])) {
+			return $this->_types[$ID];
+		}
+		$i = array_pop(array_keys($this->_types));
+		return $this->_types[$i];
+		return isset($this->_types[$ID]) ? $this->_types[$ID] : current($this->_types);
 	}
 
       function &getItemType($ID)
@@ -157,13 +168,18 @@ class elIShopFactory {
       {
         return $this->_types;
       }
-
-      function getItems( $catID, $sortID, $offset, $step )
-      {
-        //$item = $this->_create(EL_IS_ITEM);
-        $item = $this->getItem(0);
-        return $item->getByCategory( $catID, $sortID, $offset, $step );
-      }
+	/**
+	 * return items from category
+	 *
+	 * @param  int  $catID
+	 * @param  int  $offset
+	 * @param  int  $step
+	 * @return array
+	 **/
+	function getItems($catID, $offset, $step) {
+		$item = $this->create(EL_IS_ITEM);
+		return $item->getByCategory($catID, $this->_conf['itemsSortID'], $offset, $step);
+	}
 
       function countItemsByType( $typeID )
       {

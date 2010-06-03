@@ -110,15 +110,17 @@ class elModuleIShop extends elModule {
 		$this->_initRenderer();
 		$cat = $this->_category($this->_arg());
 
-		// elPrintr($cat);
-		list($total, $current, $offset, $step) = $this->_getPagerInfo( $cat->countItems() );
+		$t = $this->_factory->getType(2);
+
+		elPrintr($t);
+		list($total, $current, $offset, $step) = $this->_getPagerInfo($cat->countItems());
 		$this->_rnd->render( $cat->getChilds( (int)$this->_conf('deep') ),
-		         $this->_factory->getItems( $cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
+		         $this->_factory->getItems( $cat->ID, $offset, $step ),
 		         $total,
 		         $current,
 		         $cat
 		      );
-		echo $total;
+
 	}
 
 	/**

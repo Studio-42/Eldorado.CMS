@@ -105,7 +105,7 @@ class elIShopItem extends elCatalogItem
         .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
         .' WHERE i2c.c_id=\''.$catID.'\' AND i.id=i2c.i_id '
         .' ORDER BY '.$this->_getOrderBy($sortID).' LIMIT '.$offset.', '.$step;
-
+	// echo $sql;
     $db->query( $sql );
     $factory = & elSingleton::getObj('elIShopFactory');
     while( $row = $db->nextRecord() )

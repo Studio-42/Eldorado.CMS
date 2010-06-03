@@ -109,7 +109,7 @@ class elModuleActionLog extends elModule
 		$records = array();
 		foreach ($ret as $r)
 		{
-			$user->setUniqAttr($r['uid']);
+			$user->idAttr($r['uid']);
 			$user->fetch();
 			$r['user']   = $user->getFullName(true);
 			$r['module'] = $nav->getPageName($r['mid']);

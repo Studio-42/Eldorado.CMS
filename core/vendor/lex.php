@@ -5,7 +5,9 @@
  * @author Troex Nevelin <troex@fury.scancode.ru>
  */
 
-chdir('../');
+// TODO tm from model
+
+//chdir('../');
 
 require_once './core/vendor/XMLParseIntoStruct.class.php';
 
@@ -17,39 +19,40 @@ class IShopImportLexus
 	var $props     = array();
 
 	var $prop_bind = array(
-		'AREA'             => '15',
-		'MNFCDATE'         => '5',
+		'AREA'             => '13',
+		'MNFCDATE'         => '4',
 		'BODYTYPE'         => '1',
-		'ENGINETYPE'       => '6',
-		'TRANSMISSIONTYPE' => '9',
-		'CHASSISTYPE'      => '10'
+		'ENGINETYPE'       => '5',
+		'TRANSMISSIONTYPE' => '8',
+		'CHASSISTYPE'      => '9'
 	);
 	var $attr_bind = array(
 		'PRICEUSD'         => '16',
 		'MILEAGEKM'        => '2',
-		'ENGINEPOWER'      => '7',
-		'ENGINECUBATURE'   => '8',
+		'ENGINEPOWER'      => '6',
+		'ENGINECUBATURE'   => '7',
 		'COLOR'            => '3',
-		'INTERNALS'        => '12',
-		'COMPLECTATION'    => '13',
-		'DESCRIPTION'      => '14'
+		'INTERNALS'        => '10',
+		'COMPLECTATION'    => '11',
+		'DESCRIPTION'      => '12'
 	);
 
-	var $itype_id      = '3';
+	var $itype_id  = '1';
 
 	var $m;
 
 	var $my_host   = 'localhost';
 	var $my_user   = 'root';
 	var $my_pass   = '';
-	var $my_db     = 'lexus';
+	var $my_db     = 'velican';
 
-	var $shop_id   = '29';
+	var $shop_id   = '2';
 	var $tb_prop_value;
 	var $tb_mnf;
 	var $tb_item;
 	var $tb_p2i;
 	var $tb_i2c;
+	var $tb_tm;
 
 	function __construct()
 	{
@@ -58,7 +61,8 @@ class IShopImportLexus
 		$this->tb_item       = 'el_ishop_'.$this->shop_id.'_item';
 		$this->tb_p2i        = 'el_ishop_'.$this->shop_id.'_p2i';
 		$this->tb_i2c        = 'el_ishop_'.$this->shop_id.'_i2c';
-		
+		$this->tb_tm         = 'el_ishop_'.$this->shop_id.'_tm';
+
 		$this->m = mysql_connect($this->my_host, $this->my_user, $this->my_pass);
 		mysql_query("SET NAMES 'utf8'", $this->m);
 		mysql_select_db($this->my_db, $this->m);
@@ -97,7 +101,7 @@ class IShopImportLexus
 				foreach ($cars['child'] as $a)
 				{
 					$k = $a['name'];
-					$v = $a['content'];
+					$v = isset($a['content']) ? $a['content'] : '';
 
 					if ($k == 'MNFCDATE')
 						$v = date('Y', strtotime($v));
@@ -258,6 +262,46 @@ class IShopImportLexus
 		}
 	}
 
+	/**
+	 * Load TradeMarks to DB from XML
+	 *
+	 * @return void
+	 **/
+	function loadTM()
+	{
+		$r = mysql_query("SELECT mnf.name AS mnf, tm.name AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id", $this->m);
+		$tm_db = array();
+		while ($m = mysql_fetch_assoc($r))
+		{
+			$tm_db[$m['mnf']][$m['tm']] = 1;
+		}
+		//var_dump($tm_db);
+
+		$tm_xml = array();
+		foreach ($this->cars as $car)
+		{
+			$tm_xml[$car['BRAND']][$car['MODEL']] = 1;
+		}
+		//var_dump($tm_xml);
+
+		foreach ($tm_xml as $mnf => $model)
+		{
+			foreach ($model as $m => $value)
+			{
+				echo "$mnf => $m\n";
+				if (isset($tm_db[$mnf][$m]) and $tm_db[$mnf][$m] == 1)
+				{
+					continue;
+				}
+				$mnf_id = $this->_getMnfByName($mnf);
+				$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, '$m')";
+				mysql_query($sql);
+			}
+		}
+	}
+
+
+
 	// delete old
 	// construct new auto
 	// get mnf id
@@ -308,8 +352,8 @@ class IShopImportLexus
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
 			if (in_array($car['CARID'], $new_cars))
 			{
-				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, code, name, price, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
-				$sql = sprintf($sql, $mnf_id, $car['CARID'], $car['MODEL'], $car['PRICERUB'], time(), time());
+				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
+				$sql = sprintf($sql, $mnf_id, $car['CARID'], $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], time(), time());
 				mysql_query($sql, $this->m);
 				$i_id = mysql_insert_id();
 				echo " (insert)\n";
@@ -321,8 +365,8 @@ class IShopImportLexus
 				$r = mysql_query($sql, $this->m);
 				$id = mysql_fetch_assoc($r);
 				$i_id = $id['id'];
-				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', name='%s', price='%s', mtime='%d' WHERE id='%d' LIMIT 1";
-				$sql = sprintf($sql, $mnf_id, $car['MODEL'], $car['PRICERUB'], time(), $i_id);
+				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', mtime='%d' WHERE id='%d' LIMIT 1";
+				$sql = sprintf($sql, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], time(), $i_id);
 				mysql_query($sql, $this->m);
 				echo " (update)\n";
 			}
@@ -359,7 +403,15 @@ class IShopImportLexus
 			mysql_query($sql, $this->m);
 		}
 	}
-	
+
+	function _getTMByName($mnf_id = null, $name = null)
+	{
+		$sql = "SELECT id FROM ".$this->tb_tm." WHERE mnf_id=$mnf_id AND name='".$name."' LIMIT 1";
+		$r = mysql_query($sql, $this->m);
+		$tm = mysql_fetch_assoc($r);
+		return $tm['id'];
+	}
+
 	function _getMnfByName($name = null)
 	{
 		$sql = "SELECT id FROM ".$this->tb_mnf." WHERE name='".$name."' LIMIT 1";
@@ -377,7 +429,7 @@ class IShopImportLexus
 	}
 }
 
-$file = '/home/troex/Downloads/TradeIn.xml';
+$file = './TradeIn.xml';
 
 $import = new IShopImportLexus();
 $import->file = $file;
@@ -387,6 +439,8 @@ $import->getProps();
 
 $import->loadProps();
 $import->loadMnf();
+$import->loadTM();
+
 $import->loadCars();
 //print_r($import->props);
 //print_r($import->cars);

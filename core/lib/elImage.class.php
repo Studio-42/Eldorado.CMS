@@ -273,7 +273,6 @@ class elImage {
 		imagedestroy($out);
 		
 		return true;
-		echo 'HERE';
 	}
 	
 	

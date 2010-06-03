@@ -166,7 +166,7 @@ FROM el_order_item AS i, el_order AS o
 WHERE i.order_id = o.id AND o.state <> "aborted" LIMIT 1';
 		$db->query($sql);
 		$r = $db->nextRecord();
-		$name = m('Other goods') . ' ('. m('Quantity') . ': '. $r['qnt'] . ', '
+		$name = m('Other goods') . ' ('. m('Quantity') . ': '. ($r['qnt'] - $qnt) . ', '
 		      . m('Total') . ': '. ($r['sum'] - $sum) . ')';
 		$top[$name] = $r['qnt'] - $qnt;
 		return $top;

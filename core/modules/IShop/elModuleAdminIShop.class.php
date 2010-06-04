@@ -38,6 +38,20 @@ class elModuleAdminIShop extends elModuleIShop
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
+
+	function editCat()  {
+		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
+		if (!$cat->ID && $this->_args[0]>0) {
+			$cat->parentID = (int)$this->_args[0];
+		}
+		if (!$cat->editAndSave()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent( $cat->formToHtml() );
+		}
+		elMsgBox::put( m('Data saved') );
+		elLocation(EL_URL.$this->_cat->ID);
+	}
+
 	/**********    манипуляции с типами товаров   *******************/
 
 	/**
@@ -248,23 +262,7 @@ class elModuleAdminIShop extends elModuleIShop
   }
   /*********    Манипуляции с категориями    ********************/
 
-  /**
-   * Создание/редактирование категории
-   *
-   */
-	function editCat()
-  {
-    $cat =  $this->_factory->getCategory( (int)$this->_arg(1) );
-    $cat->parentID = $this->_cat->ID;
 
-    if ( !$cat->editAndSave() )
-    {
-      $this->_initRenderer() ;
-      return$this->_rnd->addToContent( $cat->formToHtml() );
-    }
-    elMsgBox::put( m('Data saved') );
-    elLocation( EL_URL.$this->_cat->ID );
-  }
 
   /**
    * Удаление непустой категории
@@ -582,12 +580,6 @@ class elModuleAdminIShop extends elModuleIShop
 				EL_IS_SORT_PRICE => m('By price'),
 				EL_IS_SORT_TIME  => m('By publish date')
 			),
-			// 'mnf' =>  array(
-			// 	m('Do not use'),
-			// 	EL_IS_USE_MNF    => m('Use only manufacturers info'),
-			// 	EL_IS_USE_TM     => m('Use only trade marks info'),
-			// 	EL_IS_USE_MNF_TM => m('Use both - manufacturers and trade marks info')
-			// ),
 			'nums'    => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
 			'imgSize' => array(50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500),
 			'posLR'   => array(EL_POS_LEFT=>m('left'), EL_POS_RIGHT=>m('right')),

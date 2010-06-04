@@ -262,7 +262,7 @@ class elSubModuleMainNav extends elModule
 
   function _modulesList()
   {
-    $db = & $this->getDb();
+    $db = & elSingleton::getObj('elDb');
     return $db->queryToArray('SELECT module, IF(""<>descrip, descrip, module) AS name FROM el_module ORDER BY name', 'module', 'name');
   }
 

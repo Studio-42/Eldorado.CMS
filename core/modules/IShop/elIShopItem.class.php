@@ -2,40 +2,58 @@
 
 include_once 'elCatalogItem.class.php';
 
-class elIShopItem extends elCatalogItem
-{
-  var $mnfNfo     = EL_IS_USE_MNF;
-  var $tbmnf      = '';
-  var $tbp2i      = '';
-  var $tbi2c      = '';
-  var $tbgal      = '';
-  var $tb         = '';
-  var $ID         = 0;
-  var $typeID     = 0;
-  var $mnfID      = 0;
-  var $tmID       = 0;
-  var $code       = '';
-  var $name       = '';
-  var $announce   = '';
-  var $content    = '';
-  var $price      = 0;
-  var $img        = '';
-  var $gallery    = array();
-  var $crtime     = 0;
-  var $mtime      = 0;
-  var $propVals   = array();
-  var $type       = null;
-  var $mnf        = '';
-  var $mnfCountry = '';
-  var $tm         = '';
-  var $_sortVars  = array(
-    EL_IS_SORT_NAME  => 'name',
-    EL_IS_SORT_CODE  => 'code, name',
-    EL_IS_SORT_PRICE => 'price DESC, name',
-    EL_IS_SORT_TIME  => 'crtime DESC, name'
-    );
-  var $_objName = 'Good';
+class elIShopItem extends elCatalogItem {
+	var $tbmnf      = '';
+	var $tbp2i      = '';
+	var $tbi2c      = '';
+	var $tbgal      = '';
+	var $ID         = 0;
+	var $typeID     = 0;
+	var $mnfID      = 0;
+	var $tmID       = 0;
+	var $code       = '';
+	var $name       = '';
+	var $announce   = '';
+	var $content    = '';
+	var $price      = 0;
+	var $img        = '';
+	var $gallery    = array();
+	var $crtime     = 0;
+	var $mtime      = 0;
+	var $propVals   = array();
+	var $type       = null;
+	var $mnf        = null;
+	var $tm         = null;
+	var $_sortVars  = array(
+		EL_IS_SORT_NAME  => 'name',
+		EL_IS_SORT_CODE  => 'code, name',
+		EL_IS_SORT_PRICE => 'price DESC, name',
+		EL_IS_SORT_TIME  => 'crtime DESC, name'
+		);
+	var $_objName = 'Product';
   
+
+	/**
+	 * return item manufacturer
+	 *
+	 * @return elIShopManufacturer
+	 **/
+	function getMnf() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->getFromRegistry(EL_IS_MNF, $this->mnfID);
+	}
+
+	/**
+	 * return item trademark
+	 *
+	 * @return elIShopTm
+	 **/
+	function getTm() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->getFromRegistry(EL_IS_TM, $this->tmID);
+	}
+	
+
   /**
    * Извлекает поля объкта из БД
    *
@@ -85,37 +103,45 @@ class elIShopItem extends elCatalogItem
     return true;
   }
 
-  /**
-   * Возвращает массив объектов-итемов в данной категории
-   *
-   * @param int $catID
-   * @param int $sortID
-   * @param int $offset
-   * @param int $step
-   * @return array
-   */
-  function getByCategory($catID, $sortID, $offset, $step)
-  {
-    $items = array();
-    $db    = & elSingleton::getObj('elDb');
-
-    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
-        .' FROM '.$this->tbi2c.' AS i2c, '.$this->_tb.' AS i '
-        .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
-        .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
-        .' WHERE i2c.c_id=\''.$catID.'\' AND i.id=i2c.i_id '
-        .' ORDER BY '.$this->_getOrderBy($sortID).' LIMIT '.$offset.', '.$step;
+   /**
+	* Возвращает массив объектов-итемов в данной категории
+	*
+	* @param int $catID
+	* @param int $sortID
+	* @param int $offset
+	* @param int $step
+	* @return array
+    */
+	function getByCategory($catID, $sortID, $offset, $step) {
+	    $items   = array();
+	    $db      = & elSingleton::getObj('elDb');
+		$factory = & elSingleton::getObj('elIShopFactory');
+		
+		$sql = 'SELECT %s FROM %s AS i2c, %s AS i WHERE i2c.c_id=%d AND i.id=i2c.i_id ORDER BY %s LIMIT %d, %d ';
+		$sql = sprintf($sql, $this->attrsToString('i'), $this->tbi2c, $this->_tb, $catID, $this->_getOrderBy($sortID), $offset, $step);
+		$db->query($sql); 
+		while ($row = $db->nextRecord()) {
+			$items[$row['id']] = $this->copy($row);
+			// $items[$row['id']]->setType($factory->getType($row['type_id']));
+	    }
+		return $items;
+    // $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
+    //     .' FROM '.$this->tbi2c.' AS i2c, '.$this->_tb.' AS i '
+    //     .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
+    //     .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
+    //     .' WHERE i2c.c_id=\''.$catID.'\' AND i.id=i2c.i_id '
+    //     .' ORDER BY '.$this->_getOrderBy($sortID).' LIMIT '.$offset.', '.$step;
 	// echo $sql;
-    $db->query( $sql );
-    $factory = & elSingleton::getObj('elIShopFactory');
-    while( $row = $db->nextRecord() )
-    {
-      $items[$row['id']]             = $this->copy($row);
-      $items[$row['id']]->mnf        = $row['mnf'];
-      $items[$row['id']]->mnfCountry = $row['country'];
-      $items[$row['id']]->tm         = $row['tm'];
-      $items[$row['id']]->setType( $factory->getItemType( $row['type_id'] ) );
-    }
+		
+    
+    // while( $row = $db->nextRecord() )
+    // {
+    //   $items[$row['id']]             = $this->copy($row);
+    //   $items[$row['id']]->mnf        = $row['mnf'];
+    //   $items[$row['id']]->mnfCountry = $row['country'];
+    //   $items[$row['id']]->tm         = $row['tm'];
+    //   $items[$row['id']]->setType( $factory->getItemType( $row['type_id'] ) );
+    // }
 
     if ( !empty($items) )
     {
@@ -131,7 +157,7 @@ class elIShopItem extends elCatalogItem
     return $items;
   }
 
-  
+
   /**
    * Возвращает массив объектов-итемов полученный в рез-те поиска
    *
@@ -702,16 +728,19 @@ class elIShopItem extends elCatalogItem
     return true;
   }
 
-  function _attrsForSave()
-  {
-    $attrs = parent::_attrsForSave();
-    $attrs['mtime'] = time();
-    if ( !$this->ID )
-    {
-      $attrs['crtime'] = time();
-    }
-    return $attrs;
-  }
+	/**
+	 * update timestamps before save
+	 *
+	 * @return array
+	 **/
+	function _attrsForSave() {
+		$attrs = parent::_attrsForSave();
+		$attrs['mtime'] = time();
+		if (!$this->ID) {
+			$attrs['crtime'] = time();
+		}
+		return $attrs;
+	}
 
 
   /**
@@ -757,34 +786,37 @@ class elIShopItem extends elCatalogItem
 	}
 
 	/**
-	 * возвращает фрагмент sql-кода - правило сортировки коллекциии товаров
+	 * return sql fragment "order by" depend on required sort field
 	 *
-	 * @param int $sortID
+	 * @param  int     $sortID  sort index
 	 * @return string
-	 */
-  function _getOrderBy($sortID)
-  {
-  	$orderBy = !empty($this->_sortVars[$sortID]) ? $this->_sortVars[$sortID] : $this->_sortVars[1];
-  	return 'IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), '.$orderBy;
-  }
+	 **/
+	function _getOrderBy($sortID) {
+		$orderBy = !empty($this->_sortVars[$sortID]) ? $this->_sortVars[$sortID] : $this->_sortVars[1];
+		return 'IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), '.$orderBy;
+	}
 
-  function _initMapping()
-  {
-    $map = array(
-      'id'       => 'ID',
-      'type_id'  => 'typeID',
-      'mnf_id'   => 'mnfID',
-      'tm_id'    => 'tmID',
-      'code'     => 'code',
-      'name'     => 'name',
-      'announce' => 'announce',
-      'content'  => 'content',
-      'price'    => 'price',
-      'crtime'   => 'crtime',
-      'mtime'    => 'mtime'
-      );
-    return $map;
-  }
+	/**
+	 * init attrs mapping
+	 *
+	 * @return array
+	 **/
+	function _initMapping() {
+		$map = array(
+			'id'       => 'ID',
+			'type_id'  => 'typeID',
+			'mnf_id'   => 'mnfID',
+			'tm_id'    => 'tmID',
+			'code'     => 'code',
+			'name'     => 'name',
+			'announce' => 'announce',
+			'content'  => 'content',
+			'price'    => 'price',
+			'crtime'   => 'crtime',
+			'mtime'    => 'mtime'
+			);
+		return $map;
+	}
 
 }
 

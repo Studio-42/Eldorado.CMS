@@ -1,36 +1,67 @@
 <?php
 include_once EL_DIR_CORE.'lib/elCatalogRenderer.class.php';
 
-class elRndIShop extends elCatalogRenderer
-{
-  var $_tpls    = array(
-						'item'   => 'item.html',
-						'img'    => 'itemImg.html',
-						'search' => 'search-form.html',
-						'mnfs'  => 'mnfs.html',
-						'types' => 'types.html',
-						'sConf' => 'search-conf.html'
-						);
-  var $_admTpls = array(
-						'item'  => 'adminItem.html',
-						'types' => 'adminTypes.html',
-						'mnfs'  => 'adminMnfs.html',
-                        'sConf' => 'adminSearchConf.html'
-                        );
-  
-  var $_cssClassPrefix = 'is';
+class elRndIShop extends elCatalogRenderer {
+	var $_tpls    = array(
+		'item'   => 'item.html',
+		'search' => 'search-form.html',
+		'mnfs'   => 'mnfs.html',
+		'types'  => 'types.html',
+		'sConf'  => 'search-conf.html'
+	);
 
-  var $_itemPropBlocks = array(
-	  'top'    => 'IS_IPROP_TOP',
-	  'middle' => 'IS_IPROP_MIDDLE',
-	  'table'  => 'IS_IPROP_TABLE',
-	  'bottom' => 'IS_IPROP_BOTTOM'
-	  );
+	/**
+	 * undocumented class variable
+	 *
+	 * @var string
+	 **/
+	var $_currency = null;
+	var $_curOpts = array();
 
-  var $_ipBlocks = array(
-    'top'    => array('IS_IPROPS_TOP', 'IP_TOP'),
-    'middle' => array('IS_IPROPS_MIDDLE', 'IP_TOP')
-  );
+	var $_itemPropBlocks = array(
+		'top'    => 'IS_IPROP_TOP',
+		'middle' => 'IS_IPROP_MIDDLE',
+		'table'  => 'IS_IPROP_TABLE',
+		'bottom' => 'IS_IPROP_BOTTOM'
+		);
+
+	var $_ipBlocks = array(
+		'top'    => array('IS_IPROPS_TOP', 'IP_TOP'),
+		'middle' => array('IS_IPROPS_MIDDLE', 'IP_TOP')
+		);
+
+	/**
+	 * initilize object
+	 *
+	 * @return void
+	 **/
+	function init($moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null) {
+		parent::init($moduleName, $conf, $prnt, $admin, $tabs, $curTab);
+		$this->_currency = &elSingleton::getObj('elCurrency');
+		$this->_curOpts = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate'),
+			'format'      => true,
+			'symbol'      => 1
+			);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function setViewOpts($view, $catID, $mnfID) {
+		echo $view;
+		if ($view != $this->_conf('default_view')) {
+			
+		}
+	}
+
 
   function _getItemPropsBlocks($pos)
   {
@@ -316,6 +347,46 @@ class elRndIShop extends elCatalogRenderer
     }
   }
 
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _rndItemInList($block, $item, $css) {
+		$this->_te->assignBlockVars($block.'.ITEM', $css, 1);
+		$this->_te->assignBlockVars($block.'.ITEM', $item->toArray(), 2);
+		$mnf = $item->getMnf();
+		if ($mnf->ID) {
+			$this->_te->assignBlockVars($block.'.ITEM.MNF', $mnf->toArray(), 2);
+		}
+		$tm = $item->getTm();
+		if ($tm->ID) {
+			$this->_te->assignBlockVars($block.'.ITEM.TM', $tm->toArray(), 2);
+		}
+		
+		if ($this->_admin) {
+			$this->_te->assignBlockVars($block.'.ITEM.ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID), 2);
+		}
+		if ($this->_conf('displayCode')) {
+			$this->_te->assignBlockVars($block.'.ITEM.CODE', array('code'=>$item->code), 2);
+  		}
+		if ($item->price > 0) {
+			$this->_te->assignBlockVars($block.'.ITEM.PRICE', array('id' => $item->ID, 'price'=>$this->_price($item->price)), 2);
+  		}
+	}
+
+	/**
+	 * convert/format price
+	 *
+	 * @param  number  $price
+	 * @return string
+	 **/
+	function _price($price) {
+		return $this->_currency->convert($price, $this->_curOpts);
+	}
+
 	/**
 	 * Рисует список товаров в одну колонк
 	 *
@@ -323,6 +394,7 @@ class elRndIShop extends elCatalogRenderer
 	 * @return void
 	 **/
 	function _rndItemsOneColumn($items) {
+		
 		$i = 0;
 		$currency = &elSingleton::getObj('elCurrency');
 		$curOpts = array(
@@ -335,7 +407,13 @@ class elRndIShop extends elCatalogRenderer
 			'symbol'      => 1
 			);
 		foreach ($items as $item) {
-			$data = $item->toArray();
+			// elPrintR($item->getMnf());
+			// $data = $item->toArray();
+			$css = array('cssRowClass' => $i++%2 ? 'strip-odd' : 'strip-ev');
+			
+			$this->_rndItemInList('ITEMS_ONECOL', $item, $css);
+			continue;
+			
 			$data['cssRowClass'] = $i++%2 ? 'strip-odd' : 'strip-ev';
 			$this->_te->assignBlockVars('ITEMS_ONECOL.ITEM', $data, 1);
 			if ($this->_admin) {

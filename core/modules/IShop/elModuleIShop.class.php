@@ -7,8 +7,8 @@ define ('EL_IS_PROP',     4);
 define ('EL_IS_MNF',      5);
 define ('EL_IS_TM',       6);
 // view types
-define('IS_VIEW_CATS',     1);
-define('IS_VIEW_MNFS',     2);
+define('EL_IS_VIEW_CATS',     1);
+define('EL_IS_VIEW_MNFS',     2);
 
 define('EL_IS_USE_MNF',    1);
 define('EL_IS_USE_TM',     2);
@@ -27,6 +27,7 @@ define('EL_IS_SORT_TIME',  4);
 class elModuleIShop extends elModule {
 	var $_factory   = null;
 	var $_cat       = null;
+	var $_mnf       = null;
 	var $_item      = null;
 	var $_jslib     = true;
 	var $_mMap      = array(
@@ -37,7 +38,7 @@ class elModuleIShop extends elModule {
 	);
 
 	var $_conf      = array(
-		'default_view'      => IS_VIEW_CATS,
+		'default_view'      => EL_IS_VIEW_CATS,
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
@@ -62,43 +63,40 @@ class elModuleIShop extends elModule {
 		'rate'              => 1,
 	    'pricePrec'         => 0
 	);
+	
+	var $_view;
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
  
 
+
+
 	function defaultMethod() {
 		
-		$this->_conf('default_view') == IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
-		
-		$this->_initRenderer();
-		if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) ) {
-		$sm = $this->_factory->getSearchManager();
-		if ( $sm->isConfigured() )
-		{
-		$this->_rnd->rndSearchForm( $sm->formToHtml(), $this->_conf('searchTitle') );
-		if ( $sm->hasSearchCriteria() )
-		{
-		if ( $sm->find() )
-		{
-		return $this->_rnd->rndSearchResult( $sm->getResult() );
-		}
-		else
-		{
-		elThrow(E_USER_WARNING, 'Nothing was found on this request');
-		}
-		}  
-		}
+		$this->_conf('default_view') == EL_IS_VIEW_CATS ? $this->viewManufacturers() : $this->viewCategories();
+		return;
+		// $this->_initRenderer();
+		// if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) ) {
+		// $sm = $this->_factory->getSearchManager();
+		// if ( $sm->isConfigured() )
+		// {
+		// $this->_rnd->rndSearchForm( $sm->formToHtml(), $this->_conf('searchTitle') );
+		// if ( $sm->hasSearchCriteria() )
+		// {
+		// if ( $sm->find() )
+		// {
+		// return $this->_rnd->rndSearchResult( $sm->getResult() );
+		// }
+		// else
+		// {
+		// elThrow(E_USER_WARNING, 'Nothing was found on this request');
+		// }
+		// }  
+		// }
+		// 
+		// }
 
-		}
-
-		list($total, $current, $offset, $step) = $this->_getPagerInfo( $this->_cat->countItems() );
-		$this->_rnd->render( $this->_cat->getChilds( (int)$this->_conf('deep') ),
-		         $this->_factory->getItems( $this->_cat->ID, $this->_conf('itemsSortID'), $offset, $step ),
-		         $total,
-		         $current,
-		         $this->_cat
-		      );
 	}
 
 	/**
@@ -107,15 +105,18 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewCategories() {
+
+		
 		$this->_initRenderer();
 		$cat = $this->_category($this->_arg());
 
-		$t = $this->_factory->getType(2);
 
-		elPrintr($t);
+
+		// elPrintr($t);
 		list($total, $current, $offset, $step) = $this->_getPagerInfo($cat->countItems());
-		$this->_rnd->render( $cat->getChilds( (int)$this->_conf('deep') ),
-		         $this->_factory->getItems( $cat->ID, $offset, $step ),
+		$this->_rnd->render( 
+				$cat->getChilds((int)$this->_conf('deep')),
+		         $this->_factory->getItems($cat->ID, $offset, $step),
 		         $total,
 		         $current,
 		         $cat
@@ -129,8 +130,9 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewManufacturers() {
+
 		$this->_initRenderer();
-		echo "mnfs";
+		// echo "mnfs";
 	}
 
 	/**
@@ -187,6 +189,8 @@ class elModuleIShop extends elModule {
 
   function viewItem()
   {
+	echo "item";
+	return;
     $this->_item = $this->_factory->getItem( (int)$this->_arg(1) );
     if ( !$this->_item->ID )
     {
@@ -290,11 +294,7 @@ class elModuleIShop extends elModule {
 		return array($total, $cur <= $total ? $cur : 1, $offset, $i);
 	}
 
-  function _initRenderer()
-  {
-    parent::_initRenderer();
-    $this->_rnd->setCatID( $this->_cat->ID );
-  }
+
 
   function &_getCrossLinksManager()
 	{
@@ -315,31 +315,68 @@ class elModuleIShop extends elModule {
     $mt->init($this->pageID, $this->_cat->ID, ($this->_item) ? $this->_item->ID : 0, $this->_factory->tb('tbc'));
   }
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _initRenderer() {
+		if (!$this->_rnd) {
+			parent::_initRenderer();
+			$this->_rnd->setViewOpts($this->_view, $this->_cat->ID, $this->_mnf->ID);
+		}
+		
+		
+		// echo $this->_view;
+		
+		
+		
+		// $this->_rnd->setCatID( $this->_cat->ID );
+	}
 
 	/**
-	* Создает  фабрику
-	* тут а не в _onInit() потому что в методы для редактирования товаров
-	* должны быть добавлены в _initAdmin() дочернего объекта,
-	* который вызывается до _onInit()
+	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
+	* check required view
 	*
 	* @return void
 	*/
 	function _initNormal() {
 		parent::_initNormal();
+		if ($this->_conf['default_view'] != EL_IS_VIEW_CATS && $this->_conf['default_view'] != EL_IS_VIEW_MNFS) {
+			$this->_conf['default_view'] = EL_IS_VIEW_CATS;
+		}
+		$h = $this->_arg();
+		$this->_view = $this->_conf('default_view');
+
+		if (($this->_view == EL_IS_VIEW_CATS && $h == 'mnfs')
+		|| 	($this->_view == EL_IS_VIEW_MNFS && $h == 'cats')) {
+			$this->_view = $this->_view == EL_IS_VIEW_MNFS ? EL_IS_VIEW_CATS : EL_IS_VIEW_MNFS;
+			array_shift($this->_args);
+		}
 		$this->_factory = & elSingleton::getObj('elIShopFactory');
 		$this->_factory->init($this->pageID, $this->_conf);
 	}
 
-    /**
-    * Создает текущую категорию
-    * если категории с  требуемым id нет - редирект на корень каталога
-    * если нет корневой категории - пытается создать - в случае неудачи
-    * - сообщает об ошибке и редиректит на корень сайта
-    *
-	* @return void
-   */
+	/**
+	 * create category and manufacturer and check currency exchange config
+	 *
+	 * @return void
+	 **/
 	function _onInit() {
-		$this->_cat = $this->_factory->create(EL_IS_CAT);
+		$this->_cat = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_mnf = $this->_factory->create(EL_IS_MNF);
+
+		if ($this->_view == EL_IS_VIEW_CATS) {
+			$this->_cat->idAttr($this->_arg(0));
+		} else {
+			$this->_mnf->idAttr($this->_arg(0));
+			$this->_mnf->fetch();
+		}
+		
+		$this->_cat->fetch();
+
+		// echo $this->_cat->name.'<br>'.$this->_mnf->name;
 
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 		
@@ -363,7 +400,7 @@ class elModuleIShop extends elModule {
 			$this->_conf['exchangeSrc'] = 'auto';
 			$this->_conf['rate']        = 0;
 		}
-  }
+	}
 
 } // END class
 

@@ -12,7 +12,7 @@ class elCatalogRenderer extends elModuleRenderer
 	function setCatID( $ID )
 	{
 		$this->_catID = $ID;
-		$this->_te->assignVars( 'catID', $ID );
+		$this->_te->assignVars('catID', $ID);
 	}
 
 

@@ -145,7 +145,7 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 		}
 		$sort = $form->getValue();
 		$sort = $sort['g_sort_ndx'];
-		$db   = & $this->getDb();
+		$db   = & elSingleton::getObj('elDb');
 		$sql  = 'UPDATE '.$this->_tbG.' SET g_sort_ndx=%d WHERE g_id=%d';
 		foreach ( $sort as $id=>$ndx )
 		{
@@ -193,7 +193,7 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
 		}
 		$sort = $form->getValue();
 		$sort = $sort['i_sort_ndx'];
-		$db   = & $this->getDb();
+		$db   = & elSingleton::getObj('elDb');
 		$sql  = 'UPDATE '.$this->_tbI.' SET i_sort_ndx=%d WHERE i_id=%d';
 		foreach ($sort as $id=>$ndx)
 		{

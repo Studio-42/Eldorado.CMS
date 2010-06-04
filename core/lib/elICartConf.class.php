@@ -61,9 +61,9 @@ class elICartConf {
 			: array('region_id'=>0, 
 					'delivery_id' => 0, 
 					'payment_id'  => 0, 
-					'fee'         =>'', 
+					'fee'         => 0, 
 					'formula'     => '', 
-					'comment'     =>'', 
+					'comment'     => '', 
 					'region'      => '',
 					'delivery'    => '',
 					'payment'     => '',
@@ -161,7 +161,7 @@ class elICartConf {
 	
 
 	function set($regionID, $deliveryID, $paymentID, $fee, $formula, $comment, $online="0") {
-		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%s", formula="%s", comment="%s", online_payment="%d"';
+		$sql = 'REPLACE INTO '.$this->_tb.' SET region_id=%d, delivery_id=%d, payment_id=%d, fee="%.2f", formula="%s", comment="%s", online_payment="%d"';
 		$sql = sprintf($sql, $regionID, $deliveryID, $paymentID, mysql_real_escape_string($fee), mysql_real_escape_string($formula), mysql_real_escape_string($comment), $online);
 		return $this->_db->query($sql);
 	}

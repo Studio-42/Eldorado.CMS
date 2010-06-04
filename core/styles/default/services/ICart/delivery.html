@@ -29,9 +29,9 @@
 			</select>
 		</td>
     </tr>
-	<tr class="delivery_fee">
+	<tr class="delivery_price">
 		<td>{m('Delivery price')}</td>
-		<td>{delivery_fee}</td>
+		<td>{delivery_price}</td>
 	</tr>
 	<tr class="delivery_comment foot">
 		<td>{m('Comment')}</td>
@@ -46,7 +46,7 @@
 			delivery = $('#icart select[name="delivery_id"]'),
 			payment  = $('#icart select[name="payment_id"]'),
 			all      = region.add(delivery).add(payment),
-			fee      = $('#icart .delivery_fee'),
+			price    = $('#icart .delivery_price'),
 			comment  = $('#icart .delivery_comment');
 		
 		function toggleComment() {
@@ -57,7 +57,7 @@
 		
 		all.change(function() {
 			all.attr('disabled', 'disabled');
-			fee.children(':last').add(comment.children(':last')).empty();
+			price.children(':last').add(comment.children(':last')).empty();
 			
 			$.ajax({
 				url  : "{iCartURL}info/",
@@ -84,7 +84,7 @@
 					
 					data.delivery && data.delivery.length && update(delivery, data.delivery);
 					data.payment && data.payment.length && update(payment, data.payment);
-					data.fee && fee.children(':last').text(data.fee);
+					data.price && price.children(':last').text(data.price);
 					data.comment && comment.children(':last').text(data.comment);
 					// toggleComment();
 

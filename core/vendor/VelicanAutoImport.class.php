@@ -53,6 +53,9 @@ class IShopImportLexus
 	var $tb_p2i;
 	var $tb_i2c;
 	var $tb_tm;
+	var $tb_gal;
+
+	var $photo_path = '/home/troex/Sites/git/eldorado/storage/va';
 
 	function __construct()
 	{
@@ -62,6 +65,7 @@ class IShopImportLexus
 		$this->tb_p2i        = 'el_ishop_'.$this->shop_id.'_p2i';
 		$this->tb_i2c        = 'el_ishop_'.$this->shop_id.'_i2c';
 		$this->tb_tm         = 'el_ishop_'.$this->shop_id.'_tm';
+		$this->tb_gal        = 'el_ishop_'.$this->shop_id.'_gallery';
 
 		$this->m = mysql_connect($this->my_host, $this->my_user, $this->my_pass);
 		mysql_query("SET NAMES 'utf8'", $this->m);
@@ -301,7 +305,6 @@ class IShopImportLexus
 	}
 
 
-
 	// delete old
 	// construct new auto
 	// get mnf id
@@ -347,7 +350,7 @@ class IShopImportLexus
 		foreach ($this->cars as $car)
 		{
 			$i_id = '';
-			echo "\n* $car[MODEL]";
+			echo "\n* $car[BRAND] => $car[MODEL]";
 			// 2.1 new item
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
 			if (in_array($car['CARID'], $new_cars))
@@ -401,8 +404,78 @@ class IShopImportLexus
 			$sql = "INSERT INTO ".$this->tb_i2c." (i_id, c_id) VALUES ('%d', '%d')";
 			$sql = sprintf($sql, $i_id, '1');
 			mysql_query($sql, $this->m);
+
+
+			// 2.5 photos
+			// 2.5.1 load from db
+			$photo_db = array();
+			$r = mysql_query("SELECT id, img FROM ".$this->tb_gal." WHERE i_id=$i_id", $this->m);
+			if ($r)
+			{
+				while ($m = mysql_fetch_assoc($r))
+				{
+					$photo_db[$m['id']] = $m['img'];
+				}
+				//var_dump($photo_db);
+			}
+			
+			// 2.5.2 insert new to db and generate tmbs
+			$_image = new myElImage;
+			$photo_xml = array();
+			if (isset($car['PHOTOS']) and is_array($car['PHOTOS']))
+			{
+				foreach ($car['PHOTOS'] as $photo)
+				{
+					$p = $this->photo_path.'/'.$photo;
+					if (is_file($p))
+					{
+						$path = substr($p, strpos($p, '/storage/'));
+						//print "$p => $path\n";
+						array_push($photo_xml, $path);
+						if (in_array($path, $photo_db))
+						{
+							continue; // skip if already in db
+						}
+						
+						// generate tmbs
+						$imgName = baseName($p);
+						$imgDir  = dirname($p).DIRECTORY_SEPARATOR;
+						$tmbs = array(
+							$imgDir.'tmbl-'.$imgName => 115,
+							$imgDir.'tmbc-'.$imgName => 450,							
+							$imgDir.'tmbs-'.$imgName => 150,
+						);
+						$_i_info = $_image->imageInfo($p);
+						foreach ($tmbs as $tmb => $size)
+						{
+							list($w, $h) = $_image->calcTmbSize($_i_info['width'], $_i_info['height'], $size);
+							$_image->tmb($p, $tmb, $w, $h);
+						}
+						// insert into db
+						$sql = "INSERT INTO ".$this->tb_gal." (i_id, img) VALUES (%d, '%s')";
+						$sql = sprintf($sql, $i_id, $path);
+						mysql_query($sql, $this->m);
+						//print "$sql\n";
+					}
+				}
+			}
+
+			// 2.5.3 remove unused images from db
+			foreach ($photo_db as $img_id => $photo)
+			{
+				if (!in_array($photo, $photo_xml))
+				{
+					print "Delete $photo\n";
+					$sql = "DELETE FROM ".$this->tb_gal." WHERE id=%d LIMIT 1";
+					$sql = sprintf($sql, $img_id);
+					mysql_query($sql);
+				}
+			}
+			//var_dump($photo_xml);
+			
 		}
 	}
+
 
 	function _getTMByName($mnf_id = null, $name = null)
 	{
@@ -428,6 +501,13 @@ class IShopImportLexus
 		return $id['id'];
 	}
 }
+
+require_once './core/lib/elImage.class.php';
+class myelImage extends elImage
+{
+	function _error() {}
+}
+
 
 $file = './TradeIn.xml';
 

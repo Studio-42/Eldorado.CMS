@@ -155,7 +155,6 @@ class elServiceICart extends elService
 		}
 		
 		if (!empty($_POST['action']) && $_POST['action'] == 'next') {
-
 			$regionID   = (int)$_POST['region_id'];
 			$deliveryID = (int)$_POST['delivery_id'];
 			$paymentID  = (int)$_POST['payment_id'];
@@ -190,7 +189,7 @@ class elServiceICart extends elService
 			$regionID = $regions[0]['id'];
 		}
 		
-		$delivery   = $this->_conf->getDelivery($regionID);
+		$delivery = $this->_conf->getDelivery($regionID);
 		
 		if (!empty($this->_userData['delivery']['delivery_id'])
 		&& $this->_conf->deliveryExists($regionID, $this->_userData['delivery']['delivery_id'])) {
@@ -208,11 +207,8 @@ class elServiceICart extends elService
 		}
 
 		$val = $this->_conf->get($regionID, $deliveryID, $paymentID);
-		if ($data['fee']) {
-			
-		}
-		$val['fee'] = $this->_fee($val);
-		
+		$val['fee']   = $this->_fee($val, false);
+		$val['price'] = $this->_fee($val, true, true);
 		$this->_rnd->rndDelivery($regions, $delivery, $payment, $val);
 	}
 
@@ -226,7 +222,7 @@ class elServiceICart extends elService
 		$ret = array(
 			'delivery' => array(),
 			'payment'  => array(),
-			'fee'      => '',
+			'price'    => '',
 			'comment'  => ''
 			);
 		$currency   = & elSingleton::getObj('elCurrency');
@@ -250,7 +246,7 @@ class elServiceICart extends elService
 
 			case 'payment_id':
 				$data           = $this->_conf->get($regionID, $deliveryID, $paymentID);
-				$ret['fee']     = $this->_fee($data);
+				$ret['price']   = $this->_fee($data, true, true);
 				$ret['comment'] = $data['comment'];
 		}
 		exit(elJson::encode($ret));
@@ -275,18 +271,8 @@ class elServiceICart extends elService
 		} else {
 			$this->_rnd->rndAddress($f->toHtml());
 		}
-		
-		
+
 		return;
-		$address = & new elICartAddress($this->_user, $this->_userData['address'], $this->_userData['delivery']['region_id']);
-		$form = $address->getForm();
-		$form->setRenderer(new elTplFormRenderer('', 'address.html'));
-		if ($form->isSubmitAndValid()) {
-			$this->_updateUserData('address', $address->toArray());
-			elLocation($this->_url.'__icart__/confirm/');
-		} else {
-			$this->_rnd->rndAddress($form->toHtml());
-		}
 	}
 	
 
@@ -299,9 +285,8 @@ class elServiceICart extends elService
 		if (!$this->_steps['confirm']['allow']) {
 			elLocation($this->_url.'__icart__/address/');
 		}
-		list($delivery, $total) = $this->_delivery();
-		
 
+		list($delivery, $total) = $this->_delivery();
 		if (empty($_POST['action'])) {
 			$this->_rnd->rndConfirm($this->_iCart, $delivery, $this->_userData['address'], $total);
 		} elseif (false == ($orderID = $this->_completeOrder($delivery))) {
@@ -314,7 +299,7 @@ class elServiceICart extends elService
 			elMsgBox::put(m('Dear customer! Thank You for your order. We contact You as soon as possible'));
 			elLocation($this->_url.'__icart__/');
 		}
-		
+		return;
 	}
 
 	/**
@@ -362,8 +347,7 @@ class elServiceICart extends elService
 			$db->prepareData( array($orderID, $this->_user->UID, $v['id'], $v['label'], $v['value']));
 		}
 		$db->execute();
-		
-		
+
 		return $orderID;
 	}
 
@@ -443,20 +427,17 @@ class elServiceICart extends elService
 	 **/
 	function _delivery() {
 		$delivery = $this->_conf->get(
-				$this->_userData['delivery']['region_id'], 
-				$this->_userData['delivery']['delivery_id'], 
-				$this->_userData['delivery']['payment_id']
-				);
+			$this->_userData['delivery']['region_id'], 
+			$this->_userData['delivery']['delivery_id'], 
+			$this->_userData['delivery']['payment_id']
+		);
 
-		if ($delivery['fee']) {
-			$total = $this->_iCart->amount + $this->_fee($delivery, false);
-			$total = $this->_formatPrice($total);
-			$delivery['price'] = $this->_fee($delivery, true, false);
-		} else {
-			$total = $this->_iCart->amountFormated;
-			$delivery['price'] = '';
-		}
-		
+		$delivery['fee'] = (float)$delivery['fee'];
+
+		$total = $this->_iCart->amount + $this->_fee($delivery, false);
+		$total = $this->_formatPrice($total, false);
+		$delivery['price'] = $this->_fee($delivery, true, false);
+
 		return array($delivery, $total);
 	}
 
@@ -467,15 +448,13 @@ class elServiceICart extends elService
 	 **/
 	function _fee($data, $format=true, $symbol=true) {
 		$fee = 0;
-		
-
 		if ($data['fee'] > 0) {
 			$fee = $data['fee'];
 		} elseif ($data['formula']) {
 			$f = create_function('$qnt, $amount', 'return '.$data['formula']);
 			$fee = $f($this->_iCart->qnt, $this->_iCart->amount);
 		}
-		
+
 		if ($format) {
 			return $fee
 				? $this->_formatPrice($fee, $symbol)
@@ -491,7 +470,7 @@ class elServiceICart extends elService
 	 **/
 	function _formatPrice($price, $symbol=true) {
 		$currency  = & elSingleton::getObj('elCurrency');
-		return $currency->format($price, array('precision'=>$this->_conf->precision(), 'symbol'=>false));
+		return $currency->format($price, array('precision'=>$this->_conf->precision(), 'symbol'=>$symbol));
 	}
  
     /**

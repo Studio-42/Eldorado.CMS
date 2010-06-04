@@ -195,7 +195,41 @@ class elIShopFactory {
 		return $ret;
 	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function countMnfItems($ID) {
+		if (!isset($this->_mnfItemsCnt)) {
+			$this->_mnfItemsCnt = $this->_db->queryToArray(sprintf('SELECT mnf_id, COUNT(id) AS num FROM %s GROUP BY mnf_id', $this->_tb['tbi']), 'mnf_id', 'num');
+		}
+		return isset($this->_mnfItemsCnt[$ID]) ? $this->_mnfItemsCnt[$ID] : 0;
+	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function countTmItems($ID) {
+		if (!isset($this->_tmItemsCnt)) {
+			$this->_tmItemsCnt = $this->_db->queryToArray(sprintf('SELECT tm_id, COUNT(id) AS num FROM %s GROUP BY tm_id', $this->_tb['tbi']), 'tm_id', 'num');
+		}
+		return isset($this->_tmItemsCnt[$ID]) ? $this->_tmItemsCnt[$ID] : 0;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getItemsSort() {
+		return $this->_conf['itemsSortID'];
+	}
 
 
       function getProperty($ID)

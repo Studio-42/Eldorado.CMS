@@ -81,7 +81,7 @@ class elModuleRenderer {
 	 * @param  array        module configuration
 	 * @param  bool         is in admin mode
 	 * @param  array|null   tabs for multimodule
-	 * @param  string|null  cuurent tab
+	 * @param  string|null  current tab
 	 * @return void
 	 **/
 	function init($dirname, $conf, $admin=false, $tabs=null, $curTab=null) {

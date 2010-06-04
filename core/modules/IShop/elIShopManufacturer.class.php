@@ -22,6 +22,27 @@ class elIShopManufacturer extends elDataMapping {
 		return $f->getTmsByMnf($this->ID);
 	}
 
+	/**
+	 * return number of item from current manufacturer
+	 *
+	 * @return int
+	 **/
+	function countItems() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->countMnfItems($this->ID);
+	}
+
+	/**
+	 * Return current manufacturer products
+	 *
+	 * @return array
+	 **/
+	function getItems() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		$i = $f->create(EL_IS_ITEM);
+		return $i->collection(true, true, 'mnf_id='.intval($this->ID));
+	}
+
 
 	/**
 	 * create form

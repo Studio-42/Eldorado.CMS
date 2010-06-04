@@ -11,6 +11,16 @@ class elIShopTm extends elDataMapping {
 	var $content = '';
 
 	/**
+	 * count items with this trademark
+	 *
+	 * @return int
+	 **/
+	function countItems() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->countTmItems($this->ID);
+	}
+
+	/**
 	 * create form
 	 *
 	 * @return void

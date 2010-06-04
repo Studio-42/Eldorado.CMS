@@ -46,10 +46,26 @@ class elRndIShop extends elCatalogRenderer {
 	/**
 	 * initilize object
 	 *
+	 * @param  string       directory under style/modules name
+	 * @param  array        module configuration
+	 * @param  bool         is in admin mode
 	 * @return void
 	 **/
-	function init($moduleName, $conf, $prnt=false, $admin=false, $tabs=null, $curTab=null) {
-		parent::init($moduleName, $conf, $prnt, $admin, $tabs, $curTab);
+	function init($dirname, $conf, $admin=false) {
+		parent::init($dirname, $conf, $admin);
+		
+		if ($this->_view != $this->_conf('default_view')) {
+			$this->_te->assignVars('ishopView', $this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
+		}
+		
+		$this->_te->assignVars(array(
+			'catID'    => $this->_cat->ID,
+			'mnfID'    => $this->_mnf->ID,
+			'parentID' => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID
+			));
+		
+		// $this->_te->assignVars('catID', $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID);
+		
 		$this->_currency = &elSingleton::getObj('elCurrency');
 		$this->_curOpts = array(
 			'precision'   => (int)$this->_conf('pricePrec'),
@@ -63,15 +79,105 @@ class elRndIShop extends elCatalogRenderer {
 	}
 
 	/**
-	 * undocumented function
+	 * Render manufacturers one/two column list
 	 *
+	 * @param  array  $mnfs  manufacturers
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
-	function setViewOpts($view, $catID, $mnfID) {
-		echo $view;
-		if ($view != $this->_conf('default_view')) {
+	function rndMnfs($mnfs) {
+		$this->_setFile();
+		
+		if (!$this->_admin && !$this->_conf('displayEmptyMnf')) {
+			foreach ($mnfs as $id => $mnf) {
+				if (!$mnd->countItems()) {
+					unset($mnfs[$id]);
+				}
+			}
+		}
+		
+		$descrip = $this->_conf('displayMnfDescrip') == EL_CAT_DESCRIP_IN_LIST || $this->_conf('displayMnfDescrip') == EL_CAT_DESCRIP_IN_BOTH;
+		$i = 0;
+		if ($this->_conf('mnfsCols') > 1) { // two columns
+			$rowCnt = 0;
+			$s      = sizeof($mnfs);
+			foreach ($mnfs as $mnf) {
+				$css = array('cssLastClass' => 'col-last');
+				if (!($i++%2)) {
+					$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s ? 'invisible' : '');
+					$this->_te->assignBlockVars('MNFS_TWOCOL', $var);
+					$css['cssLastClass'] = '';
+				}
+				!$descrip && $mnf->content = '';
+				$this->_rndMnfInList('MNFS_TWOCOL', $mnf, $css);
+			}
+		} else {  // one column
+			foreach ($mnfs as $mnf) {
+				$css = array('cssRowClass' => $i++%2 ? 'strip-odd' : 'strip-ev');
+				!$descrip && $mnf->content = '';
+				$this->_rndMnfInList('MNFS_ONECOL', $mnf, $css);
+			}
+		}
+	}
+
+	/**
+	 * Render manufacturer
+	 *
+	 * @param  elIShopManufacturer  $mnf
+	 * @return void
+	 **/
+	function rndMnf($mnf) {
+		$this->_setFile();
+		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
+		if ($this->_conf('displayMnfDescrip') > EL_CAT_DESCRIP_IN_LIST) {
+			$this->_te->assignBlockVars('CURRENT_MNF.DESCRIP', array('content' => $mnf->content));
+		}
+		
+		$tms = $mnf->getTms(); 
+		// remove empty tms
+		if (!$this->_admin || !$this->_conf('displayEmptyTm')) {
+			foreach ($tms as $id => $tm) {
+				if (!$tm->countItems()) {
+					unset($tms[$id]);
+				}
+			}
+		}
+		
+		// render trademarks
+		if ($tms) {
+			$descrip = $this->_conf('displayTmDescrip') == EL_CAT_DESCRIP_IN_LIST 
+					|| $this->_conf('displayTmDescrip') == EL_CAT_DESCRIP_IN_BOTH;
 			
+			$i = 0;
+			if ($this->_conf('tmsCols')>1) {
+				$rowCnt = 0;
+				$s      = sizeof($tms);
+				foreach ($tms as $tm) {
+					$css = array('cssLastClass' => 'col-last');
+					if (!($i++%2)) {
+						$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s ? 'invisible' : '');
+						$this->_te->assignBlockVars('TMS_TWOCOL', $var);
+						$css['cssLastClass'] = '';
+					}
+					!$descrip && $tm->content = '';
+					$this->_rndTmInList('TMS_TWOCOL', $tm, $css);
+				}
+			} else {
+				foreach ($tms as $tm) {
+					$css = array('cssRowClass' => $i++%2 ? 'strip-odd' : 'strip-ev');
+					!$descrip && $tm->content = '';
+					$this->_rndTmInList('TMS_TWOCOL', $tm, $css);
+				}
+			}
+		}
+		
+		// render items
+		$items = $mnf->getItems();
+		if ($items) {
+			if ($this->_conf('itemsCols')>1) { // two columns
+				$this->_rndItemsTwoColumns($items);
+			} else {  // one column
+				$this->_rndItemsOneColumns($items);
+			}
 		}
 	}
 
@@ -159,18 +265,18 @@ class elRndIShop extends elCatalogRenderer {
 				elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
 			}
 			$js =
-"	$('.ishop-sel-img').click(function(e) {
-		e.preventDefault();
-		var actionURL = $(this).attr('href');
-		$('<div />').elfinder({
-			url  : '".EL_URL."__finder__/',
-			lang : '".EL_LANG."',
-			editorCallback : function(url) {
-				$('<form action=\"'+actionURL+'\" method=\"POST\"><input type=\"hidden\" name=\"imgURL\" value=\"'+url+'\"></form>').appendTo('body').submit();
-			},
-			dialog : { title : 'Select image', width : 750, modal : true }
-		});
-	});";
+			"	$('.ishop-sel-img').click(function(e) {
+					e.preventDefault();
+					var actionURL = $(this).attr('href');
+					$('<div />').elfinder({
+						url  : '".EL_URL."__finder__/',
+						lang : '".EL_LANG."',
+						editorCallback : function(url) {
+							$('<form action=\"'+actionURL+'\" method=\"POST\"><input type=\"hidden\" name=\"imgURL\" value=\"'+url+'\"></form>').appendTo('body').submit();
+						},
+						dialog : { title : 'Select image', width : 750, modal : true }
+					});
+				});";
 
 			elAddJs($js, EL_JS_SRC_ONREADY);
 		}
@@ -343,7 +449,7 @@ class elRndIShop extends elCatalogRenderer {
 
 
 
-  function rndMnfs( $mnfsList )
+  function _rndMnfs( $mnfsList )
   {
     $this->_setFile('mnfs');
     foreach ( $mnfsList as $mnf )
@@ -361,11 +467,23 @@ class elRndIShop extends elCatalogRenderer {
   }
 
 
+
+
+
+
+
+
+
+
+
+
 	/**
-	 * undocumented function
+	 * Render intem in one/two col list
 	 *
+	 * @param  string  $block  root block name
+	 * @param  object  $item   item to display
+	 * @param  array   $css    css for block
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _rndItemInList($block, $item, $css) {
 		$this->_te->assignBlockVars($block.'.ITEM', $css, 1);
@@ -478,12 +596,17 @@ class elRndIShop extends elCatalogRenderer {
 			
 		foreach ($items as $item) {
 			$data = $item->toArray();
+			$css = array('cssLastClass' => 'col-last');
 			$data['cssLastClass'] = 'col-last';
 			if (!($i++%2)) {
 				$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s ? 'invisible' : '');
 				$this->_te->assignBlockVars('ITEMS_TWOCOL', $var);
+				$css['cssLastClass'] = '';
 				$data['cssLastClass'] = '';
 			}
+			
+			$this->_rndItemInList('ITEMS_TWOCOL', $item, $css);
+			continue;
 			$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM', $data, 1 );
 			if ($this->_admin) {
 				$this->_te->assignBlockVars('ITEMS_TWOCOL.ITEM.ADMIN', array('id'=>$data['id'], 'type_id' => $data['type_id']), 2);
@@ -520,6 +643,52 @@ class elRndIShop extends elCatalogRenderer {
 		}
 	}
 
+
+	/**********************************************/
+	/*****              PRIVATE              ******/
+	/**********************************************/
+	
+	/**
+	 * render manufacturer in one/two column list
+	 *
+	 * @param  string  $block  root block name
+	 * @param  object  $mnf    manufacturer to display
+	 * @param  array   $css    css for block
+	 * @return void
+	 **/
+	function _rndMnfInList($block, $mnf, $css) {
+		$this->_te->assignBlockVars($block.'.MNF', $css, 1);
+		$this->_te->assignBlockVars($block.'.MNF', $mnf->toArray(), 2);
+		if ($mnf->logo) {
+			$this->_te->assignBlockVars($block.'.MNF.LOGO', array('logo' => $mnf->logo), 2);
+		}
+		if ($mnf->content) {
+			$this->_te->assignBlockVars($block.'.MNF.DESCRIP', array('content' => $mnf->content), 2);
+		}
+		if ($this->_admin) {
+			$this->_te->assignBlockVars($block.'.MNF.ADMIN', array('id' => $mnf->ID), 2);
+		}
+	}
+	
+	/**
+	 * Render trademark in one/two column list
+	 *
+	 * @param  string  $block  root block name
+	 * @param  object  $tm     trademark to display
+	 * @param  array   $css    css for block
+	 * @return void
+	 **/
+	function _rndTmInList($block, $tm, $css) {
+		$this->_te->assignBlockVars($block.'.TM', $css, 1);
+		$this->_te->assignBlockVars($block.'.TM', $tm->toArray(), 2);
+		if ($tm->descrip) {
+			$this->_te->assignBlockVars($block.'.TM.DESCRIP', array('content' => $tm->content), 2);
+		}
+		if ($this->_admin) {
+			$this->_te->assignBlockVars($block.'.TM.ADMIN', array('id' => $tm->ID), 2);
+		}
+	}
+	
 	/**
 	 * convert/format price
 	 *

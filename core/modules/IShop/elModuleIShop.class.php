@@ -22,6 +22,7 @@ define('EL_IS_SORT_TIME',  4);
  **/
 class elModuleIShop extends elModule {
 	var $_factory   = null;
+	var $_url       = EL_URL;
 	var $_cat       = null;
 	var $_mnf       = null;
 	var $_item      = null;
@@ -29,18 +30,25 @@ class elModuleIShop extends elModule {
 	var $_mMap      = array(
 		'cats'  => array('m' => 'viewCategories'),
 		'mnfs'  => array('m' => 'viewManufacturers'),
+		'mnf'   => array('m' => 'viewManufacturer'),
 		'item'  => array('m' => 'viewItem'),
 		'order' => array('m' => 'order') 
 	);
 
 	var $_conf      = array(
-		'default_view'      => EL_IS_VIEW_CATS,
+		'default_view'      => EL_IS_VIEW_MNFS,
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
+		'mnfsCols'          => 1,
+		'tmsCols'           => 2,
 		'itemsSortID'       => EL_IS_SORT_NAME,
 		'itemsPerPage'      => 10,
+		'displayEmptyMnf'   => 1,
+		'displayEmptyTm'    => 1,
 		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
+		'displayMnfDescrip' => EL_CAT_DESCRIP_IN_SELF,
+		'displayTMDescrip'  => EL_CAT_DESCRIP_IN_SELF,
 		'displayCode'       => 1,
 		'mnfNfo'            => EL_IS_USE_MNF,
 		'tmbListSize'       => 125,
@@ -71,12 +79,9 @@ class elModuleIShop extends elModule {
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
  
-
-
-
 	function defaultMethod() {
 		
-		$this->_conf('default_view') == EL_IS_VIEW_CATS ? $this->viewManufacturers() : $this->viewCategories();
+		$this->_view == EL_IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
 		return;
 		// $this->_initRenderer();
 		// if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) ) {
@@ -107,23 +112,22 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewCategories() {
-
 		
 		$this->_initRenderer();
-		$cat = $this->_category($this->_arg());
 
-
-
-		// elPrintr($t);
-		list($total, $current, $offset, $step) = $this->_getPagerInfo($cat->countItems());
+		if (!$this->_cat->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $this->_arg()), EL_URL);
+		}
+		
+		list($total, $current, $offset, $step) = $this->_getPagerInfo($this->_cat->countItems());
 		$this->_rnd->render( 
-				$cat->getChilds((int)$this->_conf('deep')),
-		         $this->_factory->getItems($cat->ID, $offset, $step),
-		         $total,
-		         $current,
-		         $cat
+				$this->_cat->getChilds((int)$this->_conf('deep')),
+		        $this->_factory->getItems($this->_cat->ID, $offset, $step),
+		        $total,
+		        $current,
+		        $this->_cat
 		      );
-
 	}
 
 	/**
@@ -132,29 +136,29 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewManufacturers() {
-
 		$this->_initRenderer();
-		// echo "mnfs";
+		$this->_rnd->rndMnfs($this->_factory->getAllFromRegistry(EL_IS_MNF));
 	}
 
 	/**
-	 * undocumented function
+	 * Display manufacturer
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
-	function _category($ID) {
-		$cat = $this->_factory->create(EL_IS_CAT, $ID ? $ID : 1);
-		if (!$cat->ID) {
+	function viewManufacturer() {
+		if(!$this->_mnf->ID) {
 			header('HTTP/1.x 404 Not Found');
-			if ($ID == 1) {
-				$nav = &elSingleton::getObj('elNavigator');
-				$cat->makeRootNode($nav->getPageName($this->pageID));
-			}
-			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $ID), EL_URL);
+			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
-		return $cat;
+		$this->_initRenderer();
+		$this->_rnd->rndMnf($this->_mnf);
+		elAppendToPagePath(array(
+			'url'  => $this->_url.'mnf/'.$this->mnf->ID.'/',	
+			'name' => $this->_mnf->name)
+			);
 	}
+
+
 
 	/**
 	 * add items to icart from external call (now used from OrderHistory)
@@ -191,9 +195,8 @@ class elModuleIShop extends elModule {
 
   function viewItem()
   {
-	echo "item";
-	return;
-    $this->_item = $this->_factory->getItem( (int)$this->_arg(1) );
+
+    $this->_item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1) );
     if ( !$this->_item->ID )
     {
       elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
@@ -317,25 +320,7 @@ class elModuleIShop extends elModule {
     $mt->init($this->pageID, $this->_cat->ID, ($this->_item) ? $this->_item->ID : 0, $this->_factory->tb('tbc'));
   }
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
-	 **/
-	function _initRenderer() {
-		if (!$this->_rnd) {
-			parent::_initRenderer();
-			$this->_rnd->setViewOpts($this->_view, $this->_cat->ID, $this->_mnf->ID);
-		}
-		
-		
-		// echo $this->_view;
-		
-		
-		
-		// $this->_rnd->setCatID( $this->_cat->ID );
-	}
+
 
 	/**
 	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
@@ -375,12 +360,12 @@ class elModuleIShop extends elModule {
 			$this->_mnf->idAttr($this->_arg(0));
 			$this->_mnf->fetch();
 		}
-		
 		$this->_cat->fetch();
-
-		// echo $this->_cat->name.'<br>'.$this->_mnf->name;
-
 		$GLOBALS['categoryID'] = $this->_cat->ID;
+
+		if ($this->_view != $this->_conf('default_view')) {
+			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
+		}
 		
 		$cur  = &elSingleton::getObj('elCurrency');
 		

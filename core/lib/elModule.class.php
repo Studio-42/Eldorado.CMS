@@ -534,8 +534,7 @@ class elModule {
 			}
 
 			$this->_rnd = & elSingleton::getObj($this->_rndClass);
-			$this->_rnd->init($this->name, $this->_conf, EL_READ < $this->_aMode, $this->_tabs, $this->_curTab);
-
+			
 			if (!empty($this->_sharedRndMembers)) {
 				foreach ($this->_sharedRndMembers as $m) {
 					if (isset($this->$m)) {
@@ -543,6 +542,8 @@ class elModule {
 					}
 				}
 			}
+			
+			$this->_rnd->init($this->name, $this->_conf, EL_READ < $this->_aMode, $this->_tabs, $this->_curTab);
 		}
 	}
 

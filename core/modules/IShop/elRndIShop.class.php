@@ -1,7 +1,16 @@
 <?php
 include_once EL_DIR_CORE.'lib/elCatalogRenderer.class.php';
-
+/**
+ * IShop renderer
+ *
+ * @package Ishop
+ **/
 class elRndIShop extends elCatalogRenderer {
+	/**
+	 * templates
+	 *
+	 * @var array
+	 **/
 	var $_tpls    = array(
 		'item'   => 'item.html',
 		'search' => 'search-form.html',
@@ -9,13 +18,17 @@ class elRndIShop extends elCatalogRenderer {
 		'types'  => 'types.html',
 		'sConf'  => 'search-conf.html'
 	);
-
 	/**
-	 * undocumented class variable
+	 * currency object
 	 *
-	 * @var string
+	 * @var elCurrency
 	 **/
 	var $_currency = null;
+	/**
+	 * currency options from config
+	 *
+	 * @var array
+	 **/
 	var $_curOpts = array();
 
 	var $_itemPropBlocks = array(
@@ -377,15 +390,7 @@ class elRndIShop extends elCatalogRenderer {
   		}
 	}
 
-	/**
-	 * convert/format price
-	 *
-	 * @param  number  $price
-	 * @return string
-	 **/
-	function _price($price) {
-		return $this->_currency->convert($price, $this->_curOpts);
-	}
+
 
 	/**
 	 * Рисует список товаров в одну колонк
@@ -515,6 +520,16 @@ class elRndIShop extends elCatalogRenderer {
 		}
 	}
 
-}
+	/**
+	 * convert/format price
+	 *
+	 * @param  number  $price
+	 * @return string
+	 **/
+	function _price($price) {
+		return $this->_currency->convert($price, $this->_curOpts);
+	}
+
+} // END class
 
 ?>

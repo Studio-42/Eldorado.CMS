@@ -6,13 +6,9 @@ define ('EL_IS_ITYPE',    3);
 define ('EL_IS_PROP',     4);
 define ('EL_IS_MNF',      5);
 define ('EL_IS_TM',       6);
-// view types
+// views 
 define('EL_IS_VIEW_CATS',     1);
 define('EL_IS_VIEW_MNFS',     2);
-
-define('EL_IS_USE_MNF',    1);
-define('EL_IS_USE_TM',     2);
-define('EL_IS_USE_MNF_TM', 3);
 // sort item variants
 define('EL_IS_SORT_NAME',  1);
 define('EL_IS_SORT_CODE',  2);
@@ -65,6 +61,12 @@ class elModuleIShop extends elModule {
 	);
 	
 	var $_view;
+	/**
+	 * shared with render members
+	 *
+	 * @var array
+	 **/
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf');
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//

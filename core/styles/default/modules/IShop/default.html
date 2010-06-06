@@ -1,4 +1,11 @@
-<div class="mod-ishop">
+<div class="mod-ishop"> {ishopView}
+	<div class="float-right">
+		<a href="{URL}cats/">Category view</a>
+	</div>
+	<div class="float-right">
+		<a href="{URL}mnfs/">Manufacturers view</a>
+	</div>
+	<div class="clearfix"></div>
 <!-- BEGIN CUR_CAT_DESCRIP -->
 <div class="current-cat-descrip clearfix"><h4>{name}</h4>{descrip} </div>
 <!-- END CUR_CAT_DESCRIP -->
@@ -77,21 +84,12 @@
 		</ul>
 		<!-- END ADMIN -->
 		<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
-		<!-- BEGIN IMG -->
-          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a>
-        <!-- END IMG -->
-		<!-- BEGIN PRICE --> 
-			<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
-		<!-- END PRICE -->
-		<!-- BEGIN CODE --> 
-			<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
-		<!-- END CODE -->
-		<!-- BEGIN MNF_TM -->
-        <div class="mod-ishop-mnf">
-        <!-- BEGIN MNF --> <strong>{mnf}</strong> {country}<!-- END MNF --> 
-		<!-- BEGIN TM --> {tm} <!-- END TM -->
-    	</div>
-    	<!-- END MNF_TM -->
+		<!-- BEGIN IMG --><a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a><!-- END IMG -->
+		<!-- BEGIN PRICE --><div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
+		<!-- BEGIN CODE --><div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
+		<!-- BEGIN MNF --><div class='mod-ishop-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
+		<!-- BEGIN TM --><div class='mod-ishop-mnf'>{name}</div><!-- END TM -->
+
 		{announce}
 		<div><a href="{URL}item/{catID}/{id}/" class="link forward">{m('Read more')}</a></div>
 		<!-- BEGIN ANN_PROPS -->
@@ -124,23 +122,12 @@
 			<!-- END ADMIN -->
 			<h4><a href="{URL}item/{catID}/{id}/">{name}</a></h4>
 			
-			<!-- BEGIN PRICE --> 
-				<div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div>
-			<!-- END PRICE -->
-			<!-- BEGIN CODE --> 
-				<div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div>
-			<!-- END CODE -->
-			<!-- BEGIN MNF_TM -->
-	        <div class="mod-ishop-mnf">
-	        <!-- BEGIN MNF --> <strong>{mnf}</strong> {country}<!-- END MNF --> 
-			<!-- BEGIN TM --> {tm} <!-- END TM -->
-	    	</div>
-	    	<!-- END MNF_TM -->
-			<table class="full">
-				<tr><td>
-			<!-- BEGIN IMG -->
-	          <a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a>
-			<!-- END IMG -->
+			<!-- BEGIN IMG --><a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a><!-- END IMG -->
+			<!-- BEGIN PRICE --><div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
+			<!-- BEGIN CODE --><div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
+			<!-- BEGIN MNF --><div class='mod-ishop-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
+			<!-- BEGIN TM --><div class='mod-ishop-mnf'>{name}</div><!-- END TM -->
+
 			{announce}
 			</td></tr>
 			</table>

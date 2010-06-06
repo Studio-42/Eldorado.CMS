@@ -1,32 +1,9 @@
 <?php
 
-
-
-define ('EL_IS_CAT',      1);
-define ('EL_IS_ITEM',     2);
-define ('EL_IS_ITYPE',    3);
-define ('EL_IS_PROP',     4);
-define ('EL_IS_MNF',      5);
-define ('EL_IS_TM',       6);
-
-
 define ('EL_IS_PROP_STR',   1);
 define ('EL_IS_PROP_TXT',   2);
 define ('EL_IS_PROP_LIST',  3);
 define ('EL_IS_PROP_MLIST', 4);
-
-if (!defined('EL_IS_USE_MNF'))
-{
-	define('EL_IS_USE_MNF',    1);
-	define('EL_IS_USE_TM',     2);
-	define('EL_IS_USE_MNF_TM', 3);
-
-	define('EL_IS_SORT_NAME',  1);
-	define('EL_IS_SORT_CODE',  2);
-	define('EL_IS_SORT_PRICE', 3);
-	define('EL_IS_SORT_TIME',  4);
-	
-}
 
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItem.class.php';
@@ -35,98 +12,240 @@ include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemType.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 
-class elIShopFactory
-{
-  var $pageID = 0;
-  var $_types = array();
-  var $_objs  = array();
-  var $_db    = null;
-
-  var $_tb = array(
-      'tbc'       => 'el_ishop_%d_cat',
-      'tbi'       => 'el_ishop_%d_item',
-      'tbmnf'     => 'el_ishop_%d_mnf',
-      'tbtm'      => 'el_ishop_%d_tm',
-      'tbi2c'     => 'el_ishop_%d_i2c',
-      'tbt'       => 'el_ishop_%d_itype', // item types
-      'tbp'       => 'el_ishop_%d_prop', //attrs
-      'tbpval'    => 'el_ishop_%d_prop_value',
-      'tbpdep'    => 'el_ishop_%d_prop_depend',
-      'tbp2i'     => 'el_ishop_%d_p2i',	// item`s attrs
-      'tbs'       => 'el_ishop_%d_search',
-      'tbse'      => 'el_ishop_%d_se',
-      'tbst'      => 'el_ishop_%d_st',
-      'tbsp'      => 'el_ishop_%d_sp',
-      'tbgal'     => 'el_ishop_%d_gallery'
-      );
-
-  var $_classes = array(
-      EL_IS_CAT   => array(
-          'name'=> 'elCatalogCategory',
-          'tbs' => array('tbc', 'tbi2c')),
-      EL_IS_ITEM  => array(
-          'name'=> 'elIShopItem',
-          'tbs' => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
-      EL_IS_MNF   => array(
-          'name'=> 'elIShopManufacturer',
-          'tbs' => array('tbmnf', 'tbi')),
-      EL_IS_ITYPE   => array(
-          'name'=> 'elIShopItemType',
-          'tbs' => array('tbt', 'tbp')),
-      EL_IS_PROP   => array(
-          'name'=> 'elIShopProperty',
-          'tbs' => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
-      EL_IS_TM => array(
-          'name' => 'elIShopTm',
-          'tbs'  => array('tbtm', 'tbmnf')),
-      );
-
-
-    var $_conf = array();
+/**
+ * IShop factory and regisry for item types
+ *
+ * @package IShop
+ **/
+class elIShopFactory {
+	/**
+	 * current page ID
+	 *
+	 * @var int
+	 **/
+	var $pageID = 0;
+	/**
+	 * madule config
+	 *
+	 * @var array
+	 **/
+	var $_conf = array();
+	/**
+	 * database
+	 *
+	 * @var elDb
+	 **/
+	var $_db    = null;
+	/**
+	 * undocumented class variable
+	 *
+	 * @var string
+	 **/
+	var $_registry = array();
+	/**
+	 * tables list
+	 *
+	 * @var array
+	 **/
+	var $_tb = array(
+		'tbc'       => 'el_ishop_%d_cat',
+		'tbi'       => 'el_ishop_%d_item',
+		'tbmnf'     => 'el_ishop_%d_mnf',
+		'tbtm'      => 'el_ishop_%d_tm',
+		'tbi2c'     => 'el_ishop_%d_i2c',
+		'tbt'       => 'el_ishop_%d_itype', // item types
+		'tbp'       => 'el_ishop_%d_prop', //attrs
+		'tbpval'    => 'el_ishop_%d_prop_value',
+		'tbpdep'    => 'el_ishop_%d_prop_depend',
+		'tbp2i'     => 'el_ishop_%d_p2i',	// item`s attrs
+		'tbs'       => 'el_ishop_%d_search',
+		'tbse'      => 'el_ishop_%d_se',
+		'tbst'      => 'el_ishop_%d_st',
+		'tbsp'      => 'el_ishop_%d_sp',
+		'tbgal'     => 'el_ishop_%d_gallery'
+		);
+	/**
+	 * classes list
+	 *
+	 * @var array
+	 **/
+	var $_classes = array(
+		EL_IS_CAT => array(
+			'name'=> 'elCatalogCategory',
+			'tbs' => array('tbc', 'tbi2c')),
+		EL_IS_ITEM => array(
+			'name'=> 'elIShopItem',
+			'tbs' => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
+		EL_IS_MNF => array(
+			'name'=> 'elIShopManufacturer',
+			'tbs' => array('tbmnf', 'tbi')),
+		EL_IS_ITYPE => array(
+			'name'=> 'elIShopItemType',
+			'tbs' => array('tbt', 'tbp')),
+		EL_IS_PROP => array(
+			'name'=> 'elIShopProperty',
+			'tbs' => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
+		EL_IS_TM => array(
+			'name' => 'elIShopTm',
+			'tbs'  => array('tbtm')),
+		);
     
-    function init($pageID, $conf)
-    {
-      $this->pageID = $pageID;
-      foreach ( $this->_tb as $k=>$tb )
-      {
-        $this->_tb[$k] = sprintf($tb, $this->pageID);
-      }
-      $this->_db    = & elSingleton::getObj('elDb');
-      $type         = $this->_create(EL_IS_ITYPE);
-      $this->_types = $type->collection(); 
-      $this->_conf  = $conf;
-      
-    }
+	/**
+	 * initilize factory
+	 *
+	 * @param  int    $pageID  current page ID
+	 * @param  array  conf     module config
+	 * @return void
+	 **/
+	function init($pageID, $conf) {
+		$this->pageID = $pageID;
+		foreach ($this->_tb as $k=>$tb) {
+			$this->_tb[$k] = sprintf($tb, $this->pageID);
+		}
+		$this->_db    = & elSingleton::getObj('elDb');
+		$this->_conf  = $conf;
+	}
 
+	/**
+	 * create and return object of required type
+	 *
+	 * @param  int   $hndl  obj type
+	 * @param  int   $ID    obj ID
+	 * @return object|null
+	 **/
+	function create($hndl, $ID=0) {
+		
+		if (empty($this->_classes[$hndl])) {
+			return null;
+		}
 
-      function getCategory($ID)
-      {
-        return $this->_create(EL_IS_CAT, $ID);
-      }
+		$c = $this->_classes[$hndl]['name'];
+		$obj = new $c();
+		$tbs = $this->_classes[$hndl]['tbs'];
+		$i = count($tbs);
+		while ($i--) {
+			$member = ($i==0) ? '_tb' : $tbs[$i];
+			$obj->{$member} = $this->_tb[$tbs[$i]];
+		}
 
-      function &getItemType($ID)
-      {
-        if ( !empty($this->_types[$ID]) )
-        {
-          return $this->_types[$ID];
-        }
-        return $this->_create(EL_IS_ITYPE, $ID);
-      }
+		$obj->idAttr((int)$ID);
+		$obj->fetch();
+		return $obj;
+	}
+
+	/**
+	 * return object from regisry
+	 *
+	 * @param  int  $type  object type
+	 * @param  int  $ID    object id
+	 * @return object
+	 **/
+	function getFromRegistry($type, $ID) {
+		if ($type != EL_IS_MNF && $type != EL_IS_TM && $type != EL_IS_ITYPE) {
+			$type = EL_IS_ITYPE;
+		}
+		!isset($this->_registry[$type]) && $this->_loadRegistry($type);
+		return isset($this->_registry[$type][$ID]) 
+			? $this->_registry[$type][$ID]
+			: ($type != EL_IS_ITYPE ? $this->create($type) : $this->_registry[$type][array_pop(array_keys($this->_registry[$type]))]);
+	}
+
+	/**
+	 * return all object of required type from regisry
+	 *
+	 * @param  int  $type  object type
+	 * @return array
+	 **/
+	function getAllFromRegistry($type=EL_IS_ITYPE) {
+		if ($type != EL_IS_MNF && $type != EL_IS_TM && $type != EL_IS_ITYPE) {
+			$type = EL_IS_ITYPE;
+		}
+		!isset($this->_registry[$type]) && $this->_loadRegistry($type);
+		return $this->_registry[$type];
+	}
+
+	/**
+	 * return types id/name list
+	 *
+	 * @return array
+	 **/
+	function getTypesList() {
+		$types = $this->getAllFromRegistry(EL_IS_ITYPE);
+		$ret = array();
+		foreach ($types as  $id=>$t) {
+			$ret[$id] = $t->name;
+		}
+		return $ret;
+	}
+
+	/**
+	 * return trademarks for required manufacturer
+	 *
+	 * @param  int  $ID
+	 * @return array
+	 **/
+	function getTmsByMnf($ID) {
+		$all = $this->getAllFromRegistry(EL_IS_TM);
+		$ret = array();
+		foreach ($all as $id => $tm) {
+			if ($tm->mnfID == $ID) {
+				$ret[$id] = $tm;
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function countMnfItems($ID) {
+		if (!isset($this->_mnfItemsCnt)) {
+			$this->_mnfItemsCnt = $this->_db->queryToArray(sprintf('SELECT mnf_id, COUNT(id) AS num FROM %s GROUP BY mnf_id', $this->_tb['tbi']), 'mnf_id', 'num');
+		}
+		return isset($this->_mnfItemsCnt[$ID]) ? $this->_mnfItemsCnt[$ID] : 0;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function countTmItems($ID) {
+		if (!isset($this->_tmItemsCnt)) {
+			$this->_tmItemsCnt = $this->_db->queryToArray(sprintf('SELECT tm_id, COUNT(id) AS num FROM %s GROUP BY tm_id', $this->_tb['tbi']), 'tm_id', 'num');
+		}
+		return isset($this->_tmItemsCnt[$ID]) ? $this->_tmItemsCnt[$ID] : 0;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getItemsSort() {
+		return $this->_conf['itemsSortID'];
+	}
+
 
       function getProperty($ID)
       {
-        return $this->_create(EL_IS_PROP, $ID);
+        return $this->create(EL_IS_PROP, $ID);
       }
 
       function getProperties()
       {
-        $prop = $this->_create(EL_IS_PROP);
+        $prop = $this->create(EL_IS_PROP);
         return $prop->collection(true, true, null, 'sort_ndx');
       }
 
       function getItem($ID, $typeID=0)
       {
-        $item = $this->_create(EL_IS_ITEM, $ID);
+        $item = $this->create(EL_IS_ITEM, $ID);
         $item->mnfNfo = $this->_conf['mnfNfo'];  
         if ( empty($item->type) && !empty($typeID) )
         {
@@ -135,27 +254,21 @@ class elIShopFactory
         return $item;
       }
 
-      function getTypesList()
-      {
-        $ret = array();
-        foreach ($this->_types as $ID=>$t)
-        {
-          $ret[$ID] = $t->name;
-        }
-        return $ret;
-      }
 
-      function getItemsTypes()
-      {
-        return $this->_types;
-      }
 
-      function getItems( $catID, $sortID, $offset, $step )
-      {
-        //$item = $this->_create(EL_IS_ITEM);
-        $item = $this->getItem(0);
-        return $item->getByCategory( $catID, $sortID, $offset, $step );
-      }
+
+	/**
+	 * return items from category
+	 *
+	 * @param  int  $catID
+	 * @param  int  $offset
+	 * @param  int  $step
+	 * @return array
+	 **/
+	function getItems($catID, $offset, $step) {
+		$item = $this->create(EL_IS_ITEM);
+		return $item->getByCategory($catID, $this->_conf['itemsSortID'], $offset, $step);
+	}
 
       function countItemsByType( $typeID )
       {
@@ -163,21 +276,10 @@ class elIShopFactory
         return $this->_db->numRows();
       }
 
-      function getMnf($ID)
-      {
-        return $this->_create(EL_IS_MNF, $ID);
-      }
 
-      function getMnfs()
-      {
-        $mnf = $this->_create(EL_IS_MNF);
-        return $mnf->collection();
-      }
 
-      function getTm($ID)
-      {
-        return $this->_create(EL_IS_TM, $ID);
-      }
+
+
       
       function getSearchManager()
       {
@@ -194,46 +296,49 @@ class elIShopFactory
         return $sa;
       }
       
-      function getTbs()
-      {
-        return $this->_tb;
-      }
-      
-      function tb($name)
-	{
-		return !empty($this->_tb[$name]) ? $this->_tb[$name] : null;
+
+	/**
+	 * return tables list
+	 *
+	 * @return array
+	 **/
+	function getTbs() {
+		return $this->_tb;
 	}
-      /*********************************************************/
-      //                     PRIVATE                           //
-      /*********************************************************/
 
-      function _create( $hndl, $ID=0 )
-      {
-        if (empty($this->_classes[$hndl]))
-        {
-          return null;
-        }
+	/**
+	 * return table by abbr name
+	 *
+	 * @param  string  $name  key of elIShopFactory::_tb
+	 * @return string
+	 **/
+	function tb($name) {
+		return isset($this->_tb[$name]) ? $this->_tb[$name] : null;
+	}
+	
+	/*********************************************************/
+	//                     PRIVATE                           //
+	/*********************************************************/
+	
 
-			$c = $this->_classes[$hndl]['name'];
-			$this->_objs[$hndl] = new $c();
-          $tbs = $this->_classes[$hndl]['tbs'];
-          for ($i=0, $s=sizeof($tbs); $i<$s; $i++)
-          {
-            $member = ($i==0) ? '_tb' : $tbs[$i];
-            $this->_objs[$hndl]->{$member} = $this->_tb[$tbs[$i]];
-          }
 
-        $obj = $this->_objs[$hndl];
-        $obj->idAttr((int)$ID);
+	/**
+	 * load part of regisry
+	 *
+	 * @param  int   item type to load
+	 * @return void
+	 **/
+	function _loadRegistry($type) {
+		$obj = $this->create($type);
+		$this->_registry[$type] = $obj->collection(true, true);
+		if ($type == EL_IS_ITYPE && empty($this->_registry[$type])) {
+			$obj->attr('name', m('Default product'));
+			$obj->save();
+			$this->_registry[$type] = $obj->collection(true, true);
+		}
+	}
 
-        if ($obj->ID && !$obj->fetch())
-        {
-          $obj->clean();
-        }
 
-        return $obj;
-      }
-
-}
+} // END class 
 
 ?>

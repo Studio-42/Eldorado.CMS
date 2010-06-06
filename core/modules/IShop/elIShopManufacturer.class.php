@@ -11,27 +11,38 @@ class elIShopManufacturer extends elDataMapping {
 	var $logo     = '';
 	var $content  = '';
 	var $_objName = 'Manufacturer';
-	var $tms      = array();
 
 	/**
-	 * return manufacturers collection
+	 * return manufacturer trademarks
 	 *
 	 * @return array
 	 **/
-	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
-		$coll = parent::collection(true, true, $clause, 'name', $offset, $limit, $onlyFields);
-		if (!empty($coll)) {
-			$factory = & elSingleton::getObj('elIShopFactory');
-			$tm     = $factory->getTm(0);
-			$tms    = $tm->collection(true, true, null, 'name');
-			foreach ($tms as $one) {
-				if (!empty($coll[$one->mnfID])) {
-					$coll[$one->mnfID]->tms[] = $one;
-				}
-			}
-		}
-		return $coll;
+	function getTms() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->getTmsByMnf($this->ID);
 	}
+
+	/**
+	 * return number of item from current manufacturer
+	 *
+	 * @return int
+	 **/
+	function countItems() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		return $f->countMnfItems($this->ID);
+	}
+
+	/**
+	 * Return current manufacturer products
+	 *
+	 * @return array
+	 **/
+	function getItems() {
+		$f = & elSingleton::getObj('elIShopFactory');
+		$i = $f->create(EL_IS_ITEM);
+		return $i->collection(true, true, 'mnf_id='.intval($this->ID));
+	}
+
 
 	/**
 	 * create form

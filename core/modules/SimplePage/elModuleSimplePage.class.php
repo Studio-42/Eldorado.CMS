@@ -44,7 +44,7 @@ class elModuleSimplePage extends elModule
 		$this->_page->ID = $this->pageID;
 		if ( !$this->_page->fetch() )
 		{
-			$db = & $this->getDb();
+			$db = & elSingleton::getObj('elDb');
 			$db->query('INSERT INTO el_page (id) VALUES (\''.$this->pageID.'\')' );
 		}
 	}

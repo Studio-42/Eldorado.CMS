@@ -35,6 +35,7 @@ class elModuleEventSchedule extends elModule
 		$this->_initRenderer();
 		$today = mktime(0,0,0,date('m'), date('d'), date('Y'));
 		$this->_rnd->render( $event->getCollection(null, 'begin_ts', 0, 0, 'end_ts<'.$today) , false );
+		elAppendToPagePath( array('url'=>'last', 'name'=>m('Last events')) );
 	}
 
 	/**

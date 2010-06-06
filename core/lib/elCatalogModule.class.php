@@ -1,8 +1,5 @@
 <?php
-define('EL_CAT_DESCRIP_NO',      0);
-define('EL_CAT_DESCRIP_IN_LIST', 1);
-define('EL_CAT_DESCRIP_IN_SELF', 2);
-define('EL_CAT_DESCRIP_IN_BOTH', 3);
+
 
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 

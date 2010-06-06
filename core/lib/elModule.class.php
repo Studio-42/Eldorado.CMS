@@ -1,210 +1,211 @@
 <?php
-
 /**
- * Базовый, абстрактный класс модулей системы
- */
-class elModule
-{
+ * Base class for modules
+ *
+ * @package core
+ **/
+class elModule {
 	/**
-   * Module wo elModule[Admin] prefix, casesensitive
-   * need to load messages, inc js files etc.
-   * @param string
-   */
-	var $name       = '';
-
+	 * module name without "el" prefix (case sensitive)
+	 * required for many service actions
+	 *
+	 * @var string
+	 **/
+	var $name = '';
 	/**
-   * @param  int  current page ID (from el_menu table)
-   * when import is used, replaced by imPageID conf value (in _loadConf() )
-   */
-	var $pageID     = 0;
-
+	 * current page ID
+	 *
+	 * @var int
+	 **/
+	var $pageID = 0;
 	/**
-   * @param  obj  Data base object
-   */
-	var $db         = null;
-
+	 * flag to protect system required modules from deletion
+	 *
+	 * @var bool
+	 **/
+	var $required = false;
 	/**
-   * @param  bool  flag, is this module requiered for site work and could not be deleted?
-   */
-	var $required   = false;
-
+	 * URL args -> class methods mapping
+	 *
+	 * @var array
+	 **/
+	var $_mMap = array();
 	/**
-   * @param  array  class methods list, which requested through URL (ro mode)
-   */
-	var $_mMap      = array();
-
-	/**
-   * @param  array  class methods list, which requested through URL (rw mode)
-   */
+	 * URL args -> class methods mapping (for admin mode)
+	 *
+	 * @var array
+	 **/
 	var $_mMapAdmin = array();
-
 	/**
-   * @param  array  class methods list, which requested through URL (root mode) - cofigure page methods
-   */
-	var $_mMapConf  = array('conf'=>array('m'=>'configure', 'ico'=>'icoConf', 'l'=>'Configuration'));
-
+	 * URL args -> class methods mapping (configure module methods)
+	 *
+	 * @var array
+	 **/
+	var $_mMapConf  = array(
+		'conf' => array('m'=>'configure', 'ico'=>'icoConf', 'l'=>'Configuration')
+	);
+	/**
+	 * URL args -> class methods mapping (import/export methods)
+	 *
+	 * @var array
+	 **/
 	var $_mMapConfImport = array(
 		'import' => array('m'=>'configureImport', 'l'=>'Data import configuration', 'ico'=>'icoImportConf'),
 		'export' => array('m'=>'configureExport', 'l'=>'Data export configuration', 'ico'=>'icoExportConf')
 		);
 	/**
-   * @param  bool  allow action menu in read mode
-   */
-	var $_actMenuAllowed = false;
+	 * module configuration
+	 *
+	 * @var array
+	 **/
+	var $_conf = array(); 
 	/**
-   * @param  array  page (or site subsitem) config - fetch from config file
-   */
-	var $_conf      = array(); //imPageID srcDb=>array()
-
-	/**
-   * @param  int  group ID in conf file from which fetch config
-   */
+	 * group ID in conf file from which fetch config
+	 * for usual pages (not from control center - page ID)
+	 *
+	 * @var string|int
+	 **/
 	var $_confID  = 0;
-
 	/**
-   * @param  array  args list passed by core
-   */
-	var $_args      = array();
-
+	 * args list passed by core (from URL)
+	 *
+	 * @var array
+	 **/
+	var $_args = array();
 	/**
-   * @param  string  Method's Handler which requested through URL,
-   * one of _mMap keys
-   */
-	var $_mh       = null;
-
+	 * Method's Handler which requested through URL now
+	 *
+	 * @var string
+	 **/
+	var $_mh = null;
 	/**
-   * @param  obj  объект - "View" (Renderer)
-   */
-	var $_rnd       = null;
-
-	var $_icoPopup  = false;
-	var $_panePopup = false;
+	 * renderer object
+	 *
+	 * @var object
+	 **/
+	var $_rnd = null;
 	/**
-   * @param  string  Renderer class name
-   * class must be placed in module dir and named - elRnd[module name],
-   * in other place base elModuleRenderer is used
-   */
+	 * Renderer class name
+	 * class must be placed in module dir and named - elRnd[module name],
+	 * otherwise base elModuleRenderer is used
+	 *
+	 * @var string
+	 **/
 	var $_rndClass  = 'elModuleRenderer';
-
-
 	/**
-   * @param  int  current acces mode
-   */
+	 * current user acces mode to page
+	 *
+	 * @var int
+	 **/
 	var $_aMode     = EL_READ;
 	/**
-   * @param  int  can this module use import (from el_module table) or not
-   */
-	//var $_import    = 0;
-
-	/**
-   * @param  array  only in MultiModule - list of subModules (to render as tabs)
-   */
+	 * only in MultiModule - list of subModules (to render as tabs)
+	 *
+	 * @var array
+	 **/
 	var $_tabs      = null;
 	/**
-   * @param  string  only in MultiModule - key  current subModule
-   */
+	 * only in MultiModule - key  current subModule
+	 *
+	 * @var string
+	 **/
 	var $_curTab    = '';
-
 	/**
-   * @param  string  only in MultiModule - URL part - path to current submodule if it is not default
-   */
+	 * only for MultiModule - URL part - path to current submodule if it is not default
+	 *
+	 * @var string
+	 **/
 	var $_smPath = '';
-
-	var $_css = true;
-	
-	var $_jslib = false;
-
 	/**
-   * @param  bool  does default method except arguments from URL
-   * used by core to 404 error emulation
-   */
+	 * does default method except arguments from URL
+	 *
+	 * @var bool
+	 **/
 	var $_defMethodNoArgs = false;
-
+	/**
+	 * memebers shared with renderer
+	 *
+	 * @var array|null
+	 **/
 	var $_sharedRndMembers = null;
 	//**************************************************************************************//
 	// *******************************  PUBLIC METHODS  *********************************** //
 	//**************************************************************************************//
 
 	/**
-   * инициализация модуля
-   */
-	function init( $pageID, $args, $name, $aMode=EL_READ )
-	{
+	 * initilize module
+	 *
+	 * @return void
+	 **/
+	function init($pageID, $args, $name, $aMode=EL_READ) {
 		$this->pageID   = $pageID;
 		$this->name     = $name;
 		$this->_args    = $args;
 		$this->_aMode   = $aMode;
-		$this->_confID  = !empty($this->_confID) ? $this->_confID : $this->pageID;
-
-		if ( EL_READ < $this->_aMode )
-		{
-			$this->_initAdminMode();
+		if (empty($this->_confID)) {
+			$this->_confID  = $this->pageID;
 		}
-		else
-		{
+
+		if (EL_READ < $this->_aMode) {
+			$this->_initAdminMode();
+		} else {
 			$this->_initNormal();
 		}
 
-		if ( null != ($h = $this->_arg() ) && !empty($this->_mMap[$h]['m']) && method_exists($this, $this->_mMap[$h]['m']))
-		{
+		if (null != ($h = $this->_arg()) 
+		&& !empty($this->_mMap[$h]['m']) 
+		&& method_exists($this, $this->_mMap[$h]['m'])) {
 			$this->_mh = array_shift($this->_args);
-		}
-		else
-		{
+		} else {
 			$this->_mh = '';
 		}
-		if ($this->_css)
-		{
-		  elAddCss('modules/'.$this->name.'.css');
-		}
+
+		elAddCss('modules/'.$this->name.'.css');
 		$this->_onInit();
 	}
 
 
 	/**
-   * Проверяет принимает ли метод аргументы из URL,
-   * используется ядром для определения 404 ошибки
-   */
-	function checkArgs()
-	{
-		if ( !empty($this->_args) )
-		{
+	 * check if method get args from URL
+	 * used by core to detect 404
+	 *
+	 * @return bool
+	 **/
+	function checkArgs() {
+		if (!empty($this->_args)) {
 			return !(empty($this->_mh)
 			       && $this->_defMethodNoArgs
-			       && 'favicon.ico' != $this->_args[0]
-			       && 'robots.txt' != $this->_args[0]);
+			       && 'favicon.ico' != $this->_args[0] // maybe this in htaacess already?
+			       && 'robots.txt' != $this->_args[0]); // and this
 		}
 		return true;
 	}
 
 	/**
-   * запуск модуля (вызывается ядром)
-   */
-	function run()
-	{
-	  if ( !$this->_mh )
-	  {
-	    $method = 'defaultMethod';
-	  }
-	  else
-	  {
-      if ( method_exists($this, $this->_mMap[$this->_mh]['m']))
-	    {
-	      $method = $this->_mMap[$this->_mh]['m'];
-	    }
-	    else
-	    {
-	      array_unshift($this->_args, $this->_mh);
-	      $this->_mh = '';
-	      $method    = 'defaultMethod';
-	    }
-	  }
+	 * run module (called by core)
+	 *
+	 * @return void
+	 **/
+	function run() {
+		if (!$this->_mh) {
+			$method = 'defaultMethod';
+		} else {
+			if (method_exists($this, $this->_mMap[$this->_mh]['m'])) {
+				$method = $this->_mMap[$this->_mh]['m'];
+			} else {
+				array_unshift($this->_args, $this->_mh);
+				$this->_mh = '';
+				$method    = 'defaultMethod';
+			}
+		}
 		$this->$method();
 	}
 
 	/**
-   * дефолтный метод
-   */
+	 * Module default method (Abstract)
+	 *
+	 * @return void
+	 */
 	function defaultMethod() {}
 
 	/**
@@ -212,8 +213,7 @@ class elModule
 	 *
 	 * @return string
 	 */
-	function toXML()
-	{
+	function toXML() {
 		$request = $this->_arg();
 		if ( 'rss' == $request )
 		{
@@ -242,22 +242,18 @@ class elModule
 	}
 
 	/**
-   * Complite module working. Render his content.
-   */
-
-	function stop()
-	{
+	 * Module complete work. Render its content now.
+	 *
+	 * @return void
+	 **/
+	function stop() {
 		$this->_initRenderer();
 		$this->_onBeforeStop();
 		$acts = array();
-		if ( $this->_actMenuAllowed || EL_READ < $this->_aMode )
-		{
-			foreach ( $this->_mMap as $k=>$v )
-			{
-				if (!empty($v['g']))
-				{
-					if (!isset($acts[$v['g']]))
-					{
+		if (EL_READ < $this->_aMode) {
+			foreach ($this->_mMap as $k=>$v) {
+				if (!empty($v['g'])) {
+					if (!isset($acts[$v['g']])) {
 						$acts[$v['g']] = array();
 					}
 					$g = array( 'url'    => EL_URL.$this->_smPath.$k.'/'.(isset($v['apUrl']) ? $v['apUrl'].'/' : ''),
@@ -269,22 +265,20 @@ class elModule
 				}
 			}
 			$pls = getPluginsManageList();
-			// elPrintR($pls);
-			if (!empty($pls))
-			{
+
+			if (!empty($pls)) {
 				$acts['Plugins'] = $pls;
 			}
-			$acts['Help'] = array( array(
-				'url'     => '#',
-				'label'   => m('Documentation index'),
-				'onClick' => "return popUp('".EL_BASE_URL."/core/docs/index.html', 600, 600);",
-				'ico'     =>'icoHelpTopics'
-				)
-				
+			$acts['Help'] = array( 
+				array(
+					'url'     => '#',
+					'label'   => m('Documentation index'),
+					'onClick' => "return popUp('".EL_BASE_URL."/core/docs/index.html', 600, 600);",
+					'ico'     =>'icoHelpTopics'
+					)
 				);
 			$file = 'docs/modref.'.$this->name.'.html';
-			if ( file_exists(EL_DIR_CORE.$file) )
-			{
+			if (file_exists(EL_DIR_CORE.$file)) {
 				$acts['Help'][] = array(
 					'url'    =>'#',
 					'label'  => m('Module documentation'),
@@ -294,20 +288,27 @@ class elModule
 			}
 		}
 		$this->_rnd->renderComplite( $acts );
-		$this->_setPagePath();
 	}
 
 	/**
-   * return db object
-   * other objects neednt know anything about import
-   */
-	function &getDb()
-	{
-		if ( !$this->db )
-		{
-			$this->db = & elSingleton::getObj('elDb');
+	 * edit/update module configuration
+	 *
+	 * @return void
+	 **/
+	function configure() {
+		if (EL_FULL <> $this->_aMode) {
+			elThrow(E_USER_WARNING, 'Operation not allowed', '', EL_URL);
 		}
-		return $this->db;
+
+		$form = & $this->_makeConfForm();
+		if ($form->isSubmitAndValid() 
+		&& null != ($newConf = $this->_validConfForm( $form))) {
+			$this->_updateConf($newConf);
+			elMsgBox::put(m('Configuration was saved'));
+			elLocation(EL_WM_URL.$this->_smPath);
+		}
+		$this->_initRenderer();
+		$this->_rnd->addToContent($form->toHtml());
 	}
 
 	/**
@@ -315,40 +316,16 @@ class elModule
 	 *
 	 * @return object
 	 */
-	function &getEIProccessor()
-	{
+	function &getEIProccessor() {
 		$ei = null;
-		$class = $this->_getEIProccessorName();
-		if ( $class )
-		{
-			$ei    = & elSingleton::getObj( $class );
+		if (false != ($class = $this->_getEIProccessorName())) {
+			$ei    = & elSingleton::getObj($class);
 			$ei->init($this);
 		}
 		return $ei;
 	}
-	/**
-   * Edit and update configuration (site page or site substem)
-   */
-	function configure()
-	{
-		if ( EL_FULL <> $this->_aMode )
-		{
-			elThrow(E_USER_WARNING, 'Operation not allowed', '', EL_URL);
-		}
 
-		$form = & $this->_makeConfForm();
-		if ( $form->isSubmitAndValid() && null != ($newConf = $this->_validConfForm( $form)) )
-		{
-			$this->_updateConf( $newConf );
-			elMsgBox::put( m('Configuration was saved') );
-			elLocation( EL_WM_URL.$this->_smPath );
-		}
-		$this->_initRenderer();
-		$this->_rnd->addToContent( $form->toHtml() );
-	}
-
-	function configureImport()
-	{
+	function configureImport() {
 		elAddJs( 'importExportAdmin.lib.js', EL_JS_CSS_FILE );
 		$form = & elSingleton::getObj( 'elForm', 'moduleConf' );
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
@@ -402,8 +379,7 @@ class elModule
 		}
 	}
 
-	function configureExport()
-	{
+	function configureExport() {
 		$form = & elSingleton::getObj( 'elForm', 'moduleConf' );
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 		$form->setLabel( m('Data export configuration'));
@@ -412,8 +388,7 @@ class elModule
 		$form->add( new elSelect('export', m('Use data export'), (int)$this->_conf('export'), $GLOBALS['yn'], array('onchange'=>$js)) );
 		$form->add( new elText('exportKEY',   m('Export KEY'),       $this->_conf('exportKEY')) );
 		elAddJs( 'checkExportForm();', EL_JS_SRC_ONLOAD);
-		if ( $form->isSubmitAndValid() )
-		{
+		if ($form->isSubmitAndValid()) {
 			$data = $form->getValue();
 			$conf = & elSingleton::getObj('elXmlConf');
 			$conf->set('export',    !empty($data['export'])    ? 1 : 0,                   $this->_confID);
@@ -428,19 +403,23 @@ class elModule
 	}
 
 	/**
-   * abstract.
-   * Overloaded in childs classes. Called when new page created with this module.
-   * Here we do anithing we cant do in install.sql
-   * ATTENTION! Method _init DID NOT CALLED BEFORE THIS
-   */
+	 * abstract method
+	 * Overloaded in childs classes. Called when new page created with this module.
+	 * Here we do anithing we cant do in install.sql
+	 * ATTENTION! Method _init DID NOT CALLED BEFORE THIS
+	 *
+	 * @return void
+	 **/
 	function onInstall() {}
 
 	/**
-   * abstract.
-   * Overloaded in childs classes. Called while deleted page, was created with this module .
-   * Here we do anithing we cant do in uninstall.sql
-   * ATTENTION! Method _init DID NOT CALLED BEFORE THIS
-   */
+	 * abstract method
+	 * Overloaded in childs classes. Called while deleted page, was created with this module .
+	 * Here we do anithing we cant do in uninstall.sql
+	 * ATTENTION! Method _init DID NOT CALLED BEFORE THIS
+	 *
+	 * @return void
+	 **/
 	function onUninstall() {}
 
 
@@ -450,72 +429,71 @@ class elModule
 	//**************************************************************************************//
 
 	/**
-   * When module is a subModule of MultiModule called by him to
-   * set tabs, current tab and path to current sub module
-   */
-	function _setTabs( $tabs, $current )
-	{
+	 * When module is a subModule of MultiModule called by him to
+	 * set tabs, current tab and path to current sub module
+	 *
+	 * @param  array  $tabs
+	 * @param  string  $current
+	 * @return void
+	 **/
+	function _setTabs($tabs, $current) {
 		$this->_tabs   = $tabs;
 		$this->_curTab = $current;
 		$this->_smPath = $tabs[$current]['path'];
 	}
 
 	/**
-   * abstract
-   * Do anything special for init current module
-   * called at the end of init() method
-   */
+	 * abstract method
+	 * Do anything special for init current module
+	 * called at the end of init() method
+	 *
+	 * @return void
+	 **/
 	function _onInit() {}
 
 	/**
-   * abstract
-   * Do anything special for stoping current module
-   * Called AFTER _initRenderer and BEFORE renderComplite
-   */
+	 * abstract method
+	 * Do something special before stop current module
+	 * Called AFTER _initRenderer and BEFORE renderComplite
+	 *
+	 * @return void
+	 **/
 	function _onBeforeStop() {}
 
 	/**
-   * Init module in "user" mode
-   */
-	function _initNormal()
-	{
+	 * initilize module in user mode
+	 *
+	 * @return void
+	 **/
+	function _initNormal() {
 		elLoadMessages('Module'.$this->name);
 		$this->_loadConf();
-		if ($this->_jslib)
-		{
-			elAddJs( $this->name.'.lib.js', EL_JS_CSS_FILE );
-		}
 	}
 
 	/**
-   * Init module in "admin" mode
-   */
-	function _initAdminMode()
-	{
+	 * initilize module in admin mode
+	 *
+	 * @return void
+	 **/
+	function _initAdminMode() {
 		elLoadMessages('CommonAdmin');
 		elLoadMessages('ModuleAdmin'.$this->name);
 		include_once 'elCoreAdmin.lib.php';
 		$this->_initNormal();
 
-		if ( !$this->_hasImportedData() )
-		{
+		if (!$this->_hasImportedData()) {
 			$this->_mMap = array_merge($this->_mMap, $this->_mMapAdmin);
 		}
 
-		if ( EL_FULL == $this->_aMode )
-		{
-			if ( !empty($this->_mMapConf) )
-			{
-				foreach ($this->_mMapConf as $k=>$v)
-				{
+		if (EL_FULL == $this->_aMode) {
+			if (!empty($this->_mMapConf)) {
+				foreach ($this->_mMapConf as $k=>$v) {
 					$this->_mMapConf[$k]['g'] = 'Configuration';
 				}
 				$this->_mMap = array_merge($this->_mMap, $this->_mMapConf);
 			}
-			if ( $this->_getEIProccessorName() )
-			{
-				foreach ($this->_mMapConfImport as $k=>$v)
-				{
+			if ($this->_getEIProccessorName()) {
+				foreach ($this->_mMapConfImport as $k=>$v) {
 					$this->_mMapConfImport[$k]['g'] = 'Configuration';
 				}
 				$this->_mMap = array_merge($this->_mMap, $this->_mMapConfImport);
@@ -523,19 +501,16 @@ class elModule
 		}
 	}
 
-	function _hasImportedData()
-	{
+	function _hasImportedData() {
 		return $this->_getEIProccessorName() && $this->_conf('importTS');
 	}
 
-	function _getEIProccessorName()
-	{
+	function _getEIProccessorName() {
 		$class = 'elModule'.$this->name.'EIProccessor';
 		return elSingleton::incLib('modules/'.$this->name.'/'.$class.'.class.php') ? $class : null;
 	}
 
-	function _saveImportConf($data)
-	{
+	function _saveImportConf($data) {
 		$conf = & elSingleton::getObj('elXmlConf');
 		$conf->set('import',       !empty($data['import']) ? 1 : 0,                            $this->_confID);
 		$conf->set('importURL',    !empty($data['importURL'])    ? $data['importURL']    : '', $this->_confID);
@@ -548,81 +523,69 @@ class elModule
 	}
 
 	/**
-   * Init object - module renderer
-   */
-	function _initRenderer()
-	{
-		if ( !$this->_rnd )
-		{
-			if ( elSingleton::incLib('modules/'.$this->name.'/elRnd'.$this->name.'.class.php') )
-			{
+	 * initilize module renderer
+	 *
+	 * @return void
+	 **/
+	function _initRenderer() {
+		if (!$this->_rnd) {
+			if (file_exists(EL_DIR_CORE.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$this->name.DIRECTORY_SEPARATOR.'elRnd'.$this->name.'.class.php')) {
 				$this->_rndClass = 'elRnd'.$this->name;
 			}
-			
-			$admin  = EL_READ < $this->_aMode;
 
-			$this->_rnd = & elSingleton::getObj($this->_rndClass );
-			$this->_rnd->init( $this->name, $this->_conf, false, $admin, $this->_tabs, $this->_curTab );
-			if ( !empty($this->_sharedRndMembers) )
-			{
-				foreach ( $this->_sharedRndMembers as $m )
-				{
-					if (isset($this->$m))
-					{
+			$this->_rnd = & elSingleton::getObj($this->_rndClass);
+			
+			if (!empty($this->_sharedRndMembers)) {
+				foreach ($this->_sharedRndMembers as $m) {
+					if (isset($this->$m)) {
 						$this->_rnd->$m = $this->$m;
 					}
 				}
 			}
+			
+			$this->_rnd->init($this->name, $this->_conf, EL_READ < $this->_aMode, $this->_tabs, $this->_curTab);
 		}
 	}
 
 	/**
-   * return module argument from pos $i or null
-   */
-	function _arg($i=0)
-	{
+	 * return argument by number
+	 *
+	 * @param  int  $i
+	 * @return string
+	 **/
+	function _arg($i=0) {
 		return isset($this->_args[$i]) ? $this->_args[$i] : null;
 	}
 
 	/**
-   * load module configuration from conf file
-   */
-	function _loadConf()
-	{
+	 * load configuration from conf file
+	 *
+	 * @return void
+	 **/
+	function _loadConf() {
 		$conf = &elSingleton::getObj('elXmlConf');
 		$group = $conf->getGroup( $this->_confID );
-		if ( is_array($group) )
-		{
+		if (is_array($group)) {
 			$this->_conf = array_merge( $this->_conf, $group );
 		}
 	}
 
 	/**
-   * Retiurn config paramerter if exists
-   */
-	function _conf( $param )
-	{
+	 * return config param by name
+	 *
+	 * @param  string $param  name
+	 * @return mixed
+	 **/
+	function _conf($param) {
 		return isset($this->_conf[$param]) ? $this->_conf[$param] : null;
 	}
 
 	/**
-   * Set path inside this page if available
-   */
-	function _setPagePath()
-	{
-		if ( $this->_mh && !empty($this->_mMap[$this->_mh]['l2']) )
-		{
-			elAppendToPagePath( array('url'=>$this->_smPath.$this->_mh, 'name'=>m($this->_mMap[$this->_mh]['l2'])) );
-		}
-	}
-
-	/**
-   * Create form for edit configuration
-   *
-   * @return object
-   */
-	function &_makeConfForm()
-	{
+	 * create configuration form
+	 *
+	 * @return elForm
+	 **/
+	function &_makeConfForm() {
 		$form = & elSingleton::getObj( 'elForm', 'moduleConf' );
 		$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 		$form->setLabel( m('Configure') );
@@ -630,23 +593,25 @@ class elModule
 	}
 
 	/**
-   * valid and clean data from configuration form and return new configuration
-   */
-	function _validConfForm( &$form )
-	{
+	 * valid and clean data from configuration form and return new configuration
+	 *
+	 * @param  elForm  $form
+	 * @return array
+	 **/
+	function _validConfForm(&$form) {
 		return $form->getValue();
 	}
 
 	/**
-   * Save new configuration in conf file
-   */
-	function _updateConf( $newConf )
-	{
+	 * save new config
+	 *
+	 * @param  array  $newConf
+	 * @return void
+	 **/
+	function _updateConf($newConf) {
 		$conf = &elSingleton::getObj('elXmlConf');
-		foreach ($newConf as $k=>$v)
-		{
-			if ( isset($this->_conf[$k]) )
-			{
+		foreach ($newConf as $k=>$v) {
+			if (isset($this->_conf[$k])) {
 				$conf->set($k, $newConf[$k], $this->_confID);
 			}
 		}
@@ -660,38 +625,29 @@ class elModule
 	 * Используется когда нужно запретить доступ к методам после инициализации и до запуска модуля
 	 *
 	 * @param mix $handls
+	 * @return array
 	 */
-	function _removeMethods( $handls )
-	{
-	  if (is_array($handls))
-	  {
-	    foreach ($handls as $h)
-	    {
-	      if (!empty($this->_mMap[$h]))
-	      {
-	        unset($this->_mMap[$h]);
-	        if ($this->_mh == $h)
-	        {
-	          array_unshift($this->_args, $this->_mh);
-	          $this->_mh = '';
-	        }
-	      }
-	    }
-	  }
-	  elseif (!empty($this->_mMap[$handls]) )
-	  {
-	    unset($this->_mMap[$handls]);
-	    if ($this->_mh == $handls)
-	    {
-	      array_unshift($this->_args, $this->_mh);
-	      $this->_mh = '';
-	    }
-	  }
+	function _removeMethods($handls) {
+		if (is_array($handls)) {
+			foreach ($handls as $h)	{
+				if (!empty($this->_mMap[$h])) {
+					unset($this->_mMap[$h]);
+					if ($this->_mh == $h) {
+						array_unshift($this->_args, $this->_mh);
+						$this->_mh = '';
+					}
+				}
+			}
+		} elseif (!empty($this->_mMap[$handls])) {
+			unset($this->_mMap[$handls]);
+			if ($this->_mh == $handls) {
+				array_unshift($this->_args, $this->_mh);
+				$this->_mh = '';
+			}
+		}
 	}
 
-
-
-}
+} // END class
 
 
 ?>

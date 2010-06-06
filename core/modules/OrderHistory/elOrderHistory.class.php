@@ -26,7 +26,10 @@ class elOrderHistory extends elDataMapping
 			'amount'   => 'amount',
 			'discount' => 'discount',
 			'delivery_price' => 'delivery_price',
-			'total'    => 'total'
+			'total'    => 'total',
+			'region'   => 'region',
+			'delivery' => 'delivery',
+			'payment'  => 'payment'
       );
 	}
 

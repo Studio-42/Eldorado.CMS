@@ -593,7 +593,7 @@ class elIShopItem extends elCatalogItem
 	function _getTmbNames($imgPath)
 	{
 		$imgName = baseName($imgPath);
-		$imgDir  = dirname($imgPath).'/';
+		$imgDir  = dirname($imgPath).DIRECTORY_SEPARATOR;
 		return array($imgDir.'tmbl-'.$imgName, $imgDir.'tmbc-'.$imgName);
 	}
 

@@ -167,7 +167,7 @@ class elATS {
 	 * @return bool
 	 **/
 	function isUserAuthed() {
-		return $this->user->UID;
+		return (bool)$this->user->UID;
 	}
 
 	/**

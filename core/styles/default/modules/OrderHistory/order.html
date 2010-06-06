@@ -1,25 +1,26 @@
 <!-- BEGIN ORDER -->
-<!-- BEGIN ADMIN_EDIT -->
-<ul class="adm-icons">
-	<li style="padding:0;border:none"><a href="{URL}edit/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
-</ul>
-<!-- END ADMIN_EDIT -->
-<ul class="adm-icons">
-	<li style="padding:0;border:none"><a href="{URL}show/{id}/pdf" class="icons pdf" title="{m('Print')}"></a></li>
-</ul>
-<h3 style="margin-bottom: 8px;">{m('Customer info')}</h3>
+<!-- BEGIN REPEAT -->
+<div style="float: right;">
+	<form action="{URL}repeat/" method="POST">
+		<input type="hidden" name="order" value="{id}" />
+		<input type="submit" value="{m('Repeat order')}" />
+	</form>
+</div>
+<!-- END REPEAT -->
+<div style="float: right;">
+	<form action="{URL}show/{id}/pdf" method="GET">
+		<input type="submit" value="{m('Print order')}" />
+	</form>
+</div>
+<h3 style="margin-bottom: 8px;">{m('Order')} &#8470; {id}</h3>
 <table class="nice full">
 	<tr>
 		<td style="width: 150px;">{m('ID')}</td>
 		<td><a href="{URL}show/{id}">{id}</a></td>
 	</tr>
 	<tr>
-		<td>{m('Created')}</td>
-		<td>{crtime}</td>
-	</tr>
-	<tr>
-		<td>{m('Modify')}</td>
-		<td>{mtime}</td>
+		<td>{m('Created')}<br />{m('Modify')}</td>
+		<td>{crtime}<br />{mtime}</td>
 	</tr>
 	<tr{color}>
 		<td>{m('Status')}</td>
@@ -38,16 +39,6 @@
 			<!-- END STATUS -->
 		</td>
 	</tr>
-	<tr>
-		<td>{m('Full Name')}</td>
-		<td>{full_name}</td>
-	</tr>
-	<!-- BEGIN PROFILE -->
-	<tr>
-		<td>{m('{label}')}</td>
-		<td>{value}</td>
-	</tr>
-	<!-- END PROFILE -->
 </table>
 
 <!-- BEGIN ADMIN_ITEMS -->
@@ -55,13 +46,12 @@
 	<li style="padding:0;border:none"><a href="{URL}items/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
 </ul>
 <!-- END ADMIN_ITEMS -->
-<h3 style="margin-bottom: 8px;">{m('Order')}</h3>
-<table class="grid-tb">
+<table class="nice full">
+	<caption>{m('Products')}</caption>
 	<thead>
 		<tr>
-			<th>{m('Code')}</th>
 			<th>{m('Name')}</th>
-			<th>{m('Options')}</th>
+			<th>{m('Code')}</th>
 			<th style="text-align: right;">{m('Quantity')}</th>
 			<th style="text-align: right;">{m('Price')}</th>
 			<th style="text-align: right;">{m('Sum')}</th>
@@ -70,35 +60,66 @@
 	<tbody>
 		<!-- BEGIN ITEM -->
 		<tr {color}>
+			<td>{name}<div class="mute">{props}</div></td>
 			<td>{code}</td>
-			<td>{name}</td>
-			<td>{props}</td>
 			<td style="text-align: right;">{qnt}</td>
 			<td style="text-align: right;">{price}</td>
 			<td style="text-align: right;">{subtotal}</td>
 		</tr>
 		<!-- END ITEM -->
+	</tbody>
+	<tfoot>
+		<!--
 		<tr>
-			<td>&nbsp;</td>
 			<td colspan="4">{m('Discount')}</td>
 			<td style="text-align: right;">{discount}</td>
 		</tr>
+		-->
 		<tr>
-			<td>&nbsp;</td>
 			<td colspan="4">{m('Delivery')}</td>
 			<td style="text-align: right;">{delivery_price}</td>
 		</tr>
 		<tr>
-			<th style="text-align: right;" colspan="5">{m('Total')}</th>
+			<th colspan="4">{m('Total')}</th>
 			<th style="text-align: right;">{total}</th>
+		</tr>
+	</tfoot>
+</table>
+
+<!-- BEGIN DELIVERY -->
+<table  class="nice full">
+	<caption>{m('Delivery/payment')}</caption>
+	<tbody>
+		<tr>
+			<td>{m('Region')}</td>
+			<td>{region}</td>
+		</tr>
+		<tr>
+			<td>{m('Delivery')}</td>
+			<td>{delivery}</td>
+		</tr>
+		<tr>
+			<td>{m('Payment')}</td>
+			<td>{payment}</td>
 		</tr>
 	</tbody>
 </table>
+<!-- END DELIVERY -->
+
+<!-- BEGIN ADMIN_EDIT -->
+<ul class="adm-icons">
+	<li style="padding:0;border:none"><a href="{URL}edit/{id}/" class="icons edit" title="{m('Edit')}"></a></li>
+</ul>
+<!-- END ADMIN_EDIT -->
+<table class="nice full">
+	<caption>{m('Customer info')}</caption>
+	<!-- BEGIN PROFILE -->
+	<tr>
+		<td>{m('{label}')}:</td>
+		<td>{value}</td>
+	</tr>
+	<!-- END PROFILE -->
+</table>
 <!-- END ORDER -->
 
-<!-- BEGIN ORDER_REPEAT -->
-<form action="{URL}repeat/" method="POST">
-	<input type="hidden" name="order" value="{id}" />
-	<input type="submit" value="{m('Repeat order')}" />
-</form>
-<!-- END ORDER_REPEAT -->
+

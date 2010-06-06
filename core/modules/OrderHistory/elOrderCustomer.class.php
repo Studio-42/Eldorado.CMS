@@ -90,12 +90,10 @@ class elOrderCustomer extends elDataMapping
 	function getCustomerNfo($ids = null)
 	{
 		if ((!is_array($ids)) and (!is_int($ids)))
+		{
 			return false;
 
-		elLoadMessages('UserProfile');
-		//$ats       = & elSingleton::getObj('elATS');
-		//$user      = & $ats->getUser();
-		$user = & elSingleton::getObj('elUser');
+		}
 
 		if (is_int($ids))
 		{
@@ -118,19 +116,14 @@ class elOrderCustomer extends elDataMapping
 
 		foreach ($customers as $id => $c)
 		{
+			$customers[$id]['full_name']  = implode(' ', array($c['l_name'],  $c['f_name'], $c['s_name']));
+			$customers[$id]['full_name'] .= implode(' ', array($c['Фамилия'], $c['Имя'],    $c['Отчество']));
 			if ($c['uid'] > 0)
 			{
+				$user = & elSingleton::getObj('elUser');
 				$user->idAttr($c['uid']);
 				$user->fetch();
-				$customers[$id]['full_name']  = $user->getFullName(true);
 				$customers[$id]['full_name'] .= ' ('.$user->attr('login').')';
-				$customers[$id]['email']      = $user->getEmail(false);
-				unset($customers[$id]['E-mail']);
-			}
-			else
-			{
-				$customers[$id]['full_name']  = implode(' ', array($c['l_name'],  $c['f_name'], $c['s_name']));
-				$customers[$id]['full_name'] .= implode(' ', array($c['Фамилия'], $c['Имя'],    $c['Отчество']));
 			}
 			unset($customers[$id]['uid']);
 		}

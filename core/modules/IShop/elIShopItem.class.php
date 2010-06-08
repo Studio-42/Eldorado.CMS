@@ -20,19 +20,58 @@ class elIShopItem extends elCatalogItem {
 	var $gallery    = array();
 	var $crtime     = 0;
 	var $mtime      = 0;
-	var $propVals   = array();
-	var $type       = null;
-	var $mnf        = null;
-	var $tm         = null;
-	var $_sortVars  = array(
-		EL_IS_SORT_NAME  => 'name',
-		EL_IS_SORT_CODE  => 'code, name',
-		EL_IS_SORT_PRICE => 'price DESC, name',
-		EL_IS_SORT_TIME  => 'crtime DESC, name'
-		);
+	var $propVals   = null;
+	var $_type       = null;
+
 	var $_objName = 'Product';
   
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function fetch() {
+		if (parent::fetch()) {
+			
+			$vals = $this->fetchPropsValues(array($this->ID));
+			foreach ($vals as $v) {
+				if (!isset($this->propVals[$v['p_id']])) {
+					$this->propVals[$v['p_id']] = array();
+				}
+				$this->propVals[$v['p_id']][] = $v['value'];
+			}
+			return true;
+		}
+		return false;
+	}
 
+
+	/**
+	 * return properties values by items ids
+	 *
+	 * @param  array  $ids
+	 * @return array
+	 **/
+	function fetchPropsValues($ids) {
+		$db = $this->_db();
+		return $db->queryToArray(sprintf('SELECT i_id, p_id, value FROM %s WHERE i_id IN (%s)', $this->tbp2i, implode(',', $ids)));
+	}
+
+	/**
+	 * return item manufacturer
+	 *
+	 * @return elIShopManufacturer
+	 **/
+	function getType() {
+		if (!isset($this->_type)) {
+			$f = & elSingleton::getObj('elIShopFactory');
+			$this->_type = $f->getFromRegistry(EL_IS_ITYPE, $this->mnfID);
+		}
+		return $this->_type;
+	}
+	
+	
 	/**
 	 * return item manufacturer
 	 *
@@ -53,13 +92,65 @@ class elIShopItem extends elCatalogItem {
 		return $f->getFromRegistry(EL_IS_TM, $this->tmID);
 	}
 	
+	/**
+	 * return properties marked for annouce in items list
+	 *
+	 * @return array
+	 **/
+	function getAnnouncedProperties() {
+		$ret   = array();
+		$type  = $this->getType();
+		$props = $type->getAnnouncedProperties();
+		foreach ($type->getAnnouncedProperties() as $p) {
+			$ret[] = array(
+				'name'  => $p->name,
+				'value' => $p->valuesToString(isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : array())
+				);
+		}
+		return $ret;
+	}
+
+	/**
+	 * return properties grouped by position
+	 *
+	 * @return array
+	 **/
+	function getProperties() {
+		$ret   = array('top'=>array(), 'table'=>array(), 'bottom'=>array(), 'order'=>array());
+		$type  = $this->getType();
+		$props = $type->getProperties();
+
+		foreach ($props as $p) {
+			
+			$ml = $p->isMultiList();
+			if ($ml) {
+				$ret['order'][] = array(
+					'name'  => $p->name, 
+					'value' => $p->valuesToString($value)
+					);
+			}
+			if (!($ml && $p->isHidden)) {
+				$value = isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : array();
+				$value = $p->valuesToString($value);
+				if ($value) {
+					$ret[$p->displayPos][] = array(
+						'name'  => $p->name, 
+						'value' => $value
+						);
+				}
+			}
+		}
+		return $ret;
+	}
+
+
 
   /**
    * Извлекает поля объкта из БД
    *
    * @return bool
    */
-  function fetch()
+  function _fetch()
   {
     if ( !$this->ID )
     {
@@ -103,60 +194,6 @@ class elIShopItem extends elCatalogItem {
     return true;
   }
 
-   /**
-	* Возвращает массив объектов-итемов в данной категории
-	*
-	* @param int $catID
-	* @param int $sortID
-	* @param int $offset
-	* @param int $step
-	* @return array
-    */
-	function getByCategory($catID, $sortID, $offset, $step) {
-	    $items   = array();
-	    $db      = & elSingleton::getObj('elDb');
-		$factory = & elSingleton::getObj('elIShopFactory');
-		
-		$sql = 'SELECT %s FROM %s AS i2c, %s AS i WHERE i2c.c_id=%d AND i.id=i2c.i_id ORDER BY %s LIMIT %d, %d ';
-		$sql = sprintf($sql, $this->attrsToString('i'), $this->tbi2c, $this->_tb, $catID, $this->_getOrderBy($sortID), $offset, $step);
-		$db->query($sql); 
-		while ($row = $db->nextRecord()) {
-			$items[$row['id']] = $this->copy($row);
-			// $items[$row['id']]->setType($factory->getType($row['type_id']));
-	    }
-		return $items;
-    // $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
-    //     .' FROM '.$this->tbi2c.' AS i2c, '.$this->_tb.' AS i '
-    //     .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
-    //     .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
-    //     .' WHERE i2c.c_id=\''.$catID.'\' AND i.id=i2c.i_id '
-    //     .' ORDER BY '.$this->_getOrderBy($sortID).' LIMIT '.$offset.', '.$step;
-	// echo $sql;
-		
-    
-    // while( $row = $db->nextRecord() )
-    // {
-    //   $items[$row['id']]             = $this->copy($row);
-    //   $items[$row['id']]->mnf        = $row['mnf'];
-    //   $items[$row['id']]->mnfCountry = $row['country'];
-    //   $items[$row['id']]->tm         = $row['tm'];
-    //   $items[$row['id']]->setType( $factory->getItemType( $row['type_id'] ) );
-    // }
-
-    if ( !empty($items) )
-    {
-      $sql = 'SELECT ip.i_id, ip.p_id, IF( p.type<3, ip.value, ip.pv_id) AS value '
-          .'FROM '.$this->tbp2i.' AS ip, '.$this->tbp.' AS p '
-          .'WHERE ip.i_id IN('.implode(',', array_keys($items)).') AND p.id=ip.p_id';
-      $db->query( $sql );
-      while ($r = $db->nextRecord() )
-      {
-        $items[$r['i_id']]->propVals[$r['p_id']][] = $r['value'];
-      }
-    }
-    return $items;
-  }
-
 
   /**
    * Возвращает массив объектов-итемов полученный в рез-те поиска
@@ -169,10 +206,8 @@ class elIShopItem extends elCatalogItem {
     $items = array();
     $db    = & elSingleton::getObj('elDb');
 
-    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
+    $sql = 'SELECT '.$this->attrsToString('i').' '
         .' FROM '.$tbr.' AS r, '.$this->_tb.' AS i '
-        .' LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
-        .' LEFT JOIN '.$this->tbmnf.' AS m ON IF('.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
         .' WHERE i.id=r.id  '
         .' ORDER BY mnf, name';
 
@@ -181,10 +216,6 @@ class elIShopItem extends elCatalogItem {
     while( $row = $db->nextRecord() )
     {
       $items[$row['id']]             = $this->copy($row);
-      $items[$row['id']]->mnf        = $row['mnf'];
-      $items[$row['id']]->mnfCountry = $row['country'];
-      $items[$row['id']]->tm         = $row['tm'];
-      $items[$row['id']]->setType( $factory->getItemType( $row['type_id'] ) );
     }
 
     if ( !empty($items) )
@@ -208,7 +239,7 @@ class elIShopItem extends elCatalogItem {
    *
    * @return array
    */
-  function getProperties()
+  function _getProperties()
   {
     $ret   = array('top'=>array(), 'middle'=>array(), 'table'=>array(), 'bottom'=>array());
     $order = array();
@@ -241,24 +272,9 @@ class elIShopItem extends elCatalogItem {
 	return isset($this->type->props[$pID]) ? $this->type->props[$pID]->name : '';
   }
 
-  /**
-   * Возвращает массив свойств отмеченных для показа в списке товаров (аннонс)
-   * набор свойств зависит от типа товара
-   *
-   * @return array
-   */
-  function getAnnProperties()
-  {
-    $ret = array();
-    foreach ($this->type->props as $p)
-    {
-      if (!$p->isHidden && $p->isAnnounced && !empty($this->propVals[$p->ID]))
-      {
-        $ret[] = array('name'=>$p->name, 'value'=>$this->_propertyToString($p->ID));
-      }
-    }
-    return $ret;
-  }
+
+
+
 
   function _findValue($pID, $val)
   {
@@ -698,6 +714,24 @@ class elIShopItem extends elCatalogItem {
   }
 
 
+	/*********************************************************/
+	/***                     PRIVATE                       ***/
+	/*********************************************************/	
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _loadProps() {
+		if (!is_array($this->_propsVal)) {
+			$sql = 'SELECT id, value FROM %s WHERE i_id=%d AND p_id ID (%s)';
+			// $sql = sprintf($sql, $this->_tbp2i, $this->ID, implode(",", ))
+		}
+	}
+
+
   function _getPropVal( $pID )
   {
     return isset( $this->propVals[$pID] ) ? $this->propVals[$pID] : null;
@@ -785,16 +819,7 @@ class elIShopItem extends elCatalogItem {
     return parent::_postSave();
 	}
 
-	/**
-	 * return sql fragment "order by" depend on required sort field
-	 *
-	 * @param  int     $sortID  sort index
-	 * @return string
-	 **/
-	function _getOrderBy($sortID) {
-		$orderBy = !empty($this->_sortVars[$sortID]) ? $this->_sortVars[$sortID] : $this->_sortVars[1];
-		return 'IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), '.$orderBy;
-	}
+
 
 	/**
 	 * init attrs mapping

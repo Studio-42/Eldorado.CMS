@@ -2,50 +2,72 @@
 
 class elIShopItemType extends elDataMapping
 {
-  var $tb         = '';
-  var $tbp        = '';
-  var $ID         = 0;
-  var $name       = '';
-  var $crtime     = 0;
-  var $mtime      = 0;
-  var $props      = array();
-  var $_prop      = null;
-  var $_objName   = 'Good type';
+	var $tb         = '';
+	var $tbp        = '';
+	var $ID         = 0;
+	var $name       = '';
+	var $crtime     = 0;
+	var $mtime      = 0;
+
+	var $_props      = null;
+	var $_prop      = null;
+	var $_objName   = 'Good type';
 
 
-	function collection()
-	{
-		$coll = parent::collection(true, true, null, 'name');
-		if ( !empty($coll) )
-		{
-			$factory = &elSingleton::getObj('elIShopFactory');
-			$props   = $factory->getProperties();
-			foreach ( $props as $p)
-			{
-				if ( !empty($coll[$p->iTypeID]) )
-				{
-					$coll[$p->iTypeID]->setProperty($p);
+
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getProperties() {
+		$this->_loadProperties();
+		return $this->_props;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function getAnnouncedProperties() {
+		$ret = array();
+		$this->_loadProperties();
+		foreach ($this->getProperties() as $p) {
+			if ($p->isAnnounced) {
+				$ret[$p->ID] = $p;
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _loadProperties() {
+		if (!isset($this->_props)) {
+			
+			$this->_props = array();
+			$f = & elSingleton::getObj('elIShopFactory');
+			$props = $f->getAllFromRegistry(EL_IS_PROP);
+			foreach ($props as $p) {
+				if ($p->iTypeID) {
+					$this->_props[$p->ID] = $p;
 				}
 			}
 		}
-		return $coll;
+		
 	}
 
 
-  function isPropertyExists($pID)
-  {
-    return !empty($this->props[$pID]);
-  }
 
-  function getProperties()
-  {
-    return $this->props;
-  }
 
-  function setProperty($p)
-  {
-    $this->props[$p->ID] = $p;
-  }
 
   function delete()
   {
@@ -110,31 +132,43 @@ class elIShopItemType extends elDataMapping
     return $this->_form ? $this->_form->toHtml() : ( $this->_prop ? $this->_prop->formToHtml() : '' );
   }
 
-  function _makeForm()
-  {
-    parent::_makeForm();
-    $this->_form->add( new elText('name', m('Type name'), $this->name));
-    $this->_form->setRequired('name');
-  }
+	/**
+	 * create form
+	 *
+	 * @return void
+	 **/
+	function _makeForm() {
+		parent::_makeForm();
+		$this->_form->add( new elText('name', m('Type name'), $this->name));
+		$this->_form->setRequired('name');
+	}
 
-  function _attrsForSave()
-  {
-    $attrs = parent::_attrsForSave();
-    if (!$this->ID || !$attrs['crtime'])
-    {
-      $attrs['crtime'] = time();
-    }
-    return $attrs;
-  }
+	/**
+	 * prepare attr for save
+	 *
+	 * @return array
+	 **/
+	function _attrsForSave() {
+		$attrs = parent::_attrsForSave();
+		if (!$this->ID || !$attrs['crtime']) {
+			$attrs['crtime'] = time();
+		}
+		$attrs['mtime'] = time();
+		return $attrs;
+	}
 
-
-
-
-  function _initMapping()
-  {
-    return array('id'=>'ID', 'name'=>'name', 'crtime'=>'crtime',  'mtime'=>'mtime');
-
-  }
+	/**
+	 * init attrs mapping
+	 *
+	 * @return array
+	 **/
+	function _initMapping() {
+		return array(
+			'id'     => 'ID', 
+			'name'   => 'name', 
+			'crtime' => 'crtime',  
+			'mtime'  => 'mtime');
+	}
 
 }
 

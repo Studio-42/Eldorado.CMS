@@ -31,6 +31,7 @@ class elModuleIShop extends elModule {
 		'cats'  => array('m' => 'viewCategories'),
 		'mnfs'  => array('m' => 'viewManufacturers'),
 		'mnf'   => array('m' => 'viewManufacturer'),
+		'tm'    => array('m' => 'viewTrademark'),
 		'item'  => array('m' => 'viewItem'),
 		'order' => array('m' => 'order') 
 	);
@@ -79,8 +80,13 @@ class elModuleIShop extends elModule {
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
  
+	/**
+	 * display categories or manufacturers according to config
+	 *
+	 * @return void
+	 **/
 	function defaultMethod() {
-		
+		// elPrintR($this->_args);
 		$this->_view == EL_IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
 		return;
 		// $this->_initRenderer();
@@ -117,18 +123,27 @@ class elModuleIShop extends elModule {
 
 		if (!$this->_cat->ID) {
 			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',	array($this->_cat->getObjName(), $this->_arg()), EL_URL);
+			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
 		}
 		
-		list($total, $current, $offset, $step) = $this->_getPagerInfo($this->_cat->countItems());
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		
+		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1));
+		
+		if (!$current) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such page', null, $this->_url.$this->_cat->ID);
+		}
+
 		$this->_rnd->render( 
 				$this->_cat->getChilds((int)$this->_conf('deep')),
-		        $this->_factory->getItems($this->_cat->ID, $offset, $step),
+		        $c->create(EL_IS_CAT, $this->_cat->ID, $offset, $step),
 		        $total,
 		        $current,
 		        $this->_cat
 		      );
 	}
+
 
 	/**
 	 * display manufacturers 
@@ -146,19 +161,69 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewManufacturer() {
+
 		if(!$this->_mnf->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
+		
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1));
+
+		if (!$current) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such page', null, $this->_url.$this->_mnf->ID);
+		}
+		
 		$this->_initRenderer();
-		$this->_rnd->rndMnf($this->_mnf);
+		$this->_rnd->rndMnf($this->_mnf, $c->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
+		
 		elAppendToPagePath(array(
 			'url'  => $this->_url.'mnf/'.$this->mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
 	}
 
+	/**
+	 * Display trademark
+	 *
+	 * @return void
+	 **/
+	function viewTrademark() {
+		
+		$tm = $this->_factory->create(EL_IS_TM, $this->_arg());
+		if (!$tm->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
+		}
+		$this->_mnf->ID = $tm->mnfID;
 
+		if(!$this->_mnf->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
+		}
+		
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1));
+
+		$this->_initRenderer();
+		$this->_rnd->rndTm($this->_mnf, $tm, $c->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function viewItem() {
+		// elPrintR($this->_args);
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		// elPrintR($item);
+		// elPrintR($item);
+		$this->_initRenderer();
+		$this->_rnd->rndItem($item);
+	}
 
 	/**
 	 * add items to icart from external call (now used from OrderHistory)
@@ -193,7 +258,7 @@ class elModuleIShop extends elModule {
 		}
 	}
 
-  function viewItem()
+  function _viewItem()
   {
 
     $this->_item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1) );
@@ -285,21 +350,6 @@ class elModuleIShop extends elModule {
 		return true;
 	}
 
-	/**
-	 * return number of pages, current page number, sql offset, sql step for items in category
-	 *
-	 * @param  int   $qnt  number of items
-	 * @return array
-	 **/
-	function _getPagerInfo($qnt) {
-		$cur    = 0 < $this->_arg(1) ? (int)$this->_arg(1) : 1;
-		$i      = 0 < $this->_conf('itemsPerPage') ? (int)$this->_conf('itemsPerPage') : 10;
-		$total  = ceil($qnt/$i);
-		$offset = $i*($cur-1);
-		return array($total, $cur <= $total ? $cur : 1, $offset, $i);
-	}
-
-
 
   function &_getCrossLinksManager()
 	{
@@ -320,7 +370,23 @@ class elModuleIShop extends elModule {
     $mt->init($this->pageID, $this->_cat->ID, ($this->_item) ? $this->_item->ID : 0, $this->_factory->tb('tbc'));
   }
 
-
+	/**
+	 * return info about current page for items list
+	 *
+	 * @param  int   $count  total number of items
+	 * @param  int   current page number
+	 * @return array
+	 **/
+	function _getPagerInfo($count, $current) {
+		if (!$current) {
+			$current = 1;
+		}
+		$step = (int)$this->_conf('itemsPerPage');
+		$total  = $count > 0 ? ceil($count/$step) : 1;
+		$offset = $step*($current-1);
+		return array($total, $current <= $total ? $current : 0, $offset, $step);
+	}
+	
 
 	/**
 	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
@@ -386,6 +452,10 @@ class elModuleIShop extends elModule {
 			$cur->updateConf();
 			$this->_conf['exchangeSrc'] = 'auto';
 			$this->_conf['rate']        = 0;
+		}
+		
+		if ($this->_conf('itemsPerPage') < 1) {
+			$this->_conf['itemsPerPage'] = 10;
 		}
 	}
 

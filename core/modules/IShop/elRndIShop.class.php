@@ -31,17 +31,13 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	var $_curOpts = array();
 
-	var $_itemPropBlocks = array(
-		'top'    => 'IS_IPROP_TOP',
-		'middle' => 'IS_IPROP_MIDDLE',
-		'table'  => 'IS_IPROP_TABLE',
-		'bottom' => 'IS_IPROP_BOTTOM'
+	var $_propBlocks = array(
+		'top'    => 'IS_ITEM_PROP_TOP',
+		'table'  => 'IS_ITEM_PROP_TABLE',
+		'bottom' => 'IS_ITEM_PROP_BOTTOM'
 		);
 
-	var $_ipBlocks = array(
-		'top'    => array('IS_IPROPS_TOP', 'IP_TOP'),
-		'middle' => array('IS_IPROPS_MIDDLE', 'IP_TOP')
-		);
+
 
 	/**
 	 * initilize object
@@ -125,7 +121,7 @@ class elRndIShop extends elCatalogRenderer {
 	 * @param  elIShopManufacturer  $mnf
 	 * @return void
 	 **/
-	function rndMnf($mnf) {
+	function rndMnf($mnf, $items, $total, $current) {
 		$this->_setFile();
 		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
 		if ($this->_conf('displayMnfDescrip') > EL_CAT_DESCRIP_IN_LIST) {
@@ -171,16 +167,43 @@ class elRndIShop extends elCatalogRenderer {
 		}
 		
 		// render items
-		$items = $mnf->getItems();
+		// $items = $mnf->getItems();
 		if ($items) {
 			if ($this->_conf('itemsCols')>1) { // two columns
 				$this->_rndItemsTwoColumns($items);
 			} else {  // one column
 				$this->_rndItemsOneColumns($items);
 			}
+			if ($total > 1) {
+				$this->_rndPager($total, $current);
+			}
 		}
 	}
 
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function rndTm($mnf, $tm, $items, $total, $current) {
+		$this->_setFile();
+		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
+		
+
+		if ($items) {
+			if ($this->_conf('itemsCols')>1) { // two columns
+				$this->_rndItemsTwoColumns($items);
+			} else {  // one column
+				$this->_rndItemsOneColumns($items);
+			}
+			if ($total > 1) {
+				$this->_rndPager($total, $current);
+			}
+		}
+		
+	}
 
   function _getItemPropsBlocks($pos)
   {
@@ -243,6 +266,53 @@ class elRndIShop extends elCatalogRenderer {
     }
 
   }
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function rndItem($item) {
+		$this->_setFile('item');
+		elAddJs('jquery.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
+		elAddCss('fancybox.css');
+		$this->_te->assignVars( $item->toArray() );
+
+		if (!empty($this->_conf['displayCode'])) {
+			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
+		}
+		
+		$mnf = $item->getMnf();
+		if ($mnf->ID) {
+			$this->_te->assignBlockVars('IS_ITEM_MNF', $mnf->toArray());
+		}
+		$tm = $item->getTm();
+		if ($tm->ID) {
+			$this->_te->assignBlockVars('IS_ITEM_TM', $tm->toArray());
+		}
+		if ($item->price > 0) {
+			$this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$this->_price($item->price)));
+		    $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
+  		}
+		
+		$props = $item->getProperties();
+		// elPrintR($props);
+		
+		foreach ($props as $pos=>$p) {
+			if ($pos == 'order') {
+				
+			} elseif (isset($this->_propBlocks[$pos])) {
+				$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
+			}
+		}
+		
+		if ($this->_admin) {
+			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
+		}
+		
+	}
 
 	function renderItem($item, $linkedObjs = null)
 	{
@@ -506,6 +576,9 @@ class elRndIShop extends elCatalogRenderer {
 		if ($item->price > 0) {
 			$this->_te->assignBlockVars($block.'.ITEM.PRICE', array('id' => $item->ID, 'price'=>$this->_price($item->price)), 2);
   		}
+
+		$this->_te->assignBlockFromArray($block.'.ITEM.ANN_PROPS.ANN_PROP', $item->getAnnouncedProperties(), 3);
+
 	}
 
 
@@ -658,6 +731,7 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	function _rndMnfInList($block, $mnf, $css) {
 		$this->_te->assignBlockVars($block.'.MNF', $css, 1);
+		
 		$this->_te->assignBlockVars($block.'.MNF', $mnf->toArray(), 2);
 		if ($mnf->logo) {
 			$this->_te->assignBlockVars($block.'.MNF.LOGO', array('logo' => $mnf->logo), 2);

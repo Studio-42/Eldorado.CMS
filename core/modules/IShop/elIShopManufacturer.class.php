@@ -13,6 +13,17 @@ class elIShopManufacturer extends elDataMapping {
 	var $_objName = 'Manufacturer';
 
 	/**
+	 * add count items to default array
+	 *
+	 * @return array
+	 **/
+	function toArray() {
+		$ret = parent::toArray();
+		$ret['itemsCnt'] = $this->countItems();
+		return $ret;
+	}
+
+	/**
 	 * return manufacturer trademarks
 	 *
 	 * @return array
@@ -28,8 +39,8 @@ class elIShopManufacturer extends elDataMapping {
 	 * @return int
 	 **/
 	function countItems() {
-		$f = & elSingleton::getObj('elIShopFactory');
-		return $f->countMnfItems($this->ID);
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		return $c->count(EL_IS_MNF, $this->ID);
 	}
 
 	/**
@@ -38,10 +49,11 @@ class elIShopManufacturer extends elDataMapping {
 	 * @return array
 	 **/
 	function getItems() {
-		$f = & elSingleton::getObj('elIShopFactory');
-		$i = $f->create(EL_IS_ITEM);
-		return $i->collection(true, true, 'mnf_id='.intval($this->ID));
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		return $c->create(EL_IS_MNF, $this->ID);
 	}
+
+
 
 
 	/**

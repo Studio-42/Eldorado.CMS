@@ -9,15 +9,36 @@ class elIShopTm extends elDataMapping {
 	var $mnfID   = 0;
 	var $name    = '';
 	var $content = '';
-
+	
+	/**
+	 * add count items to default array
+	 *
+	 * @return array
+	 **/
+	function toArray() {
+		$ret = parent::toArray();
+		$ret['itemsCnt'] = $this->countItems();
+		return $ret;
+	}
+	
 	/**
 	 * count items with this trademark
 	 *
 	 * @return int
 	 **/
 	function countItems() {
-		$f = & elSingleton::getObj('elIShopFactory');
-		return $f->countTmItems($this->ID);
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		return $c->count(EL_IS_TM, $this->ID);
+	}
+
+	/**
+	 * return products with current trademark
+	 *
+	 * @return array
+	 **/
+	function getItems() {
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		return $c->create(EL_IS_TM, $this->ID);
 	}
 
 	/**

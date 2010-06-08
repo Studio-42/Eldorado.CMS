@@ -37,10 +37,93 @@ class elIShopProperty extends elDataMapping
   var $isSearched    = 0;
   var $isCompared    = 0;
   var $sortNdx       = 1;
-  var $values        = array();
+
   var $dependID      = 0;
   var $depend        = array();
   var $_dependLoad   = 0;
+
+	/**
+	 * value variants list
+	 *
+	 * @var array
+	 **/
+	var $_opts = array();
+	/**
+	 * default values ids list
+	 *
+	 * @var array
+	 **/
+	var $_default = array();
+	
+	/**
+	 * return true if type is text or textarea
+	 *
+	 * @return bool
+	 **/
+	function isText() {
+		return EL_IS_PROP_LIST > $this->type;
+	}
+
+	/**
+	 * return true if type is select
+	 *
+	 * @return bool
+	 **/
+	function isList() {
+		return EL_IS_PROP_LIST == $this->type;
+	}
+	
+	/**
+	 * return true if type is multi select
+	 *
+	 * @return bool
+	 **/
+	function isMultiList() {
+		return EL_IS_PROP_MLIST == $this->type;
+	}
+
+	/**
+	 * return default values ids
+	 *
+	 * @return array
+	 **/
+	function defaultIDs() {
+		return !empty($this->_default) ? $this->_default : array(key($this->_opts));
+	}
+
+	/**
+	 * return values as string
+	 *
+	 * @return string
+	 **/
+	function toString() {
+		return $this->_toString(array_keys($this->_opts));
+	}
+
+	/**
+	 * return default values as string
+	 *
+	 * @return string
+	 **/
+	function defaultToString() {
+		return $this->_toString($this->defaultIDs());
+	}
+
+	/**
+	 * fetch values by ids and concat in string
+	 *
+	 * @param  array  $ids
+	 * @return string
+	 **/
+	function valuesToString($ids) {
+		if ($this->type == EL_IS_PROP_MLIST) {
+			return $this->_toString($ids);
+		} elseif ($this->type == EL_IS_PROP_LIST) {
+			return $this->_toString($ids ? $ids : $this->defaultIDs());
+		}
+		return !empty($ids[0]) ? $ids[0] : current($this->_opts);
+	}
+
 
 
   /**
@@ -64,20 +147,26 @@ class elIShopProperty extends elDataMapping
     return true;
   }
 
-  /**
-   * Возвращает массив объектов своего класса
-   */
-	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
-		$coll = parent::collection(true, true, $clause, $sort, $offset, $limit, $onlyFields);
-		if (!empty($coll)) {
-			$db     = &elSingleton::getObj('elDb');
-		    $IDsStr = implode(',', array_keys($coll));
-		    $db->query( 'SELECT id, p_id, is_default, value FROM '.$this->tbpval.' WHERE p_id IN ('.$IDsStr.') ORDER BY id' );
-		    while ($r = $db->nextRecord())
-		    {
-		    	$coll[$r['p_id']]->values[$r['id']] = array($r['value'], $r['is_default']);
-		    }
+	/**
+	 * return all properties
+	 *
+	 * @return array
+	 **/
+	function collection($obj=false, $assoc=false, $clause=null) {
+		$coll = parent::collection(true, true, $clause);
+		if ($coll) {
+			$db = $this->_db();
+			$sql = sprintf('SELECT id, p_id, value, is_default FROM %s WHERE p_id IN (%s) ORDER BY value', $this->tbpval, implode(',', array_keys($coll)));
+			$db->query($sql);
+			while ($r = $db->nextRecord()) {
+				$coll[$r['p_id']]->_opts[$r['id']] = $r['value'];
+				
+				if ($r['is_default']) {
+					$coll[$r['p_id']]->_default[] = $r['id'];
+				}
+			}
 		}
+		// elPrintR($coll);
 		return $coll;
 	}
 
@@ -289,33 +378,7 @@ class elIShopProperty extends elDataMapping
 
   }
 
-  /**
-   * Возвращает значения или значения по умолчанию в виде строки
-   * для типа multi list заменяет конструкции range(begin end step) на human readable
-   *
-   * @param  bool $onlyDef
-   * @return string
-   */
-  function valuesToString( $onlyDef=false )
-  {
-    if ( $this->hasTextType() )
-    {
-      $val = current($this->values);
-      return $onlyDef && isset($val[0]) ? $val[0] : m('No');
-    }
-    else
-    {
-      $ret = array();
-      foreach ( $this->values as $v )
-      {
-        if ( !$onlyDef || ($onlyDef && !empty($v[1])))
-        {
-          $ret[] = EL_IS_PROP_LIST == $this->type ? $v[0] : elIShopParsePropValue($v[0]);
-        }
-      }
-      return !empty($ret) ? implode(', ', $ret) : m('No');
-    }
-  }
+
 
   /**
    * Возвращает объект-элемент формы в зав-ти от собственного типа
@@ -386,6 +449,8 @@ class elIShopProperty extends elDataMapping
     parent::delete( array($this->tbpval=>'p_id', $this->tbp2i=>'p_id') );
   }
 
+
+
   /**
    * проверка типа объекта- текстовый тип или нет
    *
@@ -400,24 +465,7 @@ class elIShopProperty extends elDataMapping
   //                    PRIVATE                      //
   /***************************************************/
 
-  function _initMapping()
-  {
-    $map = array(
-      'id'           => 'ID',
-      't_id'         => 'iTypeID',
-      'type'         => 'type',
-      'depend_id'    => 'dependID',
-      'name'         => 'name',
-      'display_pos'  => 'displayPos',
-      'display_name' => 'displayName',
-      'is_hidden' => 'isHidden',
-      'is_announced' => 'isAnnounced',
-      'is_searched'  => 'isSearched',
-      'is_compared'  => 'isCompared',
-      'sort_ndx'     => 'sortNdx'
-      );
-    return $map;
-  }
+
 
   /**
    * Очистка полей объекта
@@ -520,6 +568,52 @@ class elIShopProperty extends elDataMapping
     }
     return true;
   }
+
+
+	/*********************************************************/
+	/***                     PRIVATE                       ***/
+	/*********************************************************/
+	
+
+
+	/**
+	 * fetch values by id and concat in string
+	 *
+	 * @param  array  $ids  list of values ids
+	 * @return string
+	 **/
+	function _toString($ids) {
+		$ret = array();
+		foreach ($ids as $id) {
+			if (isset($this->_opts[$id])) {
+				$ret[] = $this->_opts[$id];
+			}
+		}
+		return implode(', ', $ret);
+	}
+
+	/**
+	 * init attrs mapping
+	 *
+	 * @return array
+	 **/
+	function _initMapping() {
+		$map = array(
+			'id'           => 'ID',
+			't_id'         => 'iTypeID',
+			'type'         => 'type',
+			'depend_id'    => 'dependID',
+			'name'         => 'name',
+			'display_pos'  => 'displayPos',
+			'display_name' => 'displayName',
+			'is_hidden' => 'isHidden',
+			'is_announced' => 'isAnnounced',
+			'is_searched'  => 'isSearched',
+			'is_compared'  => 'isCompared',
+			'sort_ndx'     => 'sortNdx'
+		);
+		return $map;
+	}
 
 }
 ?>

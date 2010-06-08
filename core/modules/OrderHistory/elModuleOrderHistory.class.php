@@ -4,7 +4,7 @@
  * Order history, displays data from IShop and TechShop orders
  *
  * @package OrderHistory
- * @version 1.4
+ * @version 1.5
  * @author Troex Nevelin <troex@fury.scancode.ru>
  **/
 class elModuleOrderHistory extends elModule
@@ -20,7 +20,7 @@ class elModuleOrderHistory extends elModule
 
 	function defaultMethod()
 	{
-		if (($uid = $this->_checkAuth()) != false)
+		if (($uid = $this->_checkAuth()) == false)
 		{
 			elThrow(E_USER_WARNING, 'Authorization required');
 			return;
@@ -34,17 +34,23 @@ class elModuleOrderHistory extends elModule
 	{
 		// rewrite to full url if POST
 		if (isset($_POST['order_id']))
+		{
 			if ((int)$_POST['order_id'] > 0)
+			{
 				elLocation(EL_URL.'show/'.(int)$_POST['order_id']);
+			}
+		}
 		
 		$id = $this->_checkOrderExist();
-		$order    = $this->_getOrder($id);
+		$order = $this->_getOrder($id);
 		if (!$this->_isAllowed())
-			if ($order['uid'] != $this->_checkAuth())
+		{
+			if (!$this->_checkAuth() || ($order['uid'] != $this->_checkAuth()))
 			{
-				elThrow(E_USER_WARNING, 'You do not have access to page "%s"', 'Order History', EL_URL);
+				elThrow(E_USER_WARNING, 'You do not have access to page "%s"', $this->name, EL_URL);
 				return;
 			}
+		}
 
 		$reorder  = false;
 		if ($order['uid'] == $this->_checkAuth())
@@ -155,7 +161,12 @@ class elModuleOrderHistory extends elModule
 		foreach ($orders as $id => $order)
 		{ // TODO we need only name to display in list but again using custom E-mail
 			$order['full_name'] = $customerNfo[$order['id']]['full_name'];
-			$order['email']     = $customerNfo[$order['id']]['email'];
+			$order['email']     = $customerNfo[$order['id']]['E-mail'];
+			// check for old format
+			if (!isset($order['email']) or empty($order['email']))
+			{
+				$order['email'] = ($customerNfo[$order['id']]['email'] ? $customerNfo[$order['id']]['email'] : '');
+			}
 			$orders[$id] = $order;
 		}
 		unset($customerNfo);
@@ -247,20 +258,6 @@ class elModuleOrderHistory extends elModule
 		$pdf->Cell(0, 6, $txt, 0, 1, 'C');
 		$pdf->Ln(15);
 
-		// customer info
-		$pdf->SetFont('ArialMT', '', 14);
-		$pdf->Cell(0, 6, $this->_c('Customer info'), 0, 1, 'L');
-		$pdf->Ln(2);
-		unset($customer['full_name']);
-		$pdf->SetFont('ArialMT', '', 10);
-		foreach ($customer as $l => $v)
-		{
-			$pdf->Cell(5,   5, '', 0, 0);
-			$pdf->Cell(40,  5, $this->_c($l), 0, 0, 'L');
-			$pdf->Cell(140, 5, $this->_c($v), 0, 0, 'L');
-			$pdf->Ln();
-		}
-		$pdf->Ln(10);
 
 		// order
 		$pdf->SetFont('ArialMT', '', 14);
@@ -320,6 +317,22 @@ class elModuleOrderHistory extends elModule
 		$pdf->SetFillColor(238, 238, 238);
 		$pdf->Cell(($total_w - 20), 5, $this->_c('Total').'  ', 1, 0, 'R', true);
 		$pdf->Cell(20, 5, $order['total'], 1, 0, 'R', true);
+		$pdf->Ln(15);
+
+		// customer info
+		$pdf->SetFont('ArialMT', '', 14);
+		$pdf->Cell(0, 6, $this->_c('Customer info'), 0, 1, 'L');
+		$pdf->Ln(2);
+		unset($customer['full_name']);
+		$pdf->SetFont('ArialMT', '', 10);
+		foreach ($customer as $l => $v)
+		{
+			$pdf->Cell(5,   5, '', 0, 0);
+			$pdf->Cell(60,  5, $this->_c($l), 0, 0, 'L');
+			$pdf->Cell(140, 5, $this->_c($v), 0, 0, 'L');
+			$pdf->Ln();
+		}
+		$pdf->Ln(10);
 
 		$pdf->Output(sprintf('order-%d.pdf', $order['id']),'I');
 		exit();

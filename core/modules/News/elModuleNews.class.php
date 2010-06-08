@@ -62,7 +62,7 @@ class elModuleNews extends elModule
   function _onInit()
   {
     $this->_tb = 'el_news_'.$this->pageID;
-    $this->getDb();
+    $this->db = & elSingleton::getObj('elDb');
     $this->db->query('SELECT COUNT(*) AS total FROM '.$this->_tb );
     if ( $this->db->numRows() )
     {

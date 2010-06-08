@@ -343,8 +343,13 @@ class elServiceICart extends elService
 		$db->execute();
 
 		$db->prepare('INSERT INTO el_order_customer (order_id, uid, field_id, label, value) VALUES ', '(%d, %d, "%s", "%s", "%s")');
+		// if registered user store login in customer info
+		if (($this->_user->UID > 0) && (!empty($this->_user->login)))
+		{
+			$db->prepareData(array($orderID, $this->_user->UID, 'login', 'Login', $this->_user->login));
+		}
 		foreach ($this->_userData['address'] as $v) {
-			$db->prepareData( array($orderID, $this->_user->UID, $v['id'], $v['label'], $v['value']));
+			$db->prepareData(array($orderID, $this->_user->UID, $v['id'], $v['label'], $v['value']));
 		}
 		$db->execute();
 
@@ -432,8 +437,7 @@ class elServiceICart extends elService
 			$this->_userData['delivery']['payment_id']
 		);
 
-		$delivery['fee'] = (float)$delivery['fee'];
-
+		$delivery['fee'] = $this->_fee($delivery, false);
 		$total = $this->_iCart->amount + $this->_fee($delivery, false);
 		$total = $this->_formatPrice($total, false);
 		$delivery['price'] = $this->_fee($delivery, true, false);
@@ -460,7 +464,7 @@ class elServiceICart extends elService
 				? $this->_formatPrice($fee, $symbol)
 				: m('Free');
 		}
-		return $fee; 
+		return (float)$fee;
 	}
 
 	/**
@@ -508,6 +512,10 @@ class elICartAddress extends elFormConstructor {
 	function elICartAddress($user, $data, $deliveryEnable, $regionID) {
 		$profile = $user->getProfile();
 		$this->_elements = $profile->_elements;
+		if ($user->UID == 0) // unset login if Anonymous user
+		{
+			unset($this->_elements['login']);
+		}
 		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
 		foreach ($fc->_elements as $e) {
 			if (!isset($this->_elements[$e->ID])) {

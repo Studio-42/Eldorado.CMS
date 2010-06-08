@@ -11,7 +11,7 @@ class elRndOrderHistory extends elModuleRenderer
 		'send'     => 'none',
 		'accept'   => '#fdfcd5',
 		'deliver'  => '#cfe6fa',
-		'complite' => '#ddfad3',
+		'complete' => '#ddfad3',
 		'aborted'  => '#fce0e0'
 		);
 
@@ -72,12 +72,17 @@ class elRndOrderHistory extends elModuleRenderer
 		{
 			$this->_te->assignBlockVars('ORDER.STATUS', array('status' => $order['state']), 1);
 		}
+		if (isset($order['region']) and isset($order['delivery']) and isset($order['payment']))
+		{
+			$this->_te->assignBlockVars('ORDER.DELIVERY', $order, 1);
+		}
+		//var_dump($order);
 
 		// User profile
 		// TODO not the best solution to use non fixed fields
-		unset($customer['First name']);
-		unset($customer['Second name']);
-		unset($customer['Last name']);
+		//unset($customer['First name']);
+		//unset($customer['Second name']);
+		//unset($customer['Last name']);
 		unset($customer['full_name']);
 		//elPrintR($customer);
 		foreach ($customer as $l => $v)
@@ -106,7 +111,7 @@ class elRndOrderHistory extends elModuleRenderer
 		// repeat order
 		if ($reorder)
 		{
-			$this->_te->assignBlockVars('ORDER_REPEAT', array('id' => $order['id']));
+			$this->_te->assignBlockVars('ORDER.REPEAT', array('id' => $order['id']), 1);
 		}
 	}
 

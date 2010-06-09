@@ -71,6 +71,87 @@
 </div>
 <!-- END CATS_TWOCOL -->
 
+
+<!-- BEGIN CURRENT_MNF -->
+<div class="mod-ishop-current-mnf">
+	<h2>{name}</h2>
+	<!-- BEGIN DESCRIP --><div class="mod-ishop-current-mnf-descrip">{content}</div><!-- END DESCRIP -->
+</div>
+<!-- END CURRENT_MNF -->
+
+<!-- BEGIN MNFS_ONECOL -->
+<ul class="mod-ishop-mnfs-onecol">
+	<!-- BEGIN MNF -->
+	<li>
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{URL}{ishopView}mnf_edit/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{URL}{ishopView}mnf_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnf-logo" /><!-- END LOGO -->
+		<a href="{URL}{ishopView}mnf/{id}/">{name}</a> {itemsCnt} 
+		<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		<div class="clearfix"></div>
+	</li>
+	<!-- END MNF -->
+</ul>
+<!-- END MNFS_ONECOL -->
+
+<!-- BEGIN MNFS_TWOCOL -->
+<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+	<!-- BEGIN MNF -->
+		<div class="grid-25-content{cssLastClass}">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}{ishopView}mnf_edit/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{URL}{ishopView}mnf_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnf-logo" /><!-- END LOGO -->
+			<a href="{URL}{ishopView}mnf/{id}/">{name}</a> {itemsCnt} 
+			<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		</div>
+	<!-- END MNF -->
+		<div class="clear"></div>
+	</div>
+</div>
+<!-- END MNFS_TWOCOL -->
+
+<!-- BEGIN TMS_ONECOL -->
+<ul class="mod-ishop-mnfs-onecol">
+	<!-- BEGIN TM -->
+	<li>
+		<a href="{URL}{ishopView}tm/{mnf_id}/{id}/">{name}</a> {itemsCnt} 
+		<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		<div class="clearfix"></div>
+	</li>
+	<!-- END TM -->
+</ul>
+<!-- END TMS_ONECOL -->
+
+<!-- BEGIN TMS_TWOCOL -->
+<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+	<!-- BEGIN TM -->
+		<div class="grid-25-content{cssLastClass}">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}{ishopView}tm_edit/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{URL}{ishopView}tm_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<a href="{URL}{ishopView}tm/{id}/">{name}</a> {itemsCnt} 
+			<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		</div>
+	<!-- END TM -->
+		<div class="clear"></div>
+	</div>
+</div>
+<!-- END TMS_TWOCOL -->
+
+
 <!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
 
 <!-- BEGIN ITEMS_ONECOL -->

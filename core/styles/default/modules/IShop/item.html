@@ -10,14 +10,10 @@
 	<div class="mod-ishop-item-content clearfix">
 		<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
       	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->
-      	<!-- BEGIN IS_ITEM_MNFTM -->
-      	<div class="mod-ishop-mnf">
-		<!-- BEGIN IS_IMNF --><strong>{mnf}</strong> {country}<!-- END IS_IMNF --> 
-		<!-- BEGIN IS_ITM --><strong>{tm}</strong><!-- END IS_ITM -->
-		</div>
-      	<!-- END IS_ITEM_MNFTM -->
-		<!-- BEGIN IS_ITEM_ORDER -->
+		<!-- BEGIN IS_ITEM_MNF --><div class='mod-ishop-item-mnf'><strong>{name}</strong> {country}</div><!-- END IS_ITEM_MNF --> 
+		<!-- BEGIN IS_ITEM_TM --><div class='mod-ishop-mnf'>{name}</div><!-- END IS_ITEM_TM -->
 		
+		<!-- BEGIN IS_ITEM_ORDER -->
 		<form action="{URL}order/{catID}/{id}/" method="post">
 			
 			<div class="rounded-3 mod-ishop-cart">
@@ -76,53 +72,34 @@
 		</div>
 		<!-- END IS_ITEM_GALLERY -->
 
-
-		<!-- BEGIN IS_IPROPS_TOP -->
-      	<div class="mod-ishop-fts-top">
-        	<!-- BEGIN IP_TOP -->
-          	<div><!-- BEGIN IP_TOP_NAME --><strong>{name}:</strong><!-- END IP_TOP_NAME --> {value}</div>
-        	<!-- END IP_TOP -->
-      	</div>
-      	<!-- END IS_IPROPS_TOP -->
+		<!-- BEGIN IS_ITEM_PROP_TOP -->
+			<!-- BEGIN PROP --><strong>{name}</strong> {value}<!-- END PROP -->
+		<!-- END IS_ITEM_PROP_TOP -->
 
 		{content}
 
 	</div>
 
-	<!-- BEGIN IS_IPROPS_MIDDLE -->
-    <div class="mod-ishop-fts-moddle">
-      <!-- BEGIN IP_MIDDLE -->
-	<div>
-		<!-- BEGIN IP_MIDDLE_NAME --><strong>{name}:</strong><!-- END IP_MIDDLE_NAME -->
-      		{value}
-    		</div>
-    		<!-- END IP_MIDDLE -->
-	</div>
-    <!-- END IS_IPROPS_MIDDLE -->
 
-	<!-- BEGIN IS_IPROPS_TABLE -->
+
+	<!-- BEGIN IS_ITEM_PROP_TABLE -->
 	<div class="rounded-3 mod-ishop-fts">
     	<table>
-      		<!-- BEGIN IP_TABLE -->
+      		<!-- BEGIN PROP -->
       		<tr>
-       			<td class="mod-ishop-ft-name"><!-- BEGIN IP_TABLE_NAME -->{name}:<!-- END IP_TABLE_NAME --></td>
+       			<td class="mod-ishop-ft-name">{name}:</td>
        			<td class="mod-ishop-ft-val">{value}</td>
       		</tr>
-      		<!-- END IP_TABLE -->
+      		<!-- END PROP -->
     	</table>
 	</div>
-	<!-- END IS_IPROPS_TABLE -->
+	<!-- END IS_ITEM_PROP_TABLE -->
 
-	<!-- BEGIN IS_IPROPS_BOTTOM -->
-    <div class="mod-ishop-fts-bottom">
-    	<!-- BEGIN IP_BOTTOM -->
-        <div>
-          	<!-- BEGIN IP_BOTTOM_NAME --><strong>{name}:</strong><!-- END IP_BOTTOM_NAME -->
-          	{value}
-        </div>
-        <!-- END IP_BOTTOM -->
- 	</div>
-    <!-- END IS_IPROPS_BOTTOM -->
+	<!-- BEGIN IS_ITEM_PROP_BOTTOM -->
+		<!-- BEGIN PROP --><strong>{name}</strong> {value}<!-- END PROP -->
+	<!-- END IS_ITEM_PROP_BOTTOM -->
+
+
 
 	{LINKED_OBJS}
 	

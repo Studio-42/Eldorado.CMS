@@ -37,8 +37,6 @@ class elRndIShop extends elCatalogRenderer {
 		'bottom' => 'IS_ITEM_PROP_BOTTOM'
 		);
 
-
-
 	/**
 	 * initilize object
 	 *
@@ -49,8 +47,6 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	function init($dirname, $conf, $admin=false) {
 		parent::init($dirname, $conf, $admin);
-		
-		// echo $this->_url;
 		
 		if ($this->_view != $this->_conf('default_view')) {
 			$this->_te->assignVars('ishopView', $this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
@@ -79,6 +75,38 @@ class elRndIShop extends elCatalogRenderer {
 	}
 
 	/**
+	 * render default view - categories
+	 *
+	 * @param  array  $cats     categories
+	 * @param  array  $items    items
+	 * @param  int    $total    number of pages
+	 * @param  int    $current  current page number
+	 * @return void
+	 **/
+	function render($cats, $items, $total, $current) {
+		$this->_setFile();
+		$this->_rndViewSwitch();
+
+		if ($this->_conf('displayCatDescrip') > EL_CAT_DESCRIP_IN_LIST && $this->_cat->content) {
+			$this->_te->assignBlockVars('PARENT_CAT', array('name' => $this->_cat->name, 'content' => $cat->descrip));
+		}
+
+		if ($cats) {
+			if ($this->_conf('catsCols') > 1) {
+				$this->_rndCatsTwoColumns($cats);
+			} else {
+				$this->_rndCatsOneColumns($cats);
+			}
+		}
+		if ($cats && $items) {
+			$this->_te->assignBlockVars('DC_HDELIM');
+		}
+		if ($items) {
+			$this->_rndItems($items, $total, $current);
+		}
+	}
+
+	/**
 	 * Render manufacturers one/two column list
 	 *
 	 * @param  array  $mnfs  manufacturers
@@ -86,7 +114,9 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	function rndMnfs($mnfs) {
 		$this->_setFile();
+		$this->_rndViewSwitch();
 		
+		// remove empty manufacturers if required
 		if (!$this->_admin && !$this->_conf('displayEmptyMnf')) {
 			foreach ($mnfs as $id => $mnf) {
 				if (!$mnd->countItems()) {
@@ -127,9 +157,11 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	function rndMnf($mnf, $items, $total, $current) {
 		$this->_setFile();
-		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
-		if ($this->_conf('displayMnfDescrip') > EL_CAT_DESCRIP_IN_LIST) {
-			$this->_te->assignBlockVars('CURRENT_MNF.DESCRIP', array('content' => $mnf->content));
+		$this->_rndViewSwitch();
+		
+		$this->_te->assignBlockVars('PARENT_MNF_TM', $mnf->toArray());
+		if ($this->_conf('displayMnfDescrip') > EL_CAT_DESCRIP_IN_LIST && $mnf->content) {
+			$this->_te->assignBlockVars('PARENT_MNF_TM.DESCRIP', array('content' => $mnf->content));
 		}
 		
 		$tms = $mnf->getTms(); 
@@ -165,46 +197,38 @@ class elRndIShop extends elCatalogRenderer {
 				foreach ($tms as $tm) {
 					$css = array('cssRowClass' => $i++%2 ? 'strip-odd' : 'strip-ev');
 					!$descrip && $tm->content = '';
-					$this->_rndTmInList('TMS_TWOCOL', $tm, $css);
+					$this->_rndTmInList('TMS_ONECOL', $tm, $css);
 				}
 			}
 		}
 		
+		if ($tms && $items) {
+			$this->_te->assignBlockVars('DC_HDELIM');
+		}
+		
 		// render items
-		// $items = $mnf->getItems();
 		if ($items) {
-			if ($this->_conf('itemsCols')>1) { // two columns
-				$this->_rndItemsTwoColumns($items);
-			} else {  // one column
-				$this->_rndItemsOneColumns($items);
-			}
-			if ($total > 1) {
-				$this->_rndPager($total, $current);
-			}
+			$this->_rndItems($items, $total, $current);
 		}
 	}
 
-
 	/**
-	 * undocumented function
+	 * render trademark
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function rndTm($mnf, $tm, $items, $total, $current) {
 		$this->_setFile();
-		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
-		$this->_te->assignVars('fromTm', 'tm/');
+		$this->_rndViewSwitch();
+		
+		$this->_te->assignBlockVars('PARENT_MNF_TM', $tm->toArray());
+		if ($this->_conf('displayMnfDescrip') > EL_CAT_DESCRIP_IN_LIST && $tm->content) {
+			$this->_te->assignBlockVars('PARENT_MNF_TM.DESCRIP', array('content' => $tm->content));
+		}
 
+		// render items
 		if ($items) {
-			if ($this->_conf('itemsCols')>1) { // two columns
-				$this->_rndItemsTwoColumns($items);
-			} else {  // one column
-				$this->_rndItemsOneColumns($items);
-			}
-			if ($total > 1) {
-				$this->_rndPager($total, $current);
-			}
+			$this->_rndItems($items, $total, $current);
 		}
 		
 	}
@@ -223,7 +247,8 @@ class elRndIShop extends elCatalogRenderer {
 		elAddCss('fancybox.css');
 		$this->_setFile('item');
 		$this->_te->assignVars( $item->toArray() );
-
+		$this->_te->assignVars('ishopSliderSize', (int)$this->_conf('ishopSliderSize'));
+		
 		if (!empty($this->_conf['displayCode'])) {
 			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
 		}
@@ -315,6 +340,9 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_rndLinkedObjs($linkedObjs);
 	}
 	
+
+
+
 
 	function _getItemPropsBlocks($pos)
   {
@@ -417,7 +445,38 @@ class elRndIShop extends elCatalogRenderer {
 
 
 
+	/**********************************************/
+	/*****              PRIVATE              ******/
+	/**********************************************/
 
+	/**
+	 * render view switch tabs if enabled
+	 *
+	 * @return void
+	 **/
+	function _rndViewSwitch() {
+		if ($this->_conf('displayViewSwitch')) {
+			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_CATS', array('cssClass' => $this->_view == EL_IS_VIEW_CATS ? 'current' : ''), 1);
+			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_MNFS', array('cssClass' => $this->_view == EL_IS_VIEW_MNFS ? 'current' : ''), 1);
+		}
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author /bin/bash: niutil: command not found
+	 **/
+	function _rndItems($items, $total, $current) {
+		if ($this->_conf('itemsCols') > 1) {
+			$this->_rndItemsTwoColumns($items);
+		} else {
+			$this->_rndItemsOneColumn($items);
+		}
+		if ($total > 1) {
+			$this->_rndPager($total, $current);
+		}
+	}
 
 	/**
 	 * Render intem in one/two col list
@@ -461,8 +520,6 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_te->assignBlockFromArray($block.'.ITEM.ANN_PROPS.ANN_PROP', $item->getAnnouncedProperties(), 3);
 
 	}
-
-
 
 	/**
 	 * Рисует список товаров в одну колонк
@@ -597,11 +654,6 @@ class elRndIShop extends elCatalogRenderer {
 		}
 	}
 
-
-	/**********************************************/
-	/*****              PRIVATE              ******/
-	/**********************************************/
-	
 	/**
 	 * render manufacturer in one/two column list
 	 *

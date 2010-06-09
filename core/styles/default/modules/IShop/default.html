@@ -1,19 +1,27 @@
-<div class="mod-ishop"> {ishopView}
-	<div class="float-right">
-		<a href="{URL}cats/">Category view</a>
+<div class="mod-ishop"> 
+	<!-- BEGIN ISHOP_VIEW_SWITCH -->
+	<div class="mod-ishop-switch-view clearfix">
+		<!-- BEGIN VIEW_CATS --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopCatsURL}">{m('Categories')}</a></div><!-- END VIEW_CATS -->
+		<!-- BEGIN VIEW_MNFS --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopCatsURL}">{m('Manufacturers')}</a></div><!-- END VIEW_MNFS -->
 	</div>
-	<div class="float-right">
-		<a href="{URL}mnfs/">Manufacturers view</a>
-	</div>
-	<div class="clearfix"></div>
-<!-- BEGIN CUR_CAT_DESCRIP -->
-<div class="current-cat-descrip clearfix"><h4>{name}</h4>{descrip} </div>
-<!-- END CUR_CAT_DESCRIP -->
+	<!-- END ISHOP_VIEW_SWITCH -->
 
+<!-- BEGIN PARENT_CAT -->
+<div class="mod-ishop-parent-cat">
+	<h2>{name}</h2>
+	<div class="mod-ishop-parent-cat-descrip">{content}</div>
+</div>
+<!-- END PARENT_CAT -->
 
+<!-- BEGIN PARENT_MNF_TM -->
+<div class="mod-ishop-parent-mnf">
+	<h2>{name}</h2>
+	<!-- BEGIN DESCRIP --><div class="mod-ishop-parent-mnf-descrip">{content}</div><!-- END DESCRIP -->
+</div>
+<!-- END PARENT_MNF_TM -->
 
 <!-- BEGIN CATS_ONECOL -->
-<ul class="cats-onecol">
+<ul class="mod-ishop-cats-onecol cats-onecol">
 	<!-- BEGIN CAT -->
 	<li style="padding-left:{! ({level})*1.7 !}em;" class="clearfix rounded-7 {cssRowClass} ">
 		<!-- BEGIN ADMIN -->
@@ -24,8 +32,8 @@
 			<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<a href="{ishopCatsURL}{id}/" class="{cssClass}">{name}</a> 
-		{descrip}
+		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a> 
+		<div class="mod-ishop-cats-onecol-descrip">{descrip}</div>
 		<div class="ie-clear"></div>
 	</li>
 	<!-- END CAT -->
@@ -33,10 +41,10 @@
 <!-- END CATS_ONECOL -->
 
 <!-- BEGIN CATS_TWOCOL -->
-<div class="nicegrid-50 rounded-7 {cssRowClass} cats-twocol">	
+<div class="mod-ishop-cats-twocol nicegrid-50 rounded-7 {cssRowClass}">	
 	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
 		<!-- BEGIN CAT -->
-		<div class="grid-25-content{cssLastClass} ">
+		<div class="grid-25-content{cssLastClass}">
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
 				<li><a href="{ishopCatsURL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
@@ -46,8 +54,8 @@
 			</ul>
 			<!-- END ADMIN -->
 			<!-- END ADMIN -->
-			<a href="{ishopCatsURL}{id}/" class="cat-title">{name}</a>
-			{descrip}
+			<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-twocol-name">{name}</a>
+			<div class="mod-ishop-cats-twocol-descrip">{descrip}</div>
 			<!-- BEGIN SUB_CATS -->
 			<ul>
 				<!-- BEGIN SUB_CAT -->
@@ -60,8 +68,8 @@
 						<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 					</ul>
 					<!-- END ADMIN2 -->
-					<a href="{ishopCatsURL}{id}/" class="cat-title">{name}</a> 
-					{descrip}
+					<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-twocol-name-sub">{name}</a> 
+					<div class="mod-ishop-cats-twocol-descrip-sub">{descrip}</div>
 				</li>
 				<!-- END SUB_CAT -->
 			</ul>
@@ -73,16 +81,8 @@
 </div>
 <!-- END CATS_TWOCOL -->
 
-
-<!-- BEGIN CURRENT_MNF -->
-<div class="mod-ishop-current-mnf">
-	<h2>{name}</h2>
-	<!-- BEGIN DESCRIP --><div class="mod-ishop-current-mnf-descrip">{content}</div><!-- END DESCRIP -->
-</div>
-<!-- END CURRENT_MNF -->
-
 <!-- BEGIN MNFS_ONECOL -->
-<ul class="mod-ishop-mnfs-onecol">
+<ul class="mod-ishop-mnfs-onecol cats-onecol">
 	<!-- BEGIN MNF -->
 	<li>
 		<!-- BEGIN ADMIN -->
@@ -91,9 +91,9 @@
 			<li><a href="{ishopMnfsURL}mnf_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnf-logo" /><!-- END LOGO -->
-		<a href="{ishopMnfsURL}mnf/{id}/">{name}</a> {itemsCnt} 
-		<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnfs-onecol-logo" /><!-- END LOGO -->
+		<a href="{ishopMnfsURL}mnf/{id}/" class="mod-ishop-mnfs-onecol-name">{name}</a> <span class="mod-ishop-mnf-cnt">{itemsCnt}</span>
+		<!-- BEGIN DESCRIP --> <div class="mod-ishop-mnfs-onecol-descrip">{content}</div><!-- END DESCRIP -->
 		<div class="clearfix"></div>
 	</li>
 	<!-- END MNF -->
@@ -101,7 +101,7 @@
 <!-- END MNFS_ONECOL -->
 
 <!-- BEGIN MNFS_TWOCOL -->
-<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+<div class="mod-ishop-mnfs-twocol nicegrid-50 rounded-7 {cssRowClass}">	
 	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
 	<!-- BEGIN MNF -->
 		<div class="grid-25-content{cssLastClass}">
@@ -111,9 +111,9 @@
 				<li><a href="{ishopMnfsURL}mnf_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
-			<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnf-logo" /><!-- END LOGO -->
-			<a href="{ishopMnfsURL}mnf/{id}/">{name}</a> {itemsCnt} 
-			<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+			<!-- BEGIN LOGO --><img src="" class="mod-ishop-mnfs-twocol-logo" /><!-- END LOGO -->
+			<a href="{ishopMnfsURL}mnf/{id}/" class="mod-ishop-mnfs-twocol-name">{name}</a> <span class="mod-ishop-mnf-cnt">{itemsCnt}</span>
+			<!-- BEGIN DESCRIP --> <div class="mod-ishop-mnfs-twocol-descrip clearfix">{content}</div><!-- END DESCRIP -->
 		</div>
 	<!-- END MNF -->
 		<div class="clear"></div>
@@ -122,7 +122,7 @@
 <!-- END MNFS_TWOCOL -->
 
 <!-- BEGIN TMS_ONECOL -->
-<ul class="mod-ishop-mnfs-onecol">
+<ul class="mod-ishop-tms-onecol cats-onecol">
 	<!-- BEGIN TM -->
 	<li>
 		<!-- BEGIN ADMIN -->
@@ -131,8 +131,8 @@
 			<li><a href="{ishopMnfsURL}tm_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<a href="{ishopMnfsURL}tm/{mnf_id}/{id}/">{name}</a> {itemsCnt} 
-		<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+		<a href="{ishopMnfsURL}tm/{mnf_id}/{id}/" class="mod-ishop-tms-onecol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span> 
+		<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-onecol-descrip">{content}</div><!-- END DESCRIP -->
 		<div class="clearfix"></div>
 	</li>
 	<!-- END TM -->
@@ -140,7 +140,7 @@
 <!-- END TMS_ONECOL -->
 
 <!-- BEGIN TMS_TWOCOL -->
-<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+<div class="mod-ishop-tms-twocol nicegrid-50 rounded-7 {cssRowClass}">	
 	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
 	<!-- BEGIN TM -->
 		<div class="grid-25-content{cssLastClass}">
@@ -150,8 +150,8 @@
 				<li><a href="{ishopMnfsURL}tm_rm/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
-			<a href="{ishopMnfsURL}tm/{id}/">{name}</a> {itemsCnt} 
-			<!-- BEGIN DESCRIP --> {content}<!-- END DESCRIP -->
+			<a href="{ishopMnfsURL}tm/{id}/" class="mod-ishop-tms-twocol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span>  
+			<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-twocol-descrip">{content}</div><!-- END DESCRIP -->
 		</div>
 	<!-- END TM -->
 		<div class="clear"></div>
@@ -159,11 +159,10 @@
 </div>
 <!-- END TMS_TWOCOL -->
 
-
-<!-- BEGIN DC_HDELIM --><hr /><!-- END DC_HDELIM -->
+<!-- BEGIN DC_HDELIM --><hr class="mod-ishop-hdelim" /><!-- END DC_HDELIM -->
 
 <!-- BEGIN ITEMS_ONECOL -->
-<ul class="items-onecol">
+<ul class="mod-ishop-items-onecol items-onecol">
 	<!-- BEGIN ITEM -->
 	<li class="{cssRowClass} rounded-7 clearfix">
 		<!-- BEGIN ADMIN -->
@@ -173,21 +172,21 @@
 		</ul>
 		<!-- END ADMIN -->
 		<h4><a href="{ishopURL}item/{parentID}/{id}/{fromTm}">{name}</a></h4>
-		<!-- BEGIN IMG --><a href="{URL}item/{catID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a><!-- END IMG -->
-		<!-- BEGIN PRICE --><div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
-		<!-- BEGIN CODE --><div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
-		<!-- BEGIN MNF --><div class='mod-ishop-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
-		<!-- BEGIN TM --><div class='mod-ishop-mnf'>{name}</div><!-- END TM -->
-
-		{announce}
+		<!-- BEGIN IMG --><a href="{URL}item/{catID}/{id}/" class="mod-ishop-items-onecol-img"><img src="{src}" alt="{alt}" class="rounded-3" /></a><!-- END IMG -->
+		<!-- BEGIN PRICE --><div class='mod-ishop-items-onecol-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
+		<!-- BEGIN CODE --><div class='mod-ishop-items-onecol-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
+		<!-- BEGIN MNF --><div class='mod-ishop-items-onecol-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
+		<!-- BEGIN TM --><div class='mod-ishop-items-onecol-tm'>{name}</div><!-- END TM -->
+		<div class="clearfix2 mod-ishop-items-onecol-announce">{announce}</div>
+		
 		<div><a href="{ishopURL}item/{parentID}/{id}/{fromTm}" class="link forward">{m('Read more')}</a></div>
 		<!-- BEGIN ANN_PROPS -->
-		<div class="rounded-3 mod-ishop-fts">
+		<div class="mod-ishop-items-onecol-fts rounded-3">
         	<table>
           		<!-- BEGIN ANN_PROP -->
 				<tr>
-					<td class="mod-ishop-ft-name">{name}:</td>
-					<td class="mod-ishop-ft-val">{value}</td>
+					<td class="ft-name">{name}:</td>
+					<td class="ft-value">{value}</td>
 				</tr>
           		<!-- END ANN_PROP -->
 			</table>
@@ -199,7 +198,7 @@
 <!-- END ITEMS_ONECOL -->
 
 <!-- BEGIN ITEMS_TWOCOL -->
-<div class="nicegrid-50 rounded-7 {cssRowClass} items-twocol">	
+<div class="mod-ishop-items-twocol nicegrid-50 rounded-7 {cssRowClass}">	
 	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
 		<!-- BEGIN ITEM -->
 		<div class="grid-25-content{cssLastClass} ">
@@ -211,23 +210,21 @@
 			<!-- END ADMIN -->
 			<h4><a href="{ishopURL}item/{parentID}/{id}/{fromTm}">{name}</a></h4>
 			
-			<!-- BEGIN IMG --><a href="{ishopURL}item/{parentID}/{id}/"><img src="{src}" alt="{alt}" class="mod-ishop-list-img rounded-3" /></a><!-- END IMG -->
-			<!-- BEGIN PRICE --><div class='mod-ishop-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
-			<!-- BEGIN CODE --><div class='mod-ishop-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
-			<!-- BEGIN MNF --><div class='mod-ishop-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
-			<!-- BEGIN TM --><div class='mod-ishop-mnf'>{name}</div><!-- END TM -->
-
-			{announce}
-			</td></tr>
-			</table>
+			<!-- BEGIN IMG --><a href="{ishopURL}item/{parentID}/{id}/" class="mod-ishop-items-twocol-img"><img src="{src}" alt="{alt}" /></a><!-- END IMG -->
+			<!-- BEGIN PRICE --><div class='mod-ishop-items-twocol-price'>{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END PRICE -->
+			<!-- BEGIN CODE --><div class='mod-ishop-items-twocol-code'>{m('Code/Articul')}: <strong>{code}</strong></div><!-- END CODE -->
+			<!-- BEGIN MNF --><div class='mod-ishop-items-twocol-mnf'><strong>{name}</strong> {country}</div><!-- END MNF --> 
+			<!-- BEGIN TM --><div class='mod-ishop-items-twocol-tm'>{name}</div><!-- END TM -->
+			<table class="mod-ishop-items-twocol-clearfix"><tr><td></td></tr></table>
+			<div class="mod-ishop-items-twocol-announce">{announce}</div>
 			<div><a href="{ishopURL}item/{parentID}/{id}/" class="link forward">{m('Read more')}</a></div>
 			<!-- BEGIN ANN_PROPS -->
-			<div class="rounded-3 mod-ishop-fts" >
+			<div class="mod-ishop-items-twocol-fts rounded-3">
 	        	<table>
 	          		<!-- BEGIN ANN_PROP -->
 					<tr>
-						<td class="mod-ishop-ft-name">{name}:</td>
-						<td class="mod-ishop-ft-val">{value}</td>
+						<td class="ft-name">{name}:</td>
+						<td class="ft-value">{value}</td>
 					</tr>
 	          		<!-- END ANN_PROP -->
 				</table>

@@ -43,7 +43,7 @@ class elModuleIShop extends elModule {
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
-		'mnfsCols'          => 1,
+		'mnfsCols'          => 2,
 		'tmsCols'           => 2,
 		'itemsSortID'       => EL_IS_SORT_NAME,
 		'itemsPerPage'      => 10,
@@ -52,7 +52,9 @@ class elModuleIShop extends elModule {
 		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
 		'displayMnfDescrip' => EL_CAT_DESCRIP_IN_SELF,
 		'displayTMDescrip'  => EL_CAT_DESCRIP_IN_SELF,
+		'displayViewSwitch' => 1,
 		'displayCode'       => 1,
+		'ishopSliderSize'   => 4,
 		'mnfNfo'            => EL_IS_USE_MNF,
 		'tmbListSize'       => 125,
 		'tmbListPos'        => EL_POS_LEFT,
@@ -144,6 +146,9 @@ class elModuleIShop extends elModule {
 		        $current,
 		        $this->_cat
 		      );
+		
+		$mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 
@@ -155,6 +160,8 @@ class elModuleIShop extends elModule {
 	function viewManufacturers() {
 		$this->_initRenderer();
 		$this->_rnd->rndMnfs($this->_factory->getAllFromRegistry(EL_IS_MNF));
+		$mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -181,9 +188,11 @@ class elModuleIShop extends elModule {
 		$this->_rnd->rndMnf($this->_mnf, $c->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
 		
 		elAppendToPagePath(array(
-			'url'  => $this->_urlMnf.'mnf/'.$this->_mnf->ID.'/',	
+			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
+		$mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -211,26 +220,26 @@ class elModuleIShop extends elModule {
 		$this->_initRenderer();
 		$this->_rnd->rndTm($this->_mnf, $tm, $c->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
 		elAppendToPagePath(array(
-			'url'  => $this->_urlMnf.'mnf/'.$this->_mnf->ID.'/',	
+			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
 		elAppendToPagePath(array(
-			'url'  => $this->_urlMnf.'tm/'.$tm->ID.'/',	
+			'url'  => $this->_urlMnfs.'tm/'.$tm->ID.'/',	
 			'name' => $tm->name)
 			);
+		$mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
-	 * undocumented function
+	 * display one item
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function viewItem() {
-		// elPrintR($this->_args);
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
-		// elPrintR($item);
-		// elPrintR($item);
+		// $clm = & $this->_getCrossLinksManager();
+		// $cl = $clm->getLinkedObjects($item->ID) 
 		$this->_initRenderer();
 		$this->_rnd->rndItem($item);
 		
@@ -239,21 +248,20 @@ class elModuleIShop extends elModule {
 		} else {
 			$mnf = $item->getMnf();
 			elAppendToPagePath(array(
-				'url'  => $this->_urlMnf.'mnf/'.$mnf->ID.'/',	
+				'url'  => $this->_urlMnfs.'mnf/'.$mnf->ID.'/',	
 				'name' => $mnf->name)
 				);
 
 			if ($this->_arg(2) == 'tm') {
 				$tm = $item->getTm();
 				elAppendToPagePath(array(
-					'url'  => $this->_urlMnf.'tm/'.$tm->ID.'/',	
+					'url'  => $this->_urlMnfs.'tm/'.$tm->ID.'/',	
 					'name' => $tm->name)
 					);
 			}
 		}
-		
-
-		
+		$mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    $mt->init($this->pageID, $this->_cat->ID, $this->_item->ID, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -289,20 +297,7 @@ class elModuleIShop extends elModule {
 		}
 	}
 
-  function _viewItem()
-  {
 
-    $this->_item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1) );
-    if ( !$this->_item->ID )
-    {
-      elThrow(E_USER_WARNING, 'Object "%s" with ID="%d" does not exists',
-              array($this->_item->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);
-    }
-    
-    $this->_initRenderer();
-    $clm = & $this->_getCrossLinksManager();
-    $this->_rnd->renderItem( $this->_item, $clm->getLinkedObjects($this->_item->ID) );
-  }
 
   function toXML()
   {
@@ -381,25 +376,16 @@ class elModuleIShop extends elModule {
 		return true;
 	}
 
-
-  function &_getCrossLinksManager()
-	{
-	  $clm = & elSingleton::getObj('elCatalogCrossLinksManager');
-	  $clm->_conf = $this->_conf('crossLinksGroups');
-	  return $clm;
+	/**
+	 * create elCatalogCrossLinksManager object and cofigure it
+	 *
+	 * @return elCatalogCrossLinksManager
+	 **/
+	function &_getCrossLinksManager() {
+		$clm = & elSingleton::getObj('elCatalogCrossLinksManager');
+		$clm->_conf = $this->_conf('crossLinksGroups');
+		return $clm;
 	}
-
-  function _onBeforeStop_()
-  {
-    $this->_cat->pathToPageTitle();
-    if ( $this->_item )
-    {
-      elAppendToPagePath( array('url'=>'item/'.$this->_cat->ID.'/'.$this->_item->ID,
-      													'name'=>$this->_item->name) );
-    }
-    $mt = &elSingleton::getObj('elMetaTagsCollection');  
-    $mt->init($this->pageID, $this->_cat->ID, ($this->_item) ? $this->_item->ID : 0, $this->_factory->tb('tbc'));
-  }
 
 	/**
 	 * return info about current page for items list
@@ -418,7 +404,6 @@ class elModuleIShop extends elModule {
 		return array($total, $current <= $total ? $current : 0, $offset, $step);
 	}
 	
-
 	/**
 	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
 	* check required view

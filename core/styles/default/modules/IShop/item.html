@@ -1,4 +1,4 @@
-<div class="item mod-ishop-item rounded-5 ">
+<div class="mod-ishop-item rounded-5 ">
 	<!-- BEGIN ITEM_ADMIN -->
 	<ul class="adm-icons">
 		<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
@@ -7,88 +7,83 @@
 	</ul>
 	<!-- END ITEM_ADMIN -->
 	<h2>{name}</h2>
-	<div class="mod-ishop-item-content clearfix">
-		<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
-      	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->
-		<!-- BEGIN IS_ITEM_MNF --><div class='mod-ishop-item-mnf'><strong>{name}</strong> {country}</div><!-- END IS_ITEM_MNF --> 
-		<!-- BEGIN IS_ITEM_TM --><div class='mod-ishop-mnf'>{name}</div><!-- END IS_ITEM_TM -->
-		
-		<!-- BEGIN IS_ITEM_ORDER -->
+
+	<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-item-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
+	<!-- BEGIN IS_ITEM_ORDER -->
+	<div class="mod-ishop-item-order rounded-3">
 		<form action="{URL}order/{catID}/{id}/" method="post">
-			
-			<div class="rounded-3 mod-ishop-cart">
-		     	<table>
-		       		<tr>
-		         		<!-- BEGIN IP_ORDER -->
-		         		<td>
-		           			{name} :
-		           			<select name="prop[{id}]" id="prop_{id}" {onChange}>
-		             			<!-- BEGIN IPO_OPT -->
-		             			<option value="{val}" {disable} {sel}>{val}</option>
-		             			<!-- END IPO_OPT -->
-		           			</select>
-		         		</td>
-		         		<!-- END IP_ORDER -->
-		         		<td>
-							<input type="submit" value="{m('Buy')}" class="form-submit" />
-						</td>
-		       		</tr>
-		     	</table>
-			</div>
+	     	<table>
+	       		<tr>
+	         		<!-- BEGIN IP_ORDER -->
+	         		<td>
+	           			{name} :
+	           			<select name="prop[{id}]" id="prop_{id}" {onChange}>
+	             			<!-- BEGIN IPO_OPT -->
+	             			<option value="{val}" {disable} {sel}>{val}</option>
+	             			<!-- END IPO_OPT -->
+	           			</select>
+	         		</td>
+	         		<!-- END IP_ORDER -->
+	         		<td>
+						<input type="submit" value="{m('Buy')}" class="form-submit" />
+					</td>
+	       		</tr>
+	     	</table>
 		</form>
-      	<!-- END IS_ITEM_ORDER -->
 	</div>
-	<div class="mod-ishop-item-content clearfix">
-		
-		<!-- BEGIN IS_ITEM_GALLERY -->
-		<div id="is-item-gallery" class="float-left rounded-3">
-			<div id="is-item-preview" class="clearfix">
-				<!-- BEGIN PREVIEW_ADMIN -->
+   	<!-- END IS_ITEM_ORDER -->
+	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-item-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->
+	<!-- BEGIN IS_ITEM_MNF --><div class='mod-ishop-item-mnf'><strong>{name}</strong> {country}</div><!-- END IS_ITEM_MNF --> 
+	<!-- BEGIN IS_ITEM_TM --><div class='mod-ishop-item-tm'>{name}</div><!-- END IS_ITEM_TM -->
+   	
+	<!-- BEGIN IS_ITEM_GALLERY -->
+	<div id="mod-ishop-item-gallery" class="rounded-3">
+		<div id="mod-ishop-item-gallery-preview">
+			<!-- BEGIN PREVIEW_ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			</ul>
+			<!-- END PREVIEW_ADMIN -->
+			<a href="{target}" id="mod-ishop-item-gallery-preview-img"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}"  /></a>
+		</div>
+		<!-- BEGIN IS_ITEM_SLIDER -->
+		<div id="mod-ishop-item-gallery-slider">
+			<div>
+			<ul>
+			<!-- BEGIN IS_ITEM_TMB --><li class="mod-ishop-item-gallery-slider-item">
+				<!-- BEGIN TMB_ADMIN -->
 				<ul class="adm-icons">
 					<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
 					<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 				</ul>
-				<!-- END PREVIEW_ADMIN -->
-				<a href="{target}" class="mod-ishop-preview"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}"  /></a>
+				<!-- END TMB_ADMIN -->
+				<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" /></a>
+			</li><!-- END IS_ITEM_TMB -->
+			</ul>
 			</div>
-			<!-- BEGIN IS_ITEM_SLIDER -->
-			<div id="is-item-slider">
-				<div>
-				<ul>
-				<!-- BEGIN IS_ITEM_TMB --><li class="is-item-img">
-					<!-- BEGIN TMB_ADMIN -->
-					<ul class="adm-icons">
-						<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
-						<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
-					</ul>
-					<!-- END TMB_ADMIN -->
-					<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" /></a>
-				</li><!-- END IS_ITEM_TMB -->
-				</ul>
-				</div>
-			</div>
-			<div class="clearfix"></div>
-			<!-- END IS_ITEM_SLIDER -->
 		</div>
-		<!-- END IS_ITEM_GALLERY -->
+		<!-- END IS_ITEM_SLIDER -->
+	</div>
+	<!-- END IS_ITEM_GALLERY -->
 
-		<!-- BEGIN IS_ITEM_PROP_TOP -->
-			<!-- BEGIN PROP --><strong>{name}</strong> {value}<!-- END PROP -->
-		<!-- END IS_ITEM_PROP_TOP -->
+	<!-- BEGIN IS_ITEM_PROP_TOP -->
+	<div class="mod-ishop-item-props-top">
+		<!-- BEGIN PROP --><div><strong>{name}</strong>: {value}</div><!-- END PROP -->
+	</div>
+	<!-- END IS_ITEM_PROP_TOP -->
 
+	<div class="mod-ishop-item-content clearfix">
 		{content}
-
 	</div>
 
-
-
 	<!-- BEGIN IS_ITEM_PROP_TABLE -->
-	<div class="rounded-3 mod-ishop-fts">
+	<div class="mod-ishop-item-fts rounded-3">
     	<table>
       		<!-- BEGIN PROP -->
       		<tr>
-       			<td class="mod-ishop-ft-name">{name}:</td>
-       			<td class="mod-ishop-ft-val">{value}</td>
+       			<td class="ft-name">{name}:</td>
+       			<td class="ft-val">{value}</td>
       		</tr>
       		<!-- END PROP -->
     	</table>
@@ -96,10 +91,10 @@
 	<!-- END IS_ITEM_PROP_TABLE -->
 
 	<!-- BEGIN IS_ITEM_PROP_BOTTOM -->
-		<!-- BEGIN PROP --><strong>{name}</strong> {value}<!-- END PROP -->
+	<div class="mod-ishop-item-props-bottom">
+		<!-- BEGIN PROP --><div><strong>{name}</strong>: {value}</div><!-- END PROP -->
+	</div>
 	<!-- END IS_ITEM_PROP_BOTTOM -->
-
-
 
 	{LINKED_OBJS}
 	
@@ -108,23 +103,21 @@
 <script type="text/javascript" charset="utf-8">
 	
 	$().ready(function() {
-		var cnt = $('#is-item-slider li.is-item-img').length;
-		if (cnt>2) {
-			$('#is-item-slider').addClass('elslider').elslider({
-				size : 4
-			});	
-		} 
+
+		var cnt = $('#mod-ishop-item-gallery-slider>div>ul').children('li').length;
 		
 		if (cnt > 0) {
-			$('#is-item-preview a').click(function(e) {
+			$('#mod-ishop-item-gallery-preview-img').click(function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				window.console.log(this)
-				$("#is-item-slider a[rel='fancy-tour']:has(img)").eq(0).click();
+				$("#mod-ishop-item-gallery-slider a[rel]:has(img)").eq(0).click();
 			});
-			$("#is-item-slider a[rel='fancy-tour']:has(img)").fancybox();
+			$("#mod-ishop-item-gallery-slider a[rel]:has(img)").fancybox();
+			if (cnt>{ishopSliderSize}) {
+				$('#mod-ishop-item-gallery-slider').addClass('elslider').elslider({	size : {ishopSliderSize} });	
+			}
 		} else {
-			$('#is-item-preview a.mod-ishop-preview').fancybox(); 
+			$('#mod-ishop-item-gallery-preview-img').fancybox(); 
 		}
 		
 	});

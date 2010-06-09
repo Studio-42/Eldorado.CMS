@@ -55,14 +55,14 @@
 			<div id="is-item-slider">
 				<div>
 				<ul>
-				<!-- BEGIN IS_ITEM_TMB --><li class="is-item-img"><a href="{target}" rel="fancy-tour">
+				<!-- BEGIN IS_ITEM_TMB --><li class="is-item-img">
 					<!-- BEGIN TMB_ADMIN -->
 					<ul class="adm-icons">
 						<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
 						<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 					</ul>
 					<!-- END TMB_ADMIN -->
-					<img src="{tmb}" alt="{alt}" /></a>
+					<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" /></a>
 				</li><!-- END IS_ITEM_TMB -->
 				</ul>
 				</div>
@@ -111,7 +111,7 @@
 		var cnt = $('#is-item-slider li.is-item-img').length;
 		if (cnt>2) {
 			$('#is-item-slider').addClass('elslider').elslider({
-				size : 2
+				size : 4
 			});	
 		} 
 		
@@ -119,8 +119,9 @@
 			$('#is-item-preview a').click(function(e) {
 				e.preventDefault();
 				e.stopPropagation();
+				window.console.log(this)
 				$("#is-item-slider a[rel='fancy-tour']:has(img)").eq(0).click();
-			})
+			});
 			$("#is-item-slider a[rel='fancy-tour']:has(img)").fancybox();
 		} else {
 			$('#is-item-preview a.mod-ishop-preview').fancybox(); 

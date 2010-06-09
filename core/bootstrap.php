@@ -1,13 +1,46 @@
 <?php
 
+/**
+ * Other paths
+ */
+define ('EL_DIR_STORAGE_NAME', 'storage');
+define ('EL_DIR_STORAGE',      EL_DIR.EL_DIR_STORAGE_NAME.DIRECTORY_SEPARATOR);
+define ('EL_DIR_STYLES',       EL_DIR.'style'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_BACKUP',       EL_DIR.'backup'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_CACHE',        EL_DIR.'cache'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_LOG',          EL_DIR.'log'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_TMP',          EL_DIR.'tmp'.DIRECTORY_SEPARATOR);
+define ('EL_DIR_CONF',         EL_DIR.'conf'.DIRECTORY_SEPARATOR);
+
+/**
+ * errors processing conf
+ */
+define ('EL_ERROR_DISPLAY',      E_USER_ERROR|E_USER_WARNING|E_USER_NOTICE);
+define ('EL_ERROR_LOG',          E_USER_ERROR);
+define ('EL_ERROR_MAIL',         0);
+define ('EL_ERROR_MAIL_TIMEOUT', 60*60);
+
+/**
+ * Begin session
+ */
+session_name('ELSID');
+session_set_cookie_params(60*60*24*30);
+session_start();
+
+/**
+ * set default timezone for PHP5
+ */
 if (function_exists('date_default_timezone_set')) {
 	date_default_timezone_set('Europe/Moscow');
 }
-// define base URL, if does not define previousely
-if ( !defined('EL_BASE_URL') )
+
+/**
+ * define base URL, if does not define previousely
+ */
+if (!defined('EL_BASE_URL') && isset($_SERVER['HTTP_HOST']))
 {
-  $sPath = dirname( $_SERVER['PHP_SELF'] );
-  define ('EL_BASE_URL', 'http://'.$_SERVER['HTTP_HOST'] . ('/'==$sPath ? '' : $sPath));
+	$sPath = dirname($_SERVER['PHP_SELF']);
+	define ('EL_BASE_URL', 'http://'.$_SERVER['HTTP_HOST'] . ('/' == $sPath ? '' : $sPath));
 }
 
 /**
@@ -17,7 +50,6 @@ $paths = EL_DIR_CORE.'lib/:'
 		.EL_DIR_CORE.'forms/:'
         .EL_DIR_CORE.'modules/:'
         .EL_DIR_CORE.'plugins/:';
-
 ini_set('include_path', '.:'.$paths);
 
 /**
@@ -114,20 +146,22 @@ $GLOBALS['_js_'] = array(
 	EL_JS_CSS_SRC     => array(),
 	EL_JS_SRC_ONLOAD  => array(),
 	EL_JS_SRC_ONREADY => array()
-	);
+);
 $GLOBALS['_css_']       = array(
 	'ui-theme'     => '',
 	EL_JS_CSS_FILE => array('styling.css', 'normal.css'),
 	EL_JS_CSS_SRC  => array()
-	);
-	
-	
+);
+
 /**
  * Array contains current path inside page
  * Dont use directly. Use elAppendToPagePath() func
  */
 $GLOBALS['pagePath'] = array();
 
+/**
+ * Load main libraries
+ */
 include_once EL_DIR_CORE.'lib/elActionLog.lib.php';
 include_once EL_DIR_CORE.'lib/elCore.class.php';
 include_once EL_DIR_CORE.'lib/elCore.lib.php';
@@ -146,21 +180,36 @@ else
 	include_once EL_DIR_CORE.'lib/elMemberAttribute.class.php';
 	include_once EL_DIR_CORE.'lib/elDataMapping.class.php';
 }
-
 include_once EL_DIR_CORE.'lib/elUser.class.php';
-// include_once EL_DIR_CORE.'lib/elUserProfile.class.php';
 
-error_reporting( E_ALL );
+/**
+ * error handling
+ */
+error_reporting(E_ALL);
 register_shutdown_function('shutdown');
 set_error_handler('elErrorHandler');
 
-set_magic_quotes_runtime(0);
-if ( ini_get('magic_quotes_gpc') )
+/**
+ * check for magic quotes and workaround
+ */
+if (version_compare(PHP_VERSION, '5.3.0') < 0)
 {
-  $_GET  = array_map('elRStripSlashes', $_GET);
-  $_POST = array_map('elRStripSlashes', $_POST);
+	set_magic_quotes_runtime(0);
+}
+if (ini_get('magic_quotes_gpc'))
+{
+	$_GET  = array_map('elRStripSlashes', $_GET);
+	$_POST = array_map('elRStripSlashes', $_POST);
 }
 
+/**
+ * Load common localization
+ */
 elLoadMessages('Common');
 
-?>
+/**
+ * Core version and name
+ */
+define ('EL_VER',  '3.9.4');
+define ('EL_NAME', 'Kioto');
+

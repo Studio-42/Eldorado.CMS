@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Core version and name
- */
-define ('EL_VER',  '3.9.4');
-define ('EL_NAME', 'Kioto');
-
 class elCore
 {
 	var $pageID  = 0;
@@ -340,4 +334,3 @@ class elCore
 
 }
 
-?>

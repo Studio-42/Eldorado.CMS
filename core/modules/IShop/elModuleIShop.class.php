@@ -23,6 +23,8 @@ define('EL_IS_SORT_TIME',  4);
 class elModuleIShop extends elModule {
 	var $_factory   = null;
 	var $_url       = EL_URL;
+	var $_urlCats   = '';
+	var $_urlMnfs   = '';
 	var $_cat       = null;
 	var $_mnf       = null;
 	var $_item      = null;
@@ -75,7 +77,7 @@ class elModuleIShop extends elModule {
 	 *
 	 * @var array
 	 **/
-	var $_sharedRndMembers = array('_view', '_cat', '_mnf');
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs');
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
@@ -179,7 +181,7 @@ class elModuleIShop extends elModule {
 		$this->_rnd->rndMnf($this->_mnf, $c->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
 		
 		elAppendToPagePath(array(
-			'url'  => $this->_url.'mnf/'.$this->mnf->ID.'/',	
+			'url'  => $this->_urlMnf.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
 	}
@@ -208,6 +210,14 @@ class elModuleIShop extends elModule {
 
 		$this->_initRenderer();
 		$this->_rnd->rndTm($this->_mnf, $tm, $c->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlMnf.'mnf/'.$this->_mnf->ID.'/',	
+			'name' => $this->_mnf->name)
+			);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlMnf.'tm/'.$tm->ID.'/',	
+			'name' => $tm->name)
+			);
 	}
 
 	/**
@@ -223,6 +233,27 @@ class elModuleIShop extends elModule {
 		// elPrintR($item);
 		$this->_initRenderer();
 		$this->_rnd->rndItem($item);
+		
+		if ($this->_view == EL_IS_VIEW_CATS) {
+			$this->_cat->pathToPageTitle();
+		} else {
+			$mnf = $item->getMnf();
+			elAppendToPagePath(array(
+				'url'  => $this->_urlMnf.'mnf/'.$mnf->ID.'/',	
+				'name' => $mnf->name)
+				);
+
+			if ($this->_arg(2) == 'tm') {
+				$tm = $item->getTm();
+				elAppendToPagePath(array(
+					'url'  => $this->_urlMnf.'tm/'.$tm->ID.'/',	
+					'name' => $tm->name)
+					);
+			}
+		}
+		
+
+		
 	}
 
 	/**
@@ -358,7 +389,7 @@ class elModuleIShop extends elModule {
 	  return $clm;
 	}
 
-  function _onBeforeStop()
+  function _onBeforeStop_()
   {
     $this->_cat->pathToPageTitle();
     if ( $this->_item )
@@ -408,7 +439,7 @@ class elModuleIShop extends elModule {
 			array_shift($this->_args);
 		}
 		$this->_factory = & elSingleton::getObj('elIShopFactory');
-		$this->_factory->init($this->pageID, $this->_conf);
+		$this->_factory->init($this->pageID, $this->_conf('itemsSortID'));
 	}
 
 	/**
@@ -422,10 +453,21 @@ class elModuleIShop extends elModule {
 
 		if ($this->_view == EL_IS_VIEW_CATS) {
 			$this->_cat->idAttr($this->_arg(0));
+			
 		} else {
 			$this->_mnf->idAttr($this->_arg(0));
 			$this->_mnf->fetch();
+			
 		}
+		
+		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
+			$this->_urlCats = EL_URL;
+			$this->_urlMnfs = EL_URL.'mnfs/';
+		} else {
+			$this->_urlCats = EL_URL.'cats/';
+			$this->_urlMnfs = EL_URL;
+		}
+		
 		$this->_cat->fetch();
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 

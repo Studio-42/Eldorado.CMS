@@ -50,6 +50,8 @@ class elRndIShop extends elCatalogRenderer {
 	function init($dirname, $conf, $admin=false) {
 		parent::init($dirname, $conf, $admin);
 		
+		// echo $this->_url;
+		
 		if ($this->_view != $this->_conf('default_view')) {
 			$this->_te->assignVars('ishopView', $this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
@@ -57,10 +59,12 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_te->assignVars(array(
 			'catID'    => $this->_cat->ID,
 			'mnfID'    => $this->_mnf->ID,
-			'parentID' => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID
+			'parentID' => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID,
+			'ishopURL' => $this->_url,
+			'ishopCatsURL' => $this->_urlCats,
+			'ishopMnfsURL' => $this->_urlMnfs
 			));
 		
-		// $this->_te->assignVars('catID', $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID);
 		
 		$this->_currency = &elSingleton::getObj('elCurrency');
 		$this->_curOpts = array(
@@ -190,7 +194,7 @@ class elRndIShop extends elCatalogRenderer {
 	function rndTm($mnf, $tm, $items, $total, $current) {
 		$this->_setFile();
 		$this->_te->assignBlockVars('CURRENT_MNF', $mnf->toArray());
-		
+		$this->_te->assignVars('fromTm', 'tm/');
 
 		if ($items) {
 			if ($this->_conf('itemsCols')>1) { // two columns
@@ -205,7 +209,114 @@ class elRndIShop extends elCatalogRenderer {
 		
 	}
 
-  function _getItemPropsBlocks($pos)
+  	/**
+	 * render item
+	 *
+	 * @param  elIShopItem  $item
+	 * @param  array        $linkedObjs  not implemented yet
+	 * @return void
+	 **/
+	function rndItem($item, $linkedObjs=null) {
+		
+		elAddJs('jquery.js', EL_JS_CSS_FILE);
+		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
+		elAddCss('fancybox.css');
+		$this->_setFile('item');
+		$this->_te->assignVars( $item->toArray() );
+
+		if (!empty($this->_conf['displayCode'])) {
+			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
+		}
+		
+		$mnf = $item->getMnf();
+		if ($mnf->ID) {
+			$this->_te->assignBlockVars('IS_ITEM_MNF', $mnf->toArray());
+		}
+		$tm = $item->getTm();
+		if ($tm->ID) {
+			$this->_te->assignBlockVars('IS_ITEM_TM', $tm->toArray());
+		}
+		if ($item->price > 0) {
+			$this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$this->_price($item->price)));
+		    $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
+  		}
+		
+		$props = $item->getProperties();
+		foreach ($props as $pos=>$p) {
+			if ($pos == 'order') {
+				
+			} elseif (isset($this->_propBlocks[$pos])) {
+				$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
+			}
+		}
+		
+		if (false !== ($gallery = $item->getGallery())) {
+			elAddCss('elslider.css',   EL_JS_CSS_FILE);
+			elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
+			$img  = current($gallery);
+			$s    = @getimagesize($item->getTmbPath('c'));
+			$vars = array(
+				'id'     => $item->ID,
+				'img_id' => key($gallery),
+				'tmb'    => $item->getTmbURL('c'),
+				'target' => EL_BASE_URL.$img,
+				'alt'    => htmlspecialchars($item->name),
+				'w'      => $s[0],
+				'h'      => $s[1]
+				);
+			$this->_te->assignBlockVars('IS_ITEM_GALLERY', $vars);
+			
+			if ($this->_admin && count($gallery) == 1) {
+				$this->_te->assignBlockVars('IS_ITEM_GALLERY.PREVIEW_ADMIN', $vars, 1);
+			}
+			if (count($gallery) > 1) {
+				foreach ($gallery as $id=>$img) {
+					$vars = array(
+						'id'     => $item->ID,
+						'img_id' => $id,
+						'tmb'    => $item->getTmbURL('l', $img),
+						'tmbc'   => $item->getTmbURL('c', $img),
+						'alt'    => htmlspecialchars($item->name),
+						'target' => EL_BASE_URL.$img
+						);
+					$this->_te->assignBlockVars('IS_ITEM_GALLERY.IS_ITEM_SLIDER.IS_ITEM_TMB', $vars, 2);
+					if ($this->_admin) {
+						$this->_te->assignBlockVars('IS_ITEM_GALLERY.IS_ITEM_SLIDER.IS_ITEM_TMB.TMB_ADMIN', $vars, 3);
+					}
+				}
+			}
+		}
+		
+		if ($this->_admin) {
+			elLoadJQueryUI();
+			elAddCss('elfinder.css',   EL_JS_CSS_FILE);
+			elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
+			if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
+			{
+				elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
+			}
+			$js =
+			"	$('.ishop-sel-img').click(function(e) {
+					e.preventDefault();
+					var actionURL = $(this).attr('href');
+					$('<div />').elfinder({
+						url  : '".EL_URL."__finder__/',
+						lang : '".EL_LANG."',
+						editorCallback : function(url) {
+							$('<form action=\"'+actionURL+'\" method=\"POST\"><input type=\"hidden\" name=\"imgURL\" value=\"'+url+'\"></form>').appendTo('body').submit();
+						},
+						dialog : { title : 'Select image', width : 750, modal : true }
+					});
+				});";
+
+			elAddJs($js, EL_JS_SRC_ONREADY);
+			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
+		}
+		$this->_rndLinkedObjs($linkedObjs);
+	}
+	
+
+	function _getItemPropsBlocks($pos)
   {
     if ( empty($GLOBALS['elIShopPropPos'][$pos]) && 'order'!=$pos)
     {
@@ -267,229 +378,6 @@ class elRndIShop extends elCatalogRenderer {
 
   }
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
-	 **/
-	function rndItem($item) {
-		$this->_setFile('item');
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
-		elAddCss('fancybox.css');
-		$this->_te->assignVars( $item->toArray() );
-
-		if (!empty($this->_conf['displayCode'])) {
-			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
-		}
-		
-		$mnf = $item->getMnf();
-		if ($mnf->ID) {
-			$this->_te->assignBlockVars('IS_ITEM_MNF', $mnf->toArray());
-		}
-		$tm = $item->getTm();
-		if ($tm->ID) {
-			$this->_te->assignBlockVars('IS_ITEM_TM', $tm->toArray());
-		}
-		if ($item->price > 0) {
-			$this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$this->_price($item->price)));
-		    $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
-  		}
-		
-		$props = $item->getProperties();
-		// elPrintR($props);
-		
-		foreach ($props as $pos=>$p) {
-			if ($pos == 'order') {
-				
-			} elseif (isset($this->_propBlocks[$pos])) {
-				$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
-			}
-		}
-		
-		if ($this->_admin) {
-			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
-		}
-		
-	}
-
-	function renderItem($item, $linkedObjs = null)
-	{
-		// $currency = & elSingleton::getObj('')
-		
-
-		elAddJs('jquery.js', EL_JS_CSS_FILE);
-		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
-		elAddCss('fancybox.css');
-		
-		
-		
-		if ($this->_admin)
-		{
-			elLoadJQueryUI();
-			elAddCss('elfinder.css',   EL_JS_CSS_FILE);
-			elAddJs('elfinder.min.js', EL_JS_CSS_FILE);
-			if (file_exists(EL_DIR.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js'))
-			{
-				elAddJs('i18n'.DIRECTORY_SEPARATOR.'elfinder'.DIRECTORY_SEPARATOR.'elfinder.'.EL_LANG.'.js', EL_JS_CSS_FILE);
-			}
-			$js =
-			"	$('.ishop-sel-img').click(function(e) {
-					e.preventDefault();
-					var actionURL = $(this).attr('href');
-					$('<div />').elfinder({
-						url  : '".EL_URL."__finder__/',
-						lang : '".EL_LANG."',
-						editorCallback : function(url) {
-							$('<form action=\"'+actionURL+'\" method=\"POST\"><input type=\"hidden\" name=\"imgURL\" value=\"'+url+'\"></form>').appendTo('body').submit();
-						},
-						dialog : { title : 'Select image', width : 750, modal : true }
-					});
-				});";
-
-			elAddJs($js, EL_JS_SRC_ONREADY);
-		}
-		$this->_setFile('item');
-		$this->_te->assignVars( $item->toArray() );
-
-		// Admin menu
-		if ($this->_admin) {
-			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
-		}
-
-		if (false !== ($gallery = $item->getGallery())) {
-			elAddCss('elslider.css',   EL_JS_CSS_FILE);
-			elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
-			$img  = current($gallery);
-			$s    = @getimagesize($item->getTmbPath('c'));
-			
-			$vars = array(
-				'id'     => $item->ID,
-				'img_id' => key($gallery),
-				'tmb'    => $item->getTmbURL('c'),
-				'target' => EL_BASE_URL.$img,
-				'alt'    => htmlspecialchars($item->name),
-				'w'      => $s[0],
-				'h'      => $s[1]
-				);
-			$this->_te->assignBlockVars('IS_ITEM_GALLERY', $vars);
-			if ($this->_admin && count($gallery) == 1) {
-				$this->_te->assignBlockVars('IS_ITEM_GALLERY.PREVIEW_ADMIN', $vars, 1);
-			}
-			
-			if (count($gallery) > 1) {
-				foreach ($gallery as $id=>$img) {
-					$vars = array(
-						'id'     => $item->ID,
-						'img_id' => $id,
-						'tmb'    => $item->getTmbURL('l', $img),
-						'tmbc'   => $item->getTmbURL('c', $img),
-						'target' => EL_BASE_URL.$img
-						);
-					$this->_te->assignBlockVars('IS_ITEM_GALLERY.IS_ITEM_SLIDER.IS_ITEM_TMB', $vars, 2);
-					if ($this->_admin) {
-						$this->_te->assignBlockVars('IS_ITEM_GALLERY.IS_ITEM_SLIDER.IS_ITEM_TMB.TMB_ADMIN', $vars, 3);
-					}
-				}
-			}
-		}
-
-
-		if (!empty($this->_conf['displayCode']))
-		{
-			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
-		}
-
-    if ( !empty($this->_conf['mnfNfo']) )
-    {
-      $vars = array('mnf'=>$item->mnf, 'country'=>$item->mnfCountry, 'tm'=>$item->tm);
-      if (EL_IS_USE_MNF == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
-      {
-        $this->_te->assignBlockVars('IS_ITEM_MNFTM.IS_IMNF', $vars, 1);
-      }
-      if (EL_IS_USE_TM == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo'])
-      {
-        $this->_te->assignBlockVars('IS_ITEM_MNFTM.IS_ITM', $vars, 1);
-      }
-    }
-
-
-    list($pGroups, $pOrder) = $item->getProperties(); //elPrintR($pGroups);
-
-    foreach ($pGroups as $pos=>$props)
-    {
-      list($bParent, $bProp, $bName) = $this->_getItemPropsBlocks($pos);
-      foreach ($props as $p)
-      {
-        $this->_te->assignBlockVars($bParent.'.'.$bProp, $p, 1);
-        if (!empty($p['name']))
-        {
-          $this->_te->assignBlockVars($bParent.'.'.$bProp.'.'.$bName, $p, 2);
-        }
-      }
-    }
-
-    if ( 0<($item->price) )
-    {
-		$currency = &elSingleton::getObj('elCurrency');
-		$curOpts = array(
-			'precision'   => (int)$this->_conf('pricePrec'),
-			'currency'    => $this->_conf('currency'),
-			'exchangeSrc' => $this->_conf('exchangeSrc'),
-			'commision'   => $this->_conf('commision'),
-			'rate'        => $this->_conf('rate'),
-			'format'      => true,
-			'symbol'      => 1
-			);
-		$item->price = $currency->convert($item->price, $curOpts);
-      $this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$item->price));
-      $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
-      if ( !empty($pOrder) )
-      {
-        $f = elSingleton::getObj('elForm');
-        foreach ($pOrder as $one)
-        {
-          //elPrintR($one);
-          $attrs = $one['depend'] ? array('onChange'=>'checkOrderDepend('.$item->typeID.','.$one['id'].',this.value);') : null ;
-          //$sel = new elSelect('a', 'aa', null, $one['value'], $attrs, false, false);
-          //$one['value'] = $sel->toHtml();
-          $vars = array(
-            'id'=>$one['id'],
-            'itemID'=>$item->ID,
-            'name'=>$one['name'],
-            'onChange' => $one['depend'] ?  'onChange="checkOrderDepend('.$item->ID.','.$one['id'].',this.value);"' : ''
-            );
-          $selOK = 0;
-          $this->_te->assignBlockVars('IS_ITEM_ORDER.IP_ORDER', $vars, 1);
-          foreach ($one['value'] as $v)
-          {
-            $dis = !$v[1] ? 'disabled="on"' : '';
-            if ( !$selOK )
-            {
-              if ( $v[1] )
-              {
-                $sel = ' selected="on"';
-                $selOK = 1;
-              }
-              else
-              {
-                $sel = '';
-              }
-            }
-            else
-            {
-              $sel = '';
-            }
-
-            $this->_te->assignBlockVars('IS_ITEM_ORDER.IP_ORDER.IPO_OPT', array('val'=>$v[0], 'disable'=>$dis, 'sel'=>$sel), 2);
-          }
-        }
-      }
-    }
-
-		$this->_rndLinkedObjs($linkedObjs);
-	}
 
 
   function rndTypes($types)
@@ -519,22 +407,6 @@ class elRndIShop extends elCatalogRenderer {
 
 
 
-  function _rndMnfs( $mnfsList )
-  {
-    $this->_setFile('mnfs');
-    foreach ( $mnfsList as $mnf )
-    {
-      $this->_te->assignBlockVars('IS_MNF', $mnf->toArray());
-      if ( (EL_IS_USE_TM == $this->_conf['mnfNfo'] || EL_IS_USE_MNF_TM == $this->_conf['mnfNfo']) && !empty($mnf->tms) )
-      {
-        $this->_te->assignBlockVars('IS_MNF.IS_MNF_TMS', array('id'=>$mnf->ID, 'mnf'=>$mnf->name), 1);
-        foreach ( $mnf->tms as $tm )
-        {
-          $this->_te->assignBlockVars('IS_MNF.IS_MNF_TMS.IS_MNF_TM', $tm->toArray(), 2);
-        }
-      }
-    }
-  }
 
 
 
@@ -575,6 +447,15 @@ class elRndIShop extends elCatalogRenderer {
   		}
 		if ($item->price > 0) {
 			$this->_te->assignBlockVars($block.'.ITEM.PRICE', array('id' => $item->ID, 'price'=>$this->_price($item->price)), 2);
+  		}
+
+		if (($img = array_shift($item->getGallery())) != false) {
+			$vars = array(
+	 			'id'  => $item->ID,
+	 			'src' => $item->getTmbURL(),
+	 			'alt' => htmlspecialchars($item->name)
+	 			);
+			$this->_te->assignBlockVars($block.'.ITEM.IMG', $vars, 2 );
   		}
 
 		$this->_te->assignBlockFromArray($block.'.ITEM.ANN_PROPS.ANN_PROP', $item->getAnnouncedProperties(), 3);

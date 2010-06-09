@@ -32,7 +32,6 @@ class elIShopItemsCollection {
 		$this->_tbtm  = $f->tb('tbtm');
 		$this->_tbp2i  = $f->tb('tbp2i');
 		$this->_item  = $f->create(EL_IS_ITEM);
-		// echo 'sort '.$f->itemsSortID;
 		$this->_sortID = isset($this->_sort[$f->itemsSortID]) ? $f->itemsSortID : EL_IS_SORT_NAME;
 	}
 		

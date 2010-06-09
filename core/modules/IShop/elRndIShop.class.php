@@ -275,7 +275,9 @@ class elRndIShop extends elCatalogRenderer {
 			}
 		}
 		
-		if (false !== ($gallery = $item->getGallery())) {
+		$gallery = $item->getGallery();
+		$gsize   = count($gallery);
+		if ($gsize) {
 			elAddCss('elslider.css',   EL_JS_CSS_FILE);
 			elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
 			$img  = current($gallery);
@@ -283,7 +285,7 @@ class elRndIShop extends elCatalogRenderer {
 			$vars = array(
 				'id'     => $item->ID,
 				'img_id' => key($gallery),
-				'tmb'    => $item->getTmbURL('c'),
+				'tmb'    => $item->getTmbURL(key($gallery), 'c'),
 				'target' => EL_BASE_URL.$img,
 				'alt'    => htmlspecialchars($item->name),
 				'w'      => $s[0],
@@ -291,16 +293,15 @@ class elRndIShop extends elCatalogRenderer {
 				);
 			$this->_te->assignBlockVars('IS_ITEM_GALLERY', $vars);
 			
-			if ($this->_admin && count($gallery) == 1) {
+			if ($gsize == 1 && $this->_admin) {
 				$this->_te->assignBlockVars('IS_ITEM_GALLERY.PREVIEW_ADMIN', $vars, 1);
 			}
-			if (count($gallery) > 1) {
+			if ($gsize > 1) {
 				foreach ($gallery as $id=>$img) {
 					$vars = array(
 						'id'     => $item->ID,
 						'img_id' => $id,
-						'tmb'    => $item->getTmbURL('l', $img),
-						'tmbc'   => $item->getTmbURL('c', $img),
+						'tmb'    => $item->getTmbURL($id, 'l'),
 						'alt'    => htmlspecialchars($item->name),
 						'target' => EL_BASE_URL.$img
 						);
@@ -508,14 +509,23 @@ class elRndIShop extends elCatalogRenderer {
 			$this->_te->assignBlockVars($block.'.ITEM.PRICE', array('id' => $item->ID, 'price'=>$this->_price($item->price)), 2);
   		}
 
-		if (($img = array_shift($item->getGallery())) != false) {
+		if (false != ($img = $item->getDefaultTmb())) {
 			$vars = array(
 	 			'id'  => $item->ID,
-	 			'src' => $item->getTmbURL(),
+	 			'src' => $img,
 	 			'alt' => htmlspecialchars($item->name)
 	 			);
 			$this->_te->assignBlockVars($block.'.ITEM.IMG', $vars, 2 );
-  		}
+		}
+
+		// if (($img = array_shift($item->getGallery())) != false) {
+		// 	$vars = array(
+		// 	 			'id'  => $item->ID,
+		// 	 			'src' => $item->getTmbURL(),
+		// 	 			'alt' => htmlspecialchars($item->name)
+		// 	 			);
+		// 	$this->_te->assignBlockVars($block.'.ITEM.IMG', $vars, 2 );
+		//   		}
 
 		$this->_te->assignBlockFromArray($block.'.ITEM.ANN_PROPS.ANN_PROP', $item->getAnnouncedProperties(), 3);
 

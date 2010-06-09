@@ -17,11 +17,11 @@ class elIShopItem extends elCatalogItem {
 	var $content    = '';
 	var $price      = 0;
 	var $img        = '';
-	var $gallery    = array();
+	var $gallery;
 	var $crtime     = 0;
 	var $mtime      = 0;
 	var $propVals   = null;
-	var $_type       = null;
+	var $_type      = null;
 
 	var $_objName = 'Product';
   
@@ -143,57 +143,60 @@ class elIShopItem extends elCatalogItem {
 		return $ret;
 	}
 
+	/**
+	 * return images list - gallery
+	 *
+	 * @return array
+	 **/
+	function getGallery() {
+		if ($this->ID && !isset($this->gallery)) {
+			$db = $this->_db();
+			$this->gallery = $db->queryToArray(sprintf('SELECT id, img FROM %s WHERE i_id=%d ORDER BY id', $this->tbgal, $this->ID), 'id', 'img');
+		}
+		return $this->gallery;
+	}
 
-
-  /**
-   * Извлекает поля объкта из БД
-   *
-   * @return bool
-   */
-  function _fetch()
-  {
-    if ( !$this->ID )
-    {
-      return false;
-    }
-    // в зав-ти от настроек прозв/торг марка ($this->mnfNfo) извлекаем произв
-    // - если только произв - по id из табл товара
-    // иначе по id из табд торговых марок
-    $sql = 'SELECT '.$this->attrsToString('i').', m.name AS mnf, m.country, t.name AS tm '
-      .'FROM '.$this->_tb.' AS i LEFT JOIN '.$this->tbtm.' AS t ON i.tm_id=t.id '
-      .'LEFT JOIN '.$this->tbmnf.' AS m ON IF( '.intval(EL_IS_USE_MNF==$this->mnfNfo).' OR i.tm_id=0, i.mnf_id=m.id, t.mnf_id=m.id) '
-      .'WHERE i.id=\''.intval($this->ID).'\' ' ;
-    $db = & elSingleton::getObj('elDb');
-    $db->query($sql);
-    if ( !$db->numRows() )
-    {
-        return false;
-    }
-    $r = $db->nextRecord(); 
-    $this->attr( $r );
-    $this->mnf        = $r['mnf'];
-    $this->mnfCountry = $r['country'];
-    $this->tm         = $r['tm'];
-
-    if ( !empty($this->typeID) )
-    {
-      $factory = & elSingleton::getObj('elIShopFactory');
-      $this->setType( $factory->getItemType($this->typeID) );
-    }
-
-    $sql = 'SELECT ip.p_id, IF( p.type<3, ip.value, ip.pv_id) AS value '
-      .'FROM '.$this->tbp2i.' AS ip, '.$this->tbp.' AS p '
-      .'WHERE ip.i_id='.$this->ID.' AND p.id=ip.p_id';
-
-    $db->query($sql);
-    while ( $r = $db->nextRecord() )
-    {
-      $this->propVals[$r['p_id']][] = $r['value'];
-    }
-    //elPrintR($this);
-    return true;
-  }
-
+	/**
+	 * return first image thumbnail url 
+	 *
+	 * @return string
+	 **/
+	function getDefaultTmb() {
+		$gallery = $this->getGallery();
+		if ($gallery) {
+			return $this->getTmbURL(key($gallery), 'l');
+		}
+	}
+	
+	/**
+	 * return thumbnail url by image id and tmb type
+	 *
+	 * @param  int    $id    image id
+	 * @param  string $type  tmb type/size
+	 * @return string
+	 **/
+	function getTmbURL($id, $type = 'l') {
+		$gallery = $this->getGallery();
+		if (isset($gallery[$id])) {
+			list($tmbl, $tmbc) = $this->_getTmbNames($gallery[$id]);
+			return EL_BASE_URL.('l' == $type ? $tmbl : $tmbc);
+		}
+	}
+	
+	/**
+	 * return thumbnail path by image id and tmb type
+	 *
+	 * @param  int    $id    image id
+	 * @param  string $type  tmb type/size
+	 * @return string
+	 **/
+	function getTmbPath($id, $type = 'l') {
+		return '.'.str_replace(EL_BASE_URL, '', $this->getTmbURL($id, $type));
+	}
+	
+	
+	
+	
 
   /**
    * Возвращает массив объектов-итемов полученный в рез-те поиска
@@ -233,39 +236,7 @@ class elIShopItem extends elCatalogItem {
     return $items;
   }
 
-  /**
-   * Возвращает массив свойств сгруппированных по позиции в карточке товара
-   * набор свойств зависит от типа товара
-   *
-   * @return array
-   */
-  function _getProperties()
-  {
-    $ret   = array('top'=>array(), 'middle'=>array(), 'table'=>array(), 'bottom'=>array());
-    $order = array();
-    foreach ($this->type->props as $p)
-    {
-      if (!empty($this->propVals[$p->ID]))
-      {
-        $name = $p->displayName || 'table'==$p->displayPos ? $p->name : '';
-        if ( EL_IS_PROP_MLIST == $p->type )
-        {
 
-          $order[] = array(
-            'id'     => $p->ID,
-            'name'   => $p->name,
-            'value'  => $this->_propertyToArray($p->ID),
-            'depend' => $p->inDepend()
-            );
-        }
-		if ( EL_IS_PROP_MLIST != $p->type  || !$p->isHidden )
-		{
-		  $ret[$p->displayPos][$p->ID] = array('name'=>$name, 'value'=>$this->_propertyToString($p->ID));
-		}
-      }
-    }
-    return array($ret, $order);
-  }
 
   function getPropName($pID)
   {
@@ -486,53 +457,10 @@ class elIShopItem extends elCatalogItem {
 
 	// Image manipulation
 
-	// if $img_id is not set - get first (main) image, else image with $img_id
-	function getImg($img_id = false)
-	{
-		if ((!$this->ID) || (!$img_id))
-		{
-			return false;
-		}
-		$sql = sprintf('SELECT id, img FROM %s WHERE id=%d AND i_id=%d LIMIT 1', $this->tbgal, (int)$img_id, $this->ID);
-		$db = & elSingleton::getObj('elDb');
-		$db->query($sql);
-		if (!$db->numRows())
-		{
-			return false;
-		}
-		$f = $db->nextRecord();
-		$this->img = $f['img'];
-		return $f['img'];
-	}
 
-	function getGallery()
-	{
-		if (!$this->ID)
-		{
-			return false;
-		}
 
-		if (!empty($this->gallery) || ($this->gallery === false))
-		{
-			return $this->gallery;
-		}
 
-		$db = & elSingleton::getObj('elDb');
-		$db->query(sprintf('SELECT id, img FROM %s WHERE i_id=%d ORDER BY id', $this->tbgal, $this->ID));
-		if ($db->numRows() < 1)
-		{
-			$this->gallery = false;
-			return false;
-		}
 
-		$gallery = array();
-		while ($r = $db->nextRecord())
-		{
-			$gallery[$r['id']] = $r['img'];
-		}
-		$this->gallery = $gallery;
-		return $gallery;
-	}
 
 	function rmImage($img_id = false)
 	{
@@ -606,38 +534,10 @@ class elIShopItem extends elCatalogItem {
 		return true;
 	}
 
-	function getTmbURL($tmbType = 'l', $thisImg = false)
-	{
-		$img = false;
-		if ($thisImg != false)
-		{
-			$img = $thisImg;
-		}
-		else
-		{
-			$img = array_shift($this->getGallery()) or false;
-		}
 
-		if ($img)
-		{
-			list($tmbl, $tmbc) = $this->_getTmbNames($img);
-			return EL_BASE_URL.('c' == $tmbType ? $tmbc : $tmbl);
-		}
-	}
 
-	function getTmbPath($tmbType = 'l', $thisImg = false) {
-		$url = $this->getTmbURL($tmbType, $thisImg);
-		if (!empty($url)) {
-			return '.'.str_replace(EL_BASE_URL, '', $url);
-		}
-	}
 
-	function _getTmbNames($imgPath)
-	{
-		$imgName = baseName($imgPath);
-		$imgDir  = dirname($imgPath).DIRECTORY_SEPARATOR;
-		return array($imgDir.'tmbl-'.$imgName, $imgDir.'tmbc-'.$imgName);
-	}
+
 
   /***********************************************************/
   //                      PRIVATE                            //
@@ -762,21 +662,6 @@ class elIShopItem extends elCatalogItem {
     return true;
   }
 
-	/**
-	 * update timestamps before save
-	 *
-	 * @return array
-	 **/
-	function _attrsForSave() {
-		$attrs = parent::_attrsForSave();
-		$attrs['mtime'] = time();
-		if (!$this->ID) {
-			$attrs['crtime'] = time();
-		}
-		return $attrs;
-	}
-
-
   /**
    * сохраняет привязку товара к категориям и значения свойств-товара
    *
@@ -820,6 +705,33 @@ class elIShopItem extends elCatalogItem {
 	}
 
 
+
+
+	/**
+	 * update timestamps before save
+	 *
+	 * @return array
+	 **/
+	function _attrsForSave() {
+		$attrs = parent::_attrsForSave();
+		$attrs['mtime'] = time();
+		if (!$this->ID) {
+			$attrs['crtime'] = time();
+		}
+		return $attrs;
+	}
+
+	/**
+	 * return small and middle tmb names
+	 *
+	 * @param  string  $imgPath  image path
+	 * @return array
+	 **/
+	function _getTmbNames($imgPath) {
+		$imgName = baseName($imgPath);
+		$imgDir  = dirname($imgPath).DIRECTORY_SEPARATOR;
+		return array($imgDir.'tmbl-'.$imgName, $imgDir.'tmbc-'.$imgName);
+	}
 
 	/**
 	 * init attrs mapping

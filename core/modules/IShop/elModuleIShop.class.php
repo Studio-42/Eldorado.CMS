@@ -43,7 +43,7 @@ class elModuleIShop extends elModule {
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
-		'mnfsCols'          => 2,
+		'mnfsCols'          => 1,
 		'tmsCols'           => 2,
 		'itemsSortID'       => EL_IS_SORT_NAME,
 		'itemsPerPage'      => 10,

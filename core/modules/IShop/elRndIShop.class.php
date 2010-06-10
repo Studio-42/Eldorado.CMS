@@ -518,17 +518,7 @@ class elRndIShop extends elCatalogRenderer {
 			$this->_te->assignBlockVars($block.'.ITEM.IMG', $vars, 2 );
 		}
 
-		// if (($img = array_shift($item->getGallery())) != false) {
-		// 	$vars = array(
-		// 	 			'id'  => $item->ID,
-		// 	 			'src' => $item->getTmbURL(),
-		// 	 			'alt' => htmlspecialchars($item->name)
-		// 	 			);
-		// 	$this->_te->assignBlockVars($block.'.ITEM.IMG', $vars, 2 );
-		//   		}
-
 		$this->_te->assignBlockFromArray($block.'.ITEM.ANN_PROPS.ANN_PROP', $item->getAnnouncedProperties(), 3);
-
 	}
 
 	/**
@@ -677,7 +667,7 @@ class elRndIShop extends elCatalogRenderer {
 		
 		$this->_te->assignBlockVars($block.'.MNF', $mnf->toArray(), 2);
 		if ($mnf->logo) {
-			$this->_te->assignBlockVars($block.'.MNF.LOGO', array('logo' => $mnf->logo), 2);
+			$this->_te->assignBlockVars($block.'.MNF.LOGO', array('logo' => substr($mnf->logo, 1)), 2);
 		}
 		if ($mnf->content) {
 			$this->_te->assignBlockVars($block.'.MNF.DESCRIP', array('content' => $mnf->content), 2);

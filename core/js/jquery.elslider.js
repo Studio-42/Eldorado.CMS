@@ -27,7 +27,6 @@
 				sliderSize = opts.size*itemSize,
 				viewSize   = items.length*itemSize,
 				cssPos     = vert ? 'top' : 'left';
-				
 			if (vert) {
 				t.height(sliderSize).width(w);
 				slider.height(sliderSize).width(w);

@@ -24,14 +24,14 @@ class elIShopItemsCollection {
 	 * @return void
 	 **/
 	function elIShopItemsCollection() {
-		$this->_db    = & elSingleton::getObj('elDb');
-		$f            = & elSingleton::getObj('elIShopFactory');
-		$this->_tbi   = $f->tb('tbi');
-		$this->_tbi2c = $f->tb('tbi2c');
-		$this->_tbmnf   = $f->tb('tbmnf');
-		$this->_tbtm  = $f->tb('tbtm');
+		$this->_db     = & elSingleton::getObj('elDb');
+		$f             = & elSingleton::getObj('elIShopFactory');
+		$this->_tbi    = $f->tb('tbi');
+		$this->_tbi2c  = $f->tb('tbi2c');
+		$this->_tbmnf  = $f->tb('tbmnf');
+		$this->_tbtm   = $f->tb('tbtm');
 		$this->_tbp2i  = $f->tb('tbp2i');
-		$this->_item  = $f->create(EL_IS_ITEM);
+		$this->_item   = $f->create(EL_IS_ITEM);
 		$this->_sortID = isset($this->_sort[$f->itemsSortID]) ? $f->itemsSortID : EL_IS_SORT_NAME;
 	}
 		
@@ -48,10 +48,7 @@ class elIShopItemsCollection {
 		}
 		return isset($this->_count[$type][$ID]) ? $this->_count[$type][$ID] : 0;
 	}
-		
-		
 
-		
 	/**
 	 * return items collection by required parent type/id
 	 *
@@ -74,8 +71,8 @@ class elIShopItemsCollection {
 				$coll = $this->_item->collection(true, true, 'tm_id='.intval($ID), $sort);
 				break;
 				
-			case 'search':
-			
+			case 'special':
+				$coll = $this->_item->collection(true, true, 'special="'.intval($ID).'"', $sort, $offset, $step);
 				break;
 				
 			default:

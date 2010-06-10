@@ -77,10 +77,11 @@ ul.el-menu-float li a.icoPluginInfoBlock { background-position:2px -74px; }
 ul.el-menu-float li a.icoInfoBlockNew { background-position:2px -205px; }
 ul.el-menu-float li a.icoHelpTopics { background-position:2px -127px; }
 ul.el-menu-float li a.icoHelpModule { background-position:2px -152px; }
-ul.el-menu-float li a.icoPluginPoll { background-position:2px -259px; }
-ul.el-menu-float li a.icoPluginNewsTopics { background-position:2px -231px; }
-ul.el-menu-float li a.icoPluginRandomImage { background-position:2px -283px; }
-ul.el-menu-float li a.icoPluginCalculator { background-position:2px -307px; }
+ul.el-menu-float li a.icoPluginPoll          { background-position:2px -259px; }
+ul.el-menu-float li a.icoPluginNewsTopics    { background-position:2px -231px; }
+ul.el-menu-float li a.icoPluginRandomImage   { background-position:2px -283px; }
+ul.el-menu-float li a.icoPluginCalculator    { background-position:2px -307px; }
+ul.el-menu-float li a.icoPluginSpecialOffer  { background-position:2px -462px; }
 ul.el-menu-float li a.icoAlbumNew { background-position:2px -360px; }
 ul.el-menu-float li a.icoImgNew { background-position:2px -388px; }
 ul.el-menu-float li a.icoSort { background-position:2px -1023px; }

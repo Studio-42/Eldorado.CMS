@@ -749,6 +749,7 @@ class elIShopItem extends elCatalogItem {
 			'announce' => 'announce',
 			'content'  => 'content',
 			'price'    => 'price',
+			'special'  => 'special',
 			'crtime'   => 'crtime',
 			'mtime'    => 'mtime'
 			);

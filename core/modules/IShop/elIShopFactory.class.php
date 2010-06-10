@@ -39,7 +39,7 @@ class elIShopFactory {
 	 **/
 	var $_db    = null;
 	/**
-	 * undocumented class variable
+	 * internal registry
 	 *
 	 * @var string
 	 **/

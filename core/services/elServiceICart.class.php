@@ -218,14 +218,12 @@ class elServiceICart extends elService
 	 * @return void
 	 **/
 	function deliveryInfo() {
-		
 		$ret = array(
 			'delivery' => array(),
 			'payment'  => array(),
 			'price'    => '',
 			'comment'  => ''
 			);
-		$currency   = & elSingleton::getObj('elCurrency');
 		$regionID   = isset($_GET['region_id'])   ? (int)$_GET['region_id']   : 0;	
 		$deliveryID = isset($_GET['delivery_id']) ? (int)$_GET['delivery_id'] : 0;	
 		$paymentID  = isset($_GET['payment_id'])  ? (int)$_GET['payment_id']  : 0;	

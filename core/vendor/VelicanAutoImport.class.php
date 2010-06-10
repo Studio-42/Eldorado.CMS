@@ -115,6 +115,32 @@ class IShopImportLexus
 						$v = str_replace(' ', 'a', $v);
 						$v = sprintf('%.2f', $v);
 					}
+					elseif ($k == 'SPECIALOFFER')
+					{
+						$v = ($v == 'Да' ? 1 : 0);
+					}
+					elseif ($k == 'COMPLECTATION')
+					{
+						$comp = array();
+						foreach (explode(',', $v) as $c)
+						{
+							$c = trim($c);
+							if (!empty($c))
+							{
+								array_push($comp, $c);
+							}
+						}
+						if (!empty($comp))
+						{
+							$v = '';
+							foreach ($comp as $c)
+							{
+								$v .= '<li>'.$c.'</li>'."\n";
+							}
+							$v = '<ul class="velican-complectation">'.$v.'</ul>';
+						}
+						//var_dump($comp);
+					}
 					$v = trim($v);
 					if (($k == 'PHOTOS') && (!empty($a['child'])))
 					{
@@ -355,8 +381,8 @@ class IShopImportLexus
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
 			if (in_array($car['CARID'], $new_cars))
 			{
-				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
-				$sql = sprintf($sql, $mnf_id, $car['CARID'], $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], time(), time());
+				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
+				$sql = sprintf($sql, $mnf_id, $car['CARID'], $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
 				mysql_query($sql, $this->m);
 				$i_id = mysql_insert_id();
 				echo " (insert)\n";
@@ -368,8 +394,8 @@ class IShopImportLexus
 				$r = mysql_query($sql, $this->m);
 				$id = mysql_fetch_assoc($r);
 				$i_id = $id['id'];
-				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', mtime='%d' WHERE id='%d' LIMIT 1";
-				$sql = sprintf($sql, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], time(), $i_id);
+				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', special='%d', mtime='%d' WHERE id='%d' LIMIT 1";
+				$sql = sprintf($sql, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), $i_id);
 				mysql_query($sql, $this->m);
 				echo " (update)\n";
 			}
@@ -443,7 +469,7 @@ class IShopImportLexus
 						$tmbs = array(
 							$imgDir.'tmbl-'.$imgName => 115,
 							$imgDir.'tmbc-'.$imgName => 450,							
-							$imgDir.'tmbs-'.$imgName => 150,
+							//$imgDir.'tmbs-'.$imgName => 150,
 						);
 						$_i_info = $_image->imageInfo($p);
 						foreach ($tmbs as $tmb => $size)

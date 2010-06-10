@@ -18,8 +18,8 @@
 			this.delta   = 12;
 			
 			this.view.hover(
-				function() { self._prev.add(self._next).fadeIn('slow'); },
-				function() { self._prev.add(self._next).fadeOut('slow'); }
+				function() { self._prev.add(self._next).fadeIn('fast'); },
+				function() { self._prev.add(self._next).fadeOut('fast'); }
 				)
 			
 			var opts = {

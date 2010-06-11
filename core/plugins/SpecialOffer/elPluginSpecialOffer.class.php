@@ -69,10 +69,11 @@ class elPluginSpecialOffer extends elPlugin
 			);
 
 			// get special offers from IShop
+			$sort = ($this->_param($src, 'sort', 0) == '0' ? EL_IS_SORT_RAND : EL_IS_SORT_TIME);
 			$factory = & elSingleton::getObj('elIShopFactory');
 			$factory->init($src, 0);
 			$ic = & elSingleton::getObj('elIShopItemsCollection');
-			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), EL_IS_SORT_TIME);
+			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			foreach ($items as $id => $i)
 			{
 				$mnf  = $i->getMnf();
@@ -176,7 +177,7 @@ class elPluginSpecialOffer extends elPlugin
 		$pages    = elGetNavTree('+');
 		$pages[1] = m('Whole site');
 		$swLabel  = m('Use this data source');
-		$sort     = array(m('Random images'), m('Last added images'));
+		$sort     = array(m('Random'), m('Last added'));
 
 		$this->form = &elSingleton::getObj('elForm');
 		$this->form->setRenderer(elSingleton::getObj('elTplFormRenderer'));
@@ -192,10 +193,9 @@ class elPluginSpecialOffer extends elPlugin
 				$box->setAttr('checked', 'on');
 			}
 			$box->add(new elText( 'title_'.$src, m('Title'),                   $this->_param($src, 'title', $pageName)));
-			$box->add(new elSelect( 'num_'.$src, m('How many offers to show'), $this->_param($src, 'num', 1), $nums));
-			$box->add(new elSelect('sort_'.$src, m('Which images display'),    $this->_param($src, 'sort', 0), $sort));
-			//$box->add(new elSelect('name_'.$src, m('Display images name'),     $this->_param($src, 'name', 0), $GLOBALS['yn']));
-			$box->add(new elSelect( 'pos_'.$src, m('Position on page'),        $this->_param($src, 'pos', EL_POS_TOP), $GLOBALS['posLRTB']));
+			$box->add(new elSelect( 'num_'.$src, m('How many offers to show'), $this->_param($src, 'num',   1), $nums));
+			$box->add(new elSelect('sort_'.$src, m('How to sort offers'),      $this->_param($src, 'sort',  0), $sort));
+			$box->add(new elSelect( 'pos_'.$src, m('Position on page'),        $this->_param($src, 'pos',   EL_POS_TOP), $GLOBALS['posLRTB']));
 			$ms = & new elMultiSelectList('pages_'.$src, m('Site pages'),      $this->_param($src, 'pages', array(1)), $pages);
 			$ms->setSwitchValue(1);
 			$box->add($ms);

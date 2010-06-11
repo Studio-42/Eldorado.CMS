@@ -15,8 +15,9 @@ class elIShopItemsCollection {
 		EL_IS_SORT_NAME  => 'name',
 		EL_IS_SORT_CODE  => 'code, name',
 		EL_IS_SORT_PRICE => 'price DESC, name',
-		EL_IS_SORT_TIME  => 'crtime DESC, name'
-		);
+		EL_IS_SORT_TIME  => 'crtime DESC, name',
+		EL_IS_SORT_RAND  => 'RAND()'
+	);
 		
 	/**
 	 * constructor

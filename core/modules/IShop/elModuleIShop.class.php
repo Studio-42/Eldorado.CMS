@@ -14,6 +14,7 @@ define('EL_IS_SORT_NAME',  1);
 define('EL_IS_SORT_CODE',  2);
 define('EL_IS_SORT_PRICE', 3);
 define('EL_IS_SORT_TIME',  4);
+define('EL_IS_SORT_RAND',  5);
 
 /**
  * Internet shop module

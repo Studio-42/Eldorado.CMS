@@ -78,7 +78,6 @@ class elPluginSpecialOffer extends elPlugin
 			{
 				$mnf  = $i->getMnf();
 				$tm   = $i->getTm();
-				
 				$props = '';
 				foreach ($i->getAnnouncedProperties() as $p)
 				{
@@ -103,18 +102,10 @@ class elPluginSpecialOffer extends elPlugin
 					$b = 'PL_SO.PL_SO_ITEM.PL_SO_ITEM_IMG';
 					$rnd->assignBlockVars($b, $item, 2);
 				}
-				
-				//var_dump($item);
-				//var_dump($pa);
-				//var_dump($i);
-				//return;
+
 			}
-			//var_dump($srcs);
-			
 			$rnd->parse($tplVar, $tplVar, true, false, true);
 			$GLOBALS['parseColumns'][$pos] = true;
-			
-			//var_dump(array_shift($objs));
 		}
 		
 		

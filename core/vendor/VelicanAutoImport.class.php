@@ -9,7 +9,8 @@
 
 //chdir('../');
 
-require_once './core/vendor/XMLParseIntoStruct.class.php';
+include_once dirname(__FILE__).'/../console.php';
+require_once dirname(__FILE__).'/XMLParseIntoStruct.class.php';
 
 class IShopImportLexus
 {
@@ -39,13 +40,6 @@ class IShopImportLexus
 
 	var $itype_id  = '1';
 
-	var $m;
-
-	var $my_host   = 'localhost';
-	var $my_user   = 'root';
-	var $my_pass   = '';
-	var $my_db     = 'velican';
-
 	var $shop_id   = '2';
 	var $tb_prop_value;
 	var $tb_mnf;
@@ -55,7 +49,9 @@ class IShopImportLexus
 	var $tb_tm;
 	var $tb_gal;
 
-	var $photo_path = '/home/troex/Sites/git/eldorado/storage/va';
+	var $photo_path = './storage/va';
+
+	var $db;
 
 	function __construct()
 	{
@@ -67,9 +63,7 @@ class IShopImportLexus
 		$this->tb_tm         = 'el_ishop_'.$this->shop_id.'_tm';
 		$this->tb_gal        = 'el_ishop_'.$this->shop_id.'_gallery';
 
-		$this->m = mysql_connect($this->my_host, $this->my_user, $this->my_pass);
-		mysql_query("SET NAMES 'utf8'", $this->m);
-		mysql_select_db($this->my_db, $this->m);
+		$this->db            = & elSingleton::getObj('elDb');
 	}
 
 	function parseXML()
@@ -141,6 +135,19 @@ class IShopImportLexus
 						}
 						//var_dump($comp);
 					}
+					elseif ($k == 'ENGINECUBATURE')
+					{
+						$v .= ' см<sup>3</sup>';
+					}
+					elseif ($k == 'MILEAGEKM')
+					{
+						$v .= ' км';
+					}
+					elseif ($k == 'ENGINEPOWER')
+					{
+						$v .= ' л.с.';
+					}
+
 					$v = trim($v);
 					if (($k == 'PHOTOS') && (!empty($a['child'])))
 					{
@@ -186,12 +193,12 @@ class IShopImportLexus
 	{
 		// load props from database
 		
-		$r = mysql_query("SELECT p_id, value FROM ".$this->tb_prop_value
-			." WHERE p_id IN (".implode(', ', array_values($this->prop_bind)).")", $this->m);
+		$this->db->query("SELECT p_id, value FROM ".$this->tb_prop_value
+			." WHERE p_id IN (".implode(', ', array_values($this->prop_bind)).")");
 
 		$props_flip = array_flip($this->prop_bind);
 		$props_db = array();
-		while ($p = mysql_fetch_assoc($r))
+		while ($p = $this->db->nextRecord())
 		{
 			$prop = $props_flip[$p['p_id']];
 			if (!(isset($props_db[$prop])))
@@ -223,7 +230,7 @@ class IShopImportLexus
 			foreach ($a as $v)
 			{
 				$sql = "DELETE FROM ".$this->tb_prop_value." WHERE p_id='".$p_id."' AND value='".$v."' LIMIT 1";
-				mysql_query($sql, $this->m);
+				$this->db->query($sql);
 			}
 		}
 
@@ -251,7 +258,7 @@ class IShopImportLexus
 			{
 				$sql = "INSERT INTO ".$this->tb_prop_value." (p_id, value) VALUES ('".$p_id."', '".$v."')";
 				//echo $sql."\n";
-				mysql_query($sql, $this->m);
+				$this->db->query($sql);
 			}
 		}
 	}
@@ -259,9 +266,9 @@ class IShopImportLexus
 	function loadMnf()
 	{
 		// load from db
-		$r = mysql_query("SELECT name FROM ".$this->tb_mnf, $this->m);
+		$this->db->query("SELECT name FROM ".$this->tb_mnf);
 		$mnf_db = array();
-		while ($m = mysql_fetch_assoc($r))
+		while ($m = $this->db->nextRecord())
 		{
 			array_push($mnf_db, $m['name']);
 		}
@@ -282,13 +289,13 @@ class IShopImportLexus
 		foreach ($mnf_del as $m)
 		{
 			$sql = "DELETE FROM ".$this->tb_mnf." WHERE name='".$m."' LIMIT 1";
-			mysql_query($sql, $this->m);
+			$this->db->query($sql);
 		}
 		// add new
 		foreach ($mnf_add as $m)
 		{
 			$sql = "INSERT INTO ".$this->tb_mnf." (name) VALUES ('".$m."')";
-			mysql_query($sql, $this->m);
+			$this->db->query($sql);
 		}
 	}
 
@@ -299,9 +306,9 @@ class IShopImportLexus
 	 **/
 	function loadTM()
 	{
-		$r = mysql_query("SELECT mnf.name AS mnf, tm.name AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id", $this->m);
+		$this->db->query("SELECT mnf.name AS mnf, tm.name AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id");
 		$tm_db = array();
-		while ($m = mysql_fetch_assoc($r))
+		while ($m = $this->db->nextRecord())
 		{
 			$tm_db[$m['mnf']][$m['tm']] = 1;
 		}
@@ -325,7 +332,7 @@ class IShopImportLexus
 				}
 				$mnf_id = $this->_getMnfByName($mnf);
 				$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, '$m')";
-				mysql_query($sql);
+				$this->db->query($sql);
 			}
 		}
 	}
@@ -344,17 +351,17 @@ class IShopImportLexus
 	{
 		// 1. delete old props and attribs
 		//$sql = "TRUNCATE TABLE ".$this->tb_item;
-		//mysql_query($sql, $this->m);
+		//$this->db->query($sql);
 		$sql = "TRUNCATE TABLE ".$this->tb_p2i;
-		mysql_query($sql, $this->m);
+		$this->db->query($sql);
 		$sql = "TRUNCATE TABLE ".$this->tb_i2c;
-		mysql_query($sql, $this->m);
+		$this->db->query($sql);
 
 		// 1.1. find car diffs (old and new)
 		$d_cars = array();
 		$sql = "SELECT code FROM ".$this->tb_item;
-		$r = mysql_query($sql, $this->m);
-		while ($m = mysql_fetch_assoc($r))
+		$this->db->query($sql);
+		while ($m = $this->db->nextRecord())
 		{
 			array_push($d_cars, $m['code']);
 		}
@@ -369,7 +376,7 @@ class IShopImportLexus
 		if (!empty($old_cars))
 		{
 			$sql = "DELETE FROM ".$this->tb_item." WHERE code IN ('".implode("', '", $old_cars)."')";
-			mysql_query($sql);
+			$this->db->query($sql);
 		}
 
 		// 2. new or update car
@@ -381,27 +388,28 @@ class IShopImportLexus
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
 			if (in_array($car['CARID'], $new_cars))
 			{
-				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (3, '%d', '%s', '%s', '%s', '%d', '%d')";
-				$sql = sprintf($sql, $mnf_id, $car['CARID'], $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
-				mysql_query($sql, $this->m);
-				$i_id = mysql_insert_id();
-				echo " (insert)\n";
+				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (%d, %d, '%s', '%s', '%s', '%.2f', '%d', %d, %d)";
+				$sql = sprintf($sql, $this->itype_id, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['CARID'], $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
+				$this->db->query($sql);
+				$i_id = $this->db->insertID();
+				echo " (insert) $i_id\n";
 			}
 			else
 			{
 				$sql = "SELECT id FROM ".$this->tb_item." WHERE code='%s' LIMIT 1";
 				$sql = sprintf($sql, $car['CARID']);
-				$r = mysql_query($sql, $this->m);
-				$id = mysql_fetch_assoc($r);
+				$this->db->query($sql);
+				$id = $this->db->nextRecord();
 				$i_id = $id['id'];
 				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', special='%d', mtime='%d' WHERE id='%d' LIMIT 1";
 				$sql = sprintf($sql, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), $i_id);
-				mysql_query($sql, $this->m);
+				$this->db->query($sql);
 				echo " (update)\n";
 			}
 
 			if (empty($i_id)) // resume if something wrong
 			{
+				echo "  ^^^ something wring, skipping\n";
 				continue;
 			}
 
@@ -413,7 +421,7 @@ class IShopImportLexus
 				//print "$p $car[$p] => $pv_id\n";
 				$sql = "INSERT INTO ".$this->tb_p2i." (i_id, p_id, value, pv_id) VALUES ('%d', '%d', '%s', '%d')";
 				$sql = sprintf($sql, $i_id, $p_id, $pv_id, $pv_id);
-				mysql_query($sql, $this->m);
+				$this->db->query($sql);
 			}
 
 			// 2.3 new attr
@@ -423,22 +431,21 @@ class IShopImportLexus
 				//echo "  a $a_id\t$car[$a]\n";
 				$sql = "INSERT INTO ".$this->tb_p2i." (i_id, p_id, value) VALUES ('%d', '%d', '%s')";
 				$sql = sprintf($sql, $i_id, $a_id, $car[$a]);
-				mysql_query($sql, $this->m);
+				$this->db->query($sql);
 			}
 
 			// 2.4 add item to category
 			$sql = "INSERT INTO ".$this->tb_i2c." (i_id, c_id) VALUES ('%d', '%d')";
 			$sql = sprintf($sql, $i_id, '1');
-			mysql_query($sql, $this->m);
+			$this->db->query($sql);
 
 
 			// 2.5 photos
 			// 2.5.1 load from db
 			$photo_db = array();
-			$r = mysql_query("SELECT id, img FROM ".$this->tb_gal." WHERE i_id=$i_id", $this->m);
-			if ($r)
+			if ($this->db->query("SELECT id, img FROM ".$this->tb_gal." WHERE i_id=$i_id"))
 			{
-				while ($m = mysql_fetch_assoc($r))
+				while ($m = $this->db->nextRecord())
 				{
 					$photo_db[$m['id']] = $m['img'];
 				}
@@ -480,7 +487,7 @@ class IShopImportLexus
 						// insert into db
 						$sql = "INSERT INTO ".$this->tb_gal." (i_id, img) VALUES (%d, '%s')";
 						$sql = sprintf($sql, $i_id, $path);
-						mysql_query($sql, $this->m);
+						$this->db->query($sql);
 						//print "$sql\n";
 					}
 				}
@@ -494,7 +501,7 @@ class IShopImportLexus
 					print "Delete $photo\n";
 					$sql = "DELETE FROM ".$this->tb_gal." WHERE id=%d LIMIT 1";
 					$sql = sprintf($sql, $img_id);
-					mysql_query($sql);
+					$this->db->query($sql);
 				}
 			}
 			//var_dump($photo_xml);
@@ -506,24 +513,24 @@ class IShopImportLexus
 	function _getTMByName($mnf_id = null, $name = null)
 	{
 		$sql = "SELECT id FROM ".$this->tb_tm." WHERE mnf_id=$mnf_id AND name='".$name."' LIMIT 1";
-		$r = mysql_query($sql, $this->m);
-		$tm = mysql_fetch_assoc($r);
+		$this->db->query($sql);
+		$tm = $this->db->nextRecord();
 		return $tm['id'];
 	}
 
 	function _getMnfByName($name = null)
 	{
 		$sql = "SELECT id FROM ".$this->tb_mnf." WHERE name='".$name."' LIMIT 1";
-		$r = mysql_query($sql, $this->m);
-		$mnf = mysql_fetch_assoc($r);
+		$this->db->query($sql);
+		$mnf = $this->db->nextRecord();
 		return $mnf['id'];
 	}
 	
 	function _getPropValueIdByName($p_id, $v)
 	{
 		$sql = "SELECT id FROM ".$this->tb_prop_value." WHERE p_id='".$p_id."' AND value='".$v."' LIMIT 1";
-		$r = mysql_query($sql, $this->m);
-		$id = mysql_fetch_assoc($r);
+		$this->db->query($sql);
+		$id = $this->db->nextRecord();
 		return $id['id'];
 	}
 }

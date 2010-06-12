@@ -23,7 +23,7 @@ class elPluginSpecialOffer extends elPlugin
 
 		if (
 			!elSingleton::incLib('./modules/IShop/elIShopFactory.class.php', true) ||
-			!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php')
+			!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php') // for constants
 		)
 		{
 			return;
@@ -86,16 +86,12 @@ class elPluginSpecialOffer extends elPlugin
 			$factory->init($src, 0);
 			$ic = & elSingleton::getObj('elIShopItemsCollection');
 			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
+			$shop = & elSingleton::getObj('elModuleIShop');
+			$shop->init($src);
 			foreach ($items as $id => $i)
 			{
 				$mnf  = $i->getMnf();
 				$tm   = $i->getTm();
-				$props = '';
-				foreach ($i->getAnnouncedProperties() as $p)
-				{
-					$props .= '<br/>'.$p['name'].': '.$p['value']; // TODO move this to renderer
-				}
-
 				$item = array(
 					'name'  => $i->name,
 					'code'  => $i->code,
@@ -103,7 +99,7 @@ class elPluginSpecialOffer extends elPlugin
 					'mnf'   => $mnf->name,
 					'tm'    => $tm->name,
 					'img'   => $i->getDefaultTmb(),
-					'props' => $props
+					'link'  => $shop->getItemUrl($i->ID)
 				);
 
 				$b = 'PL_SO.PL_SO_ITEM';
@@ -113,6 +109,11 @@ class elPluginSpecialOffer extends elPlugin
 				{
 					$b = 'PL_SO.PL_SO_ITEM.PL_SO_ITEM_IMG';
 					$rnd->assignBlockVars($b, $item, 2);
+				}
+				foreach ($i->getAnnouncedProperties() as $p)
+				{
+					$b = 'PL_SO.PL_SO_ITEM.PL_SO_ITEM_PROP';
+					$rnd->assignBlockVars($b, array('prop_name' => $p['name'], 'prop_value' => $p['value']), 2);
 				}
 			}
 			$rnd->parse($tplVar, $tplVar, true, false, true);

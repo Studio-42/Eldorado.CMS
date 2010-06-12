@@ -325,7 +325,35 @@ class elModuleIShop extends elModule {
 			.$xml."";
   }
 
-
+	/**
+	 * Get Item URL by item ID
+	 *
+	 * @param   int    $itemID
+	 * @return  string
+	 **/
+	function getItemUrl($itemID = null)
+	{
+		$item = $this->_factory->create(EL_IS_ITEM, (int)$itemID);
+		if (!$item->ID)
+		{
+			return false;
+		}
+		if ($this->_conf('default_view') == EL_IS_VIEW_CATS)
+		{
+			$db = & elSingleton::getObj('elDb');
+			$db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d LIMIT 1', $item->tbi2c, $item->ID));
+			$r = $db->nextRecord();
+			$path = 'item/'.$r['c_id'].'/'.$item->ID;
+		}
+		else
+		{
+			$path = 'item/'.$item->mnfID.'/'.$item->ID;
+		}
+		$nav = & elSingleton::getObj('elNavigator');
+		$mynav = $nav->getPage($this->_factory->pageID);
+		$url = $mynav['url'].$path;
+		return $url;
+	}
 
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //

@@ -7,14 +7,18 @@
 
 		<!-- BEGIN PL_SO_ITEM -->
 		<li>
-			<!-- BEGIN PL_SO_ITEM_IMG -->
-			<img src="{EL_BASE_URL}{img}" /><br/>
-			<!-- END PL_SO_ITEM_IMG -->
-			{name}<br/>
-			{m('Price')}: {price}<br/>
-			{mnf}<br/>
-			{tm}
-			{props}
+			<a href="{link}">
+				<!-- BEGIN PL_SO_ITEM_IMG -->
+				<img src="{EL_BASE_URL}{img}" /><br/>
+				<!-- END PL_SO_ITEM_IMG -->
+				{name}<br/>
+				{m('Price')}: {price}<br/>
+				{mnf}<br/>
+				{tm}
+			</a>
+			<!-- BEGIN PL_SO_ITEM_PROP -->
+			<br/>{prop_name}: {prop_value}
+			<!-- END PL_SO_ITEM_PROP -->
 		</li>
 		<!-- END PL_SO_ITEM -->
 

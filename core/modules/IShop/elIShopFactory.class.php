@@ -26,11 +26,10 @@ class elIShopFactory {
 	 **/
 	var $pageID = 0;
 	/**
-	 * madule config
+	 * default sort
 	 *
-	 * @var array
+	 * @var int
 	 **/
-	// var $conf = array();
 	var $itemsSortID = 0;
 	/**
 	 * database
@@ -95,8 +94,8 @@ class elIShopFactory {
 	/**
 	 * initilize factory
 	 *
-	 * @param  int    $pageID  current page ID
-	 * @param  array  conf     module config
+	 * @param  int    $pageID        current page ID
+	 * @param  array  $itemsSortID   sort
 	 * @return void
 	 **/
 	function init($pageID, $itemsSortID) {

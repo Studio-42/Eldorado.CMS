@@ -1,102 +1,46 @@
-.elslider {
-/*	margin:100px;*/
-	position:relative;
-	padding:0 16px;
-/*	border:1px solid red;*/
+.elslider,
+.elslider-vert {
+	position: relative;
+	padding: 3px 20px;
+	border: 1px solid #111;
 }
-
-.elslider div {
-	position:relative;
+.elslider-vert { padding: 20px 3px; }
+.elslider>div,
+.elslider-vert>div {
+	position:relative; 
 	overflow:hidden;
-/*	border:1px solid green;	*/
+	padding:0;
+	margin:0;
+	border:1px solid blue; 
 }
 
-.elslider ul {
-	margin:0;
+.elslider ul,
+.elslider-vert ul {
 	padding:0;
+	margin:0;
 	list-style:none;
+	border:1px solid green;
 	position:absolute;
-/*	border:1px solid blue;*/
 }
+
+.elslider .prev,
+.elslider .next,
+.elslider-vert .prev,
+.elslider-vert .next { position:absolute; width:20px; height:20px; cursor:pointer; } 
+
+.elslider .prev       { top:0;    left:0;  background:url(../images/elslider/left.png)   center center no-repeat; }
+.elslider .next       { top:0;    right:0; background:url(../images/elslider/right.png)  center center no-repeat; }
+.elslider-vert .prev  { top:0;    left:0;  background:url(../images/elslider/top.png)    center center no-repeat;}
+.elslider-vert .next  { bottom:0; left:0;  background:url(../images/elslider/bottom.png) center center no-repeat;}
 
 .elslider ul li {
 	float:left;
-	display:inline;
-	padding:0;
-	margin:0;
-/*	height:98px;*/
-/*	width:136px;*/
-/*	border:1px solid #111;*/
-}
-
-.elslider ul li img {
-	margin:0;
-	padding:0;
-}
-
-.elslider .prev, .elslider .next {
-	position:absolute;
-	width:16px;
-	height:16px;
-	z-index:100;
-}
-
-.elslider .prev {
-	left:3px;
-	background:url(../images/elslider/left.png) 0 0 no-repeat;
-}
-
-.elslider .next {
-	right:3px;
-	background:url(../images/elslider/right.png) 0 0 no-repeat;
-}
-
-/* vertical */
-
-.elslider-vert {
-/*	border:1px solid #fff;*/
-	position:relative;
-/*	overflow:hidden;*/
-/*	margin:100px;*/
-	padding: 0;
-/*	height:400px;*/
-}
-
-.elslider-vert div {
-	position:relative;
-	overflow:hidden;
-/*	border:1px solid red;*/
-}
-
-.elslider-vert ul {
-	position:absolute;
-	padding:0;
-	margin:0;
-	list-style:none;
+	border:1px solid red;
 }
 
 .elslider-vert ul li {
 	display:block;
-	padding:0 0 20px 0;
-	margin:0;
-/*	width:170px;*/
-	height:110px;
-/*	border:1px solid red;*/
+	border:1px solid red;
 }
 
-.elslider-vert .prev, .elslider-vert .next {
-	position:absolute;
-	width:16px;
-	height:16px;
-	z-index:100;
-}
-
-.elslider-vert .prev {
-	top:3px;
-	background:url(../images/elslider/top.png) 0 0 no-repeat;
-}
-
-.elslider-vert .next {
-	bottom:3px;
-	background:url(../images/elslider/bottom.png) 0 0 no-repeat;
-}
+/*.elslider ul li img { padding:0; margin:0; }*/

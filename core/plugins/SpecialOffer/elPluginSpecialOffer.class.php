@@ -11,31 +11,28 @@ class elPluginSpecialOffer extends elPlugin
 
 	function onUnload()
 	{
-		if (empty($this->_params))
-		{
+		if (empty($this->_params)) {
 			return;
 		}
 		$srcs = array_keys($this->_params);
-		if (empty($srcs))
-		{
+		if (empty($srcs)) {
 			return;
 		}
 
-		if (
-			!elSingleton::incLib('./modules/IShop/elIShopFactory.class.php', true) ||
-			!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php') // for constants
-		)
-		{
+		if (!elSingleton::incLib('./modules/IShop/elIShopFactory.class.php', true) 
+		|| 	!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php') ) {
 			return;
 		}
+
+		elAddCss('elslider.css');
+		elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
 
 		$rnd = & elSingleton::getObj('elTE');
 		foreach ($srcs as $src)
 		{
 			// check currect page
 			$pages = $this->_param($src, 'pages', array());
-			if (!in_array('1', $pages) && !in_array($this->pageID, $pages))
-			{
+			if (!in_array('1', $pages) && !in_array($this->pageID, $pages)) {
 				continue;
 			}
 
@@ -43,7 +40,11 @@ class elPluginSpecialOffer extends elPlugin
 			$mypos = $this->_param($src, 'pos', EL_POS_LEFT);
 			if ($this->pageID == $src) // HACK to change position in IShop item view
 			{
-				if (strstr($_SERVER['REQUEST_URI'], '/item/')) // not 100% true
+				$nav = &elSingleton::getObj('elNavigator');
+				// echo $_SERVER['REQUEST_URI'].'<br>'.EL_URL.'<br>'.$nav->getURL();
+				// elPrintr($nav->getRequestArgs());
+				// if (strstr($_SERVER['REQUEST_URI'], '/item/')) // not 100% true
+				if ($nav->getRequestArgs())
 				{
 					$mypos = $this->_param($src, 'pos2', 0);
 					if ($mypos === '0')
@@ -53,15 +54,13 @@ class elPluginSpecialOffer extends elPlugin
 				}
 			}
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($mypos);
-			if (!$pos)
-			{
+			if (!$pos) {
 				continue;
 			}
 			$rnd->setFile($tplVar, $tpl);
 
 			// set title
-			if (false != ($title = $this->_param($src, 'title', false)))
-			{
+			if (false != ($title = $this->_param($src, 'title', false))) {
 				$rnd->assignBlockVars('PL_SO_TITLE', array('title'=>$title));
 			}
 
@@ -98,22 +97,27 @@ class elPluginSpecialOffer extends elPlugin
 					'price'	=> $currency->convert($i->price, $currency_opts),
 					'mnf'   => $mnf->name,
 					'tm'    => $tm->name,
-					'img'   => $i->getDefaultTmb(),
 					'link'  => $shop->getItemUrl($i->ID)
 				);
 
-				$b = 'PL_SO.PL_SO_ITEM';
-				$rnd->assignBlockVars($b, $item, 1);
+				$rnd->assignBlockVars('PL_SO.PL_SO_ITEM', $item, 1);
 
-				if (!empty($item['img']))
-				{
-					$b = 'PL_SO.PL_SO_ITEM.PL_SO_ITEM_IMG';
-					$rnd->assignBlockVars($b, $item, 2);
+				$g = $i->getGallery();
+				if ($g) {
+					$img = $i->getTmbPath(key($g));
+					if (file_exists($img) && false != ($s = @getimagesize($img))) {
+						$data = array(
+							'img' => $i->getTmbURL(key($g)),
+							'w'   => $s[0],
+							'h'   => $s[1],
+							'alt' => htmlspecialchars($i->name)
+							);
+						$rnd->assignBlockVars('PL_SO.PL_SO_ITEM.PL_SO_ITEM_IMG', $data, 2);
+					}
 				}
-				foreach ($i->getAnnouncedProperties() as $p)
-				{
-					$b = 'PL_SO.PL_SO_ITEM.PL_SO_ITEM_PROP';
-					$rnd->assignBlockVars($b, array('prop_name' => $p['name'], 'prop_value' => $p['value']), 2);
+				
+				foreach ($i->getAnnouncedProperties() as $p) {
+					$rnd->assignBlockVars('PL_SO.PL_SO_ITEM.PROPS.PROP', $p, 3);
 				}
 			}
 			$rnd->parse($tplVar, $tplVar, true, false, true);

@@ -89,7 +89,7 @@ class elPluginNewsTopics extends elPlugin
 				}
 				if ($ann)
 				{
-					$rnd->assignBlockVars('PL_NT_NEWS.PL_NT_ANN', array('announce'=>$r['announce']), 1 );
+					$rnd->assignBlockVars('PL_NT_NEWS.PL_NT_ANN', array('announce'=>$r['announce'], 'newsURL'=>$URL.$r['id'].'/'), 1 );
 				}
 			}
 			$rnd->parse($tplVar, $tplVar, true, false, true);

@@ -36,23 +36,22 @@ class elPluginSpecialOffer extends elPlugin
 				continue;
 			}
 
-			// check renderer
-			$mypos = $this->_param($src, 'pos', EL_POS_LEFT);
-			if ($this->pageID == $src) // HACK to change position in IShop item view
+			// get plugin position on the page
+			$nav = &elSingleton::getObj('elNavigator');
+			$args = $nav->getRequestArgs();
+			$mypos = $this->_param($src, 'pos', EL_POS_LEFT); // position on main module page
+			if (!empty($args) && isset($args[0]))
 			{
-				$nav = &elSingleton::getObj('elNavigator');
-				// echo $_SERVER['REQUEST_URI'].'<br>'.EL_URL.'<br>'.$nav->getURL();
-				// elPrintr($nav->getRequestArgs());
-				// if (strstr($_SERVER['REQUEST_URI'], '/item/')) // not 100% true
-				if ($nav->getRequestArgs())
+				if (in_array($args[0], array('item', 'read'))) // on item page
+				{
+					$mypos = $this->_param($src, 'pos3', 0);
+				}
+				else // somewhere in category or elsewhere
 				{
 					$mypos = $this->_param($src, 'pos2', 0);
-					if ($mypos === '0')
-					{
-						continue; // next if set to none
-					}
 				}
 			}
+
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($mypos);
 			if (!$pos) {
 				continue;
@@ -156,6 +155,7 @@ class elPluginSpecialOffer extends elPlugin
 					$params[$src]['sort']  = $data['sort_'.$src];
 					$params[$src]['pos']   = $data['pos_'.$src];
 					$params[$src]['pos2']  = $data['pos2_'.$src];
+					$params[$src]['pos3']  = $data['pos3_'.$src];
 					$params[$src]['pages'] = $data['pages_'.$src];
 				}
 			}
@@ -199,8 +199,9 @@ class elPluginSpecialOffer extends elPlugin
 			$box->add(new elText( 'title_'.$src, m('Title'),                       $this->_param($src, 'title', $pageName)));
 			$box->add(new elSelect( 'num_'.$src, m('How many offers to show'),     $this->_param($src, 'num',   1), $nums));
 			$box->add(new elSelect('sort_'.$src, m('How to sort offers'),          $this->_param($src, 'sort',  0), $sort));
-			$box->add(new elSelect( 'pos_'.$src, m('Position on page'),            $this->_param($src, 'pos',   EL_POS_TOP), $GLOBALS['posLRTB']));
-			$box->add(new elSelect('pos2_'.$src, m('Position on IShop item page'), $this->_param($src, 'pos2',  EL_POS_TOP), $GLOBALS['posNLRTB']));
+			$box->add(new elSelect( 'pos_'.$src, m('Position on module main page'),$this->_param($src, 'pos',   EL_POS_TOP), $GLOBALS['posNLRTB']));
+			$box->add(new elSelect('pos2_'.$src, m('Position on module category'), $this->_param($src, 'pos2',  EL_POS_TOP), $GLOBALS['posNLRTB']));
+			$box->add(new elSelect('pos3_'.$src, m('Position on module item'),     $this->_param($src, 'pos3',  EL_POS_TOP), $GLOBALS['posNLRTB']));
 			$ms = & new elMultiSelectList('pages_'.$src, m('Site pages'),          $this->_param($src, 'pages', array(1)), $pages);
 			$ms->setSwitchValue(1);
 			$box->add($ms);

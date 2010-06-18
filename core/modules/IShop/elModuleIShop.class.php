@@ -45,7 +45,7 @@ class elModuleIShop extends elModule {
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
 		'mnfsCols'          => 1,
-		'tmsCols'           => 2,
+		'tmsCols'           => 1,
 		'itemsSortID'       => EL_IS_SORT_NAME,
 		'itemsPerPage'      => 10,
 		'displayEmptyMnf'   => 1,
@@ -53,7 +53,7 @@ class elModuleIShop extends elModule {
 		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
 		'displayMnfDescrip' => EL_CAT_DESCRIP_IN_SELF,
 		'displayTMDescrip'  => EL_CAT_DESCRIP_IN_SELF,
-		'displayViewSwitch' => 1,
+		'displayViewSwitch' => 0,
 		'displayCode'       => 1,
 		'ishopSliderSize'   => 4,
 		'mnfNfo'            => EL_IS_USE_MNF,
@@ -261,8 +261,8 @@ class elModuleIShop extends elModule {
 					);
 			}
 		}
-		$mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    $mt->init($this->pageID, $this->_cat->ID, $this->_item->ID, $this->_factory->tb('tbc'));
+		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    // $mt->init($this->pageID, $this->_cat->ID, $this->_item->ID, $this->_factory->tb('tbc'));
 	}
 
 	/**

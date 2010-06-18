@@ -357,7 +357,7 @@ class elSiteRenderer
 		}
 		
 		$GLOBALS['_css_'][EL_JS_CSS_FILE]   = array_unique($GLOBALS['_css_'][EL_JS_CSS_FILE]); 
-		$GLOBALS['_css_'][EL_JS_CSS_FILE][] = 'print.css';
+		// $GLOBALS['_css_'][EL_JS_CSS_FILE][] = 'print.css';
 		// elPrintR($GLOBALS['_css_'][EL_JS_CSS_FILE]);
 		$cache = '';
 		if (!$this->_adminMode || !$this->_conf->get('debug', 'common'))

@@ -281,7 +281,7 @@ class elRndIShop extends elCatalogRenderer {
 			elAddCss('elslider.css',   EL_JS_CSS_FILE);
 			elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
 			$img  = current($gallery);
-			$s    = @getimagesize($item->getTmbPath('c'));
+			$s    = @getimagesize($item->getTmbPath(key($gallery), 'c'));
 			$vars = array(
 				'id'     => $item->ID,
 				'img_id' => key($gallery),
@@ -291,6 +291,7 @@ class elRndIShop extends elCatalogRenderer {
 				'w'      => $s[0],
 				'h'      => $s[1]
 				);
+
 			$this->_te->assignBlockVars('IS_ITEM_GALLERY', $vars);
 			
 			if ($gsize == 1 && $this->_admin) {

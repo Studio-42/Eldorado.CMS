@@ -53,11 +53,18 @@ class elPluginSpecialOffer extends elPlugin
 			}
 
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($mypos);
+
 			if (!$pos) {
 				continue;
 			}
 			$rnd->setFile($tplVar, $tpl);
-
+			switch ($pos) {
+				case EL_POS_TOP: $cssClass = 'pl-so-top'; break;
+				case EL_POS_BOT: $cssClass = 'pl-so-bottom'; break;
+				case EL_POS_RIGHT: $cssClass = 'pl-so-right'; break;
+				default: $cssClass = 'pl-so-left';
+			}
+			$rnd->assignVars('plSoCssClass', $cssClass);
 			// set title
 			if (false != ($title = $this->_param($src, 'title', false))) {
 				$rnd->assignBlockVars('PL_SO_TITLE', array('title'=>$title));
@@ -86,6 +93,7 @@ class elPluginSpecialOffer extends elPlugin
 			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			$shop = & elSingleton::getObj('elModuleIShop');
 			$shop->init($src);
+
 			foreach ($items as $id => $i)
 			{
 				$mnf  = $i->getMnf();

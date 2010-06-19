@@ -93,6 +93,11 @@ class elPluginSpecialOffer extends elPlugin
 			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			$shop = & elSingleton::getObj('elModuleIShop');
 			$shop->init($src);
+			
+			if (empty($items))
+			{
+				continue;
+			}
 
 			foreach ($items as $id => $i)
 			{

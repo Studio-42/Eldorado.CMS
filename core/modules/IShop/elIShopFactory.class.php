@@ -1,17 +1,13 @@
 <?php
 
-define ('EL_IS_PROP_STR',   1);
-define ('EL_IS_PROP_TXT',   2);
-define ('EL_IS_PROP_LIST',  3);
-define ('EL_IS_PROP_MLIST', 4);
-
-include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'constants.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItem.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopManufacturer.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemType.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemsCollection.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopFinder.class.php';
 
 /**
  * IShop factory and regisry for item types
@@ -88,7 +84,7 @@ class elIShopFactory {
 			'tbs' => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
 		EL_IS_TM => array(
 			'name' => 'elIShopTm',
-			'tbs'  => array('tbtm')),
+			'tbs'  => array('tbtm'))
 		);
     
 	/**
@@ -259,12 +255,14 @@ class elIShopFactory {
 	 **/
 	function _loadRegistry($type) {
 		$obj = $this->create($type);
-		$this->_registry[$type] = $obj->collection(true, true);
+
+		$this->_registry[$type] = $obj->collection(true, true, null, 'name, id');
 		if ($type == EL_IS_ITYPE && empty($this->_registry[$type])) {
 			$obj->attr('name', m('Default product'));
 			$obj->save();
-			$this->_registry[$type] = $obj->collection(true, true);
+			$this->_registry[$type] = $obj->collection(true, true, null, 'name, id');
 		}
+		
 	}
 
 

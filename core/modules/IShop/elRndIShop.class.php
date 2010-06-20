@@ -119,7 +119,7 @@ class elRndIShop extends elCatalogRenderer {
 		// remove empty manufacturers if required
 		if (!$this->_admin && !$this->_conf('displayEmptyMnf')) {
 			foreach ($mnfs as $id => $mnf) {
-				if (!$mnd->countItems()) {
+				if (!$mnf->countItems()) {
 					unset($mnfs[$id]);
 				}
 			}

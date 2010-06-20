@@ -129,9 +129,13 @@ CREATE TABLE el_ishop_{pageID}_tm (
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_search;
 CREATE TABLE         el_ishop_{pageID}_search (
-    id       tinyint(2)   NOT NULL auto_increment,
-    label    varchar(256) NOT NULL,
-    sort_ndx tinyint(2)   NOT NULL,
+    id         tinyint(2)   NOT NULL auto_increment,
+    label      varchar(256) NOT NULL,
+    sort_ndx   tinyint(2)   NOT NULL default 0,
+	type       enum('type', 'mnf', 'tm', 'price', 'prop') NOT NULL default 'type',
+	price_step int(11) NOT NULL,
+	prop_id    int(10) NOT NULL,
+	prop_view  enum('normal', 'period') NOT NULL default 'normal'
     PRIMARY KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

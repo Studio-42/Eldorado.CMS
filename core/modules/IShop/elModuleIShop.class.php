@@ -1,20 +1,7 @@
 <?php
-// object types
-define ('EL_IS_CAT',      1);
-define ('EL_IS_ITEM',     2);
-define ('EL_IS_ITYPE',    3);
-define ('EL_IS_PROP',     4);
-define ('EL_IS_MNF',      5);
-define ('EL_IS_TM',       6);
-// views 
-define('EL_IS_VIEW_CATS',     1);
-define('EL_IS_VIEW_MNFS',     2);
-// sort item variants
-define('EL_IS_SORT_NAME',  1);
-define('EL_IS_SORT_CODE',  2);
-define('EL_IS_SORT_PRICE', 3);
-define('EL_IS_SORT_TIME',  4);
-define('EL_IS_SORT_RAND',  5);
+
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'constants.php';
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 
 /**
  * Internet shop module
@@ -40,7 +27,7 @@ class elModuleIShop extends elModule {
 	);
 
 	var $_conf      = array(
-		'default_view'      => EL_IS_VIEW_MNFS,
+		'default_view'      => EL_IS_VIEW_CATS,
 		'deep'              => 0,
 		'catsCols'          => 1,
 		'itemsCols'         => 1,
@@ -48,8 +35,8 @@ class elModuleIShop extends elModule {
 		'tmsCols'           => 1,
 		'itemsSortID'       => EL_IS_SORT_NAME,
 		'itemsPerPage'      => 10,
-		'displayEmptyMnf'   => 1,
-		'displayEmptyTm'    => 1,
+		'displayEmptyMnf'   => 0,
+		'displayEmptyTm'    => 0,
 		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
 		'displayMnfDescrip' => EL_CAT_DESCRIP_IN_SELF,
 		'displayTMDescrip'  => EL_CAT_DESCRIP_IN_SELF,
@@ -71,7 +58,11 @@ class elModuleIShop extends elModule {
 		'exchangeSrc'       => 'auto',
 		'commision'         => 0,
 		'rate'              => 1,
-	    'pricePrec'         => 0
+	    'pricePrec'         => 0,
+		'searchFormOnDefaultPage' => 1,
+		'searchFormOnListPage' => 1,
+		'searchFormOnItemPage' => 1,
+		'searchFormLabel'  => 'Search'
 	);
 	
 	var $_view;
@@ -92,6 +83,8 @@ class elModuleIShop extends elModule {
 	 **/
 	function defaultMethod() {
 		// elPrintR($this->_args);
+		
+		
 		$this->_view == EL_IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
 		return;
 		// $this->_initRenderer();
@@ -434,6 +427,41 @@ class elModuleIShop extends elModule {
 	}
 	
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _onBeforeStop() {
+		
+		if ($this->_mh == 'item' && $this->_conf('searchFormOnItemPage')) {
+			echo 'item search';
+		} elseif ((in_array($this->_mh, array('mnf', 'tm')) || (!$this->_mh && $this->_cat->ID>1)) && $this->_conf('searchFormOnListPage')) {
+			echo 'list search';
+		} elseif (!$this->_mh && $this->_conf('searchFormOnDefaultPage')) {
+			$this->_loadFinder();
+			// elPrintr($this->_finder);
+			$this->_initRenderer();
+			$this->_rnd->addToContent($this->_finder->formToHtml());
+
+		}
+		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _loadFinder() {
+		if (!isset($this->_finder)) {
+			$this->_finder = & new elIShopFinder(EL_URL, $this->_conf('searchFormLabel'));
+		}
+
+	}
+
+	/**
 	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
 	* check required view
 	*
@@ -488,6 +516,8 @@ class elModuleIShop extends elModule {
 		if ($this->_view != $this->_conf('default_view')) {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
+		
+		$this->_finder = & new elIShopFinder($this->pageID, $this->_conf('searchFormLabel'));
 		
 		$cur  = &elSingleton::getObj('elCurrency');
 		

@@ -41,6 +41,7 @@ class elIShopProperty extends elDataMapping
   var $dependID      = 0;
   var $depend        = array();
   var $_dependLoad   = 0;
+	var $_objName = 'Property';
 
 	/**
 	 * value variants list
@@ -124,7 +125,14 @@ class elIShopProperty extends elDataMapping
 		return !empty($ids[0]) ? $ids[0] : current($this->_opts);
 	}
 
-
+	/**
+	 * return options
+	 *
+	 * @return array
+	 **/
+	function opts() {
+		return $this->_opts;
+	}
 
   /**
    * Извлекает поля объекта из БД
@@ -154,10 +162,12 @@ class elIShopProperty extends elDataMapping
 	 **/
 	function collection($obj=false, $assoc=false, $clause=null) {
 		$coll = parent::collection(true, true, $clause);
+		
 		if ($coll) {
 			$db = $this->_db();
 			$sql = sprintf('SELECT id, p_id, value, is_default FROM %s WHERE p_id IN (%s) ORDER BY value', $this->tbpval, implode(',', array_keys($coll)));
 			$db->query($sql);
+			
 			while ($r = $db->nextRecord()) {
 				$coll[$r['p_id']]->_opts[$r['id']] = $r['value'];
 				
@@ -166,6 +176,7 @@ class elIShopProperty extends elDataMapping
 				}
 			}
 		}
+
 		// elPrintR($coll);
 		return $coll;
 	}

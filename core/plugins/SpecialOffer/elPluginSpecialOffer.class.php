@@ -3,10 +3,10 @@
 class elPluginSpecialOffer extends elPlugin
 {
 	var $_posNfo = array(
-		EL_POS_LEFT   => array('PLUGIN_SPECIAL_OFFER_LEFT',   'left-right.html'),
-		EL_POS_RIGHT  => array('PLUGIN_SPECIAL_OFFER_RIGHT',  'left-right.html'),
-		EL_POS_TOP    => array('PLUGIN_SPECIAL_OFFER_TOP',    'top-bottom.html'),
-		EL_POS_BOTTOM => array('PLUGIN_SPECIAL_OFFER_BOTTOM', 'top-bottom.html')
+		EL_POS_LEFT   => array('PLUGIN_ISHOP_SEARCH_LEFT',   'left-right.html'),
+		EL_POS_RIGHT  => array('PLUGIN_ISHOP_SEARCH_RIGHT',  'left-right.html'),
+		EL_POS_TOP    => array('PLUGIN_ISHOP_SEARCH_TOP',    'top-bottom.html'),
+		EL_POS_BOTTOM => array('PLUGIN_ISHOP_SEARCH_BOTTOM', 'top-bottom.html')
 	);
 
 	function onUnload()

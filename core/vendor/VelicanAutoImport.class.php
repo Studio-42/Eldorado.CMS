@@ -265,13 +265,6 @@ class IShopImportLexus
 
 	function loadMnf()
 	{
-		// load from db
-		$this->db->query("SELECT name FROM ".$this->tb_mnf);
-		$mnf_db = array();
-		while ($m = $this->db->nextRecord())
-		{
-			array_push($mnf_db, $m['name']);
-		}
 		// load from xml
 		$mnf_xml = array();
 		foreach ($this->cars as $car)
@@ -280,22 +273,15 @@ class IShopImportLexus
 			if (!(in_array($m, $mnf_xml)))
 			{
 				array_push($mnf_xml, $m);
+				$this->db->query("SELECT id FROM ".$this->tb_mnf." WHERE UPPER(name)=UPPER('".$m."') LIMIT 1");
+				if ($this->db->numRows() == 1) // skip if exist
+				{
+					continue;
+				}
+				// insert new one into db
+				$sql = "INSERT INTO ".$this->tb_mnf." (name) VALUES ('".$m."')";
+				$this->db->query($sql);
 			}
-		}
-		// get difference
-		$mnf_del = array_diff($mnf_db, $mnf_xml);
-		$mnf_add = array_diff($mnf_xml, $mnf_db);
-		// delete not used
-		foreach ($mnf_del as $m)
-		{
-			$sql = "DELETE FROM ".$this->tb_mnf." WHERE name='".$m."' LIMIT 1";
-			$this->db->query($sql);
-		}
-		// add new
-		foreach ($mnf_add as $m)
-		{
-			$sql = "INSERT INTO ".$this->tb_mnf." (name) VALUES ('".$m."')";
-			$this->db->query($sql);
 		}
 	}
 
@@ -306,7 +292,7 @@ class IShopImportLexus
 	 **/
 	function loadTM()
 	{
-		$this->db->query("SELECT mnf.name AS mnf, tm.name AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id");
+		$this->db->query("SELECT UPPER(mnf.name) AS mnf, UPPER(tm.name) AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id");
 		$tm_db = array();
 		while ($m = $this->db->nextRecord())
 		{
@@ -326,7 +312,7 @@ class IShopImportLexus
 			foreach ($model as $m => $value)
 			{
 				echo "$mnf => $m\n";
-				if (isset($tm_db[$mnf][$m]) and $tm_db[$mnf][$m] == 1)
+				if (isset($tm_db[strtoupper($mnf)][strtoupper($m)]) and $tm_db[strtoupper($mnf)][strtoupper($m)] == 1)
 				{
 					continue;
 				}
@@ -407,9 +393,9 @@ class IShopImportLexus
 				echo " (update)\n";
 			}
 
-			if (empty($i_id)) // resume if something wrong
+			if (empty($i_id) or empty($car['BRAND']) or empty($car['MODEL'])) // resume if something wrong
 			{
-				echo "  ^^^ something wring, skipping\n";
+				echo "  ^^^ something wrong, skipping\n";
 				continue;
 			}
 
@@ -512,7 +498,7 @@ class IShopImportLexus
 
 	function _getTMByName($mnf_id = null, $name = null)
 	{
-		$sql = "SELECT id FROM ".$this->tb_tm." WHERE mnf_id=$mnf_id AND name='".$name."' LIMIT 1";
+		$sql = "SELECT id FROM ".$this->tb_tm." WHERE mnf_id=$mnf_id AND UPPER(name)=UPPER('".$name."') LIMIT 1";
 		$this->db->query($sql);
 		$tm = $this->db->nextRecord();
 		return $tm['id'];
@@ -520,7 +506,7 @@ class IShopImportLexus
 
 	function _getMnfByName($name = null)
 	{
-		$sql = "SELECT id FROM ".$this->tb_mnf." WHERE name='".$name."' LIMIT 1";
+		$sql = "SELECT id FROM ".$this->tb_mnf." WHERE UPPER(name)=UPPER('".$name."') LIMIT 1";
 		$this->db->query($sql);
 		$mnf = $this->db->nextRecord();
 		return $mnf['id'];

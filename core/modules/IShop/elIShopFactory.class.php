@@ -68,20 +68,20 @@ class elIShopFactory {
 	 **/
 	var $_classes = array(
 		EL_IS_CAT => array(
-			'name'=> 'elCatalogCategory',
-			'tbs' => array('tbc', 'tbi2c')),
+			'name' => 'elCatalogCategory',
+			'tbs'  => array('tbc', 'tbi2c')),
 		EL_IS_ITEM => array(
-			'name'=> 'elIShopItem',
-			'tbs' => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
+			'name' => 'elIShopItem',
+			'tbs'  => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
 		EL_IS_MNF => array(
-			'name'=> 'elIShopManufacturer',
-			'tbs' => array('tbmnf', 'tbi')),
+			'name' => 'elIShopManufacturer',
+			'tbs'  => array('tbmnf', 'tbi')),
 		EL_IS_ITYPE => array(
-			'name'=> 'elIShopItemType',
-			'tbs' => array('tbt', 'tbp')),
+			'name' => 'elIShopItemType',
+			'tbs'  => array('tbt', 'tbp')),
 		EL_IS_PROP => array(
-			'name'=> 'elIShopProperty',
-			'tbs' => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
+			'name' => 'elIShopProperty',
+			'tbs'  => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
 		EL_IS_TM => array(
 			'name' => 'elIShopTm',
 			'tbs'  => array('tbtm'))
@@ -91,18 +91,14 @@ class elIShopFactory {
 	 * initilize factory
 	 *
 	 * @param  int    $pageID        current page ID
-	 * @param  array  $itemsSortID   sort
 	 * @return void
 	 **/
-	function init($pageID, $itemsSortID) {
+	function elIShopFactory($pageID) {
 		$this->pageID = $pageID;
-		$this->itemsSortID  = $itemsSortID;
 		$this->_db    = & elSingleton::getObj('elDb');
 		foreach ($this->_tb as $k=>$tb) {
 			$this->_tb[$k] = sprintf($tb, $this->pageID);
 		}
-		
-		
 	}
 
 	/**
@@ -120,6 +116,7 @@ class elIShopFactory {
 
 		$c = $this->_classes[$hndl]['name'];
 		$obj = new $c();
+		$obj->pageID = $this->pageID;
 		$tbs = $this->_classes[$hndl]['tbs'];
 		$i = count($tbs);
 		while ($i--) {

@@ -24,9 +24,9 @@ class elIShopItemsCollection {
 	 *
 	 * @return void
 	 **/
-	function elIShopItemsCollection() {
+	function elIShopItemsCollection($pageID=EL_CURRENT_PAGE_ID) {
 		$this->_db     = & elSingleton::getObj('elDb');
-		$f             = & elSingleton::getObj('elIShopFactory');
+		$f             = & elSingleton::getObj('elIShopFactory', $pageID);
 		$this->_tbi    = $f->tb('tbi');
 		$this->_tbi2c  = $f->tb('tbi2c');
 		$this->_tbmnf  = $f->tb('tbmnf');

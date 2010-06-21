@@ -8,7 +8,7 @@ class elIShopItemType extends elDataMapping
 	var $name       = '';
 	var $crtime     = 0;
 	var $mtime      = 0;
-
+	var $pageID     = 0;
 	var $_props      = null;
 	var $_prop      = null;
 	var $_objName   = 'Good type';
@@ -54,7 +54,7 @@ class elIShopItemType extends elDataMapping
 		if (!isset($this->_props)) {
 			
 			$this->_props = array();
-			$f = & elSingleton::getObj('elIShopFactory');
+			$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
 			$props = $f->getAllFromRegistry(EL_IS_PROP);
 			foreach ($props as $p) {
 				if ($p->iTypeID) {

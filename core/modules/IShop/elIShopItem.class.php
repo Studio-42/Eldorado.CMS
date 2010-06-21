@@ -21,6 +21,7 @@ class elIShopItem extends elCatalogItem {
 	var $crtime     = 0;
 	var $mtime      = 0;
 	var $propVals   = null;
+	var $pageID     = 0;
 	var $_type      = null;
 
 	var $_objName = 'Product';
@@ -65,7 +66,7 @@ class elIShopItem extends elCatalogItem {
 	 **/
 	function getType() {
 		if (!isset($this->_type)) {
-			$f = & elSingleton::getObj('elIShopFactory');
+			$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
 			$this->_type = $f->getFromRegistry(EL_IS_ITYPE, $this->mnfID);
 		}
 		return $this->_type;
@@ -78,7 +79,7 @@ class elIShopItem extends elCatalogItem {
 	 * @return elIShopManufacturer
 	 **/
 	function getMnf() {
-		$f = & elSingleton::getObj('elIShopFactory');
+		$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
 		return $f->getFromRegistry(EL_IS_MNF, $this->mnfID);
 	}
 
@@ -88,7 +89,7 @@ class elIShopItem extends elCatalogItem {
 	 * @return elIShopTm
 	 **/
 	function getTm() {
-		$f = & elSingleton::getObj('elIShopFactory');
+		$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
 		return $f->getFromRegistry(EL_IS_TM, $this->tmID);
 	}
 	
@@ -198,46 +199,7 @@ class elIShopItem extends elCatalogItem {
 	
 	
 
-  /**
-   * Возвращает массив объектов-итемов полученный в рез-те поиска
-   *
-   * @param string $tbr - временная таблица с ID итемов
-   * @return array
-  */
-  function getBySearchResult( $tbr )
-  {
-    $items = array();
-    $db    = & elSingleton::getObj('elDb');
-
-    $sql = 'SELECT '.$this->attrsToString('i').' '
-        .' FROM '.$tbr.' AS r, '.$this->_tb.' AS i '
-        .' WHERE i.id=r.id  '
-        .' ORDER BY mnf, name';
-
-    $db->query( $sql );
-    $factory = & elSingleton::getObj('elIShopFactory');
-    while( $row = $db->nextRecord() )
-    {
-      $items[$row['id']]             = $this->copy($row);
-    }
-
-    if ( !empty($items) )
-    {
-      $sql = 'SELECT ip.i_id, ip.p_id, IF( p.type<3, ip.value, ip.pv_id) AS value '
-          .'FROM '.$this->tbp2i.' AS ip, '.$this->tbp.' AS p '
-          .'WHERE ip.i_id IN('.implode(',', array_keys($items)).') AND p.id=ip.p_id';
-      $db->query( $sql );
-
-      while ($r = $db->nextRecord() )
-      {
-        $items[$r['i_id']]->propVals[$r['p_id']][] = $r['value'];
-      }
-    }
-    return $items;
-  }
-
-
-
+ 
   function getPropName($pID)
   {
 	return isset($this->type->props[$pID]) ? $this->type->props[$pID]->name : '';

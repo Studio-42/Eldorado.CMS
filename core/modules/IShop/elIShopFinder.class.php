@@ -22,7 +22,7 @@ class elIShopFinder {
 		$nav = elSingleton::getObj('elNavigator');
 		$this->_pageID  = $pageID;
 		$this->_url     = $nav->getPageURL($pageID).'search/';
-		$this->_factory = & elSingleton::getObj('elIShopFactory');
+		$this->_factory = & elSingleton::getObj('elIShopFactory', $pageID);
 		$this->_tb      = $this->_factory->tb('tbs');
 		$this->_tbt     = $this->_factory->tb('tbt');
 		$this->_tbi     = $this->_factory->tb('tbi');

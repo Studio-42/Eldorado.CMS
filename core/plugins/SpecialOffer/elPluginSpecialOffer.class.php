@@ -3,10 +3,10 @@
 class elPluginSpecialOffer extends elPlugin
 {
 	var $_posNfo = array(
-		EL_POS_LEFT   => array('PLUGIN_ISHOP_SEARCH_LEFT',   'left-right.html'),
-		EL_POS_RIGHT  => array('PLUGIN_ISHOP_SEARCH_RIGHT',  'left-right.html'),
-		EL_POS_TOP    => array('PLUGIN_ISHOP_SEARCH_TOP',    'top-bottom.html'),
-		EL_POS_BOTTOM => array('PLUGIN_ISHOP_SEARCH_BOTTOM', 'top-bottom.html')
+		EL_POS_LEFT   => array('PLUGIN_SPECIAL_OFFER_LEFT',   'left-right.html'),
+		EL_POS_RIGHT  => array('PLUGIN_SPECIAL_OFFER_RIGHT',  'left-right.html'),
+		EL_POS_TOP    => array('PLUGIN_SPECIAL_OFFER_TOP',    'top-bottom.html'),
+		EL_POS_BOTTOM => array('PLUGIN_SPECIAL_OFFER_BOTTOM', 'top-bottom.html')
 	);
 
 	function onUnload()
@@ -25,6 +25,7 @@ class elPluginSpecialOffer extends elPlugin
 		}
 
 		elAddCss('elslider.css');
+		elAddCss('modules/IShop.css');
 		elAddJs('jquery.elslider.js', EL_JS_CSS_FILE);
 
 		$rnd = & elSingleton::getObj('elTE');
@@ -87,9 +88,9 @@ class elPluginSpecialOffer extends elPlugin
 
 			// get special offers from IShop
 			$sort = ($this->_param($src, 'sort', 0) == '0' ? EL_IS_SORT_RAND : EL_IS_SORT_TIME);
-			$factory = & elSingleton::getObj('elIShopFactory');
-			$factory->init($src, 0);
-			$ic = & elSingleton::getObj('elIShopItemsCollection');
+			$factory = & elSingleton::getObj('elIShopFactory', $src);
+			// $factory->init($src, 0);
+			$ic = & elSingleton::getObj('elIShopItemsCollection', $src);
 			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			$shop = & elSingleton::getObj('elModuleIShop');
 			$shop->init($src);

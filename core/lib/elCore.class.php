@@ -39,6 +39,7 @@ class elCore
 		$this->mName   = $nav->getCurPageModuleName();
 		$this->args    = $nav->getRequestArgs();
 
+		define('EL_CURRENT_PAGE_ID', $this->pageID);
 		define ('EL_URL', $nav->getURL() ); 
 
 		if ( !empty($this->args[0]) && EL_URL_POPUP == $this->args[0] )

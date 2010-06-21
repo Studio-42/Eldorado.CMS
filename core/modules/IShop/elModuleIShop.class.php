@@ -121,7 +121,7 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
 		}
 		
-		$c = & elSingleton::getObj('elIShopItemsCollection');
+		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
 		
 		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1));
 		
@@ -167,7 +167,7 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
 		
-		$c = & elSingleton::getObj('elIShopItemsCollection');
+		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
 		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1));
 
 		if (!$current) {
@@ -205,7 +205,7 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
 		
-		$c = & elSingleton::getObj('elIShopItemsCollection');
+		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
 		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1));
 
 		$this->_initRenderer();
@@ -266,7 +266,7 @@ class elModuleIShop extends elModule {
 		if (!$finder->isConfigured() || !$finder->formIsSubmit) {
 			elLocation(EL_URL);
 		}
-		$c = & elSingleton::getObj('elIShopItemsCollection');
+		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
 		$this->_initRenderer();
 		$this->_rnd->rndSearchResult($c->create('search', $finder->find()));
 		
@@ -333,33 +333,26 @@ class elModuleIShop extends elModule {
   }
 
 	/**
-	 * Get Item URL by item ID
+	 * Return Item URL by item ID
 	 *
 	 * @param   int    $itemID
 	 * @return  string
 	 **/
-	function getItemUrl($itemID = null)
-	{
-		$item = $this->_factory->create(EL_IS_ITEM, (int)$itemID);
-		if (!$item->ID)
-		{
+	function getItemUrl($itemID = null) {
+		if (!$item->ID) {
 			return false;
 		}
-		if ($this->_conf('default_view') == EL_IS_VIEW_CATS)
-		{
+		$item = $this->_factory->create(EL_IS_ITEM, (int)$itemID);
+		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
 			$db = & elSingleton::getObj('elDb');
 			$db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d LIMIT 1', $item->tbi2c, $item->ID));
 			$r = $db->nextRecord();
 			$path = 'item/'.$r['c_id'].'/'.$item->ID;
-		}
-		else
-		{
+		} else {
 			$path = 'item/'.$item->mnfID.'/'.$item->ID;
 		}
 		$nav = & elSingleton::getObj('elNavigator');
-		$mynav = $nav->getPage($this->_factory->pageID);
-		$url = $mynav['url'].$path;
-		return $url;
+		return $nav->getPageURL($this->pageID).$path;
 	}
 
  //**************************************************************************************//
@@ -482,8 +475,9 @@ class elModuleIShop extends elModule {
 			$this->_view = $this->_view == EL_IS_VIEW_MNFS ? EL_IS_VIEW_CATS : EL_IS_VIEW_MNFS;
 			array_shift($this->_args);
 		}
-		$this->_factory = & elSingleton::getObj('elIShopFactory');
-		$this->_factory->init($this->pageID, $this->_conf('itemsSortID'));
+
+		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
+
 	}
 
 	/**

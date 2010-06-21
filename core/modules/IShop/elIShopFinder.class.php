@@ -3,7 +3,6 @@
 class elIShopFinder {
 	var $_pageID  = 0;
 	var $_url     = EL_URL; 
-	var $_label   = '';
 	var $_tb      = '';
 	var $_tbt     = '';
 	var $_tbi     = '';
@@ -19,11 +18,10 @@ class elIShopFinder {
 	 *
 	 * @return void
 	 **/
-	function elIShopFinder($pageID, $label='') {
+	function elIShopFinder($pageID) {
 		$nav = elSingleton::getObj('elNavigator');
 		$this->_pageID  = $pageID;
 		$this->_url     = $nav->getPageURL($pageID).'search/';
-		$this->_label   = $label;
 		$this->_factory = & elSingleton::getObj('elIShopFactory');
 		$this->_tb      = $this->_factory->tb('tbs');
 		$this->_tbt     = $this->_factory->tb('tbt');
@@ -31,8 +29,9 @@ class elIShopFinder {
 		$this->_tbmnf   = $this->_factory->tb('tbmnf');
 		$this->_tbtm    = $this->_factory->tb('tbtm');
 		$this->_tbp     = $this->_factory->tb('tbp');
+		$this->_tbp2i   = $this->_factory->tb('tbp2i');
 		$this->_db      = & elSingleton::getObj('elDb');
-		$sql = sprintf('SELECT id, label, sort_ndx, type, price_step, prop_id, prop_view, noselect_label, display_on_load FROM %s ORDER BY id, sort_ndx', $this->_tb);
+		$sql = sprintf('SELECT id, label, sort_ndx, type, price_step, prop_id, prop_view, noselect_label, display_on_load FROM %s ORDER BY sort_ndx, id', $this->_tb);
 		$this->_conf = $this->_db->queryToArray($sql, 'id');
 		foreach ($this->_conf as $id=>$v) {
 			if ($v['prop_id']) {
@@ -46,6 +45,7 @@ class elIShopFinder {
 				}
 			}
 		}
+		$this->_init();
 	}
 
 	/**
@@ -58,14 +58,120 @@ class elIShopFinder {
 	}
 	
 	/**
-	 * load config and create form
+	 * return form html if configured
+	 *
+	 * @return string
+	 **/
+	function formToHtml($label='') {
+		$this->_form->setLabel($label);
+		return !empty($this->_conf) ? $this->_form->toHtml() : '';
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function find() {
+		$res = array();
+		if (!$this->isConfigured() || !$this->formIsSubmit) {
+			return $res;
+		}
+		
+		$item = $this->_factory->create(EL_IS_ITEM);
+		// elPrintr($item);
+		$data = $this->_form->getValue();
+		// elPrintr($data);
+		// elPrintr($_POST);
+		
+		$where = array();
+		
+		if (!empty($data['type'])) {
+			$where[] = sprintf('type_id=%d', $data['type']);
+		}
+		if (!empty($data['mnf'])) {
+			$where[] = sprintf('mnf_id=%d', $data['mnf']);
+		}
+		if (!empty($data['tm'])) {
+			$where[] = sprintf('tm_id=%d', $data['tm']);
+		}
+		if (!empty($data['price'])) {
+			if (is_array($data['price'])) {
+				if ($data['price'][0] > 0 || $data['price'][1] > 0) {
+					$where[] = 'price BETWEEN '.min((int)$data['price'][0], (int)$data['price'][1]).' AND '.max((int)$data['price'][0], (int)$data['price'][1]);
+				}
+				
+			} else {
+				
+			}
+		}
+		
+		if (!empty($where)) {
+			$res = $this->_db->queryToArray(sprintf('SELECT id FROM %s WHERE %s', $this->_tbi, implode(' AND ', $where)), null, 'id');
+			if (empty($res)) {
+				return $res;
+			}
+		}
+		
+
+		foreach ($data as $name=>$val) {
+			$id = (int)str_replace('props-', '', $name);
+			if ($id>0 && false != ($p = $this->_conf('prop', $id))) {
+				if (is_array($val)) {
+					$propIDs = array_keys($p['opts']);
+					$k1      = array_search($val[0], $propIDs);
+					$k2      = array_search($val[1], $propIDs);
+					$offset  = min($k1, $k2);
+					$ids     = array_slice($propIDs, $offset, max($k1, $k2)-$offset+1);
+				} else {
+					$ids = array((int)$val);
+				}
+				
+				$sql = empty($res)
+					? sprintf('SELECT i_id FROM %s WHERE p_id=%d AND value IN (%s)', $this->_tbp2i, $id, implode(',', $ids))
+					: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d AND value IN (%s)', $this->_tbp2i, implode(',', $res), $id, implode(',', $ids));
+				if (false == ($res = $this->_db->queryToArray($sql, null, 'i_id'))) {
+					return $res;
+				}
+				
+			}
+		}
+		
+		// elPrintr($this->_conf);
+		return $res;
+	}
+	
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _conf($type, $propID=0) {
+		foreach ($this->_conf as $id=>$v) {
+			if ($v['type'] == $type && $v['prop_id'] == $propID) {
+				return $v;
+			}
+		}
+	}
+	
+	/**
+	 * create form
 	 *
 	 * @return void
 	 **/
-	function init() {
+	function _init() {
 
-		$this->_form = elSingleton::getObj('elForm', 'ishop-finder-form-'.$this->_pageID, $this->_label, $this->_url);
+		$this->_form = elSingleton::getObj('elForm', 'ishop-finder-form-'.$this->_pageID, '', $this->_url);
 		$this->_form->setRenderer(elSingleton::getObj('elIShopFinderFormRenderer'));
+		$containerTpls = array(
+			'header'  => '',
+			'footer'  => '',
+			'label'   => '',
+			'element' => '<div class="ishop-form-container"><span class="ishop-form-container-label">%s</span> <span class="ishop-form-container-el">%s </span> </div>'
+			);
 		foreach ($this->_conf as $id=>$v) {
 			switch ($v['type']) {
 				case 'type':
@@ -86,8 +192,9 @@ class elIShopFinder {
 						$this->_form->add(new elSelect('price', $v['label'], 0, $this->_conf[$id]['opts']), array('class' => 'ishop-type-price'));
 					} else {
 						$c = & new elFormContainer('c-'.$id, $v['label']);
-						$c->add(new elText('price[0]', m('from').':', '', array('size' => 10)));
-						$c->add(new elText('price[1]', m('to').':', '', array('size' => 10)));
+						$c->setTpls($containerTpls);
+						$c->add(new elText('price[0]', m('from').':', '', array()));
+						$c->add(new elText('price[1]', m('to').':', '', array('size' => 5)));
 						$this->_form->add($c, array('class' => 'ishop-type-price'));
 					}
 					break;
@@ -97,30 +204,21 @@ class elIShopFinder {
 						'style' => $v['display_on_load'] == 'yes' ? '' : 'style="display:none"'
 						);
 					if ($v['prop_view'] == 'normal') {
-						$this->_form->add(new elSelect('prop-'.$v['prop']->ID, $v['label'], 0, $v['opts']), $params);
+						$this->_form->add(new elSelect('props['.$v['prop']->ID.']', $v['label'], 0, $v['opts']), $params);
 					} else {
 						$c = & new elFormContainer('c-'.$id, $v['label']);
-						$c->add(new elSelect('prop-'.$v['prop']->ID, m('from').':', 0, $v['opts']));
-						$c->add(new elSelect('prop-'.$v['prop']->ID.'-2', m('to').':', array_pop(array_keys($v['opts'])), $v['opts']));
+						$c->setTpls($containerTpls);
+						$c->add(new elSelect('props-'.$v['prop']->ID.'[0]', m('from').':', 0, $v['opts']));
+						$c->add(new elSelect('props-'.$v['prop']->ID.'[1]', m('to').':', array_pop(array_keys($v['opts'])), $v['opts']));
 						$this->_form->add($c, $params);
 					}
 			}
 		}
+		
+		$this->formIsSubmit = $this->_form->isSubmit();
 	}
 	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function formToHtml() {
-		if (!$this->_form) {
-			$this->init();
-		}
-		return !empty($this->_conf) ? $this->_form->toHtml() : '';
-	}
-	
+
 
 	/**
 	 * undocumented function

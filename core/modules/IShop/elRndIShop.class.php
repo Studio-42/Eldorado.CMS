@@ -107,6 +107,20 @@ class elRndIShop extends elCatalogRenderer {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function rndSearchResult($items) {
+		if (empty($items)) {
+			return $this->addToContent('<div class="rounded-7 warn">'.m('Nothing was found!').'<br/>'.m('Try to search with another parameters').'</div>');
+		}
+		$this->_setFile();
+		$this->_rndItems($items, 1, 1);
+	}
+
+	/**
 	 * Render manufacturers one/two column list
 	 *
 	 * @param  array  $mnfs  manufacturers
@@ -355,95 +369,6 @@ class elRndIShop extends elCatalogRenderer {
     $pos = strtoupper($pos);
     return array('IS_IPROPS_'.$pos, 'IP_'.$pos, 'IP_'.$pos.'_NAME');
   }
-
-  function rndSearchForm( $formHtml, $title )
-  {
-	$this->_setFile('search' , 'IShopSearch');
-	if ( !empty($title) )
-	{
-	  $this->_te->assignBlockVars( 'IS_SF_TITLE', array('IShopSFTitle'=>m($title)) );
-	}
-	$this->_te->assignVars('IShopSearchForm', $formHtml);
-	$this->_te->parse('IShopSearch', null, false, true);
-	$this->addToContent( $this->_te->getVar('IShopSearch') );
-  }
-
-  function rndSearchResult( $items )
-  {
-    if ( empty($items) )
-    {
-     // $this->addToContent( m('Nothing was found') );
-      //return;
-    }
-    $this->_setFile();
-    $m = $this->_getRndMethod('items', $this->_conf('itemsCols'));
-	$this->$m($items);
-  }
-
-  function rndSearchConfForm( $groups, $elTypes )
-  {
-    $this->_setFile('sConf');
-    
-    foreach ($groups as $id=>$g)
-    {
-      $attrs = array('onChange'=>'popUp("'.EL_URL.EL_URL_POPUP.'/conf_search/el/'.$id.'/"+this.value, 500, 500)');
-      $sel   = & new elSelect('elTypes', '', null, array( m('Add new element') )+$g['available'], $attrs);
-      $data  = array('gid'    => $id,
-                    'label'  => $g['label'],
-                    'iTypes' => !empty($g['iTypes']) ? implode(', ', $g['iTypes']) : m('All types'),
-                    'newEls' => $sel->toHtml() 
-                    );
-      
-      $this->_te->assignBlockVars('IS_SGROUP', $data);
-      foreach ($g['elements'] as $el)
-      {
-        $data = array('id'  => $el->ID,
-                    'label' => $el->label,
-                    'type'  => $elTypes[$el->type],
-                    'opts'  => 'eltext' <> get_class($el->fElement) ? $el->fElement->toHtml() : m('No'),
-                      );
-        $this->_te->assignBlockVars('IS_SGROUP.IS_SGROUP_EL', $data, 1);
-      }
-    }
-
-  }
-
-
-
-  function rndTypes($types)
-  {
-    $this->_setFile('types');
-    foreach ( $types as $type )
-    {
-      $this->_te->assignBlockVars('IS_TYPE', $type->toArray());
-      
-      foreach ($type->props as $p)
-      {
-        $data = array('id'=>$p->ID, 't_id'=>$type->ID);
-        $pVals = $p->toArray();
-              $this->_te->assignBlockVars('IS_TYPE.IS_TYPE_PROP', $data, 1);
-        foreach ( $pVals as $val)
-        {
-          $this->_te->assignBlockVars('IS_TYPE.IS_TYPE_PROP.IS_TYPE_P', $val, 2);
-        }
-        if ( $p->isDependAvailable() && $p->dependID && !empty($type->props[$p->dependID]) )
-        {
-          $data['dependName'] = $type->props[$p->dependID]->name ;
-          $this->_te->assignBlockVars('IS_TYPE.IS_TYPE_PROP.PROP_DEPEND', $data, 2);
-        }
-      }
-    }
-  }
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -18,12 +18,13 @@ class elModuleIShop extends elModule {
 	var $_item      = null;
 	var $_jslib     = true;
 	var $_mMap      = array(
-		'cats'  => array('m' => 'viewCategories'),
-		'mnfs'  => array('m' => 'viewManufacturers'),
-		'mnf'   => array('m' => 'viewManufacturer'),
-		'tm'    => array('m' => 'viewTrademark'),
-		'item'  => array('m' => 'viewItem'),
-		'order' => array('m' => 'order') 
+		'cats'   => array('m' => 'viewCategories'),
+		'mnfs'   => array('m' => 'viewManufacturers'),
+		'mnf'    => array('m' => 'viewManufacturer'),
+		'tm'     => array('m' => 'viewTrademark'),
+		'item'   => array('m' => 'viewItem'),
+		'search' => array('m' => 'search'),
+		'order'  => array('m' => 'order') 
 	);
 
 	var $_conf      = array(
@@ -58,11 +59,7 @@ class elModuleIShop extends elModule {
 		'exchangeSrc'       => 'auto',
 		'commision'         => 0,
 		'rate'              => 1,
-	    'pricePrec'         => 0,
-		'searchFormOnDefaultPage' => 1,
-		'searchFormOnListPage' => 1,
-		'searchFormOnItemPage' => 1,
-		'searchFormLabel'  => 'Search'
+	    'pricePrec'         => 0
 	);
 	
 	var $_view;
@@ -259,6 +256,23 @@ class elModuleIShop extends elModule {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function search() {
+		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+		if (!$finder->isConfigured() || !$finder->formIsSubmit) {
+			elLocation(EL_URL);
+		}
+		$c = & elSingleton::getObj('elIShopItemsCollection');
+		$this->_initRenderer();
+		$this->_rnd->rndSearchResult($c->create('search', $finder->find()));
+		
+	}
+
+	/**
 	 * add items to icart from external call (now used from OrderHistory)
 	 *
 	 * @return void
@@ -432,7 +446,7 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 * @author Dmitry Levashov
 	 **/
-	function _onBeforeStop() {
+	function _onBeforeStop_() {
 		
 		if ($this->_mh == 'item' && $this->_conf('searchFormOnItemPage')) {
 			echo 'item search';
@@ -448,18 +462,6 @@ class elModuleIShop extends elModule {
 		
 	}
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function _loadFinder() {
-		if (!isset($this->_finder)) {
-			$this->_finder = & new elIShopFinder(EL_URL, $this->_conf('searchFormLabel'));
-		}
-
-	}
 
 	/**
 	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
@@ -517,7 +519,7 @@ class elModuleIShop extends elModule {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
 		
-		$this->_finder = & new elIShopFinder($this->pageID, $this->_conf('searchFormLabel'));
+		// $this->_finder = & new elIShopFinder($this->pageID);
 		
 		$cur  = &elSingleton::getObj('elCurrency');
 		

@@ -14,7 +14,7 @@ class elFormContainer extends elFormElement
 
   function add( &$el )
   {
-    $this->childs[] = &$el;
+    $this->childs[] = &$el; 
     if ( $this->parent )
     {
       $parent = &$this->parent;
@@ -53,6 +53,12 @@ class elFormContainer extends elFormElement
     }
   }
 
+	function setTpls($tpls) {
+		foreach ($tpls as $name=>$val) {
+			$this->tpl[$name] = $val;
+		}
+	}
+
   function toHtml()
   {
     $html = sprintf($this->tpl['header'], $this->attrsToString());
@@ -65,6 +71,7 @@ class elFormContainer extends elFormElement
       $html .= sprintf($this->tpl['element'], $child->getLabel(), $child->toHtml() );
     }
     $html .= $this->tpl['footer'];
+	// echo htmlspecialchars($html);
     return $html;
   }
 

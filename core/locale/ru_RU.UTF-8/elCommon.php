@@ -103,7 +103,9 @@ $elMsg['System directory'] = 'Справочник';
 $elMsg['Depends on'] = 'Зависит от';
 $elMsg['Foreign key'] = 'Внешний ключ';
 
-
-
+$elMsg['from'] = 'от';
+$elMsg['to'] = 'до';
+$elMsg['Nothing was found!'] = 'По вашему запросу ничего не найдено!';
+$elMsg['Try to search with another parameters'] = 'Попробуйте изменить параметры поиска';
 
 ?>

@@ -7,7 +7,7 @@
  **/
 class elPluginIShopFinder extends elPlugin {
 	
-
+	var $reqModule = 'IShop';
 	var $_posNfo = array(
 		EL_POS_LEFT   => array('PLUGIN_SPECIAL_OFFER_LEFT',   'default.html'),
 		EL_POS_RIGHT  => array('PLUGIN_SPECIAL_OFFER_RIGHT',  'default.html'),
@@ -29,7 +29,7 @@ class elPluginIShopFinder extends elPlugin {
 			return;
 		}
 		$rnd = & elSingleton::getObj('elTE');
-		elPrintr($srcs);
+		
 		foreach ($srcs as $src) {
 			// check currect page
 			$pages = $this->_param($src, 'pages', array());
@@ -44,20 +44,26 @@ class elPluginIShopFinder extends elPlugin {
 			if (!empty($args) && isset($args[0])) {
 				if (in_array($args[0], array('item', 'read'))) { // on item page
 					$pos = $this->_param($src, 'pos3', 0);
-				}
-				else { // somewhere in category or elsewhere
+				} else { // somewhere in category or elsewhere
 					$pos = $this->_param($src, 'pos2', 0);
 				}
 			}
 
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($pos);
 
-			if (!$pos) {
+			$finder = & elSingleton::getObj('elIShopFinder', $src);
+			// $finder->setLabel($this->_param($src, 'title', false));
+			// $finder = & new elIShopFinder($src, $this->_param($src, 'title', false));
+			
+			if (!$pos || !$finder->isConfigured()) {
 				continue;
 			}
 			$rnd->setFile($tplVar, $tpl);
-			echo 'here';
-			
+			$rnd->assignVars('plIshopFinderPos', $pos);
+			$rnd->assignVars('ishopFinderForm', $finder->formToHtml($this->_param($src, 'title', false)));
+			$rnd->parse($tplVar, $tplVar, true, false, true);
+			$GLOBALS['parseColumns'][$pos] = true;
+
 		}
 		
 		

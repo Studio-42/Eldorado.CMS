@@ -14,7 +14,6 @@ require_once dirname(__FILE__).'/XMLParseIntoStruct.class.php';
 
 class IShopImportLexus
 {
-	var $file      = null;
 	var $struct    = array();
 	var $cars      = array();
 	var $props     = array();
@@ -49,7 +48,7 @@ class IShopImportLexus
 	var $tb_tm;
 	var $tb_gal;
 
-	var $photo_path = './storage/va';
+	var $photo_path = './storage';
 
 	var $db;
 
@@ -66,11 +65,11 @@ class IShopImportLexus
 		$this->db            = & elSingleton::getObj('elDb');
 	}
 
-	function parseXML()
+	function parseXML($file)
 	{
 		$parser = new XMLParseIntoStruct;
 
-		$xml = file_get_contents($this->file);
+		$xml = file_get_contents($file);
 		if (!$parser->parse($xml))
 		{
 			return false;
@@ -129,7 +128,7 @@ class IShopImportLexus
 							$v = '';
 							foreach ($comp as $c)
 							{
-								$v .= '<li>'.$c.'</li>'."\n";
+								$v .= '<li>'.$c.';</li>'."\n";
 							}
 							$v = '<ul class="velican-complectation">'.$v.'</ul>';
 						}
@@ -149,6 +148,15 @@ class IShopImportLexus
 					}
 
 					$v = trim($v);
+					$v = str_replace("'", '&#39', $v); // dirty magic with quotes
+					if (($k == 'MODEL') || ($k == 'BRAND'))
+					{
+						if (empty($v))
+						{
+							$v = 'NONAME';
+						}
+					}
+					
 					if (($k == 'PHOTOS') && (!empty($a['child'])))
 					{
 						$photos = array();
@@ -158,6 +166,7 @@ class IShopImportLexus
 						}
 						$v = $photos;
 					}
+
 					$car[$k] = $v;
 				}
 				array_push($this->cars, $car);
@@ -279,7 +288,10 @@ class IShopImportLexus
 					continue;
 				}
 				// insert new one into db
-				$sql = "INSERT INTO ".$this->tb_mnf." (name) VALUES ('".$m."')";
+				$logo = preg_replace('/(?![a-z])./', '_', strtolower($m)); // black-black regexp
+				//print $logo;
+				$logo = '/storage/mnf/'.$logo.'.gif';
+				$sql = "INSERT INTO ".$this->tb_mnf." (name, logo) VALUES ('".$m."', '".$logo."')";
 				$this->db->query($sql);
 			}
 		}
@@ -311,7 +323,7 @@ class IShopImportLexus
 		{
 			foreach ($model as $m => $value)
 			{
-				echo "$mnf => $m\n";
+				//echo "$mnf => $m\n";
 				if (isset($tm_db[strtoupper($mnf)][strtoupper($m)]) and $tm_db[strtoupper($mnf)][strtoupper($m)] == 1)
 				{
 					continue;
@@ -361,6 +373,7 @@ class IShopImportLexus
 		// 1.2. delete old cars from db
 		if (!empty($old_cars))
 		{
+			echo "* remove old cars: ".implode(", ", $old_cars)."\n";
 			$sql = "DELETE FROM ".$this->tb_item." WHERE code IN ('".implode("', '", $old_cars)."')";
 			$this->db->query($sql);
 		}
@@ -369,7 +382,7 @@ class IShopImportLexus
 		foreach ($this->cars as $car)
 		{
 			$i_id = '';
-			echo "\n* $car[BRAND] => $car[MODEL]";
+			echo "* $car[BRAND] => $car[MODEL]";
 			// 2.1 new item
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
 			if (in_array($car['CARID'], $new_cars))
@@ -528,12 +541,14 @@ class myelImage extends elImage
 }
 
 
-$file = './TradeIn.xml';
-
 $import = new IShopImportLexus();
-$import->file = $file;
-$import->parseXML();
-$import->getCars();
+$import->photo_path = './storage/import/Photo';
+$files = glob('./storage/import/*.xml');
+foreach ($files as $f)
+{
+	$import->parseXML($f);
+	$import->getCars();
+}
 $import->getProps();
 
 $import->loadProps();

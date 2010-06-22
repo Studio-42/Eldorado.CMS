@@ -14,7 +14,6 @@ require_once dirname(__FILE__).'/XMLParseIntoStruct.class.php';
 
 class IShopImportLexus
 {
-	var $struct    = array();
 	var $cars      = array();
 	var $props     = array();
 
@@ -65,7 +64,7 @@ class IShopImportLexus
 		$this->db            = & elSingleton::getObj('elDb');
 	}
 
-	function parseXML($file)
+	function _parseXML($file)
 	{
 		$parser = new XMLParseIntoStruct;
 
@@ -84,13 +83,23 @@ class IShopImportLexus
 		{
 			return false;
 		}
-		$this->struct = $struct[0]['child'];
+
+		//$this->struct = $struct[0]['child'];
 		return $struct[0]['child'];
 	}
 
-	function getCars()
+	function getCars($file = null)
 	{
-		foreach ($this->struct as $cars)
+		echo "Parsing $file";
+		$struct = $this->_parseXML($file);
+		if ($struct == false)
+		{
+			echo ", no objects found skipping\n";
+			return false;
+		}
+		echo ", objects found: ".count($struct)."\n";
+		//var_dump($struct);
+		foreach ($struct as $cars)
 		{
 			if ($cars['name'] == 'CAR')
 			{
@@ -172,6 +181,7 @@ class IShopImportLexus
 				array_push($this->cars, $car);
 			}
 		}
+		return true;
 	}
 
 	function getProps()
@@ -201,7 +211,6 @@ class IShopImportLexus
 	function loadProps()
 	{
 		// load props from database
-		
 		$this->db->query("SELECT p_id, value FROM ".$this->tb_prop_value
 			." WHERE p_id IN (".implode(', ', array_values($this->prop_bind)).")");
 
@@ -363,6 +372,9 @@ class IShopImportLexus
 		{
 			array_push($d_cars, $m['code']);
 		}
+		print "Cars in XML: ".count($this->cars)."\n";
+		print "Cars in DB:  ".count($d_cars)."\n";
+
 		$i_cars = array();
 		foreach ($this->cars as $car)
 		{
@@ -546,10 +558,11 @@ $import->photo_path = './storage/import/Photo';
 $files = glob('./storage/import/*.xml');
 foreach ($files as $f)
 {
-	$import->parseXML($f);
-	$import->getCars();
+//	$import->parseXML($f);
+	$import->getCars($f);
 }
 $import->getProps();
+//print_r($import->cars);
 
 $import->loadProps();
 $import->loadMnf();

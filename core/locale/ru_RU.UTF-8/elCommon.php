@@ -69,6 +69,8 @@ $elMsg['Search string']              = 'Строка поиска';
 $elMsg['There is nothing was found'] = 'Ничего не найдено';
 $elMsg['Search results for']         = 'Результаты поиска ';
 $elMsg['Searching for "%s"']         = 'Ищем "%s"';
+$elMsg['Advanced search']            = 'Расширеный поиск';
+$elMsg['Normal search']              = 'Обычный поиск';
 
 //ICart
 $elMsg['USA dollar']                  = 'Доллар США';

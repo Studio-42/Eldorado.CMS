@@ -18,13 +18,14 @@ class elModuleIShop extends elModule {
 	var $_item      = null;
 	var $_jslib     = true;
 	var $_mMap      = array(
-		'cats'   => array('m' => 'viewCategories'),
-		'mnfs'   => array('m' => 'viewManufacturers'),
-		'mnf'    => array('m' => 'viewManufacturer'),
-		'tm'     => array('m' => 'viewTrademark'),
-		'item'   => array('m' => 'viewItem'),
-		'search' => array('m' => 'search'),
-		'order'  => array('m' => 'order') 
+		'cats'          => array('m' => 'viewCategories'),
+		'mnfs'          => array('m' => 'viewManufacturers'),
+		'mnf'           => array('m' => 'viewManufacturer'),
+		'tm'            => array('m' => 'viewTrademark'),
+		'item'          => array('m' => 'viewItem'),
+		'search'        => array('m' => 'search'),
+		'search_params' => array('m' => 'searchParams'),
+		'order'         => array('m' => 'order') 
 	);
 
 	var $_conf      = array(
@@ -79,32 +80,7 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function defaultMethod() {
-		// elPrintR($this->_args);
-		
-		
 		$this->_view == EL_IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
-		return;
-		// $this->_initRenderer();
-		// if ( $this->_conf('search') && ( $this->_conf('searchOnAllPages') || $this->_cat->ID == 1 ) ) {
-		// $sm = $this->_factory->getSearchManager();
-		// if ( $sm->isConfigured() )
-		// {
-		// $this->_rnd->rndSearchForm( $sm->formToHtml(), $this->_conf('searchTitle') );
-		// if ( $sm->hasSearchCriteria() )
-		// {
-		// if ( $sm->find() )
-		// {
-		// return $this->_rnd->rndSearchResult( $sm->getResult() );
-		// }
-		// else
-		// {
-		// elThrow(E_USER_WARNING, 'Nothing was found on this request');
-		// }
-		// }  
-		// }
-		// 
-		// }
-
 	}
 
 	/**
@@ -256,10 +232,9 @@ class elModuleIShop extends elModule {
 	}
 
 	/**
-	 * undocumented function
+	 * display finded items
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function search() {
 		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
@@ -270,6 +245,17 @@ class elModuleIShop extends elModule {
 		$this->_initRenderer();
 		$this->_rnd->rndSearchResult($c->create('search', $finder->find()));
 		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function searchParams() {
+		include_once EL_DIR_CORE.'elJSON.class.php';
+		elPrintr($_GET);
 	}
 
 	/**
@@ -339,10 +325,11 @@ class elModuleIShop extends elModule {
 	 * @return  string
 	 **/
 	function getItemUrl($itemID = null) {
+		$item = $this->_factory->create(EL_IS_ITEM, (int)$itemID);
 		if (!$item->ID) {
 			return false;
 		}
-		$item = $this->_factory->create(EL_IS_ITEM, (int)$itemID);
+		
 		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
 			$db = & elSingleton::getObj('elDb');
 			$db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d LIMIT 1', $item->tbi2c, $item->ID));

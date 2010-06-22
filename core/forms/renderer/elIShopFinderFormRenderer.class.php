@@ -6,6 +6,7 @@
  * @author Dmitry Levashov
  **/
 class elIShopFinderFormRenderer extends elFormRenderer {
+	var $type = 'normal';
 	/**
 	 * renderer
 	 *
@@ -18,6 +19,12 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 	 * @var string
 	 **/
 	var $_hndl = 'ishopSearchForm';
+	/**
+	 * advanced search elements qnt
+	 *
+	 * @var int
+	 **/
+	var $_advCnt = 0;
 
 	/**
 	 * constructor
@@ -27,7 +34,8 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 	function elIShopFinderFormRenderer() {
 		$this->_rnd = & elSingleton::getObj('elTE');
 		$this->_rnd->setFile($this->_hndl, 'forms/ishopFinderForm.html');
-		elAddCss('ishopFinderForm.css');
+		elAddCss('ishopFinder.css');
+		elAddJs('ishopFinder.js', EL_JS_CSS_FILE);
 	}
 	
 	/**
@@ -36,6 +44,7 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 	 * @return void
 	 **/
 	function beginForm($attrs, $label, $errors) {
+		$this->_rnd->assignVars('type', $this->type);
 		$this->_rnd->assignVars('attrs', $attrs);
 		if ($label) {
 			$this->_rnd->assignBlockVars('FORM_LABEL', array('label' => $label));
@@ -53,9 +62,16 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 		if ($el->label) {
 			$this->_rnd->assignBlockVars('FORM_ELEMENT.LABEL', array('label' => $el->label), 1);
 		}
+		if ($params['rel'] == 'advanced') {
+			$this->_advCnt++;
+		}
 	}
 
 	function endForm() { 
+		// echo $this->_advCnt;
+		if ($this->type == 'normal' && $this->_advCnt>0) {
+			$this->_rnd->assignBlockVars('ADV_SEARCH');
+		}
 		$this->_rnd->parse($this->_hndl);
 	    $this->html = $this->_rnd->getVar($this->_hndl);
 	    $this->_complite = true;

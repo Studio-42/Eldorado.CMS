@@ -254,8 +254,19 @@ class elModuleIShop extends elModule {
 	 * @author Dmitry Levashov
 	 **/
 	function searchParams() {
-		include_once EL_DIR_CORE.'elJSON.class.php';
-		elPrintr($_GET);
+		include_once EL_DIR_CORE.'lib/elJSON.class.php';
+		// elPrintr($_GET);
+		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+		if (!$finder->isConfigured()) {
+			exit(elJSON::encode(array('error' => 'Search form is not configured')));
+		} elseif (empty($_GET['name']) || !isset($_GET['value'])) {
+			exit(elJSON::encode(array('error' => 'Invalid arguments')));
+		}
+		
+		exit(elJSON::encode($finder->getParams($_GET['name'], $_GET['value'])));
+		
+		exit(elJSON::encode(array('result' => 'OK')));
+		
 	}
 
 	/**

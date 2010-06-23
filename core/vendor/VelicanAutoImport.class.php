@@ -33,7 +33,8 @@ class IShopImportLexus
 		'COLOR'            => '3',
 		'INTERNALS'        => '10',
 		'COMPLECTATION'    => '11',
-		'DESCRIPTION'      => '12'
+		'DESCRIPTION'      => '12',
+		'INFO1'            => '14'
 	);
 
 	var $itype_id  = '1';
@@ -178,6 +179,7 @@ class IShopImportLexus
 
 					$car[$k] = $v;
 				}
+				$car['INFO1'] = $car['ENGINECUBATURE'].' / '.$car['ENGINEPOWER'];
 				array_push($this->cars, $car);
 			}
 		}

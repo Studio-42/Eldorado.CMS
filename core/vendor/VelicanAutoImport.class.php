@@ -33,7 +33,8 @@ class IShopImportLexus
 		'COLOR'            => '3',
 		'INTERNALS'        => '10',
 		'COMPLECTATION'    => '11',
-		'DESCRIPTION'      => '12'
+		'DESCRIPTION'      => '12',
+		'INFO1'            => '14'
 	);
 
 	var $itype_id  = '1';
@@ -178,6 +179,7 @@ class IShopImportLexus
 
 					$car[$k] = $v;
 				}
+				$car['INFO1'] = $car['ENGINECUBATURE'].' / '.$car['ENGINEPOWER'];
 				array_push($this->cars, $car);
 			}
 		}
@@ -313,34 +315,21 @@ class IShopImportLexus
 	 **/
 	function loadTM()
 	{
-		$this->db->query("SELECT UPPER(mnf.name) AS mnf, UPPER(tm.name) AS tm FROM ".$this->tb_tm." AS tm, ".$this->tb_mnf." AS mnf WHERE tm.mnf_id=mnf.id");
-		$tm_db = array();
-		while ($m = $this->db->nextRecord())
-		{
-			$tm_db[$m['mnf']][$m['tm']] = 1;
-		}
-		//var_dump($tm_db);
-
-		$tm_xml = array();
 		foreach ($this->cars as $car)
 		{
-			$tm_xml[$car['BRAND']][$car['MODEL']] = 1;
-		}
-		//var_dump($tm_xml);
-
-		foreach ($tm_xml as $mnf => $model)
-		{
-			foreach ($model as $m => $value)
+			$mnf_id = $this->_getMnfByName($car['BRAND']);
+			if (!$mnf_id)
 			{
-				//echo "$mnf => $m\n";
-				if (isset($tm_db[strtoupper($mnf)][strtoupper($m)]) and $tm_db[strtoupper($mnf)][strtoupper($m)] == 1)
-				{
-					continue;
-				}
-				$mnf_id = $this->_getMnfByName($mnf);
-				$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, '$m')";
-				$this->db->query($sql);
+				echo "problems loading mnf, skipping\n";
+				continue;
 			}
+			$this->db->query("SELECT UPPER(tm.name) AS tm FROM ".$this->tb_tm." AS tm WHERE tm.mnf_id=".$mnf_id." AND UPPER(tm.name)='".$car['MODEL']."' LIMIT 1");
+			if ($this->db->numRows() == 1)
+			{
+				continue;
+			}
+			$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, '".$car['MODEL']."')";
+			$this->db->query($sql);
 		}
 	}
 
@@ -380,6 +369,7 @@ class IShopImportLexus
 		{
 			array_push($i_cars, $car['CARID']);
 		}
+		//print_r($i_cars);
 		$old_cars = array_diff($d_cars, $i_cars);
 		$new_cars = array_diff($i_cars, $d_cars);
 		// 1.2. delete old cars from db
@@ -397,10 +387,16 @@ class IShopImportLexus
 			echo "* $car[BRAND] => $car[MODEL]";
 			// 2.1 new item
 			$mnf_id = $this->_getMnfByName($car['BRAND']);
+			$tm_id  = $this->_getTMByName($mnf_id, $car['MODEL']);
+			if (($tm_id < 1) or ($mnf_id < 1))
+			{
+				echo "  ^^^ something wrong, skipping\n";				
+			}
+			echo " $mnf_id:$tm_id ";
 			if (in_array($car['CARID'], $new_cars))
 			{
 				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (%d, %d, '%s', '%s', '%s', '%.2f', '%d', %d, %d)";
-				$sql = sprintf($sql, $this->itype_id, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['CARID'], $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
+				$sql = sprintf($sql, $this->itype_id, $mnf_id, $tm_id, $car['CARID'], $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
 				$this->db->query($sql);
 				$i_id = $this->db->insertID();
 				echo " (insert) $i_id\n";
@@ -413,7 +409,7 @@ class IShopImportLexus
 				$id = $this->db->nextRecord();
 				$i_id = $id['id'];
 				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', special='%d', mtime='%d' WHERE id='%d' LIMIT 1";
-				$sql = sprintf($sql, $mnf_id, $this->_getTMByName($mnf_id, $car['MODEL']), $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), $i_id);
+				$sql = sprintf($sql, $mnf_id, $tm_id, $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), $i_id);
 				$this->db->query($sql);
 				echo " (update)\n";
 			}
@@ -526,7 +522,7 @@ class IShopImportLexus
 		$sql = "SELECT id FROM ".$this->tb_tm." WHERE mnf_id=$mnf_id AND UPPER(name)=UPPER('".$name."') LIMIT 1";
 		$this->db->query($sql);
 		$tm = $this->db->nextRecord();
-		return $tm['id'];
+		return ($tm['id'] > 0 ? $tm['id'] : false);
 	}
 
 	function _getMnfByName($name = null)
@@ -534,7 +530,7 @@ class IShopImportLexus
 		$sql = "SELECT id FROM ".$this->tb_mnf." WHERE UPPER(name)=UPPER('".$name."') LIMIT 1";
 		$this->db->query($sql);
 		$mnf = $this->db->nextRecord();
-		return $mnf['id'];
+		return ($mnf['id'] > 0 ? $mnf['id'] : false);
 	}
 	
 	function _getPropValueIdByName($p_id, $v)

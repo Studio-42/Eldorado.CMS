@@ -122,7 +122,7 @@ class elSiteRenderer
 		);
 
 	var $_tsMNavPosNfo = array(
-	  	EL_POS_LEFT   => array('sideShopMNavLeft.html',  'TS_MMENU_LEFT',   'LEFT_COLUMN'),
+		EL_POS_LEFT   => array('sideShopMNavLeft.html',  'TS_MMENU_LEFT',   'LEFT_COLUMN'),
 		EL_POS_RIGHT  => array('sideShopMNavRight.html', 'TS_MMENU_RIGHT',  'RIGHT_COLUMN'),
 		EL_POS_TOP    => array('sideShopMNavTop.html',   'TS_MMENU_TOP',    'TOP_COLUMN'),
 		EL_POS_BOTTOM => array('sideShopMNavTop.html',   'TS_MMENU_BOTTOM', 'BOTTOM_COLUMN')
@@ -232,10 +232,59 @@ class elSiteRenderer
 
 			if (false != ($stID = $this->_conf->findGroup('module', 'GAStat')) )
 			{
-				$code = $this->_conf->get('webPropertyId', $stID);
-				if ($code)
+				$webPropertyId = $this->_conf->get('webPropertyId', $stID);
+				if ($webPropertyId)
 				{
-					$this->_te->assignBlockVars('GASTAT_COUNTER', array('webID'=>$code));
+					$ga = array();
+					$ga['webPropertyId'] = $webPropertyId;
+					$ga['webID'] = $webPropertyId; // DEPRECATED
+
+					/*
+					// possible for future use
+					// Storage for Google Analytics data
+					// this should go to bootstrap.php
+					$GLOBALS['gaCounter'] = array(
+						'before' => array(),
+						'after'  => array()
+					);
+
+					// this data goes before _trackPageview
+					$before = '';
+					if (!empty($GLOBALS['gaCounter']['before']))
+					{
+						foreach ($GLOBALS['gaCounter']['before'] as $g)
+						{
+							$before .= $g."\n";
+						}
+					}
+
+					// and this goes after it
+					$after = '';
+					if (!empty($GLOBALS['gaCounter']['after']))
+					{
+						foreach ($GLOBALS['gaCounter']['after'] as $g)
+						{
+							$after .= $g."\n";
+						}
+					}
+
+					$ga = array(
+						'webID'  => $webPropertyId,
+						'before' => $before,
+						'after'  => $after
+					);
+					*/
+					if (isset($_SESSION['gastat.gaec']) && !empty($_SESSION['gastat.gaec']))
+					{
+						$gaec = '';
+						foreach ($_SESSION['gastat.gaec'] as $g)
+						{
+							$gaec .= $g."\n";
+						}
+						$ga['gaec'] = $gaec;
+						unset($_SESSION['gastat.gaec']);
+					}
+					$this->_te->assignBlockVars('GASTAT_COUNTER', $ga);
 				}
 				
 			}

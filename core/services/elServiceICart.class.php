@@ -366,7 +366,44 @@ class elServiceICart extends elService
 		$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
 		$this->_user->prefrence('order_complete', 1);
 		$this->_sendMessage($orderID, $msg);
+		$this->_gaEcommerce($delivery, $orderID, $total);
 		$this->_iCart->clean();
+	}
+
+	/**
+	 * generate ga e-commerce countder code and save to session for next page
+	 * http://code.google.com/apis/analytics/docs/gaJS/gaJSApiEcommerce.html
+	 *
+	 * @param  array  $delivery
+	 * @param  int    $orderID
+	 * @param  int    $total
+	 * @return void
+	 **/
+	function _gaEcommerce($delivery, $orderID, $total)
+	{
+		$gaec = array();
+		$_addTrans = "_gaq.push(['_addTrans', '%d', '%s', '%.2f', '0.00', '%.2f', '%s', '', '']);";
+		$_addTrans = sprintf($_addTrans, $orderID, 'IShop', (float)$total, $delivery['fee'], $delivery['region']);
+		array_push($gaec, $_addTrans);
+
+		foreach ($this->_iCart->getItems() as $i)
+		{
+			$props = '';
+			if (!empty($i['props']))
+			{
+				foreach ($i['props'] as $p)
+				{
+					$props .= $p[0].": ".$p[1]."; ";
+				}
+			}
+			$_addItem = "_gaq.push(['_addItem', '%d', '%s', '%s', '%s', '%.2f', '%d']);";
+			$_addItem = sprintf($_addItem, $orderID, $i['code'], $i['name'], $props, $i['price'], $i['qnt']);
+			array_push($gaec, $_addItem);
+		}
+
+		array_push($gaec, "_gaq.push(['_trackTrans']);");
+
+		$_SESSION['gastat.gaec'] = $gaec;
 	}
 
 	/**

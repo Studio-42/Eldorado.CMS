@@ -155,51 +155,45 @@
 				</div>
 				{ADD_MENU_BOTTOM}
 		</div>
-		
 	<!-- end: #body -->
-
 	<div id="top-panel">
 		<ul>
 			{AUTH_FORM_TOP}{USER_INFO_TOP}{ADD_MENU_TOP}{ICART_TOP}{SEARCH_FORM_TOP}<li><a href="#" id="print-icon" onclick="window.print();return false;" title="{m('Printer friendly version')}"></a></li>
 		</ul>
 	</div>
-
-
+	<!-- BEGIN A_MENU -->
+	{amenu}
+	<script type="text/javascript">
+		$().ready(function() {
+			$('.el-menu-float').elmenu({orientation: 'horizontal', draggable : true, open : 'click'});
+		});
+	</script>
+	<!-- END A_MENU -->
 	<!-- BEGIN COUNTERS -->{COUNTERS}<!-- END COUNTERS -->
 	<!-- BEGIN GASTAT_COUNTER -->
 	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', '{webPropertyId}']);
+		_gaq.push(
+			['_addOrganic', 'mail.ru', 'q'],
+			['_addOrganic', 'go.mail.ru', 'q'],
+			['_addOrganic', 'nova.rambler.ru', 'query'],
+			['_addOrganic', 'nigma.ru', 's'],
+			['_addOrganic', 'meta.ua', 'q'],
+			['_addOrganic', 'i.ua', 'q'],
+			['_addOrganic', 'online.ua', 'q'],
+			['_addOrganic', 'ukr.net', 'search_query'],
+			['_addOrganic', 'liveinternet.ru', 'ask']
+		);
+		_gaq.push(['_trackPageview']);
+{gaec}
 
-	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
 	</script>
-	<script type="text/javascript">
-	try {
-	var pageTracker = _gat._getTracker("{webID}");
-	pageTracker._addOrganic("go.mail.ru", "q");
-	pageTracker._addOrganic("nova.rambler.ru","query");
-	pageTracker._addOrganic("nigma.ru", "s");
-	pageTracker._addOrganic("webalta.ru", "q");
-	pageTracker._addOrganic("aport.ru", "r");
-	pageTracker._addOrganic("akavita.by", "z");
-	pageTracker._addOrganic("meta.ua", "q");
-	pageTracker._addOrganic("bigmir.net", "q");
-	pageTracker._addOrganic("tut.by", "query");
-	pageTracker._addOrganic("all.by", "query");
-	pageTracker._addOrganic("i.ua", "q");
-	pageTracker._addOrganic("online.ua", "q");
-	pageTracker._addOrganic("a.ua", "s");
-	pageTracker._addOrganic("ukr.net", "search_query");
-	pageTracker._addOrganic("search.com.ua", "q");
-	pageTracker._addOrganic("search.ua", "query");
-	pageTracker._addOrganic("poisk.ru", "text");
-	pageTracker._addOrganic("km.ru", "sq");
-	pageTracker._addOrganic("liveinternet.ru", "ask");
-	pageTracker._addOrganic("gogo.ru", "q");
-	pageTracker._addOrganic("gde.ru", "keywords");
-	pageTracker._addOrganic("quintura.ru", "request");
-	pageTracker._trackPageview();
-	} catch(err) {}</script>
-
 	<!-- END GASTAT_COUNTER -->
 	<!-- BEGIN SYS_DEBUG -->
 	<div class="debug no-print">
@@ -210,16 +204,5 @@
 		</code>
 	</div>
 	<!-- END SYS_DEBUG -->
-	
-	<!-- BEGIN A_MENU -->
-	{amenu}
-	<script type="text/javascript">
-		 $().ready( function() { 
-			$('.el-menu-float').elmenu({orientation: 'horizontal', draggable : true, open : 'click'}) 
-		});
-	</script>
-	
-	<!-- END A_MENU -->	
-
 </body>
 </html>

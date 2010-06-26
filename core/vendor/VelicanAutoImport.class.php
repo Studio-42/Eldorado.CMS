@@ -115,7 +115,7 @@ class IShopImportLexus
 					elseif (in_array($k, array('PRICERUB', 'PRICEUSD'))) //, 'ENGINECUBATURE'
 					{
 						$v = str_replace(',', '.', $v); // convert to PHP numbers
-						$v = str_replace(' ', 'a', $v);
+						$v = str_replace(' ', '', $v);
 						$v = sprintf('%.2f', $v);
 					}
 					elseif ($k == 'SPECIALOFFER')
@@ -150,7 +150,9 @@ class IShopImportLexus
 					}
 					elseif ($k == 'MILEAGEKM')
 					{
-						$v .= ' км';
+						$v = preg_replace('/(?![0-9])./', '', $v); // black-black regexp
+						//$v .= ' км';
+						//$v = str_replace(' ', '', $v);
 					}
 					elseif ($k == 'ENGINEPOWER')
 					{

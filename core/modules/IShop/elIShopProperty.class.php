@@ -617,7 +617,7 @@ class elIShopProperty extends elDataMapping
 			'name'         => 'name',
 			'display_pos'  => 'displayPos',
 			'display_name' => 'displayName',
-			'is_hidden' => 'isHidden',
+			'is_hidden'    => 'isHidden',
 			'is_announced' => 'isAnnounced',
 			'is_searched'  => 'isSearched',
 			'is_compared'  => 'isCompared',

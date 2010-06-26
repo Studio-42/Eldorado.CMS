@@ -130,7 +130,7 @@ class elIShopItem extends elCatalogItem {
 					'value' => $p->valuesToString($value)
 					);
 			}
-			if (!($ml && $p->isHidden)) {
+			if (!($ml || $p->isHidden)) {
 				$value = isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : array();
 				$value = $p->valuesToString($value);
 				if ($value) {

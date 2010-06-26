@@ -107,6 +107,7 @@ $elMsg['Foreign key'] = 'Внешний ключ';
 
 $elMsg['from'] = 'от';
 $elMsg['to'] = 'до';
+$elMsg['not selected'] = 'не выбрано';
 $elMsg['Nothing was found!'] = 'По вашему запросу ничего не найдено!';
 $elMsg['Try to search with another parameters'] = 'Попробуйте изменить параметры поиска';
 

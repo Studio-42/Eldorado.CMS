@@ -7,45 +7,56 @@ $().ready(function() {
 				}).attr('action').replace(/\/$/, '_params/'),
 			type = finder.find('select[name="type"]'),
 			mnf  = finder.find('select[name="mnf"]'),
-			tm   = finder.find('select[name="tm"]')
-			;
-		window.console.log(mnf)
+			tm   = finder.find('select[name="tm"]');
+
 		function update(name, val) {
-			window.console.log(url,name, val)
+
 			$.ajax({
-				url : url,
-				type : 'get',
+				url      : url,
+				type     : 'get',
 				dataType : 'json',
-				data : { name : name, value : val },
-				success : function(data) {
-					window.console.log(data)
+				data     : { name : name, value : val },
+				success  : function(data) {
+					var l, adv = finder.hasClass('ishop-search-advanced');
+					
 					if (data.error) {
 						return window.console && window.console.log && window.console.log(data.error);
 					}
 					
+					if (data.mnf && mnf.length) {
+						l = data.mnf.length;
+						mnf.empty();
+						while (l--) {
+							mnf.prepend('<option value="'+data.mnf[l].id+'">'+data.mnf[l].name+'</option>')
+						}
+						mnf.val('0');
+						if (!mnf.children().length) {
+							mnf.parents('.ishop-finder-element').hide();
+						}
+					}
+					
 					if (data.tm && tm.length) {
-						var l = data.tm.length;
+						l = data.tm.length;
 						tm.empty();
 						while (l--) {
 							tm.prepend('<option value="'+data.tm[l].id+'">'+data.tm[l].name+'</option>')
 						}
 						tm.val('0');
+						if (!tm.children().length) {
+							tm.parents('.ishop-finder-element').hide();
+						}
 					}
 					
 					data.mnfID && mnf.length && mnf.val(data.mnfID);
 					
-					if (data.props) {
-						var adv = finder.hasClass('ishop-search-advanced');
-						finder.find('select[name^="props-"]').each(function() {
-							window.console.log(this)
-							var id = parseInt($(this).attr('name').replace(/^props\-/, ''));
-							window.console.log(parseInt(id))
-							
-							if (adv || $(this).attr('rel') == 'advanced') {
-								if ($.inArray(id, data.props)) {
-									$(this).parents('.ishop-finder-element').show();
-								} else {
+					if (data.types) {
+						finder.find('[el-itype]').each(function() {
+							var t = $(this).attr('el-itype');
+							if (adv || $(this).attr('rel') == 'normal') {
+								if ($.inArray(t, data.types) == -1) {
 									$(this).parents('.ishop-finder-element').hide();
+								} else {
+									$(this).parents('.ishop-finder-element').show();
 								}
 							}
 						});

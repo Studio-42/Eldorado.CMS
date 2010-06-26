@@ -221,8 +221,29 @@ class elIShopFinder {
 				// elPrintr($p);
 				
 				if ($p['prop_type'] == 1) {
-					echo $name;
-					continue;
+					
+					if (is_array($val)) {
+						if (empty($val[0]) && empty($val[1])) {
+							continue;
+						}
+						$sql = empty($res) 
+							? sprintf('SELECT i_id FROM %s WHERE p_id=%d ', $this->_tb['p2i'], $id)
+							: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d ', $this->_tb['p2i'], implode(',', $res), $id);
+							
+						if (!empty($val[0])) {
+							$sql .= sprintf('AND %.2f <= CONVERT(REPLACE(value, " ", ""), DECIMAL)', $val[0]);
+						}
+						if (!empty($val[1])) {
+							$sql .= sprintf('AND %.2f >= CONVERT(REPLACE(value, " ", ""), DECIMAL)', $val[1]);
+						}
+					} elseif (!empty($val)) {
+						$sql = empty($res) 
+							? sprintf('SELECT i_id FROM %s WHERE p_id=%d AND value LIKE "%%%s%%"', $this->_tb['p2i'], $id, trim($val))
+							: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d AND value LIKE "%%%s%%"', $this->_tb['p2i'], implode(',', $res), $id, trim($val));
+					} else {
+						continue;
+					}
+
 				} else {
 					if (is_array($val)) {
 						$propIDs = array_keys($p['opts']);
@@ -236,13 +257,14 @@ class elIShopFinder {
 						continue;
 					}
 				}
-				
 
-				
-				$sql = empty($res)
-					? sprintf('SELECT i_id FROM %s WHERE p_id=%d AND value IN (%s)', $this->_tb['p2i'], $id, implode(',', $ids))
-					: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d AND value IN (%s)', $this->_tb['p2i'], implode(',', $res), $id, implode(',', $ids));
-				echo $sql.'<br>';
+				if (!$sql) {
+					$sql = empty($res)
+						? sprintf('SELECT i_id FROM %s WHERE p_id=%d AND value IN (%s)', $this->_tb['p2i'], $id, implode(',', $ids))
+						: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d AND value IN (%s)', $this->_tb['p2i'], implode(',', $res), $id, implode(',', $ids));
+					
+				}
+
 				if (false == ($res = $this->_db->queryToArray($sql, null, 'i_id'))) {
 					return $res;
 				}

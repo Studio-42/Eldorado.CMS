@@ -151,11 +151,12 @@ class IShopImportLexus
 					elseif ($k == 'MILEAGEKM')
 					{
 						$v = preg_replace('/(?![0-9])./', '', $v); // black-black regexp
-						//$v .= ' км';
+						$v .= ' км';
 						//$v = str_replace(' ', '', $v);
 					}
 					elseif ($k == 'ENGINEPOWER')
 					{
+						$v = preg_replace('/(?![0-9])./', '', $v); // black-black regexp
 						$v .= ' л.с.';
 					}
 

@@ -23,7 +23,7 @@ class OchkarikOrderExport2
 
 	function __construct()
 	{
-		$this->el_order_begin_id = 24805;
+		$this->el_order_begin_id = 24843;
 	}
 
 	function _findOrders()
@@ -124,7 +124,7 @@ class OchkarikOrderExport2
 			// end
 			$e .= "\t".'</Документ>'."\n";
 			$e .= '</ДАННЫЕ>'."\n";
-			echo $e;
+			echo htmlspecialchars($e);
 			return;
 		}
 	}

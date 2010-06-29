@@ -3,22 +3,22 @@
 /**
  * Other paths
  */
-define ('EL_DIR_STORAGE_NAME', 'storage');
-define ('EL_DIR_STORAGE',      EL_DIR.EL_DIR_STORAGE_NAME.DIRECTORY_SEPARATOR);
-define ('EL_DIR_STYLES',       EL_DIR.'style'.DIRECTORY_SEPARATOR);
-define ('EL_DIR_BACKUP',       EL_DIR.'backup'.DIRECTORY_SEPARATOR);
-define ('EL_DIR_CACHE',        EL_DIR.'cache'.DIRECTORY_SEPARATOR);
-define ('EL_DIR_LOG',          EL_DIR.'log'.DIRECTORY_SEPARATOR);
-define ('EL_DIR_TMP',          EL_DIR.'tmp'.DIRECTORY_SEPARATOR);
-define ('EL_DIR_CONF',         EL_DIR.'conf'.DIRECTORY_SEPARATOR);
+define('EL_DIR_STORAGE_NAME', 'storage');
+define('EL_DIR_STORAGE',      EL_DIR.EL_DIR_STORAGE_NAME.DIRECTORY_SEPARATOR);
+define('EL_DIR_STYLES',       EL_DIR.'style'.DIRECTORY_SEPARATOR);
+define('EL_DIR_BACKUP',       EL_DIR.'backup'.DIRECTORY_SEPARATOR);
+define('EL_DIR_CACHE',        EL_DIR.'cache'.DIRECTORY_SEPARATOR);
+define('EL_DIR_LOG',          EL_DIR.'log'.DIRECTORY_SEPARATOR);
+define('EL_DIR_TMP',          EL_DIR.'tmp'.DIRECTORY_SEPARATOR);
+define('EL_DIR_CONF',         EL_DIR.'conf'.DIRECTORY_SEPARATOR);
 
 /**
  * errors processing conf
  */
-define ('EL_ERROR_DISPLAY',      E_USER_ERROR|E_USER_WARNING|E_USER_NOTICE);
-define ('EL_ERROR_LOG',          E_USER_ERROR);
-define ('EL_ERROR_MAIL',         0);
-define ('EL_ERROR_MAIL_TIMEOUT', 60*60);
+define('EL_ERROR_DISPLAY',      E_USER_ERROR|E_USER_WARNING|E_USER_NOTICE);
+define('EL_ERROR_LOG',          E_USER_ERROR);
+define('EL_ERROR_MAIL',         0);
+define('EL_ERROR_MAIL_TIMEOUT', 60*60);
 
 /**
  * Begin session
@@ -55,57 +55,57 @@ ini_set('include_path', '.:'.$paths);
 /**
  * Site pages permissions
  */
-define ('EL_READ',   1);
-define ('EL_WRITE',  3);
-define ('EL_FULL',   7);
+define('EL_READ',   1);
+define('EL_WRITE',  3);
+define('EL_FULL',   7);
 
 /**
  * Messages queues indexes
  */
-define ('EL_MSGQ',   1);
-define ('EL_WARNQ',  2);
-define ('EL_DEBUGQ', 3);
+define('EL_MSGQ',   1);
+define('EL_WARNQ',  2);
+define('EL_DEBUGQ', 3);
 
 /**
  * Window modes and url suffixes
  */
-define ('EL_WM_NORMAL', 1);
-define ('EL_WM_POPUP',  3);
-define ('EL_WM_XML',    4);
-define ('EL_WM_JSON',   5);
-define ('EL_URL_POPUP', '_popup_');
-define ('EL_URL_XML',   '_xml_');
-define ('EL_URL_JSON',   '_json_');
+define('EL_WM_NORMAL', 1);
+define('EL_WM_POPUP',  3);
+define('EL_WM_XML',    4);
+define('EL_WM_JSON',   5);
+define('EL_URL_POPUP', '_popup_');
+define('EL_URL_XML',   '_xml_');
+define('EL_URL_JSON',   '_json_');
 
 /**
  * Pages scopes and display limits
  */
-define ('EL_PAGE_DISPL_ALL',      2);
-define ('EL_PAGE_DISPL_MAP',      1);
-define ('EL_PAGE_DISPL_LIMIT_NA', 1);
-define ('EL_PAGE_DISPL_LIMIT_A',  2);
+define('EL_PAGE_DISPL_ALL',      2);
+define('EL_PAGE_DISPL_MAP',      1);
+define('EL_PAGE_DISPL_LIMIT_NA', 1);
+define('EL_PAGE_DISPL_LIMIT_A',  2);
 
 /**
  * Js and css files types
  */
-define ('EL_JS_CSS_SRC',     0);
-define ('EL_JS_CSS_FILE',    1);
-define ('EL_JS_SRC_ONLOAD',  2);
-define ('EL_JS_SRC_ONREADY', 3);
+define('EL_JS_CSS_SRC',     0);
+define('EL_JS_CSS_FILE',    1);
+define('EL_JS_SRC_ONLOAD',  2);
+define('EL_JS_SRC_ONREADY', 3);
 
-define ('EL_ADD_MENU_TOP',  0);
-define ('EL_ADD_MENU_BOT',  1);
-define ('EL_ADD_MENU_SIDE', 2);
+define('EL_ADD_MENU_TOP',  0);
+define('EL_ADD_MENU_BOT',  1);
+define('EL_ADD_MENU_SIDE', 2);
 
 define('EL_ADD_MENU_NO',   0);
 define('EL_ADD_MENU_TEXT', 1);
 define('EL_ADD_MENU_ICO',  2);
 define('EL_ADD_MENU_TI',   3);
 
-define ('EL_POS_LEFT',   'l');
-define ('EL_POS_TOP',    't');
-define ('EL_POS_RIGHT',  'r');
-define ('EL_POS_BOTTOM', 'b');
+define('EL_POS_LEFT',   'l');
+define('EL_POS_TOP',    't');
+define('EL_POS_RIGHT',  'r');
+define('EL_POS_BOTTOM', 'b');
 
 // common catalogs constants - display cat descrip
 define('EL_CAT_DESCRIP_NO',      0);
@@ -210,6 +210,6 @@ elLoadMessages('Common');
 /**
  * Core version and name
  */
-define ('EL_VER',  '3.9.4');
-define ('EL_NAME', 'Kioto');
+define('EL_VER',  '3.9.4');
+define('EL_NAME', 'Kioto');
 

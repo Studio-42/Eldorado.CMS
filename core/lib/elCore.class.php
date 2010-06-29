@@ -108,7 +108,7 @@ class elCore
 			flush();
 			//set_time_limit(60);
 
-			foreach (array('./core/hook', './hook') as $dir)
+			foreach (array('./hook', './hook/core') as $dir)
 			{
 				if (is_dir($dir) && ($dh = opendir($dir)) !== false)
 				{

@@ -295,6 +295,7 @@ class elServiceICart extends elService
 		} else {
 			$this->_complete($delivery, $orderID, $total);
 			elMsgBox::put(m('Dear customer! Thank You for your order. We contact You as soon as possible'));
+			elHook('OrderComplete');
 			elLocation($this->_url.'__icart__/');
 		}
 		return;

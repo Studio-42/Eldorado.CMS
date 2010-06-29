@@ -1,13 +1,10 @@
 <?php
 
-class elCronOchkarikOrderExport {
-
+class elHookOrderComplete
+{
 	function run()
 	{
-		include_once './core/vendor/OchkarikOrderExport.class.php';
-		
-		$ooe = new OchkarikOrderExport;
-		$ooe->run();
+		exec('php ./core/vendor/OchkarikOrderExport.class.php > /dev/null &');
+		return true;
 	}
-
 }

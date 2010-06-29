@@ -554,6 +554,7 @@ class elICartAddress extends elFormConstructor {
 		}
 		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
 		foreach ($fc->_elements as $e) {
+			$e->ID = $e->formID.'_'.$e->ID;
 			if (!isset($this->_elements[$e->ID])) {
 				$this->_elements[$e->ID] = $e;
 			}

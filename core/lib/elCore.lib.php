@@ -162,18 +162,19 @@ function elThrow($errno, $msg, $param=null, $location=null, $halt=false, $file=n
 	}
 }
 
-function elLocation( $uri )
-{ 
-	if ( false === strpos($uri, 'http://') && false === strpos($uri, 'https://') )
+function elLocation($uri, $exit = true)
+{
+	if (false === strpos($uri, 'http://') && false === strpos($uri, 'https://'))
 	{
-		$uri = EL_BASE_URL . ('/' != $uri{0} ? '/' : '') . $uri;
+		$uri = EL_BASE_URL.('/' != $uri{0} ? '/' : '').$uri;
 	}
 
-	if ( '/' != substr($uri, -1) && !strpos($uri, '?') && !strpos($uri, '#') ) 
+	if ('/' != substr($uri, -1) && !strpos($uri, '?') && !strpos($uri, '#'))
 	{
 		$uri .= '/';
 	}
-	exit( header('Location:'.$uri ) );
+
+	exit(header('Location: '.$uri));
 }
 
 function elDebug($msg) {
@@ -191,7 +192,7 @@ function elHalt()
 {
 	$html = '<html><body><h1 style="color:red;text-align:center">SYSTEM ERROR!</h1>
 		<img src="{URL}/style/images/logo.gif" style="margin:1em auto" />
-		<p>Eldorado CMS Core version: {VER} {NAME}</p>
+		<p>ELDORADO.CMS Core version: {VER} {NAME}</p>
 		<hr />{DEBUG}</body></html>';
 
 	if ( !empty($_GET['debug']) ) 
@@ -408,4 +409,26 @@ function elDisplayCaptcha($str)
 	imagedestroy($captchaImage);
 }
 
-?>
+function elHook($hook)
+{
+	if (empty($hook))
+	{
+		return false;
+	}
+
+	foreach (array('./hook', './core/hook') as $hookDir)
+	{
+		$hookFile = $hookDir.'/elHook'.$hook.'.class.php';
+		if (!is_file($hookFile))
+		{
+			continue;
+		}
+		if (include_once($hookFile))
+		{
+			$hookClass = 'elHook'.$hook;
+			$h = new $hookClass;
+			return $h->run();
+		}
+	}
+	return false;
+}

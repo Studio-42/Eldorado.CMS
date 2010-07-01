@@ -282,6 +282,7 @@ class elFormConstructor {
 	 **/
 	function _load() {
 		$el = & new $this->_elClass(null, $this->_tb);
+		// TODO think about element id as $id = $this->ID.'_'.$id;
 		$this->_elements = $el->collection(true, true, 'form_id="'.mysql_real_escape_string($this->ID).'"', 'sort_ndx, label');
 		foreach ($this->_data as $id=>$val) {
 			if (isset($this->_elements[$id])) {

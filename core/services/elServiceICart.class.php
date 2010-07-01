@@ -295,6 +295,7 @@ class elServiceICart extends elService
 		} else {
 			$this->_complete($delivery, $orderID, $total);
 			elMsgBox::put(m('Dear customer! Thank You for your order. We contact You as soon as possible'));
+			elHook('OrderComplete');
 			elLocation($this->_url.'__icart__/');
 		}
 		return;
@@ -553,6 +554,7 @@ class elICartAddress extends elFormConstructor {
 		}
 		$fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
 		foreach ($fc->_elements as $e) {
+			$e->ID = $e->formID.'_'.$e->ID;
 			if (!isset($this->_elements[$e->ID])) {
 				$this->_elements[$e->ID] = $e;
 			}

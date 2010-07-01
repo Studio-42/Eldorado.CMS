@@ -1,4 +1,43 @@
 <?php
+//common
+$elMsg['Products']      = 'Товары';
+$elMsg['Manufacturers'] = 'Производители';
+
+// confing form
+$elMsg['Layout']                                = 'Внешний вид';
+$elMsg['Default view']                          = 'Вид по умолчанию';
+$elMsg['Display view switch']                   = 'Показать переключатель вида';
+$elMsg['Categories']                            = 'Категории';
+$elMsg['Manufacturers list view']               = 'Вид списка производителей';
+$elMsg['Display empty manufacturers']           = 'Показать пустых производителей';
+$elMsg['Display manufacturers descriptions']    = 'Показать описания производителей';
+$elMsg['Trade marks/models list view']          = 'Вид списка торговых марок/моделей';
+$elMsg['Display empty trade marks/models']      = 'Показать пустые торговые марки/модели';
+$elMsg['Display Trade mark/model descriptions'] = 'Показать описания торговых марок/моделей';
+$elMsg['Products list view']                    = 'Вид списка товаров';
+$elMsg['Sort products by']                      = 'Сортировать товары';
+$elMsg['Number of products per page']           = 'Кол-во товаров на страницу';
+$elMsg['Display product code/articul']          = 'Показать код товара/артикул';
+$elMsg['Products images']                       = 'Изображения товара';
+$elMsg['Thumbnails size (px)']                  = 'Размер миниатюрки (px)';
+$elMsg['Preview size (px)']                     = 'Размер изображения товара (px)';
+$elMsg['Slider size']                           = 'Размер слайдера';
+$elMsg['Price format']                          = 'Формат цены';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+
+
 $elMsg['Items types list']                   = 'Список типов товаров';
 $elMsg['Items types']                        = 'Типы товаров';
 $elMsg['Properties']                         = 'Свойства';

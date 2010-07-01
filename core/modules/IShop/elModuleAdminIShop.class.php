@@ -565,12 +565,14 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function &_makeConfForm() {
-		$form = &parent::_makeConfForm();
-
-		$params = array(
+		$form     = & parent::_makeConfForm();
+		$currency = &elSingleton::getObj('elCurrency');
+		$attrs    = array('style' => 'width:220px');
+		$cAttrs   = array('cellAttrs'=>'class="form-tb-sub"');
+		$params   = array(
 			'default_view' => array(
-				IS_VIEW_CATS => m('Categories'), 
-				IS_VIEW_MNFS => m('Manufacturers')
+				EL_IS_VIEW_CATS => m('Categories'), 
+				EL_IS_VIEW_MNFS => m('Manufacturers')
 			),
 			'deep' => array( m('All levels'), 1, 2, 3, 4),
 			'view' => array( 1=>m('One column'), 2=>m('Two columns')),
@@ -582,46 +584,110 @@ class elModuleAdminIShop extends elModuleIShop
 			),
 			'nums'    => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
 			'imgSize' => array(50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500),
-			'posLR'   => array(EL_POS_LEFT=>m('left'), EL_POS_RIGHT=>m('right')),
-			'posLTR'  => array(EL_POS_LEFT=>m('left'), EL_POS_TOP=>m('top'), EL_POS_RIGHT=>m('right')),
+			'sliderSize' => range(1, 20),
 			'displayCatDescrip' => array(
 				EL_CAT_DESCRIP_NO      => m('Do not display'),
 				EL_CAT_DESCRIP_IN_LIST => m('Only in categories list'),
 				EL_CAT_DESCRIP_IN_SELF => m('Only in category itself'),
 				EL_CAT_DESCRIP_IN_BOTH => m('In list and in category')
 			),
-			'searchPos' => array( m('Only on IShop first page'), m('On all pages') )
+			'price' => array(
+				0 => m('Integer'), 
+				2 => m('Double, two signs after dot')
+				),
+			'exchangeSrc' => array(
+				'auto'   => m('from Central Bank of Russia'),
+				'manual' => m('enter manually')
+				)
 		);
 
-	$form->add( new elCData('c0', m('Layout')), array('cellAttrs'=>'class="form-tb-sub"'));
-	$form->add( new elSelect('default_view', m('Default view'), $this->_conf('default_view'), $params['default_view']));
-    $form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'), (int)$this->_conf('displayCatDescrip'), $params['displayCatDescrip']));
+		// view
+		$form->add( new elCData('c0', m('Layout')),   $cAttrs);
+		$form->add( new elSelect('default_view',      m('Default view'),        $this->_conf('default_view'),      $params['default_view'], $attrs));
+		$form->add( new elSelect('displayViewSwitch', m('Display view switch'), $this->_conf('displayViewSwitch'), $GLOBALS['yn'],          $attrs));
+		//categories
+		$form->add( new elCData('c01',                m('Categories')),                                  array('cellAttrs'=>'class="form-tb-sub"'));
+		$form->add( new elSelect('deep',              m('How many levels of catalog will open at once'), $this->_conf('deep'),              $params['deep'],$attrs) );
+		$form->add( new elSelect('catsCols',          m('Categories list view'),                         $this->_conf('catsCols'),          $params['view'], $attrs) );
+		$form->add( new elSelect('displayCatDescrip', m('Display categories descriptions'),              $this->_conf('displayCatDescrip'), $params['displayCatDescrip'], $attrs));
+		// manufacturers / tm
+		$form->add( new elCData('c02',                m('Manufacturers')),                        array('cellAttrs'=>'class="form-tb-sub"'));
+		$form->add( new elSelect('mnfsCols',          m('Manufacturers list view'),               $this->_conf('mnfsCols'),          $params['view'],              $attrs) );
+		$form->add( new elSelect('displayEmptyMnf',   m('Display empty manufacturers'),           $this->_conf('displayEmptyMnf'),   $GLOBALS['yn'],               $attrs));
+		$form->add( new elSelect('displayMnfDescrip', m('Display manufacturers descriptions'),    $this->_conf('displayMnfDescrip'), $params['displayCatDescrip'], $attrs));
+		$form->add( new elSelect('tmsCols',           m('Trade marks/models list view'),          $this->_conf('tmsCols'),           $params['view'],              $attrs) );
+		$form->add( new elSelect('displayEmptyTm',    m('Display empty trade marks/models'),      $this->_conf('displayEmptyTm'),    $GLOBALS['yn'],               $attrs));
+		$form->add( new elSelect('displayTmDescrip',  m('Display Trade mark/model descriptions'), $this->_conf('displayTmDescrip'),  $params['displayCatDescrip'], $attrs));
+		// documents
+		$form->add( new elCData('c03',           m('Products')),                    $cAttrs);
+		$form->add( new elSelect('itemsCols',    m('Products list view'),           $this->_conf('itemsCols'),    $params['view'], $attrs) );
+		$form->add( new elSelect('itemsSortID',  m('Sort products by'),             $this->_conf('itemsSortID'),  $params['sort'], $attrs) );
+		$form->add( new elSelect('itemsPerPage', m('Number of products per page'),  $this->_conf('itemsPerPage'), $params['nums'], $attrs) );
+		$form->add( new elSelect('displayCode',  m('Display product code/articul'), $this->_conf('displayCode'),  $GLOBALS['yn'], $attrs) );
+		// images
+		$form->add( new elCData('c04',              m('Products images')),     $cAttrs);
+		$form->add( new elSelect('tmbListSize',     m('Thumbnails size (px)'), $this->_conf('tmbListSize'),     $params['imgSize'], $attrs, false, false) );
+		$form->add( new elSelect('tmbItemCardSize', m('Preview size (px)'),    $this->_conf('tmbItemCardSize'), $params['imgSize'], $attrs, false, false) );
+		$form->add( new elSelect('sliderSize',      m('Slider size'),          $this->_conf('sliderSize'),      range(1, 25),       $attrs, false, false));
+		// price
+		$form->add( new elCData('c05',          m('Price')),                      $cAttrs);
+		$form->add( new elSelect('pricePrec',   m('Price format'),                $this->_conf('pricePrec'),   $params['price'], $attrs) );
+		$form->add( new elSelect('currency',    m('Currency'),                    $this->_conf('currency'),    $currency->getList(), $attrs));
+		$form->add( new elSelect('exchangeSrc', m('Use exchange rate'),           $this->_conf('exchangeSrc'), $params['exchangeSrc'], $attrs));
+		$form->add( new elText('commision',     m('Exchange rate commision (%)'), $this->_conf('commision'),   array('size' => 8)));
+		$form->add( new elText('rate',          m('Exchange rate'),               $this->_conf('rate'),        array('size' => 8)));
+
+		$js = "
+		$('#currency').change(function() {
+			var s = $(this).val() != '".$currency->current['intCode']."',
+				c = $(this).parents('tr').eq(0).nextAll('tr'),
+				i = 3;
+			while (i--) {
+				c.eq(i).toggle(s)
+			}
+			if (s) {
+				$('#exchangeSrc').trigger('change');
+			}
+		}).change();
+		$('#exchangeSrc').change(function() {
+			var c = $('#commision').parents('tr').eq(0),
+				r = $('#rate').parents('tr').eq(0).show();
+		
+			if ($(this).val() == 'auto') {
+				c.show();
+				r.hide();
+			} else {
+				r.show();
+				c.hide();
+			}
+		});
+		";
 	
-	$form->add( new elCData('c01', m('Categories')), array('cellAttrs'=>'class="form-tb-sub"'));
-    $form->add( new elSelect('deep', m('How many levels of catalog will open at once'), $this->_conf('deep'), $params['deep'] ) );
-    $form->add( new elSelect('catsCols',  m('Categories list view'), $this->_conf('catsCols'), $params['view'] ) );
+		elAddJs($js, EL_JS_SRC_ONREADY);
+    	return $form;
+	}
 
 
-	$form->add( new elCData('c02', m('Documents')), array('cellAttrs'=>'class="form-tb-sub"'));
-	$form->add( new elSelect('itemsCols', m('Items list view'),      $this->_conf('itemsCols'), $params['view'] ) );
-    $form->add( new elSelect('itemsSortID', m('Sort documents by'),  $this->_conf('itemsSortID'), $params['sort']) );
-    $form->add( new elSelect('itemsPerPage', m('Number of documents per page'), $this->_conf('itemsPerPage'), $params['nums'] ) );
-    $form->add( new elSelect('displayCode', m('Display item code/articul'), $this->_conf('displayCode'), $GLOBALS['yn']) );
-    // $form->add( new elSelect('mnfNfo', m('Manufacturers / Trade marks'), $this->_conf('mnfNfo'), $params['mnf']) );
-
-    $form->add( new elCData('c1', m('Item image')), array('cellAttrs'=>'class="form-tb-sub"'));
-    $form->add( new elSelect('tmbListSize', m('Max image size in items list (px)'), $this->_conf('tmbListSize'), $params['imgSize'], null, false, false) );
-    $form->add( new elSelect('tmbItemCardSize', m('Max image size in item card (px)'), $this->_conf('tmbItemCardSize'), $params['imgSize'], null, false, false) );
-    
-	$form->add( new elCData('c3',      m('Advanced search')), array('cellAttrs'=>'class="form-tb-sub"'));
-	$form->add( new elSelect('search', m('Use advanced search'), $this->_conf('search'), $GLOBALS['yn']) );
-	$form->add( new elText('searchTitle', m('Search form title'), $this->_conf('searchTitle')) );
-	$form->add( new elText('searchTypesLabel', m('Items types list label'), $this->_conf('searchTypesLabel')) );
-	$form->add( new elSelect('searchOnAllPages', m('Display search form'), $this->_conf('searchOnAllPages'), $params['searchPos']) );
-	$form->add( new elSelect('searchColumnsNum', m('Numbers of columns in form'), $this->_conf('searchColumnsNum'), range(2,7), null, false, false) );
-
-    return $form;
-  }
+	/**
+	 * Save new config. Update currency config if module currency is not equal to default one
+	 *
+	 * @params array  $newConf  new module config
+	 * @return void
+	 **/
+	function _updateConf($newConf) {
+		$conf = & elSingleton::getObj('elXmlConf');
+		foreach ($newConf as $k=>$v) {
+			if (isset($this->_conf[$k])) {
+				$conf->set($k, $newConf[$k], $this->_confID);
+			}
+		}
+		$conf->save();
+		$currency = &elSingleton::getObj('elCurrency');
+		if ($newConf['currency'] != $currency->getCode()) {
+			$currency->updateConf();
+		}
+	}
+	
 
   function &_makeNavForm($c)
   {

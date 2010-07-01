@@ -93,9 +93,18 @@ class elCurrency {
 	 *
 	 * @return void
 	 **/
-	function getInfo()
-	{
+	function getInfo() {
 		return $this->current;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function getCode() {
+		return $this->current['intCode'];
 	}
 
 	function getSymbol() {

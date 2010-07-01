@@ -261,6 +261,7 @@ class elRndIShop extends elCatalogRenderer {
 		elAddCss('fancybox.css');
 		$this->_setFile('item');
 		$this->_te->assignVars( $item->toArray() );
+		
 		$this->_te->assignVars('ishopSliderSize', (int)$this->_conf('ishopSliderSize'));
 		
 		if (!empty($this->_conf['displayCode'])) {
@@ -357,21 +358,6 @@ class elRndIShop extends elCatalogRenderer {
 	}
 	
 
-
-
-
-	function _getItemPropsBlocks($pos)
-  {
-    if ( empty($GLOBALS['elIShopPropPos'][$pos]) && 'order'!=$pos)
-    {
-      $pos = 'bottom';
-    }
-    $pos = strtoupper($pos);
-    return array('IS_IPROPS_'.$pos, 'IP_'.$pos, 'IP_'.$pos.'_NAME');
-  }
-
-
-
 	/**********************************************/
 	/*****              PRIVATE              ******/
 	/**********************************************/
@@ -418,7 +404,9 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_te->assignBlockVars($block.'.ITEM', $item->toArray(), 2);
 		$mnf = $item->getMnf();
 		if ($mnf->ID) {
-			$this->_te->assignBlockVars($block.'.ITEM.MNF', $mnf->toArray(), 2);
+			$data = $mnf->toArray();
+			$data['itemID'] = $item->ID;
+			$this->_te->assignBlockVars($block.'.ITEM.MNF', $data, 2);
 		}
 		$tm = $item->getTm();
 		if ($tm->ID) {
@@ -631,6 +619,26 @@ class elRndIShop extends elCatalogRenderer {
 	function _price($price) {
 		return $this->_currency->convert($price, $this->_curOpts);
 	}
+
+	function _rndPager($total, $current) {
+		$this->_te->setFile('PAGER', 'common/pager.html');
+		
+		$url = $this->_view == $this->_conf('default_view')
+			? EL_URL
+			: EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/'.$this->_mnf->ID : 'cats/'.$this->_cat->ID).'/';
+
+		if ($current > 1) {
+			$this->_te->assignBlockVars('PAGER.PREV', array('url' => $url, 'num'=>$current-1 ));
+		}
+		for ($i=1; $i<=$total; $i++) {
+			$this->_te->assignBlockVars($i != $current ? 'PAGER.PAGE' : 'PAGER.CURRENT', array('num'=>$i, 'url'=>$url));
+		}
+		if ($current < $total) {
+			$this->_te->assignBlockVars('PAGER.NEXT', array('url'=>$url, 'num'=>$current+1 ));
+		}
+		$this->_te->parse('PAGER');
+	}
+	
 
 } // END class
 

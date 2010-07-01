@@ -42,7 +42,7 @@ class elIShopFinder {
 		}
 
 		$this->_db      = & elSingleton::getObj('elDb');
-		$sql = sprintf('SELECT id, label, sort_ndx, type, prop_id, prop_view, prop_data_type, noselect_label, display_on_load, position FROM %s ORDER BY sort_ndx, id', $this->_tb['search']);
+		$sql = sprintf('SELECT id, label, sort_ndx, type, prop_id, prop_view, noselect_label, display_on_load, position FROM %s ORDER BY sort_ndx, id', $this->_tb['search']);
 		$this->_conf = $this->_db->queryToArray($sql, 'id');
 		$this->_form = elSingleton::getObj('elForm', 'ishop-finder-form-'.$this->_pageID, '', $this->_url);
 		$this->_form->setRenderer(elSingleton::getObj('elIShopFinderFormRenderer'));
@@ -214,9 +214,11 @@ class elIShopFinder {
 				return $res;
 			}
 		}
-
+		// elPrintr($data);
 		foreach ($data as $name=>$val) {
+			// echo $name.' <br>';
 			$id = (int)str_replace('props-', '', $name);
+			$sql = '';
 			if ($id>0 && false != ($p = $this->_conf('prop', $id))) {
 				// elPrintr($p);
 				
@@ -264,7 +266,7 @@ class elIShopFinder {
 						: sprintf('SELECT i_id FROM %s WHERE i_id IN (%s) AND p_id=%d AND value IN (%s)', $this->_tb['p2i'], implode(',', $res), $id, implode(',', $ids));
 					
 				}
-
+				// echo $sql.'<br>';
 				if (false == ($res = $this->_db->queryToArray($sql, null, 'i_id'))) {
 					return $res;
 				}

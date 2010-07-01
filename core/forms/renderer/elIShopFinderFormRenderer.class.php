@@ -35,7 +35,7 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 		$this->_rnd = & elSingleton::getObj('elTE');
 		$this->_rnd->setFile($this->_hndl, 'forms/ishopFinderForm.html');
 		elAddCss('ishopFinder.css');
-		elAddJs('ishopFinder.js', EL_JS_CSS_FILE);
+		elAddJs('IShopFinder.js', EL_JS_CSS_FILE);
 	}
 	
 	/**

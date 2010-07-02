@@ -1,12 +1,5 @@
 <div class="mod-ig-gallery">
 	<div class="gal-head">
-
-		<form method="POST" class="float-right">
-			<select name="ig_isize" onchange="this.form.submit();">
-				<optgroup label="{m('Images size')}"><!-- BEGIN ISIZE --><option value="{ndx}"{sel}>{size}</option><!-- END ISIZE --></optgroup>
-			</select>
-		</form>	
-
 		<!-- BEGIN GAL_ADMIN -->
 		<ul class="adm-icons">
 			<li><a href="{URL}edit/{g_id}/"  class="icons edit"   title="{m('Edit')}"></a></li>
@@ -24,28 +17,21 @@
 		<em>{g_comment}</em>
 		<!-- END GAL_COMMENT -->
 	</div>
-	
+
 	<ul>
 		<!-- BEGIN GAL_IMG -->
 		<li class="img rounded-5">
-			<!-- BEGIN LB -->
-			<a href="{target}"  rel="fancy-tour" title="{i_name}"><img src="{src}"  width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
-			<!-- END LB -->
-			<!-- BEGIN POPUP -->
-			<a href="" onclick="return popUp('{POPUP_URL}img/{i_gal_id}/{i_id}/', {win_width}, {win_height});" title="{m('View image in full size')}">
-				<img src="{src}" width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}"  /></a>
-			<!-- END POPUP -->
+			<a href="{target}" rel="fancy-tour" title="{i_name}"><img src="{src}"  width="{i_width_tmb}" height="{i_height_tmb}" alt="{i_name}" /></a>
 			<div>
-				<p>
 				<!-- BEGIN ADMIN -->
 				<ul class="adm-icons">
 					<li><a href="{URL}i_edit/{i_gal_id}/{i_id}/" class="icons edit" title="{m('Edit')}"></a></li>
 					<li><a href="{URL}i_rm/{i_gal_id}/{i_id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete image')}?');"></a></li>
 				</ul>
 				<!-- END ADMIN -->
-				
+
 				<label>{i_name}</label>
-				
+				<p>				
 				<!-- BEGIN FILE --><span>{i_file}</span><!-- END FILE -->		
 				<!-- BEGIN DATE -->	<span>{m('Date')}: {date}</span>	<!-- END DATE -->
 				<!-- BEGIN FSIZE --><span>{m('Size')}: {i_file_size}Kb </span><!-- END FSIZE -->	
@@ -56,9 +42,6 @@
 		</li>
 		<!-- END GAL_IMG -->
 	</ul>
-</div>
-
-
 </div>
 {PAGER}
 <script type="text/javascript" charset="utf-8">

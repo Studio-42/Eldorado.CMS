@@ -45,3 +45,7 @@ KEY          (i_crtime),
 KEY          (i_mtime),
 KEY          (i_sort_ndx)
 );
+
+INSERT INTO el_ig_{pageID}_gallery (g_name, g_comment, g_sort_ndx, g_crtime, g_mtime)
+VALUES ('Album 1', '', '0', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+

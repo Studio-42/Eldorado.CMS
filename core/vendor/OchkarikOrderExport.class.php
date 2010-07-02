@@ -11,6 +11,7 @@
 CREATE TABLE IF NOT EXISTS `el_order_och_export` (
   `order_id` int(11) NOT NULL,
   `ok` enum('no','yes') COLLATE utf8_bin NOT NULL,
+  `request` text COLLATE utf8_bin NOT NULL,
   `response` text COLLATE utf8_bin NOT NULL,
   `time` int(11) NOT NULL,
   PRIMARY KEY (`order_id`)
@@ -31,7 +32,7 @@ class OchkarikOrderExport
 
 	function __construct()
 	{
-		$this->el_order_begin_id = 24800;
+		$this->el_order_begin_id = 30299;
 		$this->post_url  = 'http://82.204.249.186:33333/ws/remoteorderim.1cws';
 		$this->http_user = 'WEB';
 		$this->http_pass = '1';
@@ -91,8 +92,8 @@ class OchkarikOrderExport
 				list($status, $message) = $this->_parseResponse($message);
 			}
 			$st = ($status ? 'yes' : 'no');
-			$sql = "REPLACE INTO %s (order_id, ok, response, time) VALUES (%d, '%s', '%s', %d)";
-			$sql = sprintf($sql, $this->tb, $o['id'], $st, mysql_real_escape_string($message), time());
+			$sql = "REPLACE INTO %s (order_id, ok, request, response, time) VALUES (%d, '%s', '%s', '%s', %d)";
+			$sql = sprintf($sql, $this->tb, $o['id'], $st, mysql_real_escape_string($soap_data), mysql_real_escape_string($message), time());
 			$eldb = & elSingleton::getObj('elDb');
 			$eldb->query($sql);
 			//print "$order_id ==> $st ($sql)\n";

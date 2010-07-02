@@ -384,7 +384,7 @@ class elModuleAdminImageGalleries extends elModuleImageGalleries
     // $dm = array(EL_IG_DISPL_POPUP    => m('Popup window'),  EL_IG_DISPL_LIGHTBOX => m('LightBox'));
     // $form->add( new elSelect('displayMethod', m('Display full-size image using'), $this->_conf('displayMethod'), $dm) );
     $form->add( new elSelect('tmbMaxSize',   m('Thumbnails max size (px)'),   $this->_conf('tmbMaxSize'), $tmbSizes) );
-    $form->add( new elSelect('tmbCrop',      m('Thumbnails'),        (int)$this->_conf('tmbCrop'), array(m('Store proportions'), m('Crop square'))) );
+    $form->add( new elSelect('tmbCrop',      m('Thumbnails proportions'),     (int)$this->_conf('tmbCrop'), array(m('Store proportions'), m('Crop square'))) );
     $form->add( new elSelect('imgUniqNames', m('Create unique names for images files'), $this->_conf('imgUniqNames'), $GLOBALS['yn']) );
     $form->add( new elSelect('gSort',        m('Galleries display order'),    $this->_conf('gSort'),      $sortOpts) );
     $form->add( new elSelect('iSort',        m('Images display order'),       $this->_conf('iSort'),      $sortOpts) );

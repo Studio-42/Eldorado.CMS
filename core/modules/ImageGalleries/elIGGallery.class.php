@@ -17,7 +17,7 @@ class elIGGallery extends elDataMapping
 	function countImages()
 	{
 		$db = & elSingleton::getObj('elDb');
-		$db->query('SELECT COUNT(*) AS num FROM '.$this->tbi.' WHERE i_gal_id='.$this->ID);
+		$db->query('SELECT COUNT(i_id) AS num FROM '.$this->tbi.' WHERE i_gal_id='.$this->ID);
 		$r = $db->nextRecord(); 
 		return $r['num'];
 	}

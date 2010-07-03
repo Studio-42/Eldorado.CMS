@@ -16,7 +16,8 @@ class elRndIShop extends elCatalogRenderer {
 		'search' => 'search-form.html',
 		'mnfs'   => 'mnfs.html',
 		'types'  => 'types.html',
-		'sConf'  => 'search-conf.html'
+		'sConf'  => 'search-conf.html',
+		'yaMart' => 'yandexMarket.html'
 	);
 	/**
 	 * currency object
@@ -356,7 +357,18 @@ class elRndIShop extends elCatalogRenderer {
 		}
 		$this->_rndLinkedObjs($linkedObjs);
 	}
-	
+
+	/**
+	 * Render Yandex.Market configuration
+	 *
+	 * @param  array  $cat
+	 * @return void
+	 **/
+	function rndYandexMarket($cat)
+	{
+		$this->_setFile('yaMart');
+		$this->_te->assignBlockVars('YM_PAGE', $cat);
+	}
 
 	/**********************************************/
 	/*****              PRIVATE              ******/

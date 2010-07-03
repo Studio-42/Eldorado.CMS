@@ -83,7 +83,11 @@ class elIShopItemsCollection {
 				break;
 				
 			default:
-				$sql = 'SELECT %s FROM %s AS i2c, %s AS i WHERE i2c.c_id=%d AND i.id=i2c.i_id ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), %s LIMIT %d, %d ';
+				$sql = 'SELECT %s FROM %s AS i2c, %s AS i WHERE i2c.c_id=%d AND i.id=i2c.i_id ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), %s';
+				if ($step > 0)
+				{
+					$sql .= ' LIMIT %d, %d ';
+				}
 				$sql = sprintf($sql, $this->_item->attrsToString('i'), $this->_tbi2c, $this->_tbi, $ID, $sort, $offset, $step);
 				$this->_db->query($sql);
 				while ($r = $this->_db->nextRecord()) {
@@ -131,7 +135,26 @@ class elIShopItemsCollection {
 		
 		$this->_count[$type] = $cnt;
 	}
-	
+
+	/**
+	 * Dummy function for Factory constructor
+	 *
+	 * @param  int $id
+	 * @return int
+	 **/
+	function idAttr($id = 0)
+	{
+		return $id;
+	}
+
+	/**
+	 * Dummy function for Factory constructor
+	 *
+	 * @return void
+	 **/
+	function fetch()
+	{
+		return;
+	}
 }
 
-?>

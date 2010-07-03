@@ -1,0 +1,95 @@
+<div id="conf-ym">
+	<form>
+	<input type="submit" />
+	<ul width="400">
+		<!-- BEGIN YM_PAGE -->
+		<li id="li_cat_1">
+			<a href="#" id="{id}" class="el-collapsed category">{name}</a>
+			<a href="#" class="switchgroup on"  style="display: none;">Mark group</a>
+			<a href="#" class="switchgroup off" style="display: none;">Unmark group</a>
+		</li>
+		<!-- END YM_PAGE -->
+	</ul>
+	</form>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		function switchgroup(e) {
+			//alert('aaaa');
+			e.preventDefault();
+			var self = $(this);
+			//cb = $(':checkbox');
+			li = self.parent();
+			//= self.parent().children(':checkbox');//.css('color','blue');//children('input');
+			//window.console.log(li.attr('id'));
+			cb = $('#'+li.attr('id')+' input');
+			//cb = self.parent().children('input');
+			if (self.hasClass('on')) {
+				cb.attr('checked', true);				
+			} else {
+				cb.attr('checked', false);
+			}
+			//cb.css('color', 'blue');
+		}
+		function toggle(e) {
+			e.preventDefault();
+			var self = $(this);
+			var ul   = self.parent('li').children('ul').eq(0);
+			self.toggleClass('el-expanded');
+			if (ul.length) {
+				ul.slideToggle();
+				
+			} else {
+				self.parent().children('.switchgroup').show();
+				var id = $(this).attr('id');
+				$.ajax({
+					url      : '{URL}yandex_market/',
+					type     : 'post',
+					dataType : 'json',
+					data     : { action : 'childs', id : id },
+					error    : function(h, e, t) { alert('{m('Request failed')}' + (e||t)) },
+					success  : function(data) {
+						if (data.error) {
+							return alert(data.error);
+						}
+
+						var parent = self.parent('li');
+						var ul = $('<ul />').appendTo(parent).hide();
+						$.each(data, function() {
+							var li = $('<li/>').appendTo(ul);
+							if (this.is_cat==1) {
+								li.attr('id', 'li_'+this.id);
+								a = $('<a/>').attr('href', '#').attr('id', this.id).addClass('category');
+								if (this.has_childs==1) {
+									a.addClass('el-collapsed');
+								} else {
+									a.addClass('el-empty-set');
+								}
+								li.append(a.append(this.name));
+								sw_on  = $('<a/>').addClass('switchgroup on').append('Mark group');
+								sw_off = $('<a/>').addClass('switchgroup off').append('Unmark group');
+								sw_on.hide();
+								sw_off.hide();
+								li.append(' ');
+								li.append(sw_on);
+								li.append(' ');
+								li.append(sw_off);
+							} else {
+								li.append($('<div/>')
+									.append($('<input/>').attr('type', 'checkbox').attr('name', this.id).attr('id', this.id))
+									.append($('<label/>').attr('for', this.id).append(this.name))
+								);
+							}
+						});
+						ul.slideDown();
+					}
+				});
+			}
+		}
+
+		$('#conf-ym a.el-collapsed').live('click', toggle);
+		$('#conf-ym a.switchgroup').live('click', switchgroup);
+	});
+</script>

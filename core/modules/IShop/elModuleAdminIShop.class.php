@@ -35,6 +35,7 @@ class elModuleAdminIShop extends elModuleIShop
 		'conf_search'     => array('m'=>'configureSearch',     'ico'=>'icoSearchConf',    'l'=>'Configure advanced search'),
 		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
+		'yandex_market'   => array('m'=>'yandexMarket',        'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
@@ -487,7 +488,51 @@ class elModuleAdminIShop extends elModuleIShop
       $sa->run( $this->_rnd, $this->_args );
    }
 
-   
+	/**
+	 * Yandex.Market configuration
+	 *
+	 * @return void
+	 **/
+	function yandexMarket()
+	{
+		if (isset($_POST['action']) && ($_POST['action'] == 'childs'))
+		{
+			include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+			$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
+			list($null, $ID) = explode('_', $ID, 2);
+			$ID = (int)$ID;
+			if (!$ID)
+			{
+				exit(elJSON::encode(array('error' => 'Invalid argument')));
+			}
+			$nodes = array();
+			$cat = $this->_factory->create(EL_IS_CAT, $ID);
+			$ic  = $this->_factory->create(EL_IS_ITEMSCOL, 0);
+			foreach ($cat->getChilds(1) as $child)
+			{
+				array_push($nodes, array(
+					'id'         => 'cat_'.$child->ID,
+					'name'       => $child->name,
+					'is_cat'     => 1,
+					'has_childs' => (int)(bool)$ic->count(EL_IS_CAT, $child->ID)
+				));
+			}
+			foreach ($ic->create(EL_IS_ITEM, $ID) as $i)
+			{
+				array_push($nodes, array(
+					'id'         => 'item_'.$i->ID,
+					'name'       => $i->name.' ('.$i->ID.')',
+					'has_childs' => 0
+				));
+			}
+			exit(elJSON::encode($nodes));
+		}
+
+		$cat = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_initRenderer();
+		$this->_rnd->rndYandexMarket(array('id' => 'cat_'.$cat->ID, 'name' => $cat->name));
+	}
+
 	function importCommerceML()
 	{
 		$this->_makeImportCMLForm();

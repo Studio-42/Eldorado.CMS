@@ -1,12 +1,14 @@
 <div id="conf-ym">
-	<form>
+	<h2>{m('Yandex.Market')}</h2>
+	<p>{m()}</p>
+	<form name="ym" id="ym" method="POST" action="{URL}yandex_market/">
 	<input type="submit" />
-	<ul width="400">
+	<ul style="border: 0; margin-top: 20px; margin-left: 0;">
 		<!-- BEGIN YM_PAGE -->
-		<li id="li_cat_1">
+		<li id="li_cat_1" style="margin-left: 0;">
 			<a href="#" id="{id}" class="el-collapsed category">{name}</a>
-			<a href="#" class="switchgroup on"  style="display: none;">Mark group</a>
-			<a href="#" class="switchgroup off" style="display: none;">Unmark group</a>
+			<a href="#" class="switchgroup on"  style="display: none;">{m('Mark category')}</a>
+			<a href="#" class="switchgroup off" style="display: none;">{m('Unmark category')}</a>
 		</li>
 		<!-- END YM_PAGE -->
 	</ul>
@@ -15,24 +17,6 @@
 
 <script type="text/javascript" charset="utf-8">
 	$().ready(function() {
-		
-		function switchgroup(e) {
-			//alert('aaaa');
-			e.preventDefault();
-			var self = $(this);
-			//cb = $(':checkbox');
-			li = self.parent();
-			//= self.parent().children(':checkbox');//.css('color','blue');//children('input');
-			//window.console.log(li.attr('id'));
-			cb = $('#'+li.attr('id')+' input');
-			//cb = self.parent().children('input');
-			if (self.hasClass('on')) {
-				cb.attr('checked', true);				
-			} else {
-				cb.attr('checked', false);
-			}
-			//cb.css('color', 'blue');
-		}
 		function toggle(e) {
 			e.preventDefault();
 			var self = $(this);
@@ -40,9 +24,7 @@
 			self.toggleClass('el-expanded');
 			if (ul.length) {
 				ul.slideToggle();
-				
 			} else {
-				self.parent().children('.switchgroup').show();
 				var id = $(this).attr('id');
 				$.ajax({
 					url      : '{URL}yandex_market/',
@@ -54,9 +36,8 @@
 						if (data.error) {
 							return alert(data.error);
 						}
-
 						var parent = self.parent('li');
-						var ul = $('<ul />').appendTo(parent).hide();
+						var ul = $('<ul/>').appendTo(parent).hide();
 						$.each(data, function() {
 							var li = $('<li/>').appendTo(ul);
 							if (this.is_cat==1) {
@@ -68,8 +49,8 @@
 									a.addClass('el-empty-set');
 								}
 								li.append(a.append(this.name));
-								sw_on  = $('<a/>').addClass('switchgroup on').append('Mark group');
-								sw_off = $('<a/>').addClass('switchgroup off').append('Unmark group');
+								sw_on  = $('<a/>').addClass('switchgroup on' ).append('{m('Mark category')}');
+								sw_off = $('<a/>').addClass('switchgroup off').append('{m('Unmark category')}');
 								sw_on.hide();
 								sw_off.hide();
 								li.append(' ');
@@ -77,19 +58,67 @@
 								li.append(' ');
 								li.append(sw_off);
 							} else {
+								cb = $('<input/>').attr('type', 'checkbox').attr('value', '1');
+								cb.attr('name', this.id).attr('id', this.id);
+								same = $('input[name='+this.id+']:first');
+								if (same.length == 1) {
+									cb.attr('checked', same.attr('checked'));
+								} else {
+									cb.attr('checked', (this.ym == 1 ? true : false));
+								}
 								li.append($('<div/>')
-									.append($('<input/>').attr('type', 'checkbox').attr('name', this.id).attr('id', this.id))
+									.append(cb)
 									.append($('<label/>').attr('for', this.id).append(this.name))
 								);
 							}
 						});
 						ul.slideDown();
+						self.parent().children('.switchgroup').show();
 					}
 				});
 			}
 		}
 
-		$('#conf-ym a.el-collapsed').live('click', toggle);
-		$('#conf-ym a.switchgroup').live('click', switchgroup);
+		function switchgroup(e) {
+			e.preventDefault();
+			var self = $(this);
+			li = self.parent();
+			cb = $('#'+li.attr('id')+' :checkbox');
+			cb.attr('checked', self.hasClass('on'));
+			cb.change();
+		}
+
+		function checksame(e) {
+			var self = $(this);
+			$('input[name='+self.attr('name')+']').attr('checked', self.attr('checked'));
+		}
+
+		function save(e) {
+			e.preventDefault();
+			dataString = { action : 'save' };
+			$('#ym :checkbox').each(function(i){
+				checked = $(this).attr('checked');
+				dataString[$(this).attr('name')] = ($(this).attr('checked') ? '1' : '0');
+			});
+			$.ajax({
+				url      : '{URL}yandex_market/',
+				type     : 'post',
+				dataType : 'json',
+				data     : dataString,
+				error    : function(h, e, t) { alert('{m('Request failed')}' + (e||t)) },
+				success  : function(data) {
+					if (data.error) {
+						return alert(data.error);
+					}
+				}
+			});
+
+		}
+
+		$('#ym a.el-collapsed').live('click', toggle);
+		$('#ym a.switchgroup').live('click', switchgroup);
+		$('#ym :checkbox').live('change', checksame);
+		$('#ym :submit').live('click',save);
+		$('#cat_1').click();
 	});
 </script>

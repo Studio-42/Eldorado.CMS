@@ -39,6 +39,7 @@ CREATE TABLE el_ishop_{pageID}_item (
 	content   mediumtext    NOT NULL,
 	price     double(12,2)  NOT NULL,
 	special   enum('0','1') NOT NULL default '0',
+	ym        enum('0','1') NOT NULL default '1',
 	crtime    int(11)       unsigned NOT NULL default '0',
 	mtime     int(11)       unsigned NOT NULL default '0',
 	primary KEY(id),

@@ -355,6 +355,8 @@ class IShopImportLexus
 		$this->db->query($sql);
 		$sql = "TRUNCATE TABLE ".$this->tb_i2c;
 		$this->db->query($sql);
+		$sql = "TRUNCATE TABLE ".$this->tb_gal;
+		$this->db->query($sql);
 
 		// 1.1. find car diffs (old and new)
 		$d_cars = array();

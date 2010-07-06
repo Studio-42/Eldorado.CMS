@@ -19,8 +19,8 @@ class elPluginSpecialOffer extends elPlugin
 			return;
 		}
 
-		if (!elSingleton::incLib('./modules/IShop/elIShopFactory.class.php', true) 
-		|| 	!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php') ) {
+		if (!elSingleton::incLib('./modules/IShop/elIShopFactory.class.php', true)
+		|| 	!elSingleton::incLib('./modules/IShop/elModuleIShop.class.php')) {
 			return;
 		}
 
@@ -60,10 +60,10 @@ class elPluginSpecialOffer extends elPlugin
 			}
 			$rnd->setFile($tplVar, $tpl);
 			switch ($pos) {
-				case EL_POS_TOP: $cssClass = 'pl-so-top'; break;
-				case EL_POS_BOT: $cssClass = 'pl-so-bottom'; break;
+				case EL_POS_TOP:   $cssClass = 'pl-so-top'; break;
+				case EL_POS_BOT:   $cssClass = 'pl-so-bottom'; break;
 				case EL_POS_RIGHT: $cssClass = 'pl-so-right'; break;
-				default: $cssClass = 'pl-so-left';
+				default:           $cssClass = 'pl-so-left';
 			}
 			$rnd->assignVars('plSoCssClass', $cssClass);
 			// set title
@@ -89,8 +89,7 @@ class elPluginSpecialOffer extends elPlugin
 			// get special offers from IShop
 			$sort = ($this->_param($src, 'sort', 0) == '0' ? EL_IS_SORT_RAND : EL_IS_SORT_TIME);
 			$factory = & elSingleton::getObj('elIShopFactory', $src);
-			// $factory->init($src, 0);
-			$ic = & elSingleton::getObj('elIShopItemsCollection', $src);
+			$ic = $factory->create(EL_IS_ITEMSCOL, 0);
 			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			$shop = & elSingleton::getObj('elModuleIShop');
 			$shop->init($src);

@@ -1,7 +1,7 @@
 <?php
 
-class elIShopItemsCollection {
-	
+class elIShopItemsCollection
+{
 	var $_tbi = '';
 	var $_tbi2c = '';
 	var $_tbmnf = '';
@@ -18,7 +18,7 @@ class elIShopItemsCollection {
 		EL_IS_SORT_TIME  => 'crtime DESC, name',
 		EL_IS_SORT_RAND  => 'RAND()'
 	);
-		
+
 	/**
 	 * constructor
 	 *
@@ -107,7 +107,7 @@ class elIShopItemsCollection {
 
 		return $coll;
 	}
-	
+
 	/**
 	 * load items counts for required parent type
 	 *

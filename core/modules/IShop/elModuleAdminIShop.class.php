@@ -495,37 +495,58 @@ class elModuleAdminIShop extends elModuleIShop
 	 **/
 	function yandexMarket()
 	{
-		if (isset($_POST['action']) && ($_POST['action'] == 'childs'))
+		if (isset($_POST['action']))
 		{
 			include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
-			$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
-			list($null, $ID) = explode('_', $ID, 2);
-			$ID = (int)$ID;
-			if (!$ID)
+			if ($_POST['action'] == 'childs')
 			{
-				exit(elJSON::encode(array('error' => 'Invalid argument')));
+				$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
+				list($null, $ID) = explode('_', $ID, 2);
+				$ID = (int)$ID;
+				if (!$ID)
+				{
+					exit(elJSON::encode(array('error' => 'Invalid argument')));
+				}
+				$nodes = array();
+				$cat = $this->_factory->create(EL_IS_CAT, $ID);
+				$ic  = $this->_factory->create(EL_IS_ITEMSCOL, 0);
+				foreach ($cat->getChilds(1) as $child)
+				{
+					array_push($nodes, array(
+						'id'         => 'cat_'.$child->ID,
+						'name'       => $child->name,
+						'has_childs' => (int)(bool)$ic->count(EL_IS_CAT, $child->ID),
+						'is_cat'     => 1
+					));
+				}
+				foreach ($ic->create(EL_IS_ITEM, $ID) as $i)
+				{
+					array_push($nodes, array(
+						'id'         => 'item_'.$i->ID,
+						'name'       => $i->name.' ('.$i->ID.')',
+						'has_childs' => 0,
+						'ym'         => $i->ym
+					));
+				}
+				exit(elJSON::encode($nodes));
 			}
-			$nodes = array();
-			$cat = $this->_factory->create(EL_IS_CAT, $ID);
-			$ic  = $this->_factory->create(EL_IS_ITEMSCOL, 0);
-			foreach ($cat->getChilds(1) as $child)
+			elseif($_POST['action'] == 'save')
 			{
-				array_push($nodes, array(
-					'id'         => 'cat_'.$child->ID,
-					'name'       => $child->name,
-					'is_cat'     => 1,
-					'has_childs' => (int)(bool)$ic->count(EL_IS_CAT, $child->ID)
-				));
+				foreach ($_POST as $k => $v)
+				{
+					list($item, $id) = explode('_', $k);
+					if (($item == 'item') && ($id > 0))
+					{
+						//print "$id:$v\n";
+						$i = $this->_factory->create(EL_IS_ITEM, $id);
+						$i->attr('ym', $v);
+						//var_dump($i);
+						$i->save();
+					}
+				}
+				exit(elJSON::encode(array('error' => 'Data saved')));
+				//exit('[{"error": "Data saved"}]');
 			}
-			foreach ($ic->create(EL_IS_ITEM, $ID) as $i)
-			{
-				array_push($nodes, array(
-					'id'         => 'item_'.$i->ID,
-					'name'       => $i->name.' ('.$i->ID.')',
-					'has_childs' => 0
-				));
-			}
-			exit(elJSON::encode($nodes));
 		}
 
 		$cat = $this->_factory->create(EL_IS_CAT, 1);

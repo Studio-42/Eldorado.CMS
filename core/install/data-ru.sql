@@ -86,14 +86,14 @@ INSERT INTO `el_directories_list` (`id`, `label`, `master_id`, `master_key`) VAL
 ('metro_msk',    'Метро: Москва',          'icart_region', 1),
 ('metro_spb',    'Метро: Санкт-Петербург', 'icart_region', 2);
 
-CREATE TABLE IF NOT EXISTS `el_directory_city` (
+CREATE TABLE IF NOT EXISTS `el_directory_icart_region` (
   `id`       int(11) NOT NULL AUTO_INCREMENT,
   `value`    mediumtext COLLATE utf8_bin,
   `sort_ndx` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-INSERT INTO `el_directory_city` (`id`, `value`, `sort_ndx`) VALUES
+INSERT INTO `el_directory_icart_region` (`id`, `value`, `sort_ndx`) VALUES
 (1, 'Москва', 1),
 (2, 'Санкт-Петербург', 2);
 

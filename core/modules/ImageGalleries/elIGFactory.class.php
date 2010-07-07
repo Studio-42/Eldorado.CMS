@@ -115,7 +115,7 @@ class elIGFactory
 
 		$sql = 'SELECT i_id, i_gal_id, CONCAT("'.EL_IG_URL.$this->pageID.'/tmb/", i_file) AS src, i_file, '
 				.'CONCAT("'.EL_IG_URL.$this->pageID.'/original/", i_file) AS target, '
-				.'i_width_tmb, i_height_tmb, i_width_0, i_height_0, i_file_size, i_name, i_comment, '
+				.'i_width_tmb, i_height_tmb, i_width, i_height, i_file_size, i_name, i_comment, '
 				.'DATE_FORMAT(FROM_UNIXTIME(i_crtime), "'.EL_MYSQL_DATE_FORMAT.'")  AS date, i_sort_ndx '
 				.'FROM '.$this->tbi.' WHERE i_gal_id="'.$g->ID.'" ORDER BY '.$this->sorti.' LIMIT '.$offset.', '.$this->_conf['tmbNumPerPage'];
 				

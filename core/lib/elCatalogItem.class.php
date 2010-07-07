@@ -172,6 +172,10 @@ class elCatalogItem extends elDataMapping
 	*/
 	function _postSave( )
 	{
+		if (!$this->_form)
+		{
+			return true;
+		}
 		$pIDs = $this->_form->getElementValue('pids[]'); 
 		$db   = & elSingleton::getObj('elDb');
 		$this->parents = array();

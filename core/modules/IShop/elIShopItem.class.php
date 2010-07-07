@@ -16,6 +16,8 @@ class elIShopItem extends elCatalogItem {
 	var $announce   = '';
 	var $content    = '';
 	var $price      = 0;
+	var $special    = 0;
+	var $ym         = 1;
 	var $img        = '';
 	var $gallery;
 	var $crtime     = 0;
@@ -641,7 +643,11 @@ class elIShopItem extends elCatalogItem {
 	  $db->query('DELETE FROM '.$this->tbp2i.' WHERE i_id='.$this->ID);
 	  $db->optimizeTable($this->tbp2i);
 
-    $data = $this->_form->getValue(); //elPrintR($data); exit;
+    $data = array();
+    if ($this->_form)
+    {
+    	$data = $this->_form->getValue(); //elPrintR($data); exit;
+    }
 
     foreach ($data['props'] as $pID=>$value)
     {
@@ -712,6 +718,7 @@ class elIShopItem extends elCatalogItem {
 			'content'  => 'content',
 			'price'    => 'price',
 			'special'  => 'special',
+			'ym'       => 'ym',
 			'crtime'   => 'crtime',
 			'mtime'    => 'mtime'
 			);

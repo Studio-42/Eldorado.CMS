@@ -5,7 +5,7 @@ include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFS.class.php';
 
 class elIGImage extends elDataMapping
 {
-	var $_id     = 'i_id';
+	var $_id       = 'i_id';
 	var $_objName  = 'Image';
 	var $_error    = '';
 	var $pageID    = 0;	
@@ -20,16 +20,6 @@ class elIGImage extends elDataMapping
 	var $comment   = '';
 	var $width     = 0;
 	var $height    = 0;
-	// var $width1    = 0;
-	// var $height1   = 0;
-	// var $width2    = 0;
-	// var $height2   = 0;
-	// var $width3    = 0;
-	// var $height3   = 0;
-	// var $width4    = 0;
-	// var $height4   = 0;
-	// var $width5    = 0;
-	// var $height5   = 0;
 	var $widthTmb  = 0;
 	var $heightTmb = 0;
 	var $sortNdx   = 0;
@@ -133,8 +123,8 @@ class elIGImage extends elDataMapping
 		$this->attr( array(
 			'i_file'      => basename($file),
 			'i_file_size' => ceil(filesize($file)/1024),
-			'i_width_0'   => $s[0], 
-			'i_height_0'  => $s[1]));
+			'i_width'     => $s[0], 
+			'i_height'    => $s[1]));
 		
 		return true;
 	}
@@ -169,18 +159,8 @@ class elIGImage extends elDataMapping
 		'i_file_size'  => 'fileSize',
 		'i_name'       => 'name',
 		'i_comment'    => 'comment',
-		'i_width_0'    => 'width',
-		'i_height_0'   => 'height',
-		// 'i_width_1'    => 'width1',
-		// 'i_height_1'   => 'height1',
-		// 'i_width_2'    => 'width2',
-		// 'i_height_2'   => 'height2',
-		// 'i_width_3'    => 'width3',
-		// 'i_height_3'   => 'height3',
-		// 'i_width_4'    => 'width4',
-		// 'i_height_4'   => 'height4',
-		// 'i_width_5'    => 'width5',
-		// 'i_height_5'   => 'height5',
+		'i_width'      => 'width',
+		'i_height'     => 'height',
 		'i_width_tmb'  => 'widthTmb',
 		'i_height_tmb' => 'heightTmb',
 		'i_sort_ndx'   => 'sortNdx',

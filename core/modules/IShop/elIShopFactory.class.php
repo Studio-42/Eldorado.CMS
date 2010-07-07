@@ -21,24 +21,28 @@ class elIShopFactory {
 	 * @var int
 	 **/
 	var $pageID = 0;
+
 	/**
 	 * default sort
 	 *
 	 * @var int
 	 **/
 	var $itemsSortID = 0;
+
 	/**
 	 * database
 	 *
 	 * @var elDb
 	 **/
 	var $_db    = null;
+
 	/**
 	 * internal registry
 	 *
 	 * @var string
 	 **/
 	var $_registry = array();
+
 	/**
 	 * tables list
 	 *
@@ -60,7 +64,8 @@ class elIShopFactory {
 		'tbst'      => 'el_ishop_%d_st',
 		'tbsp'      => 'el_ishop_%d_sp',
 		'tbgal'     => 'el_ishop_%d_gallery'
-		);
+	);
+
 	/**
 	 * classes list
 	 *
@@ -69,24 +74,34 @@ class elIShopFactory {
 	var $_classes = array(
 		EL_IS_CAT => array(
 			'name' => 'elCatalogCategory',
-			'tbs'  => array('tbc', 'tbi2c')),
+			'tbs'  => array('tbc', 'tbi2c')
+		),
 		EL_IS_ITEM => array(
 			'name' => 'elIShopItem',
-			'tbs'  => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')),
+			'tbs'  => array('tbi', 'tbc', 'tbi2c', 'tbmnf', 'tbp2i', 'tbp', 'tbpdep', 'tbmnf', 'tbtm', 'tbgal')
+		),
 		EL_IS_MNF => array(
 			'name' => 'elIShopManufacturer',
-			'tbs'  => array('tbmnf', 'tbi')),
+			'tbs'  => array('tbmnf', 'tbi')
+		),
 		EL_IS_ITYPE => array(
 			'name' => 'elIShopItemType',
-			'tbs'  => array('tbt', 'tbp')),
+			'tbs'  => array('tbt', 'tbp')
+		),
 		EL_IS_PROP => array(
 			'name' => 'elIShopProperty',
-			'tbs'  => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')),
+			'tbs'  => array('tbp', 'tbpval', 'tbp2i', 'tbpdep')
+		),
 		EL_IS_TM => array(
 			'name' => 'elIShopTm',
-			'tbs'  => array('tbtm'))
-		);
-    
+			'tbs'  => array('tbtm')
+		),
+		EL_IS_ITEMSCOL => array(
+			'name' => 'elIShopItemsCollection',
+			'tbs'  => array('tbi', 'tbi2c', 'tbmnf', 'tbtm', 'tbp2i')
+		)
+	);
+
 	/**
 	 * initilize factory
 	 *
@@ -191,10 +206,9 @@ class elIShopFactory {
 	 * undocumented function
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function countItems($type, $ID) {
-		$coll = & elSingleton::getObj('elIShopItemsCollection');
+		$coll = & elSingleton::getObj('elIShopItemsCollection'); // TODO rewrite to internal
 		return $coll->count($type, $ID);
 	}
 

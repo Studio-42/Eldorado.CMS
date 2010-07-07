@@ -17,8 +17,6 @@ $elMsg['Do You really want to delete gallery']                 = 'Действи
 $elMsg['Do You really want to delete image']                   = 'Действительно хотите удалить изображение';
 $elMsg['All images were removed from gallery "%s"']            = 'Из альбома "%s" удалены все изображения';
 
-
-
 $elMsg['Set sorting indexes to place galleries in require order']    = 'Установите индексы сортировки в соответствии с желаемым порядком показа альбомов';
 $elMsg['Set sorting indexes to place images in require order']       = 'Установите индексы сортировки в соответствии с желаемым порядком показа изображений';
 
@@ -33,6 +31,9 @@ $elMsg['Display full-size image using']        = 'Показывать полн�
 $elMsg['Popup window']                         = 'новое окно';
 $elMsg['LightBox']                             = 'LightBox';
 $elMsg['Thumbnails max size (px)']             = 'Максимальный размер миниатюрок (px)';
+$elMsg['Thumbnails proportions']               = 'Пропорции сторон миниатюрок';
+$elMsg['Store proportions']                    = 'Оставить как есть';
+$elMsg['Crop square']                          = 'Обрезать в квадрат';
 $elMsg['Create unique names for images files'] = 'Использовать уникальные имена файлов изображений';
 $elMsg['Galleries display order']              = 'Сортировать альбомы';
 $elMsg['Images display order']                 = 'Сортировать изображения';

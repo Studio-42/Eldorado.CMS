@@ -171,3 +171,14 @@ table.mod-ishop-items-twocol-clearfix td { padding:0; }
 /* описание товара */
 .mod-ishop-item-content {}
 
+/* Yandex.Market */
+#conf-ym ul              { margin-bottom: 0; border-left: 3px solid #DEE7ED; margin-left: 44px; }
+#conf-ym ul li           { list-style-type: none; margin-left: 0; }
+#conf-ym .category       { font-weight: bold; font-size: 1.2em; margin-left: 37px; }
+#conf-ym input           { margin-top: 2px; vertical-align: top; }
+#conf-ym ul li div       { margin-left: 0; padding-left: 6px; }
+#conf-ym ul li div:hover { background: #DEE7ED; }
+#conf-ym ul li label     { padding-left: 5px; }
+#conf-ym a.switchgroup   { font-size: 0.8em; }
+#conf-ym a.on            { color: #009100; }
+#conf-ym a.off           { color: #dc0000; }

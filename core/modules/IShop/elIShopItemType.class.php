@@ -8,8 +8,7 @@ class elIShopItemType extends elDataMapping
 	var $name       = '';
 	var $crtime     = 0;
 	var $mtime      = 0;
-	var $pageID     = 0;
-	var $_props      = null;
+	var $_props     = null;
 	var $_prop      = null;
 	var $_objName   = 'Good type';
 

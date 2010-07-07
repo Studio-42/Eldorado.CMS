@@ -5,11 +5,12 @@
  * @package Ishop
  **/
 class elIShopTm extends elDataMapping {
-	var $ID      = 0;
-	var $mnfID   = 0;
-	var $name    = '';
-	var $content = '';
-	
+	var $ID       = 0;
+	var $mnfID    = 0;
+	var $name     = '';
+	var $content  = '';
+	var $_factory = null;
+
 	/**
 	 * add count items to default array
 	 *
@@ -27,8 +28,7 @@ class elIShopTm extends elDataMapping {
 	 * @return int
 	 **/
 	function countItems() {
-		$c = & elSingleton::getObj('elIShopItemsCollection');
-		return $c->count(EL_IS_TM, $this->ID);
+		return $this->_factory->ic->count(EL_IS_TM, $this->ID);
 	}
 
 	/**
@@ -37,8 +37,7 @@ class elIShopTm extends elDataMapping {
 	 * @return array
 	 **/
 	function getItems() {
-		$c = & elSingleton::getObj('elIShopItemsCollection');
-		return $c->create(EL_IS_TM, $this->ID);
+		return $this->_factory->ic->create(EL_IS_TM, $this->ID);
 	}
 
 	/**
@@ -48,9 +47,8 @@ class elIShopTm extends elDataMapping {
 	 **/
 	function _makeForm() {
 		parent::_makeForm();
-		$f = & elSingleton::getObj('elIShopFactory');
 		$opts = array();
-		$mnfs = $f->getMnfs();
+		$mnfs = $_factory->getMnfs();
 		foreach ($mnfs as $id => $m) {
 			$mnfs[$id] = $m->name;
 		}

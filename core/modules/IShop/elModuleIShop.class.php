@@ -91,10 +91,10 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
 		}
 		
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
-		
-		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1));
-		
+		list($total, $current, $offset, $step) = $this->_getPagerInfo(
+			$this->_itemsCollection->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1)
+		);
+
 		if (!$current) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such page', null, $this->_url.$this->_cat->ID);
@@ -102,7 +102,7 @@ class elModuleIShop extends elModule {
 
 		$this->_rnd->render( 
 				$this->_cat->getChilds((int)$this->_conf('deep')),
-		        $c->create(EL_IS_CAT, $this->_cat->ID, $offset, $step),
+		        $this->_itemsCollection->create(EL_IS_CAT, $this->_cat->ID, $offset, $step),
 		        $total,
 		        $current,
 		        $this->_cat
@@ -137,8 +137,9 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
 		
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
-		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1));
+		list($total, $current, $offset, $step) = $this->_getPagerInfo(
+			$this->_itemsCollection->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1)
+		);
 
 		if (!$current) {
 			header('HTTP/1.x 404 Not Found');
@@ -146,7 +147,7 @@ class elModuleIShop extends elModule {
 		}
 		
 		$this->_initRenderer();
-		$this->_rnd->rndMnf($this->_mnf, $c->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
+		$this->_rnd->rndMnf($this->_mnf, $this->_itemsCollection->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
 		
 		elAppendToPagePath(array(
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
@@ -174,12 +175,13 @@ class elModuleIShop extends elModule {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
-		
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
-		list($total, $current, $offset, $step) = $this->_getPagerInfo($c->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1));
+
+		list($total, $current, $offset, $step) = $this->_getPagerInfo(
+			$this->_itemsCollection->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1)
+		);
 
 		$this->_initRenderer();
-		$this->_rnd->rndTm($this->_mnf, $tm, $c->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
+		$this->_rnd->rndTm($this->_mnf, $tm, $this->_itemsCollection->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
 		elAppendToPagePath(array(
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
@@ -235,10 +237,8 @@ class elModuleIShop extends elModule {
 		if (!$finder->isConfigured() || !$finder->formIsSubmit) {
 			elLocation(EL_URL);
 		}
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
 		$this->_initRenderer();
-		$this->_rnd->rndSearchResult($c->create('search', $finder->find()));
-		
+		$this->_rnd->rndSearchResult($this->_itemsCollection->create('search', $finder->find()));
 	}
 
 	/**
@@ -505,7 +505,7 @@ class elModuleIShop extends elModule {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
 		
-		$this->_itemsCollection = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
+		$this->_itemsCollection = $this->_factory->create(EL_IS_ITEMSCOL);
 		$this->itemsNum = $this->_itemsCollection->countAll();
 		
 		$cur  = &elSingleton::getObj('elCurrency');

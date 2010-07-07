@@ -23,7 +23,7 @@ function elIShopParsePropValue($str)
 
 class elIShopProperty extends elDataMapping
 {
-  var $_tb            = '';
+  var $_tb           = '';
   var $tbpval        = '';
   var $tbp2i         = '';
   var $ID            = 0;

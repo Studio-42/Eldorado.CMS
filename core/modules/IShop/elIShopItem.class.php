@@ -25,6 +25,7 @@ class elIShopItem extends elCatalogItem {
 	var $propVals   = null;
 	var $pageID     = 0;
 	var $_type      = null;
+	var $_factory   = null; // TODO
 
 	var $_objName = 'Product';
   

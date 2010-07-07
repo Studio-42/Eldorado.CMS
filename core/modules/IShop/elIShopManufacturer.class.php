@@ -10,8 +10,8 @@ class elIShopManufacturer extends elDataMapping {
 	var $country  = '';
 	var $logo     = '';
 	var $content  = '';
-	var $pageID   = 0;
 	var $_objName = 'Manufacturer';
+	var $_factory = null;
 
 	/**
 	 * add count items to default array
@@ -30,8 +30,7 @@ class elIShopManufacturer extends elDataMapping {
 	 * @return array
 	 **/
 	function getTms() {
-		$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
-		return $f->getTmsByMnf($this->ID);
+		return $this->_factory->getTmsByMnf($this->ID);
 	}
 
 	/**
@@ -40,8 +39,7 @@ class elIShopManufacturer extends elDataMapping {
 	 * @return int
 	 **/
 	function countItems() {
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
-		return $c->count(EL_IS_MNF, $this->ID);
+		return $this->_factory->ic->count(EL_IS_MNF, $this->ID);
 	}
 
 	/**
@@ -50,8 +48,7 @@ class elIShopManufacturer extends elDataMapping {
 	 * @return array
 	 **/
 	function getItems() {
-		$c = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
-		return $c->create(EL_IS_MNF, $this->ID);
+		return $this->_factory->ic->create(EL_IS_MNF, $this->ID);
 	}
 
 	/**

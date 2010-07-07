@@ -2,16 +2,16 @@
 
 class elIShopItemsCollection
 {
-	var $_tbi = '';
-	var $_tbi2c = '';
-	var $_tbmnf = '';
-	var $_tbtm = '';
-	var $_tbp2i = '';
-	var $_db = null;
-	var $_item = null;
-	var $_count = array();
+	var $_tb    = '';
+	var $tbi2c  = '';
+	var $tbmnf  = '';
+	var $tbtm   = '';
+	var $tbp2i  = '';
+	var $_db     = null;
+	var $_item   = null;
+	var $_count  = array();
 	var $_sortID = EL_IS_SORT_NAME;
-	var $_sort  = array(
+	var $_sort   = array(
 		EL_IS_SORT_NAME  => 'name',
 		EL_IS_SORT_CODE  => 'code, name',
 		EL_IS_SORT_PRICE => 'price DESC, name',
@@ -24,16 +24,8 @@ class elIShopItemsCollection
 	 *
 	 * @return void
 	 **/
-	function elIShopItemsCollection($pageID=EL_CURRENT_PAGE_ID) {
+	function elIShopItemsCollection() {
 		$this->_db     = & elSingleton::getObj('elDb');
-		$f             = & elSingleton::getObj('elIShopFactory', $pageID);
-		$this->_tbi    = $f->tb('tbi');
-		$this->_tbi2c  = $f->tb('tbi2c');
-		$this->_tbmnf  = $f->tb('tbmnf');
-		$this->_tbtm   = $f->tb('tbtm');
-		$this->_tbp2i  = $f->tb('tbp2i');
-		$this->_item   = $f->create(EL_IS_ITEM);
-		$this->_sortID = isset($this->_sort[$f->itemsSortID]) ? $f->itemsSortID : EL_IS_SORT_NAME;
 	}
 		
 	/**
@@ -56,7 +48,7 @@ class elIShopItemsCollection
 	 * @return void
 	 **/
 	function countAll() {
-		$r = $this->_db->queryToArray('SELECT COUNT(id) AS num FROM '.$this->_tbi, null, 'num');
+		$r = $this->_db->queryToArray('SELECT COUNT(id) AS num FROM '.$this->_tb, null, 'num');
 		return $r[0];
 	}
 
@@ -98,7 +90,7 @@ class elIShopItemsCollection
 				{
 					$sql .= ' LIMIT %d, %d ';
 				}
-				$sql = sprintf($sql, $this->_item->attrsToString('i'), $this->_tbi2c, $this->_tbi, $ID, $sort, $offset, $step);
+				$sql = sprintf($sql, $this->_item->attrsToString('i'), $this->tbi2c, $this->_tb, $ID, $sort, $offset, $step);
 				$this->_db->query($sql);
 				while ($r = $this->_db->nextRecord()) {
 					$coll[$r['id']] = $this->_item->copy($r);
@@ -124,47 +116,27 @@ class elIShopItemsCollection
 	 * @param  int  $type  type of parent object (category/manufacturer/trademark)
 	 * @return void
 	 **/
-	function _count($type=EL_IS_CAT) {
+	function _count($type = EL_IS_CAT) {
 		$cnt = array();
 		switch ($type) {
 			case EL_IS_MNF:
-				$sql = sprintf('SELECT mnf_id, COUNT(id) AS num FROM %s GROUP BY mnf_id', $this->_tbi);
+				$sql = sprintf('SELECT mnf_id, COUNT(id) AS num FROM %s GROUP BY mnf_id', $this->_tb);
 				$cnt = $this->_db->queryToArray($sql, 'mnf_id', 'num');
 				break;
 				
 			case EL_IS_TM:
-				$sql = sprintf('SELECT tm_id, COUNT(id) AS num FROM %s GROUP BY tm_id', $this->_tbi);
+				$sql = sprintf('SELECT tm_id, COUNT(id) AS num FROM %s GROUP BY tm_id', $this->_tb);
 				$cnt = $this->_db->queryToArray($sql, 'tm_id', 'num');
 				break;
 				
 			default:
 				$sql = 'SELECT i2c.c_id, COUNT(i2c.i_id) AS num FROM %s AS i2c, %s AS i WHERE i2c.i_id=i.id GROUP BY (i2c.c_id)';
-				$sql = sprintf($sql, $this->_tbi2c, $this->_tbi);
+				$sql = sprintf($sql, $this->tbi2c, $this->_tb);
 				$cnt = $this->_db->queryToArray($sql, 'c_id', 'num');
 		}
 		
 		$this->_count[$type] = $cnt;
 	}
 
-	/**
-	 * Dummy function for Factory constructor
-	 *
-	 * @param  int $id
-	 * @return int
-	 **/
-	function idAttr($id = 0)
-	{
-		return $id;
-	}
-
-	/**
-	 * Dummy function for Factory constructor
-	 *
-	 * @return void
-	 **/
-	function fetch()
-	{
-		return;
-	}
 }
 

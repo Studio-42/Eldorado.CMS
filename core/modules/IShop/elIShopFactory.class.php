@@ -60,9 +60,6 @@ class elIShopFactory {
 		'tbpdep'    => 'el_ishop_%d_prop_depend',
 		'tbp2i'     => 'el_ishop_%d_p2i',	// item`s attrs
 		'tbs'       => 'el_ishop_%d_search',
-		'tbse'      => 'el_ishop_%d_se',
-		'tbst'      => 'el_ishop_%d_st',
-		'tbsp'      => 'el_ishop_%d_sp',
 		'tbgal'     => 'el_ishop_%d_gallery'
 	);
 
@@ -103,6 +100,13 @@ class elIShopFactory {
 	);
 
 	/**
+	 * undocumented function
+	 *
+	 * @var elIShopItemsCollection
+	 **/
+	var $ic = null;
+
+	/**
 	 * initilize factory
 	 *
 	 * @param  int    $pageID        current page ID
@@ -114,6 +118,7 @@ class elIShopFactory {
 		foreach ($this->_tb as $k=>$tb) {
 			$this->_tb[$k] = sprintf($tb, $this->pageID);
 		}
+		$this->ic = $this->create(EL_IS_ITEMSCOL);
 	}
 
 	/**
@@ -123,25 +128,37 @@ class elIShopFactory {
 	 * @param  int   $ID    obj ID
 	 * @return object|null
 	 **/
-	function create($hndl, $ID=0) {
-		
+	function create($hndl, $ID = 0) {
+		elDebug('Factory create '.$this->_classes[$hndl]['name']);
 		if (empty($this->_classes[$hndl])) {
 			return null;
 		}
 
-		$c = $this->_classes[$hndl]['name'];
-		$obj = new $c();
-		$obj->pageID = $this->pageID;
+		$ID  = (int)$ID;
+		$c   = $this->_classes[$hndl]['name'];
 		$tbs = $this->_classes[$hndl]['tbs'];
-		$i = count($tbs);
+		$i   = count($tbs);
+		$obj = new $c();
 		while ($i--) {
-			$member = ($i==0) ? '_tb' : $tbs[$i];
+			$member = ($i == 0) ? '_tb' : $tbs[$i];
 			$obj->{$member} = $this->_tb[$tbs[$i]];
 		}
+		$obj->_factory = & $this;
 
-		$obj->idAttr((int)$ID);
-		$obj->fetch();
-		
+		if ($hndl == EL_IS_ITEMSCOL) // item collection is a little bit special
+		{
+			$obj->_item = $this->create(EL_IS_ITEM);
+			$obj->_sortID = isset($obj->_sort[$this->itemsSortID]) ? $this->itemsSortID : EL_IS_SORT_NAME;
+		}
+		else
+		{
+			$obj->pageID = $this->pageID;
+			if ($ID > 0)
+			{
+				$obj->idAttr($ID);
+				$obj->fetch();
+			}
+		}
 		return $obj;
 	}
 

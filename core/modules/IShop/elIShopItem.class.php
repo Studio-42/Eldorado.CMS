@@ -23,16 +23,14 @@ class elIShopItem extends elCatalogItem {
 	var $crtime     = 0;
 	var $mtime      = 0;
 	var $propVals   = null;
-	var $pageID     = 0;
 	var $_type      = null;
 	var $_factory   = null;
 	var $_objName = 'Product';
   
 	/**
-	 * undocumented function
+	 * get item by id
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return bool
 	 **/
 	function fetch() {
 		if (parent::fetch()) {

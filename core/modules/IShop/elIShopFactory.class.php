@@ -30,11 +30,18 @@ class elIShopFactory {
 	var $itemsSortID = 0;
 
 	/**
+	 * ItemsCollection for use from created objects as $this->_factory->ic
+	 *
+	 * @var elIShopItemsCollection
+	 **/
+	var $ic = null;
+
+	/**
 	 * database
 	 *
 	 * @var elDb
 	 **/
-	var $_db    = null;
+	var $_db = null;
 
 	/**
 	 * internal registry
@@ -100,13 +107,6 @@ class elIShopFactory {
 	);
 
 	/**
-	 * Items Collections for use from created objects as $this->_factory->ic
-	 *
-	 * @var elIShopItemsCollection
-	 **/
-	var $ic = null;
-
-	/**
 	 * initilize factory
 	 *
 	 * @param  int    $pageID        current page ID
@@ -145,14 +145,13 @@ class elIShopFactory {
 		}
 		$obj->_factory = & $this;
 
-		if ($hndl == EL_IS_ITEMSCOL) // item collection is a little bit special
+		if ($hndl == EL_IS_ITEMSCOL) // item collection is a little bit special, handle with care :)
 		{
 			$obj->_item = $this->create(EL_IS_ITEM);
 			$obj->_sortID = isset($obj->_sort[$this->itemsSortID]) ? $this->itemsSortID : EL_IS_SORT_NAME;
 		}
 		else
 		{
-			//$obj->pageID = $this->pageID;
 			if ($ID > 0)
 			{
 				$obj->idAttr($ID);

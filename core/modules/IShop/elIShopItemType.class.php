@@ -13,8 +13,6 @@ class elIShopItemType extends elDataMapping
 	var $_objName   = 'Good type';
 
 
-
-
 	/**
 	 * undocumented function
 	 *

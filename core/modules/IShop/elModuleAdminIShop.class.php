@@ -8,7 +8,7 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'edit'        => array('m'=>'editCat',          'g'=>'Actions', 'ico'=>'icoCatNew',         'l'=>'New category'),
 	  	'rm'          => array('m'=>'rmCat'),
 	  	'move'        => array('m'=>'moveCat'),
-		'mnfs'   => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
+		'mnfs'        => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
 	  	'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
 		'mnf_rm'      => array('m'=>'rmMnf'),
 		'tm_edit'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
@@ -172,57 +172,64 @@ class elModuleAdminIShop extends elModuleIShop
 	    elLocation($this->_urlMnfs.'mnf/'.$tm->mnfID.'/');
 	}
 
+	/**
+	 * Display products types
+	 *
+	 * @return void
+	 **/
+	function displayItemsTypes() {
+		$this->_initRenderer();
+		$this->_rnd->rndTypes($this->_factory->getAllFromRegistry(EL_IS_ITYPE));
+	}
+
+	/**
+	 * Create/edit products type
+	 *
+	 * @return void
+	 **/
+	function editItemsType() {
+		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(1));
+		if (!$type->editAndSave()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($type->formToHtml());
+		}
+		elMsgBox::put( m('Data saved') );
+		elLocation(EL_URL.'types/');
+	}
+
+
+	function rmItemsType() {
+		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(1));
+		if (!$type->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
+		}
+		if ( $this->_factory->countItemsByType($type->ID) )
+		{
+		elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
+		}
+		$type->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name) );
+		elLocation(EL_URL.'types');
+	}
+
+
+
+
+
+
+
+
 
 
 
 	/**********    манипуляции с типами товаров   *******************/
 
-	/**
-	 * Показывает список типов товаров с их свойствами
-	 *
-	 */
-	function displayItemsTypes()
-	{
-    $this->_initRenderer();
-    $this->_rnd->rndTypes( $this->_factory->getItemsTypes() );
-	}
+	
 
-	/**
-	 * Создание/редактирование типа товара
-	 *
-	 */
-	function editItemsType()
-	{
-	   $type = $this->_factory->getItemType( (int)$this->_arg(1) );
-	   if ( !$type->editAndSave() )
-	   {
-	     $this->_initRenderer();
-	     return $this->_rnd->addToContent( $type->formToHtml() );
-	   }
-	   elMsgBox::put( m('Data saved') );
-	   elLocation(EL_URL.'types');
-	}
+	
 
-	/**
-	 * Удаление типа товаров,
-	 * если не существует товаров данного типа
-	 *
-	 */
-  function rmItemsType()
-  {
-    $type = $this->_factory->getItemType( (int)$this->_arg(1) );
-    if ( !$type->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
-    }
-    if ( $this->_factory->countItemsByType($type->ID) )
-    {
-      elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
-    }
-    $type->delete();
-    elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name) );
-    elLocation(EL_URL.'types');
-  }
+	
+
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
 
@@ -773,7 +780,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function _initAdminMode() {
-		unset($this->_mMap['mnfs']);
+		unset($this->_mMap['mnfs']); // fix commands order in admin menu
 		parent::_initAdminMode();
 
 		$tList = $this->_factory->getTypesList(); 

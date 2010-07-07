@@ -225,8 +225,7 @@ class elIShopFactory {
 	 * @return void
 	 **/
 	function countItems($type, $ID) {
-		$coll = & elSingleton::getObj('elIShopItemsCollection'); // TODO rewrite to internal
-		return $coll->count($type, $ID);
+		return $this->ic->count($type, $ID);
 	}
 
 

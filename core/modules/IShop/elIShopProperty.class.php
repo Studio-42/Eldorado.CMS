@@ -41,7 +41,8 @@ class elIShopProperty extends elDataMapping
   var $dependID      = 0;
   var $depend        = array();
   var $_dependLoad   = 0;
-	var $_objName = 'Property';
+	var $_objName    = 'Property';
+	var $_factory    = null;
 
 	/**
 	 * value variants list

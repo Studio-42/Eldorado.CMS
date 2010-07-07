@@ -11,7 +11,7 @@ class elIShopItemType extends elDataMapping
 	var $_props     = null;
 	var $_prop      = null;
 	var $_objName   = 'Good type';
-
+	var $_factory   = null;
 
 
 
@@ -53,8 +53,7 @@ class elIShopItemType extends elDataMapping
 		if (!isset($this->_props)) {
 			
 			$this->_props = array();
-			$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
-			$props = $f->getAllFromRegistry(EL_IS_PROP);
+			$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
 			foreach ($props as $p) {
 				if ($p->iTypeID) {
 					$this->_props[$p->ID] = $p;
@@ -63,9 +62,6 @@ class elIShopItemType extends elDataMapping
 		}
 		
 	}
-
-
-
 
 
   function delete()
@@ -90,8 +86,7 @@ class elIShopItemType extends elDataMapping
     }
     else
     {
-      $factory     = & elSingleton::getObj('elIShopFactory');
-      $this->_prop = $factory->getProperty($pID);
+      $this->_prop = $this->_factory->getProperty($pID);
       $this->_prop->attr('t_id', $this->ID);
     }
     return $this->_prop->editAndSave( array('itName'=>$this->name, 'maxSortNdx'=>sizeof($this->props)) );

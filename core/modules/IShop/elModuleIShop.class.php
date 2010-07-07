@@ -10,7 +10,6 @@ include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php'
  **/
 class elModuleIShop extends elModule {
 	var $_factory   = null;
-	var $_itemsCollection = null;
 	var $itemsNum   = 0;
 	var $_url       = EL_URL;
 	var $_urlCats   = '';
@@ -92,7 +91,7 @@ class elModuleIShop extends elModule {
 		}
 		
 		list($total, $current, $offset, $step) = $this->_getPagerInfo(
-			$this->_itemsCollection->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1)
+			$this->_factory->ic->count(EL_IS_CAT, $this->_cat->ID), (int)$this->_arg(1)
 		);
 
 		if (!$current) {
@@ -102,7 +101,7 @@ class elModuleIShop extends elModule {
 
 		$this->_rnd->render( 
 				$this->_cat->getChilds((int)$this->_conf('deep')),
-		        $this->_itemsCollection->create(EL_IS_CAT, $this->_cat->ID, $offset, $step),
+		        $this->_factory->ic->create(EL_IS_CAT, $this->_cat->ID, $offset, $step),
 		        $total,
 		        $current,
 		        $this->_cat
@@ -138,7 +137,7 @@ class elModuleIShop extends elModule {
 		}
 		
 		list($total, $current, $offset, $step) = $this->_getPagerInfo(
-			$this->_itemsCollection->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1)
+			$this->_factory->ic->count(EL_IS_MNF, $this->_mnf->ID), (int)$this->_arg(1)
 		);
 
 		if (!$current) {
@@ -147,7 +146,7 @@ class elModuleIShop extends elModule {
 		}
 		
 		$this->_initRenderer();
-		$this->_rnd->rndMnf($this->_mnf, $this->_itemsCollection->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
+		$this->_rnd->rndMnf($this->_mnf, $this->_factory->ic->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
 		
 		elAppendToPagePath(array(
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
@@ -177,11 +176,11 @@ class elModuleIShop extends elModule {
 		}
 
 		list($total, $current, $offset, $step) = $this->_getPagerInfo(
-			$this->_itemsCollection->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1)
+			$this->_factory->ic->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1)
 		);
 
 		$this->_initRenderer();
-		$this->_rnd->rndTm($this->_mnf, $tm, $this->_itemsCollection->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
+		$this->_rnd->rndTm($this->_mnf, $tm, $this->_factory->ic->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
 		elAppendToPagePath(array(
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
@@ -238,7 +237,7 @@ class elModuleIShop extends elModule {
 			elLocation(EL_URL);
 		}
 		$this->_initRenderer();
-		$this->_rnd->rndSearchResult($this->_itemsCollection->create('search', $finder->find()));
+		$this->_rnd->rndSearchResult($this->_factory->ic->create('search', $finder->find()));
 	}
 
 	/**
@@ -505,8 +504,7 @@ class elModuleIShop extends elModule {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
 		
-		$this->_itemsCollection = $this->_factory->create(EL_IS_ITEMSCOL);
-		$this->itemsNum = $this->_itemsCollection->countAll();
+		$this->itemsNum = $this->_factory->ic->countAll();
 		
 		$cur  = &elSingleton::getObj('elCurrency');
 		

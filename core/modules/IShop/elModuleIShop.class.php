@@ -296,32 +296,6 @@ class elModuleIShop extends elModule {
 	}
 
 
-
-  function toXML()
-  {
-    $act = $this->_arg();
-    if ( 'depend' == $act )
-    {
-      $itemID  = (int)$this->_arg(1);
-      $propID  = (int)$this->_arg(2);
-      $propVal = $this->_arg(3);
-      $item    = $this->_factory->getItem( $itemID ); //elPrintR($item);
-      if ( !$item->ID )
-      {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"yes\" ?><error>"
-                ."No item  $itemID $propID $propVal</error>";
-      }
-      $xml = $item->getDependValues($propID, $propVal);
-    }
-    elseif ( 'search_form' == $act )
-    {
-      $sm = $this->_factory->getSearchManager();
-      $xml = $sm->formToXml((int)$this->_arg(1));
-    }
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"yes\" ?>"
-			.$xml."";
-  }
-
 	/**
 	 * Return Item URL by item ID
 	 *
@@ -503,7 +477,7 @@ class elModuleIShop extends elModule {
 		if ($this->_view != $this->_conf('default_view')) {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
-		
+
 		$this->itemsNum = $this->_factory->ic->countAll();
 		
 		$cur  = &elSingleton::getObj('elCurrency');

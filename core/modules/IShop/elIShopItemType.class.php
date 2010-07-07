@@ -10,14 +10,13 @@ class elIShopItemType extends elDataMapping
 	var $mtime      = 0;
 	var $_props     = null;
 	var $_prop      = null;
-	var $_objName   = 'Good type';
+	var $_objName   = 'Product type';
 	var $_factory   = null;
 
 	/**
-	 * undocumented function
+	 * Return all properties
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return array
 	 **/
 	function getProperties() {
 		$this->_loadProperties();
@@ -25,10 +24,9 @@ class elIShopItemType extends elDataMapping
 	}
 
 	/**
-	 * undocumented function
+	 * Return properties which marked for announce
 	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
+	 * @return array
 	 **/
 	function getAnnouncedProperties() {
 		$ret = array();
@@ -42,10 +40,9 @@ class elIShopItemType extends elDataMapping
 	}
 
 	/**
-	 * undocumented function
+	 * Load properties
 	 *
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _loadProperties() {
 		if (!isset($this->_props)) {
@@ -58,18 +55,19 @@ class elIShopItemType extends elDataMapping
 				}
 			}
 		}
-		
 	}
 
-
-  function delete()
-  {
-    foreach ( $this->props as $p )
-    {
-      $p->delete();
-    }
-    parent::delete();
-  }
+	/**
+	 * Return product type with properties
+	 *
+	 * @return void
+	 **/
+	function delete() {
+		foreach ($this->props as $p) {
+			$p->delete();
+		}
+		parent::delete();
+	}
 
   function getProperyFormElement($pID)
   {

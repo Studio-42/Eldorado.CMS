@@ -13,10 +13,10 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	var $_tpls    = array(
 		'item'   => 'item.html',
-		'search' => 'search-form.html',
+		// 'search' => 'search-form.html',
 		'mnfs'   => 'mnfs.html',
 		'types'  => 'types.html',
-		'sConf'  => 'search-conf.html',
+		// 'sConf'  => 'search-conf.html',
 		'yaMart' => 'yandexMarket.html'
 	);
 	/**
@@ -109,10 +109,10 @@ class elRndIShop extends elCatalogRenderer {
 	}
 
 	/**
-	 * undocumented function
+	 * Render items founded by seach
 	 *
+	 * @param  array  $items    items
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function rndSearchResult($items) {
 		if (empty($items)) {
@@ -357,6 +357,19 @@ class elRndIShop extends elCatalogRenderer {
 			$this->_te->assignBlockVars('ITEM_ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID));
 		}
 		$this->_rndLinkedObjs($linkedObjs);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function rndTypes($types) {
+		$this->_setFile('types');
+		foreach ($types as $t) {
+			$this->_te->assignBlockVars('IS_TYPE', $t->toArray());
+			elPrintR($t->getProperties());
+		}
 	}
 
 	/**

@@ -119,6 +119,11 @@ class elIShopItemsCollection
 	function _count($type = EL_IS_CAT) {
 		$cnt = array();
 		switch ($type) {
+			case EL_IS_ITYPE:
+				$sql = sprintf('SELECT type_id, COUNT(id) AS num FROM %s GROUP BY type_id', $this->_tb);
+				$cnt = $this->_db->queryToArray($sql, 'type_id', 'num');
+				break;
+				
 			case EL_IS_MNF:
 				$sql = sprintf('SELECT mnf_id, COUNT(id) AS num FROM %s GROUP BY mnf_id', $this->_tb);
 				$cnt = $this->_db->queryToArray($sql, 'mnf_id', 'num');

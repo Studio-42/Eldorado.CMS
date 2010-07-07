@@ -10,6 +10,8 @@ include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php'
  **/
 class elModuleIShop extends elModule {
 	var $_factory   = null;
+	var $_itemsCollection = null;
+	var $itemsNum   = 0;
 	var $_url       = EL_URL;
 	var $_urlCats   = '';
 	var $_urlMnfs   = '';
@@ -61,7 +63,7 @@ class elModuleIShop extends elModule {
 	 *
 	 * @var array
 	 **/
-	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs');
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs', 'itemsNum');
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
@@ -467,7 +469,7 @@ class elModuleIShop extends elModule {
 		}
 
 		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
-
+		
 	}
 
 	/**
@@ -503,7 +505,8 @@ class elModuleIShop extends elModule {
 			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
 		}
 		
-		// $this->_finder = & new elIShopFinder($this->pageID);
+		$this->_itemsCollection = & elSingleton::getObj('elIShopItemsCollection', $this->pageID);
+		$this->itemsNum = $this->_itemsCollection->countAll();
 		
 		$cur  = &elSingleton::getObj('elCurrency');
 		

@@ -127,41 +127,17 @@ CREATE TABLE el_ishop_{pageID}_tm (
   KEY (mnf_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-DROP TABLE IF EXISTS el_ishop_{pageID}_search;
-CREATE TABLE         el_ishop_{pageID}_search (
-    id         tinyint(2)   NOT NULL auto_increment,
-    label      varchar(256) NOT NULL,
-    sort_ndx   tinyint(2)   NOT NULL default 0,
-	type       enum('type', 'mnf', 'tm', 'price', 'prop') NOT NULL default 'type',
-	price_step int(11) NOT NULL,
-	prop_id    int(10) NOT NULL,
-	prop_view  enum('normal', 'period') NOT NULL default 'normal'
-    PRIMARY KEY(id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-DROP TABLE IF EXISTS el_ishop_{pageID}_st;
-CREATE TABLE         el_ishop_{pageID}_st (
-    s_id tinyint(2) NOT NULL,
-    t_id tinyint(3) NOT NULL,
-    PRIMARY KEY(s_id, t_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-DROP TABLE IF EXISTS el_ishop_{pageID}_se;
-CREATE TABLE         el_ishop_{pageID}_se (
-    id          tinyint(3)   NOT NULL auto_increment,
-    s_id        tinyint(2)   NOT NULL,
-    label       varchar(256) NOT NULL,
-    source      enum('mnftm', 'price', 'name', 'prop') NOT NULL default 'name',
-    sort_ndx    tinyint(3)   NOT NULL,
-    conf        varchar(256) NOT NULL,
-    def_val     varchar(256) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-DROP TABLE IF EXISTS el_ishop_{pageID}_sp;
-CREATE TABLE         el_ishop_{pageID}_sp (
-    e_id tinyint(3) NOT NULL,
-    p_id int(5)     NOT NULL,
-    PRIMARY KEY(e_id, p_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+DROP TABLE IF EXISTS `el_ishop_{pageID}_search`;
+CREATE TABLE IF NOT EXISTS `el_ishop_{pageID}_search` (
+  `id` tinyint(2) NOT NULL auto_increment,
+  `label` varchar(256) collate utf8_bin NOT NULL,
+  `sort_ndx` tinyint(2) NOT NULL,
+  `type` enum('type','mnf','tm','price','prop') collate utf8_bin NOT NULL default 'type',
+  `prop_id` int(10) NOT NULL,
+  `prop_view` enum('normal','period') collate utf8_bin NOT NULL default 'normal',
+  `noselect_label` varchar(255) collate utf8_bin NOT NULL default 'not selected',
+  `display_on_load` enum('yes','no') collate utf8_bin NOT NULL default 'no',
+  `position` enum('normal','advanced') collate utf8_bin NOT NULL default 'normal',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

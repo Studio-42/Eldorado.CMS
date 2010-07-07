@@ -51,6 +51,16 @@ class elIShopItemsCollection {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function countAll() {
+		$r = $this->_db->queryToArray('SELECT COUNT(id) AS num FROM '.$this->_tbi, null, 'num');
+		return $r[0];
+	}
+
+	/**
 	 * return items collection by required parent type/id
 	 *
 	 * @param  int  $type    type of parent object (category/manufacturer/trademark)

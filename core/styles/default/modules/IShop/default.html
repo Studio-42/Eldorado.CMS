@@ -27,12 +27,12 @@
 		<!-- BEGIN ADMIN -->
 		<ul class="adm-icons">
 			<li><a href="{ishopCatsURL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
-			<li><a href="{ishopCatsURL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
-			<li><a href="{ishopCatsURL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
+			<li><a href="{ishopCatsURL}move/{catID}/{id}/1/"   class="icons up"       title="{m('Move up')}"></a></li>
+			<li><a href="{ishopCatsURL}move/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
 			<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a> 
+		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a> {ishopCatsURL}
 		<div class="mod-ishop-cats-onecol-descrip">{descrip}</div>
 		<div class="ie-clear"></div>
 	</li>
@@ -54,7 +54,7 @@
 			</ul>
 			<!-- END ADMIN -->
 			<!-- END ADMIN -->
-			<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-twocol-name">{name}</a>
+			<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-twocol-name">{name}</a> 
 			<div class="mod-ishop-cats-twocol-descrip">{descrip}</div>
 			<!-- BEGIN SUB_CATS -->
 			<ul>

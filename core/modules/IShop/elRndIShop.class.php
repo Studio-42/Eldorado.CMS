@@ -58,7 +58,8 @@ class elRndIShop extends elCatalogRenderer {
 			'parentID' => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID,
 			'ishopURL' => $this->_url,
 			'ishopCatsURL' => $this->_urlCats,
-			'ishopMnfsURL' => $this->_urlMnfs
+			'ishopMnfsURL' => $this->_urlMnfs,
+			'itemsNum'     => $this->itemsNum
 			));
 		
 		
@@ -95,7 +96,7 @@ class elRndIShop extends elCatalogRenderer {
 			if ($this->_conf('catsCols') > 1) {
 				$this->_rndCatsTwoColumns($cats);
 			} else {
-				$this->_rndCatsOneColumns($cats);
+				$this->_rndCatsOneColumn($cats);
 			}
 		}
 		if ($cats && $items) {

@@ -41,8 +41,9 @@ class elModuleAdminIShop extends elModuleIShop
 
 	function editCat()  {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
-		if (!$cat->ID && $this->_args[0]>0) {
-			$cat->parentID = (int)$this->_args[0];
+		// elPrintR($this->_cat);
+		if (!$cat->ID) {
+			$cat->parentID = $this->_cat->ID;
 		}
 		if (!$cat->editAndSave()) {
 			$this->_initRenderer();
@@ -264,91 +265,46 @@ class elModuleAdminIShop extends elModuleIShop
 
 
 
-  /**
-   * Удаление непустой категории
-   *
-   */
-  function rmCat()
-  {
-    $cat =  $this->_factory->getCategory( (int)$this->_arg(1) );
-    if ( !$cat->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
-    }
+	/**
+	* Удаление непустой категории
+	*
+*/
+	function rmCat() {
+		$cat =  $this->_factory->getCategory( (int)$this->_arg(1) );
+		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
+		elPrintR($cat);
+		return;
+		if (!$cat->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
+		}
 
-    if ( !$cat->isEmpty() )
-    {
-      elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"',
-              array($cat->getObjName(),$cat->name),
-              EL_URL.$this->_cat->ID);
-    }
-    $cat->delete();
-    elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
-    elLocation(EL_URL.$this->_cat->ID);
-  }
+		if (!$cat->isEmpty()) {
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($cat->getObjName(),$cat->name), EL_URL.$this->_cat->ID);
+		}
+		$cat->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
+		elLocation(EL_URL.$this->_cat->ID);
+	}
 
 
-	function moveUp()
-  {
-
-  	$cat = $this->_getCategory();
-  	if ( !$cat->ID )
-  	{
-  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-  			array($cat->getObjName(), $cat->ID),
-  			EL_URL.$this->_cat->ID);
-  	}
-  	if ( !$cat->move() )
-  	{
-  		elThrow(E_USER_NOTICE, 'Can not move object "%s" "%s" up',
-  			array($cat->getObjName(), $cat->name),
-  			EL_URL.$this->_cat->ID );
-  	}
-  	elMsgBox::put( m('Data saved') );
-  	elLocation(EL_URL.$this->_cat->ID);
-  }
-
-  function moveDown()
-  {
-
-  	$cat = $this->_getCategory();
-  	if ( !$cat->ID )
-  	{
-  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-  			array($cat->getObjName(), $cat->ID),
-  			EL_URL.$this->_cat->ID);
-  	}
-  	if ( !$cat->move(false) )
-  	{
-  		elThrow(E_USER_WARNING, 'Can not move object "%s" "%s" up',
-  			array($cat->getObjName(), $cat->name),
-  			EL_URL.$this->_cat->ID );
-  	}
-  	elMsgBox::put( m('Data saved') );
-  	elLocation(EL_URL.$this->_cat->ID);
-  }
-  /**
-   * Перемещение категории вверх/вниз в пределах родительского узла
-   * если 2-ой аргумент в URL непустой - перемещаем вверх
-   *
-   */
-  function moveCat()
-  {
-    $cat =  $this->_factory->getCategory( (int)$this->_arg(1) );
-  	if ( !$cat->ID )
-  	{
-  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
-  	}
-  	$moveUp = (bool)$this->_arg(2);
-  	if ( !$cat->move( $moveUp ) )
-  	{
-  	  $msg = $moveUp ? 'Can not move object "%s" "%s" up' : 'Can not move object "%s" "%s" down';
-  		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	EL_URL.$this->_cat->ID );
-  	}
-  	elMsgBox::put( m('Data saved') );
-
-  	elLocation(EL_URL.$this->_cat->ID);
-  }
+	/**
+	 * Move category up/down, if third arg is set - move up, otherwise - down
+	 *
+	 * @return void
+	 **/
+	function moveCat() {
+		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
+  		if (!$cat->ID) {
+	  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
+	  	}
+	  	$moveUp = (bool)$this->_arg(2);
+	  	if (!$cat->move($moveUp)) {
+	  		$msg = $moveUp ? 'Can not move object "%s" "%s" up' : 'Can not move object "%s" "%s" down';
+	  		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	$this->_urlCats.$this->_cat->ID );
+	  	}
+	  	elMsgBox::put(m('Data saved'));
+	  	elLocation($this->_urlCats.$this->_cat->ID);
+	}
 
   function mnfList()
   {
@@ -736,30 +692,24 @@ class elModuleAdminIShop extends elModuleIShop
     }
   }
 
-  function _onInit()
-  {
-    	parent::_onInit();
-
-    	$hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
-    	foreach ( $hndls as $k )
-		{
-		  $this->_mMap[$k]['apUrl'] = $this->_cat->ID;
+	function _onInit() {
+		parent::_onInit();
+		// elPrintR($this->_cat);
+		$hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
+		foreach ($hndls as $k) {
+			$this->_mMap[$k]['apUrl'] = $this->_cat->ID;
 		}
 
-		if (! $this->_cat->countItems())
-    	{
-    		unset($this->_mMap['sort'], $this->_mMap['rm_group']);
-    	}
+		if (!$this->_cat->countItems()) {
+			unset($this->_mMap['sort'], $this->_mMap['rm_group']);
+		}
 
-		if ('item' != $this->_mh && 'cross_links' != $this->_mh )
-    	{
-      		$this->_removeMethods('cross_links');
-    	}
-    	else
-    	{
-      		$this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
-    	}
-  }
+		if ('item' != $this->_mh && 'cross_links' != $this->_mh ) {
+			$this->_removeMethods('cross_links');
+		} else {
+			$this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
+		}
+	}
 
 
 }

@@ -182,7 +182,7 @@ class elRndIShop extends elCatalogRenderer {
 		
 		$tms = $mnf->getTms(); 
 		// remove empty tms
-		if (!$this->_admin || !$this->_conf('displayEmptyTm')) {
+		if (!$this->_admin && !$this->_conf('displayEmptyTm')) {
 			foreach ($tms as $id => $tm) {
 				if (!$tm->countItems()) {
 					unset($tms[$id]);
@@ -619,7 +619,7 @@ class elRndIShop extends elCatalogRenderer {
 			$this->_te->assignBlockVars($block.'.TM.DESCRIP', array('content' => $tm->content), 2);
 		}
 		if ($this->_admin) {
-			$this->_te->assignBlockVars($block.'.TM.ADMIN', array('id' => $tm->ID), 2);
+			$this->_te->assignBlockVars($block.'.TM.ADMIN', array('id' => $tm->ID, 'mnfID' => $tm->mnfID), 2);
 		}
 	}
 	

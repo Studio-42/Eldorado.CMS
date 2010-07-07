@@ -10,6 +10,7 @@ class elIShopTm extends elDataMapping {
 	var $name     = '';
 	var $content  = '';
 	var $_factory = null;
+	var $_objName = 'Trade mark/model';
 
 	/**
 	 * add count items to default array
@@ -53,10 +54,10 @@ class elIShopTm extends elDataMapping {
 		//	$mnfs[$id] = $m->name;
 		//}
 
-		// $mnfs = $f->getAllFromRegistry(EL_IS_MNF);
-		// foreach ($mnfs as $id => $m) {
-		// 	$mnfs[$id] = $m->name;
-		// }
+		$mnfs = $this->_factory->getAllFromRegistry(EL_IS_MNF);
+		foreach ($mnfs as $id => $m) {
+			$mnfs[$id] = $m->name;
+		}
 
 		$this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
 		$this->_form->add( new elText('name', m('Name'), $this->name) );

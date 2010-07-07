@@ -497,7 +497,7 @@ class elModuleIShop extends elModule {
 			$this->_urlCats = EL_URL.'cats/';
 			$this->_urlMnfs = EL_URL;
 		}
-		
+
 		$this->_cat->fetch();
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 

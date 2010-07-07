@@ -25,8 +25,7 @@ class elIShopItem extends elCatalogItem {
 	var $propVals   = null;
 	var $pageID     = 0;
 	var $_type      = null;
-	var $_factory   = null; // TODO
-
+	var $_factory   = null;
 	var $_objName = 'Product';
   
 	/**
@@ -69,8 +68,7 @@ class elIShopItem extends elCatalogItem {
 	 **/
 	function getType() {
 		if (!isset($this->_type)) {
-			$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
-			$this->_type = $f->getFromRegistry(EL_IS_ITYPE, $this->mnfID);
+			$this->_type = $this->_factory->getFromRegistry(EL_IS_ITYPE, $this->mnfID);
 		}
 		return $this->_type;
 	}
@@ -82,8 +80,7 @@ class elIShopItem extends elCatalogItem {
 	 * @return elIShopManufacturer
 	 **/
 	function getMnf() {
-		$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
-		return $f->getFromRegistry(EL_IS_MNF, $this->mnfID);
+		return $this->_factory->getFromRegistry(EL_IS_MNF, $this->mnfID);
 	}
 
 	/**
@@ -92,8 +89,7 @@ class elIShopItem extends elCatalogItem {
 	 * @return elIShopTm
 	 **/
 	function getTm() {
-		$f = & elSingleton::getObj('elIShopFactory', $this->pageID);
-		return $f->getFromRegistry(EL_IS_TM, $this->tmID);
+		return $this->_factory->getFromRegistry(EL_IS_TM, $this->tmID);
 	}
 	
 	/**

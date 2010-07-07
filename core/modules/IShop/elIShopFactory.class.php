@@ -100,7 +100,7 @@ class elIShopFactory {
 	);
 
 	/**
-	 * 
+	 * Items Collections for use from created objects as $this->_factory->ic
 	 *
 	 * @var elIShopItemsCollection
 	 **/
@@ -129,7 +129,7 @@ class elIShopFactory {
 	 * @return object|null
 	 **/
 	function create($hndl, $ID = 0) {
-		elDebug('Factory create '.$this->_classes[$hndl]['name']);
+		elDebug('Factory create '.$this->_classes[$hndl]['name']."($ID)");
 		if (empty($this->_classes[$hndl])) {
 			return null;
 		}
@@ -152,7 +152,7 @@ class elIShopFactory {
 		}
 		else
 		{
-			$obj->pageID = $this->pageID;
+			//$obj->pageID = $this->pageID;
 			if ($ID > 0)
 			{
 				$obj->idAttr($ID);

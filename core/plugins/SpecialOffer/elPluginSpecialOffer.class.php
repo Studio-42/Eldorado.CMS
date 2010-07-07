@@ -89,9 +89,8 @@ class elPluginSpecialOffer extends elPlugin
 			// get special offers from IShop
 			$sort = ($this->_param($src, 'sort', 0) == '0' ? EL_IS_SORT_RAND : EL_IS_SORT_TIME);
 			$shop = & elSingleton::getObj('elModuleIShop');
-			$shop->init($src);
-			$ic = $shop->_factory->create(EL_IS_ITEMSCOL);
-			$items = $ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);			
+			$shop->init($src, array(), 'IShop');
+			$items = $shop->_factory->ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
 			if (empty($items))
 			{
 				continue;

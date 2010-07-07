@@ -60,6 +60,7 @@ class elRndIShop extends elCatalogRenderer {
 			'ishopURL' => $this->_url,
 			'ishopCatsURL' => $this->_urlCats,
 			'ishopMnfsURL' => $this->_urlMnfs,
+			'ishopTypesURL' => $this->_urlTypes,
 			'itemsNum'     => $this->itemsNum
 			));
 		
@@ -365,11 +366,12 @@ class elRndIShop extends elCatalogRenderer {
 	 * @return void
 	 **/
 	function rndTypes($types) {
-		$this->_setFile('types');
-		foreach ($types as $t) {
-			$this->_te->assignBlockVars('IS_TYPE', $t->toArray());
-			elPrintR($t->getProperties());
-		}
+		$this->_setFile();
+		$this->_rndViewSwitch();
+		// foreach ($types as $t) {
+		// 	$this->_te->assignBlockVars('IS_TYPE', $t->toArray());
+		// 	elPrintR($t->getProperties());
+		// }
 	}
 
 	/**
@@ -397,6 +399,7 @@ class elRndIShop extends elCatalogRenderer {
 		if ($this->_conf('displayViewSwitch')) {
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_CATS', array('cssClass' => $this->_view == EL_IS_VIEW_CATS ? 'current' : ''), 1);
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_MNFS', array('cssClass' => $this->_view == EL_IS_VIEW_MNFS ? 'current' : ''), 1);
+			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_TYPES', array('cssClass' => $this->_view == EL_IS_VIEW_TYPES ? 'current' : ''), 1);
 		}
 	}
 

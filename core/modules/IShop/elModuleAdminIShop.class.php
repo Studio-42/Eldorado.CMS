@@ -197,38 +197,27 @@ class elModuleAdminIShop extends elModuleIShop
 		elLocation(EL_URL.'types/');
 	}
 
-
+	/**
+	 * Remove empty products type
+	 *
+	 * @return void
+	 **/
 	function rmItemsType() {
 		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(1));
 		if (!$type->ID) {
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
 		}
-		if ( $this->_factory->countItemsByType($type->ID) )
-		{
-		elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
+		if ($this->_factory->ic->count(EL_IS_ITYPE, $type->ID)) {
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
 		}
 		$type->delete();
-		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name) );
+		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name));
 		elLocation(EL_URL.'types');
 	}
 
 
 
 
-
-
-
-
-
-
-
-	/**********    манипуляции с типами товаров   *******************/
-
-	
-
-	
-
-	
 
 
 	/**********    манипуляции со свойствами типов товаров   *******************/

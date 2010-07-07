@@ -39,19 +39,60 @@ class elModuleAdminIShop extends elModuleIShop
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
-
+	/**
+	 * Create/edit category
+	 *
+	 * @return void
+	 **/
 	function editCat()  {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
-		// elPrintR($this->_cat);
 		if (!$cat->ID) {
 			$cat->parentID = $this->_cat->ID;
 		}
 		if (!$cat->editAndSave()) {
 			$this->_initRenderer();
-			return $this->_rnd->addToContent( $cat->formToHtml() );
+			return $this->_rnd->addToContent($cat->formToHtml());
 		}
 		elMsgBox::put( m('Data saved') );
 		elLocation(EL_URL.$this->_cat->ID);
+	}
+
+	/**
+	 * Move category up/down, if third arg is set - move up, otherwise - down
+	 *
+	 * @return void
+	 **/
+	function moveCat() {
+		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
+  		if (!$cat->ID) {
+	  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
+	  	}
+	  	$moveUp = (bool)$this->_arg(2);
+	  	if (!$cat->move($moveUp)) {
+	  		$msg = $moveUp ? 'Can not move object "%s" "%s" up' : 'Can not move object "%s" "%s" down';
+	  		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	$this->_urlCats.$this->_cat->ID );
+	  	}
+	  	elMsgBox::put(m('Data saved'));
+	  	elLocation($this->_urlCats.$this->_cat->ID);
+	}
+
+	/**
+	 * Remove empty category
+	 *
+	 * @return void
+	 **/
+	function rmCat() {
+		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
+		if (!$cat->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), $this->_url.$this->_cat->ID);
+		}
+
+		if (!$cat->isEmpty()) {
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($cat->getObjName(),$cat->name), $this->_url.$this->_cat->ID);
+		}
+		$cat->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
+		elLocation($this->_url.$this->_cat->ID);
 	}
 
 	/**********    манипуляции с типами товаров   *******************/
@@ -266,46 +307,10 @@ class elModuleAdminIShop extends elModuleIShop
 
 
 
-	/**
-	* Удаление непустой категории
-	*
-*/
-	function rmCat() {
-		$cat =  $this->_factory->getCategory( (int)$this->_arg(1) );
-		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
-		elPrintR($cat);
-		return;
-		if (!$cat->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
-		}
-
-		if (!$cat->isEmpty()) {
-			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($cat->getObjName(),$cat->name), EL_URL.$this->_cat->ID);
-		}
-		$cat->delete();
-		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
-		elLocation(EL_URL.$this->_cat->ID);
-	}
+	
 
 
-	/**
-	 * Move category up/down, if third arg is set - move up, otherwise - down
-	 *
-	 * @return void
-	 **/
-	function moveCat() {
-		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
-  		if (!$cat->ID) {
-	  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), EL_URL.$this->_cat->ID);
-	  	}
-	  	$moveUp = (bool)$this->_arg(2);
-	  	if (!$cat->move($moveUp)) {
-	  		$msg = $moveUp ? 'Can not move object "%s" "%s" up' : 'Can not move object "%s" "%s" down';
-	  		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	$this->_urlCats.$this->_cat->ID );
-	  	}
-	  	elMsgBox::put(m('Data saved'));
-	  	elLocation($this->_urlCats.$this->_cat->ID);
-	}
+
 
   function mnfList()
   {

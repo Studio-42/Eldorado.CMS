@@ -26,10 +26,10 @@
 	<li style="padding-left:{! ({level})*1.7 !}em;" class="clearfix rounded-7 {cssRowClass} ">
 		<!-- BEGIN ADMIN -->
 		<ul class="adm-icons">
-			<li><a href="{ishopCatsURL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
-			<li><a href="{ishopCatsURL}move/{catID}/{id}/1/"   class="icons up"       title="{m('Move up')}"></a></li>
-			<li><a href="{ishopCatsURL}move/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
-			<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			<li><a href="{ishopCatsURL}edit/{catID}/{id}/"    class="icons cat-edit" title="{m('Edit')}"></a></li>
+			<li><a href="{ishopCatsURL}move/{catID}/{id}/1/"  class="icons up"       title="{m('Move up')}"></a></li>
+			<li><a href="{ishopCatsURL}move/{catID}/{id}/"    class="icons down"     title="{m('Move down')}"></a></li>
+			<li><a href="{ishopCatsURL}rm/{catID}/{id}/"      class="icons delete"   title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
 		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a> {ishopCatsURL}
@@ -47,10 +47,10 @@
 		<div class="grid-25-content{cssLastClass}">
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
-				<li><a href="{ishopCatsURL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
-				<li><a href="{ishopCatsURL}move/{catID}/{id}/1/"   class="icons up"       title="{m('Move up')}"></a></li>
-				<li><a href="{ishopCatsURL}move/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
-				<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				<li><a href="{ishopCatsURL}edit/{catID}/{id}/"   class="icons cat-edit" title="{m('Edit')}"></a></li>
+				<li><a href="{ishopCatsURL}move/{catID}/{id}/1/" class="icons up"       title="{m('Move up')}"></a></li>
+				<li><a href="{ishopCatsURL}move/{catID}/{id}/"   class="icons down"     title="{m('Move down')}"></a></li>
+				<li><a href="{ishopCatsURL}rm/{catID}/{id}/"     class="icons delete"   title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
 			<!-- END ADMIN -->
@@ -62,10 +62,10 @@
 				<li style="clear:right">
 					<!-- BEGIN ADMIN2 -->
 					<ul class="adm-icons">
-						<li><a href="{ishopCatsURL}edit/{catID}/{id}/" class="icons cat-edit" title="{m('Edit')}"></a></li>
-						<li><a href="{ishopCatsURL}up/{catID}/{id}/"   class="icons up"       title="{m('Move up')}"></a></li>
-						<li><a href="{ishopCatsURL}down/{catID}/{id}/" class="icons down"     title="{m('Move down')}"></a></li>
-						<li><a href="{ishopCatsURL}rm/{catID}/{id}/"   class="icons delete"   title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+						<li><a href="{ishopCatsURL}edit/{catID}/{id}/"   class="icons cat-edit" title="{m('Edit')}"></a></li>
+						<li><a href="{ishopCatsURL}move/{catID}/{id}/1/" class="icons up"       title="{m('Move up')}"></a></li>
+						<li><a href="{ishopCatsURL}move/{catID}/{id}/"   class="icons down"     title="{m('Move down')}"></a></li>
+						<li><a href="{ishopCatsURL}rm/{catID}/{id}/"     class="icons delete"   title="{m('Delete')}"></a></li>
 					</ul>
 					<!-- END ADMIN2 -->
 					<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-twocol-name-sub">{name}</a> 
@@ -168,7 +168,7 @@
 		<!-- BEGIN ADMIN -->
 		<ul class="adm-icons">
 			<li style="border:none;padding:0"><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
-			<li style="border:none;padding:0"><a href="{URL}rm_item/{catID}/{id}/"                 class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+			<li style="border:none;padding:0"><a href="{URL}rm_item/{catID}/{id}/"                 class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
 		<h4><a href="{ishopURL}item/{parentID}/{id}/{fromTm}">{name}</a></h4>
@@ -205,7 +205,7 @@
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
 				<li><a href="{ishopURL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
-				<li><a href="{ishopURL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				<li><a href="{ishopURL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
 			<h4><a href="{ishopURL}item/{parentID}/{id}/{fromTm}">{name}</a></h4>
@@ -239,3 +239,14 @@
 
 </div>
 {PAGER}
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		$('a.icons.delete').click(function(e) {
+			if (!confirm('{m('Do You really want to delete')}?')) {
+				e.preventDefault();
+			}
+			
+		})
+	})
+</script>

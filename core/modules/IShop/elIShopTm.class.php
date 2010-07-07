@@ -50,10 +50,10 @@ class elIShopTm extends elDataMapping {
 		parent::_makeForm();
 		$f = & elSingleton::getObj('elIShopFactory');
 		$opts = array();
-		$mnfs = $f->getMnfs();
-		foreach ($mnfs as $id => $m) {
-			$mnfs[$id] = $m->name;
-		}
+		// $mnfs = $f->getAllFromRegistry(EL_IS_MNF);
+		// foreach ($mnfs as $id => $m) {
+		// 	$mnfs[$id] = $m->name;
+		// }
 		$this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
 		$this->_form->add( new elText('name', m('Name'), $this->name) );
 		$this->_form->add( new elEditor('content', m('Description'), $this->descrip) );

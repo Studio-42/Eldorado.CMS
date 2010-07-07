@@ -11,6 +11,9 @@ class elModuleAdminIShop extends elModuleIShop
 		'mnfs'   => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
 	  	'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
 		'mnf_rm'      => array('m'=>'rmMnf'),
+		'tm_edit'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
+      	'tm_rm'       => array('m'=>'rmTm'),
+		
 		
 	  	'rm_item'     => array('m'=>'rmItem'),
 	  	'item_img'    => array('m'=>'itemImg'),
@@ -18,8 +21,6 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'types'       => array('m'=>'displayItemsTypes', 'g'=>'Actions', 'ico'=>'icoItemTypesList', 'l'=>'Items types list'),
 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 	  	
-	  	'edit_tm'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
-      	'rm_tm'       => array('m'=>'rmTm'),
 		'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
 	  	'rm_group'    => array('m'=>'rmItems',           'g'=>'Actions', 'ico'=>'icoDocGroupRm',    'l'=>'Delete group of documents',),
 		'cross_links' => array('m'=>'editCrossLinks',    'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
@@ -49,7 +50,7 @@ class elModuleAdminIShop extends elModuleIShop
 	function editCat()  {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
 		if (!$cat->ID) {
-			$cat->parentID = $this->_cat->ID;
+			$cat->parentID = (int)$this->_arg(0);
 		}
 		if (!$cat->editAndSave()) {
 			$this->_initRenderer();
@@ -126,6 +127,25 @@ class elModuleAdminIShop extends elModuleIShop
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $mnf->getObjName(), $mnf->name) );
 	    elLocation($this->_urlMnfs);
 	}
+
+	function editTm() {
+		$this->_mnf->idAttr($this->_arg(0));
+		$this->_mnf->fetch();
+		elPrintR($this->_mnf);
+		// return;
+
+		if (!$this->_factory->getAllFromRegistry(EL_IS_MNF)) {
+			elThrow(E_USER_WARNING, 'Could not create trade mark without manufacturer! Create at least one manufacturer first!', null, $this->_urlMnfs.$this->_mnf->ID);
+		}
+		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1) ); //elPrintR($mnf);
+		if (!$tm->editAndSave()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($tm->formToHtml());
+		}
+		elMsgBox::put( m('Data saved') );
+		elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
+	}
+
 
 	/**********    манипуляции с типами товаров   *******************/
 
@@ -343,22 +363,7 @@ class elModuleAdminIShop extends elModuleIShop
 
 
 
-  function editTm()
-  {
-    $mnfs = $this->_factory->getMnfs();
-    if ( empty($mnfs) )
-    {
-      elThrow(E_USER_WARNING, 'Could not create trade mark without manufacturer! Create at least one manufacturer first!', null, EL_URL.$this->_cat->ID);
-    }
-    $tm = $this->_factory->getTm( (int)$this->_arg(1) ); //elPrintR($mnf);
-    if ( !$tm->editAndSave() )
-    {
-      $this->_initRenderer();
-      return $this->_rnd->addToContent( $tm->formToHtml() );
-    }
-    elMsgBox::put( m('Data saved') );
-    elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
-  }
+
 
 	function rmTm()
 	{
@@ -762,10 +767,24 @@ class elModuleAdminIShop extends elModuleIShop
 	function _onInit() {
 		parent::_onInit();
 
-		$hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
-		foreach ($hndls as $k) {
-			$this->_mMap[$k]['apUrl'] = $this->_cat->ID;
+		$c = array('edit');
+		foreach ($c as $n) {
+			$this->_mMap[$n]['apUrl'] = $this->_cat->ID;
 		}
+		if ($this->_mnf->ID) {
+			// elPrintR($this->_mnf);
+			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
+			$this->_mMap['tm_rm']['apUrl'] = $this->_mnf->ID;
+		}
+		if (!in_array($this->_mh, array('mnf', 'tm_edit'))) {
+			// $this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
+			unset($this->_mMap['tm_edit']);
+		}
+		// echo $this->_mh;
+		// $hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
+		// foreach ($hndls as $k) {
+		// 	$this->_mMap[$k]['apUrl'] = $this->_cat->ID;
+		// }
 
 		if (!$this->_cat->countItems()) {
 			unset($this->_mMap['sort'], $this->_mMap['rm_group']);

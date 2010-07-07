@@ -128,23 +128,51 @@ class elModuleAdminIShop extends elModuleIShop
 	    elLocation($this->_urlMnfs);
 	}
 
+	/**
+	 * Create/edit trade mark (model)
+	 *
+	 * @return void
+	 **/
 	function editTm() {
 		$this->_mnf->idAttr($this->_arg(0));
 		$this->_mnf->fetch();
-		elPrintR($this->_mnf);
-		// return;
 
 		if (!$this->_factory->getAllFromRegistry(EL_IS_MNF)) {
 			elThrow(E_USER_WARNING, 'Could not create trade mark without manufacturer! Create at least one manufacturer first!', null, $this->_urlMnfs.$this->_mnf->ID);
 		}
-		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1) ); //elPrintR($mnf);
+		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1)); 
+		if (!$tm->ID) {
+			$tm->mnfID = $this->_mnf->ID;
+		}
 		if (!$tm->editAndSave()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
+				'name' => $this->_mnf->name)
+				);
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($tm->formToHtml());
+			
 		}
-		elMsgBox::put( m('Data saved') );
-		elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_urlMnfs.'mnf/'.$tm->mnfID.'/');
 	}
+
+	/**
+	 * Reove trade mark (model)
+	 *
+	 * @return void
+	 **/
+	function rmTm() {
+		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1) );
+		if (!$tm->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($tm->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);	
+		}
+		$tm->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $tm->getObjName(), $tm->name) );
+	    elLocation($this->_urlMnfs.'mnf/'.$tm->mnfID.'/');
+	}
+
+
 
 
 	/**********    манипуляции с типами товаров   *******************/
@@ -365,17 +393,7 @@ class elModuleAdminIShop extends elModuleIShop
 
 
 
-	function rmTm()
-	{
-		$tm = $this->_factory->getTm( (int)$this->_arg(1) );
-		if (!$tm->ID)
-		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($tm->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);	
-		}
-		$tm->delete();
-		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $tm->getObjName(), $tm->name) );
-	    elLocation( EL_URL.'mnfs_list/'.$this->_cat->ID );
-	}
+
 
   function editCrossLinks()
 	{

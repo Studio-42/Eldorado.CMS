@@ -152,8 +152,8 @@ class elModuleIShop extends elModule {
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
-		$mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    // $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**

@@ -100,7 +100,7 @@ class elIShopFactory {
 	);
 
 	/**
-	 * undocumented function
+	 * 
 	 *
 	 * @var elIShopItemsCollection
 	 **/

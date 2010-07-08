@@ -66,6 +66,10 @@ class elIShopItemsCollection
 		$coll = array();
 		$sort = isset($this->_sort[$sortID]) ? $this->_sort[$sortID] : $this->_sort[$this->_sortID];
 		switch ($type) {
+			case EL_IS_ITYPE:
+				$coll = $this->_item->collection(true, true, 'type_id='.intval($ID), $sort, $offset, $step);
+				break;
+			
 			case EL_IS_MNF:
 				$coll = $this->_item->collection(true, true, 'mnf_id='.intval($ID), $sort);
 				break;

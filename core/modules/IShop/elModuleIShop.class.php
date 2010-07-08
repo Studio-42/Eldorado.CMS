@@ -76,6 +76,7 @@ class elModuleIShop extends elModule {
 		'types'         => array('m' => 'viewTypes'),
 		'mnf'           => array('m' => 'viewManufacturer'),
 		'tm'            => array('m' => 'viewTrademark'),
+		'type'          => array('m' => 'viewType'),
 		'item'          => array('m' => 'viewItem'),
 		'search'        => array('m' => 'search'),
 		'search_params' => array('m' => 'searchParams'),
@@ -190,7 +191,7 @@ class elModuleIShop extends elModule {
 	}
 
 	/**
-	 * undocumented function
+	 * display types
 	 *
 	 * @return void
 	 **/
@@ -266,6 +267,33 @@ class elModuleIShop extends elModule {
 			);
 		$mt = &elSingleton::getObj('elMetaTagsCollection');  
 	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function viewType() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+		list($total, $current, $offset, $step) = $this->_getPagerInfo(
+			$this->_factory->ic->count(EL_IS_ITYPE, $this->_type->ID), (int)$this->_arg(1)
+		);
+		if (!$current) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such page', null, $this->_urlTypes.$this->_type->ID.'/');
+		}
+		$this->_initRenderer();
+		$this->_rnd->rndType($this->_type, $this->_factory->ic->create(EL_IS_ITYPE, $this->_type->ID, $offset, $step), $total, $current);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name)
+			);
 	}
 
 	/**
@@ -554,8 +582,9 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function _onInit() {
-		$this->_cat = $this->_factory->create(EL_IS_CAT, 1);
-		$this->_mnf = $this->_factory->create(EL_IS_MNF);
+		$this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_mnf  = $this->_factory->create(EL_IS_MNF);
+		$this->_type = $this->_factory->create(EL_IS_ITYPE);
 
 		if ($this->_view == EL_IS_VIEW_CATS) {
 			$this->_cat->idAttr($this->_arg(0));

@@ -18,7 +18,9 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'rm_item'     => array('m'=>'rmItem'),
 	  	'item_img'    => array('m'=>'itemImg'),
 	  	'rm_img'      => array('m'=>'rmItemImg'),
-	  	// 'types'       => array('m'=>'displayItemsTypes', 'g'=>'Actions', 'ico'=>'icoItemTypesList', 'l'=>'Items types list'),
+	
+		'type_props'  => array('m' => 'typeProps'),
+
 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 	  	
 		'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
@@ -173,15 +175,26 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * Display products types
+	 * display product type properties
 	 *
 	 * @return void
 	 **/
-	function displayItemsTypes() {
+	function typeProps() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+		
 		$this->_initRenderer();
-		$this->_rnd->rndTypes($this->_factory->getAllFromRegistry(EL_IS_ITYPE));
+		$this->_rnd->rndTypeProps($this->_type);
+		
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name)
+			);
 	}
-
+	
 	/**
 	 * Create/edit products type
 	 *

@@ -31,7 +31,7 @@ $elMsg['Changing password notification']        = 'Повідомлення пр
 $elMsg['New user registration notification']    = 'Реєстрацiя нового користувача';
 $elMsg["Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n"] = "По Вашому запиту пароль для доступу до сайту \ % s \" [% s] був змінений. \ NВаш новий пароль для авторизації на сайті: \ nІмя користувача:% s \ nПароль:% s \ n ";
 $elMsg["Your password for site %s [%s] was changed.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n"] = "Ваш пароль для доступу до сайту% s [% s] був змінений. \ NВаш новий пароль для авторизації на сайті: \ nІмя користувача:% s \ nПароль:% s \ n";;
-$elMsg["You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n"] = "Ви зареєстровані як користувач на сайтi% s [% s] \ n.Для авторизації використовуйте наступні дані: \ nІмя користувача:% s \ nПароль:% s \ n";
+$elMsg["You have registered on website %s [%s].\n Please, use the following data for login:\n Login: %s \nPassword: %s\n"] = "Ви зареєстровані як користувач на сайтi% s [% s] \ n.Для авторизації використовуйте наступні дані: \ nІмя користувача:% s \ nПароль:% s \ n";
 $elMsg['New user was registered on %s (%s)'] = 'Повідомлення о реєстрацiї нового користувача на сайті %s "%s"';
 $elMsg['New user was registered on site %s [%s]. His(her) login is: %s. Profile is here: %s'] 
 	= 'Новий користувач зареєструвався на форумі сайту %s [%s]. Логин: %s. Профайл: %s';

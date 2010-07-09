@@ -305,7 +305,7 @@ class IShopImportLexus
 				$logo = preg_replace('/(?![a-z])./', '_', strtolower($m)); // black-black regexp
 				//print $logo;
 				$logo = '/storage/mnf/'.$logo.'.gif';
-				$sql = "INSERT INTO ".$this->tb_mnf." (name, logo) VALUES ('".$m."', '".$logo."')";
+				$sql = "INSERT INTO ".$this->tb_mnf." (name, logo) VALUES (UPPER('".$m."'), '".$logo."')";
 				$this->db->query($sql);
 			}
 		}
@@ -326,12 +326,12 @@ class IShopImportLexus
 				echo "problems loading mnf, skipping\n";
 				continue;
 			}
-			$this->db->query("SELECT UPPER(tm.name) AS tm FROM ".$this->tb_tm." AS tm WHERE tm.mnf_id=".$mnf_id." AND UPPER(tm.name)='".$car['MODEL']."' LIMIT 1");
+			$this->db->query("SELECT UPPER(tm.name) AS tm FROM ".$this->tb_tm." AS tm WHERE tm.mnf_id=".$mnf_id." AND UPPER(tm.name)=UPPER('".$car['MODEL']."') LIMIT 1");
 			if ($this->db->numRows() == 1)
 			{
 				continue;
 			}
-			$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, '".$car['MODEL']."')";
+			$sql = "INSERT INTO ".$this->tb_tm." (mnf_id, name) VALUES ($mnf_id, UPPER('".$car['MODEL']."'))";
 			$this->db->query($sql);
 		}
 	}
@@ -400,7 +400,7 @@ class IShopImportLexus
 			echo " $mnf_id:$tm_id ";
 			if (in_array($car['CARID'], $new_cars))
 			{
-				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (%d, %d, '%s', '%s', '%s', '%.2f', '%d', %d, %d)";
+				$sql = "INSERT INTO ".$this->tb_item." (type_id, mnf_id, tm_id, code, name, price, special, crtime, mtime) VALUES (%d, %d, '%s', '%s', UPPER('%s'), '%.2f', '%d', %d, %d)";
 				$sql = sprintf($sql, $this->itype_id, $mnf_id, $tm_id, $car['CARID'], $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), time());
 				$this->db->query($sql);
 				$i_id = $this->db->insertID();
@@ -413,7 +413,7 @@ class IShopImportLexus
 				$this->db->query($sql);
 				$id = $this->db->nextRecord();
 				$i_id = $id['id'];
-				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name='%s', price='%s', special='%d', mtime='%d' WHERE id='%d' LIMIT 1";
+				$sql = "UPDATE ".$this->tb_item." SET mnf_id='%d', tm_id='%s', name=UPPER('%s'), price='%.2f', special='%d', mtime='%d' WHERE id='%d' LIMIT 1";
 				$sql = sprintf($sql, $mnf_id, $tm_id, $car['MODEL'], $car['PRICERUB'], $car['SPECIALOFFER'], time(), $i_id);
 				$this->db->query($sql);
 				echo " (update)\n";

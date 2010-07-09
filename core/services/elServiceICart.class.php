@@ -417,7 +417,7 @@ class elServiceICart extends elService
 	function _sendMessage($orderID, $msg) {
 		$postman = & elSingleton::getObj('elPostman');
 		$ec      = & elSingleton::getObj('elEmailsCollection');
-		$subj    = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL );
+		$subj    = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL);
 		$sender  = $ec->getDefault();
 		$rcpt    = $this->_conf->recipients();
 
@@ -439,7 +439,7 @@ class elServiceICart extends elService
 				}
 			}
 			if ($userEmail) {
-				$subj = m('Order confirmation');
+				$subj = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL);
 				$msg = m('Dear customer! We get your order and contact You as soon as posible. This is confirmation message and You dont need to answer on it.')."\n"
 					.'<br/>'
 	                .$msg;

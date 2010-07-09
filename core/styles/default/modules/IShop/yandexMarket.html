@@ -40,10 +40,10 @@
 						var ul = $('<ul/>').appendTo(parent).hide();
 						$.each(data, function() {
 							var li = $('<li/>').appendTo(ul);
-							if (this.is_cat==1) {
+							if (this.is_cat == true) {
 								li.attr('id', 'li_'+this.id);
 								a = $('<a/>').attr('href', '#').attr('id', this.id).addClass('category');
-								if (this.has_childs==1) {
+								if (this.has_childs == true) {
 									a.addClass('el-collapsed');
 								} else {
 									a.addClass('el-empty-set');
@@ -64,7 +64,7 @@
 								if (same.length == 1) {
 									cb.attr('checked', same.attr('checked'));
 								} else {
-									cb.attr('checked', (this.ym == 1 ? true : false));
+									cb.attr('checked', this.ym);
 								}
 								li.append($('<div/>')
 									.append(cb)

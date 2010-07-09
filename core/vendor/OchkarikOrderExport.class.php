@@ -186,7 +186,7 @@ EOL;
 		$e .= "\t\t\t".sprintf('<ИнформацияОПокупателе Логин="%s">', $this->_getLogin($o['customer']))."\n";
 		foreach ($o['customer'] as $c)
 		{
-			$e .= "\t\t\t\t".sprintf('<ДополнительнаяИнформация field_id="%s" value="%s" />', $c['field_id'], $c['value'])."\n";
+			$e .= "\t\t\t\t".sprintf('<ДополнительнаяИнформация field_id="%s" value="%s" />', $c['field_id'], str_replace('"', "'", $c['value']))."\n";
 		}
 		$e .= "\t\t\t".'</ИнформацияОПокупателе>'."\n";
 		$e .= "\t\t".'</Покупатель>'."\n";

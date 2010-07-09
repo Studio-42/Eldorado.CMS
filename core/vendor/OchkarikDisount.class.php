@@ -21,7 +21,7 @@ class OchkarikDiscount
 
 	function __construct()
 	{
-		$this->db_serv = '212.248.30.146';
+		$this->db_serv = '82.204.249.186';
 		$this->db_user = 'webuser';
 		$this->db_pass = 'ph7T4uChA6';
 	}

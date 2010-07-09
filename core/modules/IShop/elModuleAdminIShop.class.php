@@ -488,25 +488,24 @@ class elModuleAdminIShop extends elModuleIShop
 				{
 					exit(elJSON::encode(array('error' => 'Invalid argument')));
 				}
+
 				$nodes = array();
-				$cat = $this->_factory->create(EL_IS_CAT, $ID);
-				$ic  = $this->_factory->create(EL_IS_ITEMSCOL, 0);
-				foreach ($cat->getChilds(1) as $child)
+				foreach ($this->_factory->create(EL_IS_CAT, $ID)->getChilds(1) as $child)
 				{
 					array_push($nodes, array(
 						'id'         => 'cat_'.$child->ID,
 						'name'       => $child->name,
-						'has_childs' => (int)(bool)$ic->count(EL_IS_CAT, $child->ID),
-						'is_cat'     => 1
+						'has_childs' => (bool)$this->_factory->ic->count(EL_IS_CAT, $child->ID),
+						'is_cat'     => true
 					));
 				}
-				foreach ($ic->create(EL_IS_ITEM, $ID) as $i)
+				foreach ($this->_factory->ic->create(EL_IS_ITEM, $ID) as $i)
 				{
 					array_push($nodes, array(
 						'id'         => 'item_'.$i->ID,
 						'name'       => $i->name.' ('.$i->ID.')',
-						'has_childs' => 0,
-						'ym'         => $i->ym
+						'has_childs' => false,
+						'ym'         => (bool)$i->ym
 					));
 				}
 				exit(elJSON::encode($nodes));
@@ -535,6 +534,11 @@ class elModuleAdminIShop extends elModuleIShop
 		$this->_rnd->rndYandexMarket(array('id' => 'cat_'.$cat->ID, 'name' => $cat->name));
 	}
 
+	/**
+	 * Import 1C CommerceML DEPRECATED
+	 *
+	 * @return void
+	 **/
 	function importCommerceML()
 	{
 		$this->_makeImportCMLForm();

@@ -56,7 +56,7 @@ class elIShopManufacturer extends elDataMapping {
 	 *
 	 * @return void
 	 **/
-	function _makeForm() {
+	function _makeForm($params = null) {
 		parent::_makeForm();
 		$this->_form->add( new elText('name',      m('Name'),        $this->name) );
 		$this->_form->add( new elText('country',   m('Country'),     $this->country) );

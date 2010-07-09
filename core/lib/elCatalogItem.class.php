@@ -118,7 +118,7 @@ class elCatalogItem extends elDataMapping
 		}
 	}
 
-	function delete()
+	function delete($ref = null)
 	{
 		return parent::delete( array($this->tbi2c => 'i_id') );
 	}
@@ -146,10 +146,10 @@ class elCatalogItem extends elDataMapping
 	* @param array $parents  parent categories list
 	* @return void
 	*/
-	function _makeForm( $parents )
+	function _makeForm($params = null)
 	{
-		parent::_makeForm(); 
-		
+		parent::_makeForm();
+		$parents = $params;
 		$this->_form->add( new elMultiSelectList('pids', m('Parent categories'), $this->_getParents(), empty($parents) ? array(1) : $parents) );
 		$this->_form->add( new elText('name', m('Name'), $this->name, array('style'=>'width:100%;')) );
 		$this->_form->setRequired('pids[]');
@@ -170,7 +170,7 @@ class elCatalogItem extends elDataMapping
 	* @param array $parents  parent categories list
 	* @return void
 	*/
-	function _postSave( )
+	function _postSave($isNew, $params=null)
 	{
 		if (!$this->_form)
 		{

@@ -84,7 +84,7 @@ class elIShopItemType extends elDataMapping
 	 *
 	 * @return void
 	 **/
-	function delete() {
+	function delete($ref = null) {
 		foreach ($this->props as $p) {
 			$p->delete();
 		}
@@ -149,7 +149,7 @@ class elIShopItemType extends elDataMapping
 	 *
 	 * @return void
 	 **/
-	function _makeForm() {
+	function _makeForm($params = null) {
 		parent::_makeForm();
 		$this->_form->add( new elText('name', m('Type name'), $this->name));
 		$this->_form->setRequired('name');

@@ -452,7 +452,7 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @return object
 	 **/
-	function getForm() {
+	function getForm($params = null) {
 		return $this->_form;
 	}
 	
@@ -553,7 +553,7 @@ class elFormConstructorElement extends elDataMapping {
 	 *
 	 * @return void
 	 **/
-	function _makeForm($params) {
+	function _makeForm($params = null) {
 		parent::_makeForm();
 		
 		if (!$this->ID) {

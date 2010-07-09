@@ -100,7 +100,7 @@ class elCatalogCategory extends elDataMapping
 		return $this->tree->exchange( $this->ID, $nID );
 	}
 
-	function editAndSave()
+	function editAndSave($params = null)
 	{
 		$this->_initTree();
 		$this->_makeForm();
@@ -142,7 +142,7 @@ class elCatalogCategory extends elDataMapping
 		$this->_form->setRequired('name');
 	}
 
-	function delete()
+	function delete($ref = null)
 	{
 		$this->_initTree();
 		if ( $this->tree->delete( $this->ID ) )

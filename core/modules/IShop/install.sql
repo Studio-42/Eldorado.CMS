@@ -49,11 +49,11 @@ CREATE TABLE el_ishop_{pageID}_item (
 
 DROP TABLE IF EXISTS el_ishop_{pageID}_itype;
 CREATE TABLE el_ishop_{pageID}_itype (
-  id     tinyint(3)   NOT NULL auto_increment,
-  name   varchar(256) NOT NULL,
-  descrip mediumtext NOT NULL,
-  crtime int(11)      unsigned NOT NULL default '0',
-  mtime  int(11)      unsigned NOT NULL default '0',
+  id      tinyint(3)   NOT NULL auto_increment,
+  name    varchar(256) NOT NULL,
+  descrip mediumtext   NOT NULL,
+  crtime  int(11)      unsigned NOT NULL default '0',
+  mtime   int(11)      unsigned NOT NULL default '0',
   primary KEY(id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 INSERT INTO el_ishop_{pageID}_itype (name) VALUES ("Default item");

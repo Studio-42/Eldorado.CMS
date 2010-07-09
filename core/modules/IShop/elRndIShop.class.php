@@ -44,7 +44,7 @@ class elRndIShop extends elCatalogRenderer {
 	 * @param  bool         is in admin mode
 	 * @return void
 	 **/
-	function init($dirname, $conf, $admin=false) {
+	function init($dirname, $conf, $admin=false, $tabs=null, $curTab=null) {
 		parent::init($dirname, $conf, $admin);
 		
 		if ($this->_view != $this->_conf('default_view')) {
@@ -84,7 +84,7 @@ class elRndIShop extends elCatalogRenderer {
 	 * @param  int    $current  current page number
 	 * @return void
 	 **/
-	function render($cats, $items, $total, $current) {
+	function render($cats, $items, $total, $current, $cat) {
 		$this->_setFile();
 		$this->_rndViewSwitch();
 

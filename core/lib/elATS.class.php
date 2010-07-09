@@ -337,31 +337,40 @@ class elATS {
 		$emails   = & elSingleton::getObj('elEmailsCollection');
 		$postman  = & elSingleton::getObj('elPostman');
 
-		if (EL_UNTF_REMIND == $type ) {
+		if (EL_UNTF_REMIND == $type )
+		{
 			$subj = m('Changing password notification');
 			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-		} elseif ( EL_UNTF_REGISTER == $type) {
-			
-			if ($this->conf('newUserAdminNotify') ) {
-				$subj = sprintf( m('New user was registered on %s (%s)'), $siteName, EL_BASE_URL );
+		}
+		elseif (EL_UNTF_REGISTER == $type)
+		{
+			if ($this->conf('newUserAdminNotify'))
+			{
+				$subj = sprintf(m('New user was registered on %s (%s)'), $siteName, EL_BASE_URL);
 				$msg = '';
-				foreach ( $user->getData() as $one ) {
+				foreach ($user->getData() as $one)
+				{
 					$msg .= m($one['label']).': '.$one['value']."\n";
 				}
 				$postman->newMail($emails->getDefault(), $emails->getDefault(), $subj, $msg, false, $sign);
 				$postman->deliver();
 	        }
 			
-			if (!$this->conf('newUserNotify')) {
+			if (!$this->conf('newUserNotify'))
+			{
 				return;
 			}
-			
+
 			$subj = m('New user registration notification');
-			$msg  = m("You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-		} elseif ( EL_UNTF_PASSWD == $type   &&  $this->conf('changePasswordNotify') ) {
+			$msg  = m("You have registered on website %s [%s].\n Please, use the following data for login:\n Login: %s \nPassword: %s\n");
+		}
+		elseif (EL_UNTF_PASSWD == $type && $this->conf('changePasswordNotify'))
+		{
 			$subj = m('Changing password notification');
 			$msg  = m("Your password for site %s [%s] was changed on Your request.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
-		} else {
+		}
+		else
+		{
 			return;
 		}
 
@@ -370,7 +379,8 @@ class elATS {
 		// echo $msg;
 		$postman->newMail($emails->getDefault(), $user->getEmail(), $subj, $msg, false, $sign);
 
-		if ( !$postman->deliver() ) {
+		if (!$postman->deliver())
+		{
 			elThrow( E_USER_WARNING, m("Sending e-mail to address %s was failed.\n Here is message conent: %s\n\n"), array(htmlspecialchars($email), $msg));
 			elDebug($postman->error);
 		}

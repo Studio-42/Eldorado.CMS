@@ -161,7 +161,7 @@ class elIShopProperty extends elDataMapping
 	 *
 	 * @return array
 	 **/
-	function collection($obj=false, $assoc=false, $clause=null) {
+	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
 		$coll = parent::collection(true, true, $clause);
 		
 		if ($coll) {
@@ -337,7 +337,7 @@ class elIShopProperty extends elDataMapping
    * Создает объект-форму для редактирования своих полей
    *
    */
-  function _makeForm( $params )
+  function _makeForm($params = null)
   {
     parent::_makeForm();
 
@@ -446,7 +446,7 @@ class elIShopProperty extends elDataMapping
   /**
    * Удаляет поля объекта из всех таблиц в БД
    */
-  function delete()
+  function delete($ref = null)
   {
     $db  = &elSingleton::getObj('elDb');
     $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx-1 WHERE '
@@ -534,7 +534,7 @@ class elIShopProperty extends elDataMapping
    *
    * @return bool
    */
-  function _postSave()
+  function _postSave($isNew, $params = null)
   {
     $db  = &elSingleton::getObj('elDb');
     $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx+1 WHERE '

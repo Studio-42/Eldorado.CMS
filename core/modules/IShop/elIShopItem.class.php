@@ -306,7 +306,7 @@ class elIShopItem extends elCatalogItem {
    *
    * @param array $parents
    */
-  function _makeForm( $params )
+  function _makeForm($params = null)
   {
     $label = !$this->idAttr() ? 'Create object "%s"' : 'Edit object "%s"';
     $this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m($label), m($this->_objName))  );
@@ -380,12 +380,12 @@ class elIShopItem extends elCatalogItem {
    * tb, tbp2i tbi2c
    *
    */
-  function delete()
+  function delete($ref = null)
   {
     parent::delete( array($this->tbp2i=>'i_id', $this->tbi2c=>'i_id') );
   }
 
-  function removeItems( $catID )
+  function removeItems($catID, $sortID=0)
   {
     $db = & elSingleton::getObj('elDb');
     $sql = 'SELECT id, CONCAT(code, " ", name) AS name  FROM '.$this->_tb.', '.$this->tbi2c
@@ -626,7 +626,7 @@ class elIShopItem extends elCatalogItem {
    *
    * @return bool
    */
-  function _postSave()
+  function _postSave($isNew, $params = null)
 	{
 	  $db = &elSingleton::getObj('elDb');
 

@@ -51,6 +51,7 @@ DROP TABLE IF EXISTS el_ishop_{pageID}_itype;
 CREATE TABLE el_ishop_{pageID}_itype (
   id     tinyint(3)   NOT NULL auto_increment,
   name   varchar(256) NOT NULL,
+  descrip mediumtext NOT NULL,
   crtime int(11)      unsigned NOT NULL default '0',
   mtime  int(11)      unsigned NOT NULL default '0',
   primary KEY(id)

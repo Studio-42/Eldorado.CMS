@@ -9,20 +9,74 @@ include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php'
  * @package IShop
  **/
 class elModuleIShop extends elModule {
-	var $_factory   = null;
-	var $itemsNum   = 0;
-	var $_url       = EL_URL;
-	var $_urlCats   = '';
-	var $_urlMnfs   = '';
-	var $_cat       = null;
-	var $_mnf       = null;
+	/**
+	 * factory
+	 *
+	 * @var elIShopFactory
+	 **/
+	var $_factory = null;
+	/**
+	 * All products number
+	 *
+	 * @var int
+	 **/
+	var $itemsNum = 0;
+	/**
+	 * Current base url
+	 * @todo kill ?
+	 * @var string
+	 **/
+	var $_url = EL_URL;
+	/**
+	 * Categories url
+	 *
+	 * @var string
+	 **/
+	var $_urlCats = '';
+	/**
+	 * Manufacturers url
+	 *
+	 * @var string
+	 **/
+	var $_urlMnfs = '';
+	/**
+	 * Products tyes url
+	 *
+	 * @var string
+	 **/
+	var $_urlTypes = '';
+	/**
+	 * Current category
+	 *
+	 * @var elCatalogCategory
+	 **/
+	var $_cat = null;
+	/**
+	 * Current manufacturer
+	 *
+	 * @var elIShopManufacturer
+	 **/
+	var $_mnf = null;
+	/**
+	 * Current product type
+	 *
+	 * @var elIShopItemType
+	 **/
+	var $_type = null;
 	var $_item      = null;
 	var $_jslib     = true;
+	var $_viewMap   = array(
+		'cats'  => EL_IS_VIEW_CATS,
+		'mnfs'  => EL_IS_VIEW_MNFS,
+		'types' => EL_IS_VIEW_TYPES
+		);
 	var $_mMap      = array(
 		'cats'          => array('m' => 'viewCategories'),
 		'mnfs'          => array('m' => 'viewManufacturers'),
+		'types'         => array('m' => 'viewTypes'),
 		'mnf'           => array('m' => 'viewManufacturer'),
 		'tm'            => array('m' => 'viewTrademark'),
+		'type'          => array('m' => 'viewType'),
 		'item'          => array('m' => 'viewItem'),
 		'search'        => array('m' => 'search'),
 		'search_params' => array('m' => 'searchParams'),
@@ -30,30 +84,33 @@ class elModuleIShop extends elModule {
 	);
 
 	var $_conf      = array(
-		'default_view'      => EL_IS_VIEW_CATS,
-		'displayViewSwitch' => 0,
-		'deep'              => 0,
-		'catsCols'          => 1,
-		'displayCatDescrip' => EL_CAT_DESCRIP_IN_LIST,
-		'mnfsCols'          => 1,
-		'displayEmptyMnf'   => 0,
-		'displayMnfDescrip' => EL_CAT_DESCRIP_IN_SELF,
-		'tmsCols'           => 1,
-		'displayEmptyTm'    => 0,
-		'displayTMDescrip'  => EL_CAT_DESCRIP_IN_SELF,
-		'itemsCols'         => 1,
-		'itemsSortID'       => EL_IS_SORT_NAME,
-		'itemsPerPage'      => 10,
-		'displayCode'       => 1,
-		'tmbListSize'       => 125,
-		'tmbItemCardSize'   => 250,
-		'sliderSize'        => 4,
-		'crossLinksGroups'  => array(),
-		'currency'          => '',
-		'exchangeSrc'       => 'auto',
-		'commision'         => 0,
-		'rate'              => 1,
-	    'pricePrec'         => 0
+		'default_view'       => EL_IS_VIEW_CATS,
+		'displayViewSwitch'  => 0,
+		'deep'               => 0,
+		'catsCols'           => 1,
+		'displayCatDescrip'  => EL_CAT_DESCRIP_IN_LIST,
+		'mnfsCols'           => 1,
+		'displayEmptyMnf'    => 0,
+		'displayMnfDescrip'  => EL_CAT_DESCRIP_IN_LIST,
+		'tmsCols'            => 1,
+		'displayEmptyTm'     => 0,
+		'displayTMDescrip'   => EL_CAT_DESCRIP_IN_LIST,
+		'typesCols'          => 1,
+		'displayEmptyTypes'  => 0,
+		'displayTypeDescrip' => EL_CAT_DESCRIP_IN_LIST,
+		'itemsCols'          => 1,
+		'itemsSortID'        => EL_IS_SORT_NAME,
+		'itemsPerPage'       => 10,
+		'displayCode'        => 1,
+		'tmbListSize'        => 125,
+		'tmbItemCardSize'    => 250,
+		'sliderSize'         => 4,
+		'crossLinksGroups'   => array(),
+		'currency'           => '',
+		'exchangeSrc'        => 'auto',
+		'commision'          => 0,
+		'rate'               => 1,
+	    'pricePrec'          => 0
 	);
 	
 	var $_view;
@@ -62,7 +119,7 @@ class elModuleIShop extends elModule {
 	 *
 	 * @var array
 	 **/
-	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs', 'itemsNum');
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
  //**************************************************************************************//
  // *******************************  PUBLIC METHODS  *********************************** //
  //**************************************************************************************//
@@ -73,7 +130,16 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function defaultMethod() {
-		$this->_view == EL_IS_VIEW_MNFS ? $this->viewManufacturers() : $this->viewCategories();
+		switch ($this->_view) {
+			case EL_IS_VIEW_MNFS:
+				$this->viewManufacturers();
+				break;
+			case EL_IS_VIEW_TYPES:
+				$this->viewTypes();
+				break;
+			default:
+				$this->viewCategories();
+		}
 	}
 
 	/**
@@ -122,6 +188,16 @@ class elModuleIShop extends elModule {
 		$this->_rnd->rndMnfs($this->_factory->getAllFromRegistry(EL_IS_MNF));
 		$mt = &elSingleton::getObj('elMetaTagsCollection');  
 	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+	}
+
+	/**
+	 * display types
+	 *
+	 * @return void
+	 **/
+	function viewTypes() {
+		$this->_initRenderer();
+		$this->_rnd->rndTypes($this->_factory->getAllFromRegistry(EL_IS_ITYPE));
 	}
 
 	/**
@@ -191,6 +267,33 @@ class elModuleIShop extends elModule {
 			);
 		$mt = &elSingleton::getObj('elMetaTagsCollection');  
 	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function viewType() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+		list($total, $current, $offset, $step) = $this->_getPagerInfo(
+			$this->_factory->ic->count(EL_IS_ITYPE, $this->_type->ID), (int)$this->_arg(1)
+		);
+		if (!$current) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such page', null, $this->_urlTypes.$this->_type->ID.'/');
+		}
+		$this->_initRenderer();
+		$this->_rnd->rndType($this->_type, $this->_factory->ic->create(EL_IS_ITYPE, $this->_type->ID, $offset, $step), $total, $current);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name)
+			);
 	}
 
 	/**
@@ -429,17 +532,45 @@ class elModuleIShop extends elModule {
 	*/
 	function _initNormal() {
 		parent::_initNormal();
-		if ($this->_conf['default_view'] != EL_IS_VIEW_CATS && $this->_conf['default_view'] != EL_IS_VIEW_MNFS) {
-			$this->_conf['default_view'] = EL_IS_VIEW_CATS;
-		}
+		
 		$h = $this->_arg();
-		$this->_view = $this->_conf('default_view');
-
-		if (($this->_view == EL_IS_VIEW_CATS && $h == 'mnfs')
-		|| 	($this->_view == EL_IS_VIEW_MNFS && $h == 'cats')) {
-			$this->_view = $this->_view == EL_IS_VIEW_MNFS ? EL_IS_VIEW_CATS : EL_IS_VIEW_MNFS;
+		$defaultView = $this->_conf['default_view'];
+		if (in_array($h, array_keys($this->_viewMap))) {
+			$this->_view = $this->_viewMap[$h];
 			array_shift($this->_args);
+		} else {
+			$this->_view = $defaultView;
+			
 		}
+		$this->_urlCats  = EL_URL.'cats/';
+		$this->_urlMnfs  = EL_URL.'mnfs/';
+		$this->_urlTypes = EL_URL.'types/';
+		
+		switch ($defaultView) {
+			case EL_IS_VIEW_MNFS:
+				$this->_urlMnfs  = EL_URL;
+				break;
+			case EL_IS_VIEW_TYPES:
+				$this->_urlTypes  = EL_URL;
+				break;
+			default:
+				$this->_urlCats  = EL_URL;
+		}
+		switch ($this->_view) {
+			case EL_IS_VIEW_MNFS:
+				$this->_url = $this->_urlMnfs;
+				break;
+			case EL_IS_VIEW_TYPES:
+				$this->_url = $this->_urlTypes;
+				break;
+			default:
+				$this->_url = $this->_urlCats;
+		}
+		
+		// echo 'mnfs: '.$this->_urlMnfs.'<br/>';
+		// echo 'cats: '.$this->_urlCats.'<br/>';
+		// echo 'types: '.$this->_urlTypes.'<br/>';
+		// echo 'url: '.$this->_url.'<br/>';
 
 		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
 		
@@ -451,8 +582,9 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function _onInit() {
-		$this->_cat = $this->_factory->create(EL_IS_CAT, 1);
-		$this->_mnf = $this->_factory->create(EL_IS_MNF);
+		$this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_mnf  = $this->_factory->create(EL_IS_MNF);
+		$this->_type = $this->_factory->create(EL_IS_ITYPE);
 
 		if ($this->_view == EL_IS_VIEW_CATS) {
 			$this->_cat->idAttr($this->_arg(0));
@@ -462,21 +594,9 @@ class elModuleIShop extends elModule {
 			$this->_mnf->fetch();
 			
 		}
-		
-		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
-			$this->_urlCats = EL_URL;
-			$this->_urlMnfs = EL_URL.'mnfs/';
-		} else {
-			$this->_urlCats = EL_URL.'cats/';
-			$this->_urlMnfs = EL_URL;
-		}
 
 		$this->_cat->fetch();
 		$GLOBALS['categoryID'] = $this->_cat->ID;
-
-		if ($this->_view != $this->_conf('default_view')) {
-			$this->_url = EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
-		}
 
 		$this->itemsNum = $this->_factory->ic->countAll();
 		

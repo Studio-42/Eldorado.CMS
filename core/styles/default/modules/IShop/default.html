@@ -1,8 +1,9 @@
 <div class="mod-ishop"> 
 	<!-- BEGIN ISHOP_VIEW_SWITCH -->
 	<div class="mod-ishop-switch-view clearfix">
-		<!-- BEGIN VIEW_CATS --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopCatsURL}">{m('Categories')}</a></div><!-- END VIEW_CATS -->
+		<!-- BEGIN VIEW_TYPES --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopTypesURL}">{m('Types')}</a></div><!-- END VIEW_TYPES -->
 		<!-- BEGIN VIEW_MNFS --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopMnfsURL}">{m('Manufacturers')}</a></div><!-- END VIEW_MNFS -->
+		<!-- BEGIN VIEW_CATS --><div class="mod-ishop-switch-view-tab rounded-top-5 {cssClass}"><a href="{ishopCatsURL}">{m('Categories')}</a></div><!-- END VIEW_CATS -->
 	</div>
 	<!-- END ISHOP_VIEW_SWITCH -->
 
@@ -32,7 +33,7 @@
 			<li><a href="{ishopCatsURL}rm/{catID}/{id}/"      class="icons delete"   title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a> {ishopCatsURL}
+		<a href="{ishopCatsURL}{id}/" class="mod-ishop-cats-onecol-name {cssClass}">{name}</a>
 		<div class="mod-ishop-cats-onecol-descrip">{descrip}</div>
 		<div class="ie-clear"></div>
 	</li>
@@ -158,6 +159,45 @@
 	</div>
 </div>
 <!-- END TMS_TWOCOL -->
+
+<!-- BEGIN TYPES_ONECOL -->
+<ul class="mod-ishop-tms-onecol cats-onecol">
+	<!-- BEGIN TYPE -->
+	<li>
+		<!-- BEGIN ADMIN -->
+		<ul class="adm-icons">
+			<li><a href="{ishopTypesURL}{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{ishopTypesURL}{id}/" class="icons delete" title="{m('Delete')}"></a></li>
+		</ul>
+		<!-- END ADMIN -->
+		<a href="{ishopTypesURL}type/{id}/" class="mod-ishop-tms-onecol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span> 
+		<a href="{ishopTypesURL}type_props/{id}/">[{m('Properties')}]</a>
+		<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-onecol-descrip">{descrip}</div><!-- END DESCRIP -->
+		<div class="clearfix"></div>
+	</li>
+	<!-- END TYPE -->
+</ul>
+<!-- END TYPES_ONECOL -->
+
+<!-- BEGIN TYPES_TWOCOL -->
+<div class="mod-ishop-tms-twocol nicegrid-50 rounded-7 {cssRowClass}">	
+	<div class="nicegrid-51 rounded-7 {hide} {cssRowClass}">
+	<!-- BEGIN TYPE -->
+		<div class="grid-25-content{cssLastClass}">
+			<!-- BEGIN ADMIN -->
+			<ul class="adm-icons">
+				<li><a href="{ishopTypesURL}{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{ishopTypesURL}{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+			</ul>
+			<!-- END ADMIN -->
+			<a href="{ishopTypesURL}type/{id}/" class="mod-ishop-tms-twocol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span>  
+			<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-twocol-descrip">{descrip}</div><!-- END DESCRIP -->
+		</div>
+	<!-- END TYPE -->
+		<div class="clear"></div>
+	</div>
+</div>
+<!-- END TYPES_TWOCOL -->
 
 <!-- BEGIN DC_HDELIM --><hr class="mod-ishop-hdelim" /><!-- END DC_HDELIM -->
 

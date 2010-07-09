@@ -18,7 +18,9 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'rm_item'     => array('m'=>'rmItem'),
 	  	'item_img'    => array('m'=>'itemImg'),
 	  	'rm_img'      => array('m'=>'rmItemImg'),
-	  	'types'       => array('m'=>'displayItemsTypes', 'g'=>'Actions', 'ico'=>'icoItemTypesList', 'l'=>'Items types list'),
+	
+		'type_props'  => array('m' => 'typeProps'),
+
 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 	  	
 		'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
@@ -173,15 +175,26 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * Display products types
+	 * display product type properties
 	 *
 	 * @return void
 	 **/
-	function displayItemsTypes() {
+	function typeProps() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+		
 		$this->_initRenderer();
-		$this->_rnd->rndTypes($this->_factory->getAllFromRegistry(EL_IS_ITYPE));
+		$this->_rnd->rndTypeProps($this->_type);
+		
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name)
+			);
 	}
-
+	
 	/**
 	 * Create/edit products type
 	 *
@@ -622,8 +635,9 @@ class elModuleAdminIShop extends elModuleIShop
 		$cAttrs   = array('cellAttrs'=>'class="form-tb-sub"');
 		$params   = array(
 			'default_view' => array(
-				EL_IS_VIEW_CATS => m('Categories'), 
-				EL_IS_VIEW_MNFS => m('Manufacturers')
+				EL_IS_VIEW_CATS  => m('Categories'), 
+				EL_IS_VIEW_MNFS  => m('Manufacturers'),
+				EL_IS_VIEW_TYPES => m('Products types')
 			),
 			'deep' => array( m('All levels'), 1, 2, 3, 4),
 			'view' => array( 1=>m('One column'), 2=>m('Two columns')),
@@ -669,19 +683,24 @@ class elModuleAdminIShop extends elModuleIShop
 		$form->add( new elSelect('tmsCols',           m('Trade marks/models list view'),          $this->_conf('tmsCols'),           $params['view'],              $attrs) );
 		$form->add( new elSelect('displayEmptyTm',    m('Display empty trade marks/models'),      $this->_conf('displayEmptyTm'),    $GLOBALS['yn'],               $attrs));
 		$form->add( new elSelect('displayTmDescrip',  m('Display Trade mark/model descriptions'), $this->_conf('displayTmDescrip'),  $params['displayCatDescrip'], $attrs));
+		// types
+		$form->add( new elCData('c03',                 m('Products types')),                       array('cellAttrs'=>'class="form-tb-sub"'));
+		$form->add( new elSelect('typesCols',          m('Types list view'),                       $this->_conf('typesCols'),          $params['view'],              $attrs) );
+		$form->add( new elSelect('displayEmptyTypes',  m('Display empty types'),                   $this->_conf('displayTypesMnf'),    $GLOBALS['yn'],               $attrs));
+		$form->add( new elSelect('displayTypeDescrip', m('Display type descriptions'),             $this->_conf('displayTypeDescrip'), $params['displayCatDescrip'], $attrs));
 		// documents
-		$form->add( new elCData('c03',           m('Products')),                    $cAttrs);
+		$form->add( new elCData('c04',           m('Products')),                    $cAttrs);
 		$form->add( new elSelect('itemsCols',    m('Products list view'),           $this->_conf('itemsCols'),    $params['view'], $attrs) );
 		$form->add( new elSelect('itemsSortID',  m('Sort products by'),             $this->_conf('itemsSortID'),  $params['sort'], $attrs) );
 		$form->add( new elSelect('itemsPerPage', m('Number of products per page'),  $this->_conf('itemsPerPage'), $params['nums'], $attrs) );
 		$form->add( new elSelect('displayCode',  m('Display product code/articul'), $this->_conf('displayCode'),  $GLOBALS['yn'], $attrs) );
 		// images
-		$form->add( new elCData('c04',              m('Products images')),     $cAttrs);
+		$form->add( new elCData('c05',              m('Products images')),     $cAttrs);
 		$form->add( new elSelect('tmbListSize',     m('Thumbnails size (px)'), $this->_conf('tmbListSize'),     $params['imgSize'], $attrs, false, false) );
 		$form->add( new elSelect('tmbItemCardSize', m('Preview size (px)'),    $this->_conf('tmbItemCardSize'), $params['imgSize'], $attrs, false, false) );
 		$form->add( new elSelect('sliderSize',      m('Slider size'),          $this->_conf('sliderSize'),      range(1, 25),       $attrs, false, false));
 		// price
-		$form->add( new elCData('c05',          m('Price')),                      $cAttrs);
+		$form->add( new elCData('c06',          m('Price')),                      $cAttrs);
 		$form->add( new elSelect('pricePrec',   m('Price format'),                $this->_conf('pricePrec'),   $params['price'], $attrs) );
 		$form->add( new elSelect('currency',    m('Currency'),                    $this->_conf('currency'),    $currency->getList(), $attrs));
 		$form->add( new elSelect('exchangeSrc', m('Use exchange rate'),           $this->_conf('exchangeSrc'), $params['exchangeSrc'], $attrs));
@@ -773,7 +792,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function _initAdminMode() {
-		unset($this->_mMap['mnfs']); // fix commands order in admin menu
+		// unset($this->_mMap['mnfs']); // fix commands order in admin menu
 		parent::_initAdminMode();
 
 		$tList = $this->_factory->getTypesList(); 

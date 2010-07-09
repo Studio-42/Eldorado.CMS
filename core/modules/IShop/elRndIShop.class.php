@@ -13,10 +13,8 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	var $_tpls    = array(
 		'item'   => 'item.html',
-		// 'search' => 'search-form.html',
 		'mnfs'   => 'mnfs.html',
-		'types'  => 'types.html',
-		// 'sConf'  => 'search-conf.html',
+		'props'  => 'props.html',
 		'yaMart' => 'yandexMarket.html'
 	);
 	/**
@@ -60,6 +58,7 @@ class elRndIShop extends elCatalogRenderer {
 			'ishopURL' => $this->_url,
 			'ishopCatsURL' => $this->_urlCats,
 			'ishopMnfsURL' => $this->_urlMnfs,
+			'ishopTypesURL' => $this->_urlTypes,
 			'itemsNum'     => $this->itemsNum
 			));
 		
@@ -249,6 +248,79 @@ class elRndIShop extends elCatalogRenderer {
 		
 	}
 
+	/**
+	 * render products types list
+	 *
+	 * @param  array  $types  products types
+	 * @return void
+	 **/
+	function rndTypes($types) {
+		$this->_setFile();
+		$this->_rndViewSwitch();
+		
+		// remove empty types if required
+		if (!$this->_admin && !$this->_conf('displayEmptyTypes')) {
+			foreach ($types as $id => $type) {
+				if (!$type->countItems()) {
+					unset($type[$id]);
+				}
+			}
+		}
+		
+		$descrip = $this->_conf('displayTypeDescrip') == EL_CAT_DESCRIP_IN_LIST || $this->_conf('displayTypeDescrip') == EL_CAT_DESCRIP_IN_BOTH;
+		$i = 0;
+		if ($this->_conf('typesCols') > 1) { // two columns
+			$rowCnt = 0;
+			$s      = sizeof($types);
+			foreach ($types as $t) {
+				$css = array('cssLastClass' => 'col-last');
+				if (!($i++%2)) {
+					$var = array('cssRowClass' => $rowCnt++%2 ? 'strip-ev' : 'strip-odd', 'hide' => $i == $s ? 'invisible' : '');
+					$this->_te->assignBlockVars('TYPES_TWOCOL', $var);
+					$css['cssLastClass'] = '';
+				}
+				!$descrip && $t->descrip = '';
+				$this->_rndTypeInList('TYPES_TWOCOL', $t, $css);
+			}
+		} else {
+			foreach ($types as $t) {
+				$css = array('cssRowClass' => $i++%2 ? 'strip-odd' : 'strip-ev');
+				!$descrip && $t->descrip = '';
+				$this->_rndTypeInList('TYPES_ONECOL', $t, $css);
+			}
+		}
+	}
+	
+	/**
+	 * display items of certain type
+	 *
+	 * @param  elIShopItemType  $type
+	 * @param  array            $items    items list
+	 * @param  int              $total    number of pages
+	 * @param  int              $current  current page number
+	 * @return void
+	 **/
+	function rndType($type, $items, $total, $current) {
+		$this->_setFile();
+		$this->_rndViewSwitch();
+		$this->_rndItems($items, $total, $current);
+	}
+
+	/**
+	 * display product type properties
+	 *
+	 * @param  elIShopItemType  $type
+	 * @return void
+	 **/
+	function rndTypeProps($type) {
+		$this->_setFile('props');
+		$this->_te->assignVars('typeID', $type->ID);
+		
+		foreach ($type->getProperties() as $p) {
+			$this->_te->assignBlockVars('IS_PROP', $p->toArray());
+		}
+	}
+
   	/**
 	 * render item
 	 *
@@ -359,18 +431,6 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_rndLinkedObjs($linkedObjs);
 	}
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	function rndTypes($types) {
-		$this->_setFile('types');
-		foreach ($types as $t) {
-			$this->_te->assignBlockVars('IS_TYPE', $t->toArray());
-			elPrintR($t->getProperties());
-		}
-	}
 
 	/**
 	 * Render Yandex.Market configuration
@@ -397,6 +457,7 @@ class elRndIShop extends elCatalogRenderer {
 		if ($this->_conf('displayViewSwitch')) {
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_CATS', array('cssClass' => $this->_view == EL_IS_VIEW_CATS ? 'current' : ''), 1);
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_MNFS', array('cssClass' => $this->_view == EL_IS_VIEW_MNFS ? 'current' : ''), 1);
+			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_TYPES', array('cssClass' => $this->_view == EL_IS_VIEW_TYPES ? 'current' : ''), 1);
 		}
 	}
 
@@ -614,6 +675,26 @@ class elRndIShop extends elCatalogRenderer {
 		}
 		if ($this->_admin) {
 			$this->_te->assignBlockVars($block.'.MNF.ADMIN', array('id' => $mnf->ID), 2);
+		}
+	}
+	
+	/**
+	 * render type in one/two column list
+	 *
+	 * @param  string  $block  root block name
+	 * @param  object  $type   type to display
+	 * @param  array   $css    css for block
+	 * @return void
+	 **/
+	function _rndTypeInList($block, $type, $css) {
+		$this->_te->assignBlockVars($block.'.TYPE', $css, 1);
+		
+		$this->_te->assignBlockVars($block.'.TYPE', $type->toArray(), 2);
+		if ($mnf->descrip) {
+			$this->_te->assignBlockVars($block.'.TYPE.DESCRIP', array('descrip' => $mnf->descrip), 2);
+		}
+		if ($this->_admin) {
+			$this->_te->assignBlockVars($block.'.TYPE.ADMIN', array('id' => $type->ID), 2);
 		}
 	}
 	

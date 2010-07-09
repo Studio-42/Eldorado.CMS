@@ -6,12 +6,34 @@ class elIShopItemType extends elDataMapping
 	var $tbp        = '';
 	var $ID         = 0;
 	var $name       = '';
+	var $descrip    = '';
 	var $crtime     = 0;
 	var $mtime      = 0;
 	var $_props     = null;
 	var $_prop      = null;
 	var $_objName   = 'Product type';
 	var $_factory   = null;
+
+	/**
+	 * add count items to default array
+	 *
+	 * @return array
+	 **/
+	function toArray() {
+		$ret = parent::toArray();
+		$ret['itemsCnt'] = $this->countItems();
+		return $ret;
+	}
+	
+	/**
+	 * return number of item from current manufacturer
+	 *
+	 * @return int
+	 **/
+	function countItems() {
+		return $this->_factory->ic->count(EL_IS_ITYPE, $this->ID);
+	}
+	
 
 	/**
 	 * Return all properties
@@ -156,6 +178,7 @@ class elIShopItemType extends elDataMapping
 		return array(
 			'id'     => 'ID', 
 			'name'   => 'name', 
+			'descrip' => 'descrip',
 			'crtime' => 'crtime',  
 			'mtime'  => 'mtime');
 	}

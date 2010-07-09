@@ -10,8 +10,9 @@ define('EL_IS_TM',       6);
 define('EL_IS_ITEMSCOL', 7);
 
 // views 
-define('EL_IS_VIEW_CATS',     1);
-define('EL_IS_VIEW_MNFS',     2);
+define('EL_IS_VIEW_CATS',  1);
+define('EL_IS_VIEW_MNFS',  2);
+define('EL_IS_VIEW_TYPES', 3);
 
 // sort item variants
 define('EL_IS_SORT_NAME',  1);

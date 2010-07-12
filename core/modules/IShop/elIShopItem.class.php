@@ -70,8 +70,26 @@ class elIShopItem extends elCatalogItem {
 		}
 		return $this->_type;
 	}
-	
-	
+
+	/**
+	 * return categories in which item is found
+	 *
+	 * @return array
+	 **/
+	function getCats()
+	{
+		$a = array();
+		$db = $this->_db();
+		if ($db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d', $this->tbi2c, $this->ID)))
+		{
+			while ($r = $db->nextRecord())
+			{
+				array_push($a, $r['c_id']);
+			}
+		}
+		return $a;
+	}
+
 	/**
 	 * return item manufacturer
 	 *
@@ -159,10 +177,10 @@ class elIShopItem extends elCatalogItem {
 	 *
 	 * @return string
 	 **/
-	function getDefaultTmb() {
+	function getDefaultTmb($type = 'l') {
 		$gallery = $this->getGallery();
 		if ($gallery) {
-			return $this->getTmbURL(key($gallery), 'l');
+			return $this->getTmbURL(key($gallery), $type);
 		}
 	}
 	

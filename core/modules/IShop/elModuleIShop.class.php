@@ -419,6 +419,7 @@ class elModuleIShop extends elModule {
 		} else {
 			$path = 'item/'.$item->mnfID.'/'.$item->ID;
 		}
+		// TODO add type view
 		$nav = & elSingleton::getObj('elNavigator');
 		return $nav->getPageURL($this->pageID).$path;
 	}

@@ -32,7 +32,7 @@ class OchkarikOrderExport
 
 	function __construct()
 	{
-		$this->el_order_begin_id = 30299;
+		$this->el_order_begin_id = 32750;
 		$this->post_url  = 'http://82.204.249.186:33333/ws/remoteorderim.1cws';
 		$this->http_user = 'WEB';
 		$this->http_pass = '1';
@@ -93,9 +93,17 @@ class OchkarikOrderExport
 			}
 			$st = ($status ? 'yes' : 'no');
 			$sql = "REPLACE INTO %s (order_id, ok, request, response, time) VALUES (%d, '%s', '%s', '%s', %d)";
-			$sql = sprintf($sql, $this->tb, $o['id'], $st, mysql_real_escape_string($soap_data), mysql_real_escape_string($message), time());
+			$sql = sprintf($sql, $this->tb, $o['id'], $st, mysql_real_escape_string($xml), mysql_real_escape_string($message), time());
 			$eldb = & elSingleton::getObj('elDb');
 			$eldb->query($sql);
+
+			// update order status on success
+			if ($st == 'yes')
+			{
+				$sql = 'UPDATE el_order SET state="accept" WHERE id='.$order_id.' LIMIT 1';
+				$eldb->query($sql);
+			}
+
 			//print "$order_id ==> $st ($sql)\n";
 		}
 	}
@@ -104,7 +112,14 @@ class OchkarikOrderExport
 	{
 		if (preg_match('!<m:return.*>(.+)</m:return>!is', $m, $match))
 		{
-			return array(true, $match[1]);
+			if ($match[1] == 'Accepted')
+			{
+				return array(true, $match[1]);
+			}
+			else
+			{
+				return array(false, $match[1]);
+			}
 		}
 		elseif (preg_match('!<faultstring>(.+)</faultstring>!is', $m, $match))
 		{
@@ -177,7 +192,7 @@ EOL;
 	function _genXML($o)
 	{
 		$e  = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-		$e .= "\t".'<ДАННЫЕ ТипДанных="Экспорт заказов покупателя">'."\n";
+		$e .= '<ДАННЫЕ ТипДанных="Экспорт заказов покупателя">'."\n";
 		$t  = "\t".'<Документ Вид="ЗаказПокупателя" id="%d" amount="%.2f" discount="%.2f" delivery_price="%.2f" total="%.2f" region="%s" delivery="%s" payment="%s">' . "\n";
 		$e .= sprintf($t, $o['id'], $o['amount'], $o['discount'], $o['delivery_price'], $o['total'], $o['region'], $o['delivery'], $o['payment']);
 
@@ -186,7 +201,7 @@ EOL;
 		$e .= "\t\t\t".sprintf('<ИнформацияОПокупателе Логин="%s">', $this->_getLogin($o['customer']))."\n";
 		foreach ($o['customer'] as $c)
 		{
-			$e .= "\t\t\t\t".sprintf('<ДополнительнаяИнформация field_id="%s" value="%s" />', $c['field_id'], str_replace('"', "'", $c['value']))."\n";
+			$e .= "\t\t\t\t".sprintf('<ДополнительнаяИнформация field_id="%s" field_name="%s" value="%s" />', $c['field_id'], $c['label'], str_replace('"', "'", $c['value']))."\n";
 		}
 		$e .= "\t\t\t".'</ИнформацияОПокупателе>'."\n";
 		$e .= "\t\t".'</Покупатель>'."\n";

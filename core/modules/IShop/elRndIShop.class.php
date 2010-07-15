@@ -52,15 +52,19 @@ class elRndIShop extends elCatalogRenderer {
 		}
 		
 		$this->_te->assignVars(array(
-			'catID'    => $this->_cat->ID,
-			'mnfID'    => $this->_mnf->ID,
-			'parentID' => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID,
-			'ishopURL' => $this->_url,
+			'catID'        => $this->_cat->ID,
+			'mnfID'        => $this->_mnf->ID,
+			'parentID'     => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID,
+			'ishopURL'     => $this->_url,
 			'ishopCatsURL' => $this->_urlCats,
 			'ishopMnfsURL' => $this->_urlMnfs,
 			'ishopTypesURL' => $this->_urlTypes,
 			'itemsNum'     => $this->itemsNum
 			));
+		// echo "ishopURL: ".$this->_url.'<br>';
+		// echo "ishopCatsURL: ".$this->_urlCats.'<br>';
+		// echo "ishopMnfsURL: ".$this->_urlMnfs.'<br>';
+		// echo "ishopTypesURL: ".$this->_urlTypes.'<br>';
 		
 		
 		$this->_currency = &elSingleton::getObj('elCurrency');
@@ -315,8 +319,11 @@ class elRndIShop extends elCatalogRenderer {
 	function rndTypeProps($type) {
 		$this->_setFile('props');
 		$this->_te->assignVars('typeID', $type->ID);
-		
+		// 
 		foreach ($type->getProperties() as $p) {
+			$p1 = $p;
+			unset($p1->_factory);
+			elPrintR($p1->toArray());
 			$this->_te->assignBlockVars('IS_PROP', $p->toArray());
 		}
 	}
@@ -454,7 +461,7 @@ class elRndIShop extends elCatalogRenderer {
 	 * @return void
 	 **/
 	function _rndViewSwitch() {
-		if ($this->_conf('displayViewSwitch')) {
+		if ($this->_admin || $this->_conf('displayViewSwitch')) {
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_CATS', array('cssClass' => $this->_view == EL_IS_VIEW_CATS ? 'current' : ''), 1);
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_MNFS', array('cssClass' => $this->_view == EL_IS_VIEW_MNFS ? 'current' : ''), 1);
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_TYPES', array('cssClass' => $this->_view == EL_IS_VIEW_TYPES ? 'current' : ''), 1);

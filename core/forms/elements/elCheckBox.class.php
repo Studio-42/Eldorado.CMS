@@ -243,31 +243,7 @@ class elMultiSelectList extends elCheckBoxesGroup
 class elVariantsList extends elFormInput
 {
   var $value = array(  );
-  var $js = "
-    function elVLControl(name, isCheckbox)
-    {
-      var ID   = name+'_body';
-      div      = document.getElementById(ID);
-      var d = new Date;
-      var inputID = d.getTime();
 
-      t  = document.createElement('input');
-      t.setAttribute('type', 'text');
-      t.setAttribute('name', name+'['+inputID+'][0]');
-      t.setAttribute('value', '');
-
-      c  = document.createElement( 'input');
-      c.setAttribute('type', 'checkbox');
-      c.setAttribute('name', name+'['+inputID+'][1]');
-      c.setAttribute('value', 1);
-
-      nd = document.createElement('div');
-      nd.appendChild( t );
-      nd.appendChild( document.createTextNode(' ') );
-      nd.appendChild( c );
-      div.appendChild(nd);
-      return false;
-    }";
 
   function elVariantsList($name=null, $label=null, $value=null, $attrs=null, $frozen=false)
   {
@@ -322,9 +298,22 @@ class elVariantsList extends elFormInput
       $html .= '</div>';
     }
     $html .= '</div>';
-    $html .= '<a href="" onClick="return elVLControl(\''.$name.'\', 0);">+ '.m('Add field').' +</a>';
+    $html .= '<a href="#" class="form-varlist-ctrl">+ '.m('Add field').' +</a>';
 
-    elAddJs($this->js, EL_JS_CSS_SRC);
+	$js = '$(".form-varlist-ctrl").click(function(e) {
+		e.preventDefault();
+		var p = $(this).prev(".formVLControl"),
+			c = p.children(":last").clone(),
+			l = p.children().length,
+			n = p.attr("name")+"["+l+"]";
+		
+		c.children(":text").val("").attr("name", n+"[0]");
+		c.children(":checkbox").attr("name", n+"[1]").removeAttr("checked");
+		p.append(c);
+		c.children(":text").focus();
+	})';
+
+    elAddJs($js, EL_JS_SRC_ONREADY);
 
     return $html;
   }

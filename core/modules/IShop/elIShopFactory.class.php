@@ -228,26 +228,6 @@ class elIShopFactory {
 	}
 
 
-
-
-
-      
-      function getSearchManager()
-      {
-        include_once 'elIShopSearch.lib.php'; 
-        return new elIShopSearchManager($this->pageID, $this->_tb, (int)$this->_conf['searchColumnsNum'], $this->_conf['searchTypesLabel']);
-      }
-      
-      function getSearchAdmin()
-      {
-        $sm = $this->getSearchManager();
-        $sa = & elSingleton::getObj('elIShopSearchAdmin');
-//        $sa = & new elIShopSearchAdmin();
-        $sa->init($sm);
-        return $sa;
-      }
-      
-
 	/**
 	 * return tables list
 	 *

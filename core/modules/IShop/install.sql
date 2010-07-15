@@ -65,12 +65,9 @@ CREATE TABLE el_ishop_{pageID}_prop (
   depend_id     int(5)         NOT NULL,
   type          enum('1', '2', '3', '4') NOT NULL default '1',
   name          varchar(256)   NOT NULL,
-  display_pos   enum('top', 'middle', 'table', 'bottom') NOT NULL default 'middle',
-  display_name  enum('0', '1') NOT NULL default 1,
+  display_pos   enum('top', 'table', 'bottom') NOT NULL default 'table',
   is_hidden     enum('0', '1') NOT NULL default 0,
   is_announced  enum('0', '1') NOT NULL default 0,
-  is_searched   enum('0', '1') NOT NULL default 0,
-  is_compared   enum('0', '1') NOT NULL default 0,
   sort_ndx      int(3)         NOT NULL default 0,
   PRIMARY KEY(id),
   KEY(t_id)

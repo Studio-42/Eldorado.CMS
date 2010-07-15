@@ -8,28 +8,33 @@ class elModuleAdminIShop extends elModuleIShop
 	  	'edit'        => array('m'=>'editCat',          'g'=>'Actions', 'ico'=>'icoCatNew',         'l'=>'New category'),
 	  	'rm'          => array('m'=>'rmCat'),
 	  	'move'        => array('m'=>'moveCat'),
-		'mnfs'        => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
+		// 'mnfs'        => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
 	  	'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
 		'mnf_rm'      => array('m'=>'rmMnf'),
 		'tm_edit'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
       	'tm_rm'       => array('m'=>'rmTm'),
 		
 		
-	  	'rm_item'     => array('m'=>'rmItem'),
-	  	'item_img'    => array('m'=>'itemImg'),
-	  	'rm_img'      => array('m'=>'rmItemImg'),
-	
+		'type_edit'  => array('m'=>'editType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
+		'type_rm'    => array('m' => 'rmType'),
 		'type_props'  => array('m' => 'typeProps'),
-
-	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
-	  	
-		'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
-	  	'rm_group'    => array('m'=>'rmItems',           'g'=>'Actions', 'ico'=>'icoDocGroupRm',    'l'=>'Delete group of documents',),
-		'cross_links' => array('m'=>'editCrossLinks',    'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
-      	'rm_type'     => array('m'=>'rmItemsType'),
-	  	'edit_prop'   => array('m'=>'editProperty'),
-	  	'edit_pdep'   => array('m'=>'editPropertyDependance'),
-	  	'rm_prop'     => array('m'=>'rmProperty')
+		'prop_edit'  => array('m' => 'propEdit')
+		
+		// 	  	'rm_item'     => array('m'=>'rmItem'),
+		// 	  	'item_img'    => array('m'=>'itemImg'),
+		// 	  	'rm_img'      => array('m'=>'rmItemImg'),
+		// 	
+		
+		// 
+		// 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
+		// 	  	
+		// 'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
+		// 	  	'rm_group'    => array('m'=>'rmItems',           'g'=>'Actions', 'ico'=>'icoDocGroupRm',    'l'=>'Delete group of documents',),
+		// 'cross_links' => array('m'=>'editCrossLinks',    'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
+		//       	'rm_type'     => array('m'=>'rmItemsType'),
+		// 	  	'edit_prop'   => array('m'=>'editProperty'),
+		// 	  	'edit_pdep'   => array('m'=>'editPropertyDependance'),
+		// 	  	'rm_prop'     => array('m'=>'rmProperty')
       
 	);
 
@@ -175,6 +180,41 @@ class elModuleAdminIShop extends elModuleIShop
 	    elLocation($this->_urlMnfs.'mnf/'.$tm->mnfID.'/');
 	}
 
+
+	
+	/**
+	 * Create/edit products type
+	 *
+	 * @return void
+	 **/
+	function editType() {
+		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(0));
+		if (!$type->editAndSave()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($type->formToHtml());
+		}
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_urlTypes);
+	}
+
+	/**
+	 * Remove empty products type
+	 *
+	 * @return void
+	 **/
+	function rmType() {
+		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(0));
+		if (!$type->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
+		}
+		if ($this->_factory->ic->count(EL_IS_ITYPE, $type->ID)) {
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
+		}
+		$type->delete();
+		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name));
+		elLocation(EL_URL.'types');
+	}
+
 	/**
 	 * display product type properties
 	 *
@@ -195,42 +235,34 @@ class elModuleAdminIShop extends elModuleIShop
 			'name' => $this->_type->name)
 			);
 	}
-	
+
 	/**
-	 * Create/edit products type
+	 * undocumented function
 	 *
 	 * @return void
+	 * @author Dmitry Levashov
 	 **/
-	function editItemsType() {
-		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(1));
-		if (!$type->editAndSave()) {
+	function propEdit() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+
+		$prop = $this->_factory->create(EL_IS_PROP, $this->_arg(1));
+		$prop->iTypeID = $this->_type->ID;
+		if (!$prop->editAndSave()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+				'name' => $this->_type->name)
+				);
 			$this->_initRenderer();
-			return $this->_rnd->addToContent($type->formToHtml());
+			return $this->_rnd->addToContent($prop->formToHtml());
 		}
-		elMsgBox::put( m('Data saved') );
-		elLocation(EL_URL.'types/');
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_urlTypes.'type/'.$this->_type->ID);
+		
 	}
-
-	/**
-	 * Remove empty products type
-	 *
-	 * @return void
-	 **/
-	function rmItemsType() {
-		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(1));
-		if (!$type->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
-		}
-		if ($this->_factory->ic->count(EL_IS_ITYPE, $type->ID)) {
-			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
-		}
-		$type->delete();
-		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name));
-		elLocation(EL_URL.'types');
-	}
-
-
-
 
 
 

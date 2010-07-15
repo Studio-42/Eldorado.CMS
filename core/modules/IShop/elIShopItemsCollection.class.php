@@ -25,7 +25,7 @@ class elIShopItemsCollection
 	 * @return void
 	 **/
 	function elIShopItemsCollection() {
-		$this->_db     = & elSingleton::getObj('elDb');
+		$this->_db = & elSingleton::getObj('elDb');
 	}
 		
 	/**

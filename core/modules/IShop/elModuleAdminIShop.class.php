@@ -45,7 +45,8 @@ class elModuleAdminIShop extends elModuleIShop
 		'conf_search'     => array('m'=>'configureSearch',     'ico'=>'icoSearchConf',    'l'=>'Configure advanced search'),
 		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
-		'yandex_market'   => array('m'=>'yandexMarket',        'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
+		'yandex_market'   => array('m'=>'yandexMarketConf',    'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
+		'yandex_market2'  => array('m'=>'yandexMarket',        'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
@@ -519,7 +520,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function yandexMarket()
+	function yandexMarketConf()
 	{
 		if (isset($_POST['action']))
 		{
@@ -533,25 +534,24 @@ class elModuleAdminIShop extends elModuleIShop
 				{
 					exit(elJSON::encode(array('error' => 'Invalid argument')));
 				}
+
 				$nodes = array();
-				$cat = $this->_factory->create(EL_IS_CAT, $ID);
-				$ic  = $this->_factory->create(EL_IS_ITEMSCOL, 0);
-				foreach ($cat->getChilds(1) as $child)
+				foreach ($this->_factory->create(EL_IS_CAT, $ID)->getChilds(1) as $child)
 				{
 					array_push($nodes, array(
 						'id'         => 'cat_'.$child->ID,
 						'name'       => $child->name,
-						'has_childs' => (int)(bool)$ic->count(EL_IS_CAT, $child->ID),
-						'is_cat'     => 1
+						'has_childs' => (bool)$this->_factory->ic->count(EL_IS_CAT, $child->ID),
+						'is_cat'     => true
 					));
 				}
-				foreach ($ic->create(EL_IS_ITEM, $ID) as $i)
+				foreach ($this->_factory->ic->create(EL_IS_ITEM, $ID) as $i)
 				{
 					array_push($nodes, array(
 						'id'         => 'item_'.$i->ID,
 						'name'       => $i->name.' ('.$i->ID.')',
-						'has_childs' => 0,
-						'ym'         => $i->ym
+						'has_childs' => false,
+						'ym'         => (bool)$i->ym
 					));
 				}
 				exit(elJSON::encode($nodes));
@@ -580,6 +580,166 @@ class elModuleAdminIShop extends elModuleIShop
 		$this->_rnd->rndYandexMarket(array('id' => 'cat_'.$cat->ID, 'name' => $cat->name));
 	}
 
+	/**
+	 * Yandex.Market generate xml file
+	 *
+	 * @return void
+	 **/
+	function yandexMarket()
+	{
+		// Currency
+		$currency = & elSingleton::getObj('elCurrency');
+		$curOpts  = array(
+			'precision'   => (int)$this->_conf('pricePrec'),
+			'currency'    => $this->_conf('currency'),
+			'exchangeSrc' => $this->_conf('exchangeSrc'),
+			'commision'   => $this->_conf('commision'),
+			'rate'        => $this->_conf('rate')
+		);
+		$yml_cur = sprintf('<currency id="%s" rate="1">', $currency->current['intCode']);
+
+		// Categories
+		$cat = $this->_factory->create(EL_IS_CAT, 1);
+		$categories = array();
+		$this->_yandexMarketGetCategories($cat, $categories);
+
+		$yml_cat = '';
+		$s       = "\t\t\t".'<category id="%d" parentId="%d">%s</category>'."\n";
+		foreach ($categories as $c)
+		{
+			$yml_cat .= sprintf($s, $c['id'], $c['parentID'], $this->_ymlSC($c['name']));
+		}
+
+		// Generate simple offers
+		$yml_offer = '';
+		$s = <<<EOL
+			<offer id="%d" available="true">
+				<url>%s</url>
+				<price>%.2f</price>
+				<currencyId>%s</currencyId>
+				<categoryId>%d</categoryId>
+				<picture>%s</picture>
+				<delivery>true</delivery>
+				<local_delivery_cost>%.2f</local_delivery_cost>
+				<name>%s</name>
+				<vendor>%s</vendor>
+				<vendorCode>%s</vendorCode>
+				<description>%s</description>
+				<country_of_origin>%s</country_of_origin>
+				<barcode>%s</barcode>
+			</offer>
+
+EOL;
+		foreach ($this->_factory->ic->create('yandex_market', 1) as $i)
+		{
+			$yml_offer .= sprintf($s,
+				$i->ID,                                      // offer id
+				$this->getItemUrl($i->ID),                   // url
+				$currency->convert($i->price, $curOpts),     // price
+				$currency->current['intCode'],               // currencyId
+				array_shift($i->getCats()),                  // categoryId
+				$i->getDefaultTmb('c'),                      // picture
+				'',                                          // local_delivery_cost
+				$this->_ymlSC($i->name),                     // name
+				$this->_ymlSC($i->getMnf()->name),           // vendor
+				'',                                          // vendor code
+				$this->_ymlSC($i->content),                  // description
+				'',                                          // country_of_origin
+				''                                           // barcode
+			);
+		}
+
+		// TODO yandex type=vendor.model
+		$yml = <<<EOL
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE yml_catalog SYSTEM "shops.dtd">
+<yml_catalog date="%s">
+	<shop>
+		<name>%s</name>
+
+		<company>%s</company>
+
+		<url>%s</url>
+
+		<currencies>
+			%s
+		</currencies>
+
+		<categories>
+%s
+		</categories>
+
+		<local_delivery_cost>%.2f</local_delivery_cost>
+
+		<offers>
+%s
+		</offers>
+
+	</shop>
+</yml_catalog>
+EOL;
+		$full_yml = sprintf($yml
+			date('Y-m-d H:i'),  // yml_catalog date
+			null,  // name
+			null,  // company
+			null,  // url
+			$yml_cur,  // currencies
+			$yml_cat,  // categories
+			null,  // local_delivery_cost
+			$yml_offer  // offers
+		);
+	}
+
+	/**
+	 * YML Sepcial Characters replace
+	 *
+	 * @param  string  $s
+	 * @return string
+	 **/
+	function _ymlSC($s)
+	{
+		$s = htmlspecialchars($s);
+		$s = str_replace("'", '&apos;', $s);
+		return $s;
+	}
+
+	/**
+	 * get categories for Yandex.Market
+	 *
+	 * @param  object  $cat    start category
+	 * @param  array   &$ar    array reference for information population
+	 * @return void
+	 **/
+	function _yandexMarketGetCategories($cat, &$ar)
+	{
+		$cat->_initTree();
+		$parentID = $cat->tree->getParentID($cat->ID);
+		if ($parentID == 1)
+		{
+			//$parentID = 0;
+		}
+		array_push($ar, array(
+			'name'     => $cat->name,
+			'id'       => (int)$cat->ID,
+			'parentID' => (int)$parentID
+		));
+		//echo $cat->name." : ".$cat->ID." (".$cat->tree->getParentID($cat->ID).")<br>";
+
+		$childs = $cat->getChilds(1);
+		if ($childs)
+		{
+			foreach ($childs as $c)
+			{
+				$this->_yandexMarketGetCategories($c, $ar);
+			}
+		}
+	}
+
+	/**
+	 * Import 1C CommerceML DEPRECATED
+	 *
+	 * @return void
+	 **/
 	function importCommerceML()
 	{
 		$this->_makeImportCMLForm();

@@ -46,7 +46,7 @@ class elIShopTm extends elDataMapping {
 	 *
 	 * @return void
 	 **/
-	function _makeForm() {
+	function _makeForm($params = null) {
 		parent::_makeForm();
 		$opts = array();
 		//$mnfs = $this->_factory->getMnfs();

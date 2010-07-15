@@ -367,7 +367,7 @@ class elServiceICart extends elService
 		$msg = $this->_rnd->rndMailContent($this->_iCart, $delivery, $this->_userData['address'], $total, $orderID);
 		$this->_user->prefrence('order_complete', 1);
 		$this->_sendMessage($orderID, $msg);
-		$this->_gaEcommerce($delivery, $orderID, $total);
+		$this->_gaEcommerce($delivery, $orderID);
 		$this->_iCart->clean();
 	}
 
@@ -380,11 +380,12 @@ class elServiceICart extends elService
 	 * @param  int    $total
 	 * @return void
 	 **/
-	function _gaEcommerce($delivery, $orderID, $total)
+	function _gaEcommerce($delivery, $orderID)
 	{
+		$total = (float)($this->_iCart->amount + $delivery['fee']);
 		$gaec = array();
 		$_addTrans = "_gaq.push(['_addTrans', '%d', '%s', '%.2f', '0.00', '%.2f', '%s', '', '']);";
-		$_addTrans = sprintf($_addTrans, $orderID, 'IShop', (float)$total, $delivery['fee'], $delivery['region']);
+		$_addTrans = sprintf($_addTrans, $orderID, 'IShop', $total, $delivery['fee'], $delivery['region']);
 		array_push($gaec, $_addTrans);
 
 		foreach ($this->_iCart->getItems() as $i)
@@ -417,7 +418,7 @@ class elServiceICart extends elService
 	function _sendMessage($orderID, $msg) {
 		$postman = & elSingleton::getObj('elPostman');
 		$ec      = & elSingleton::getObj('elEmailsCollection');
-		$subj    = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL );
+		$subj    = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL);
 		$sender  = $ec->getDefault();
 		$rcpt    = $this->_conf->recipients();
 
@@ -439,7 +440,7 @@ class elServiceICart extends elService
 				}
 			}
 			if ($userEmail) {
-				$subj = m('Order confirmation');
+				$subj = sprintf(m('Order N %d from %s'), $orderID, EL_BASE_URL);
 				$msg = m('Dear customer! We get your order and contact You as soon as posible. This is confirmation message and You dont need to answer on it.')."\n"
 					.'<br/>'
 	                .$msg;

@@ -87,7 +87,11 @@ class elIShopItemsCollection
 					$coll = $this->_item->collection(true, true, 'id IN ('.implode(',', $ID).')', $sort);
 				}
 				break;
-				
+
+			case 'yandex_market':
+				$coll = $this->_item->collection(true, true, 'ym="'.intval($ID).'"');
+				break;
+
 			default:
 				$sql = 'SELECT %s FROM %s AS i2c, %s AS i WHERE i2c.c_id=%d AND i.id=i2c.i_id ORDER BY IF(sort_ndx>0, LPAD(sort_ndx, 4, "0"), "9999"), %s';
 				if ($step > 0)

@@ -443,12 +443,12 @@ class elForumProfile extends elDataMapping
 		if ( $register )
 		{
 			$subj = m('New user registration notification');
-			$msg = m("You are was registered as user on site %s [%s].\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+			$msg  = m("You have registered on website %s [%s].\n Please, use the following data for login:\n Login: %s \nPassword: %s\n");
 		}
 		else
 		{
 			$subj = m('Changing password notification');
-			$msg = m("Your password for site %s [%s] was changed.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
+			$msg  = m("Your password for site %s [%s] was changed.\n Please, use the following data to log in this site:\n Login: %s \nPassword: %s\n");
 		}
 		$msg  = sprintf( $msg, $conf->get('siteName', 'common'), EL_BASE_URL, $this->login, $passwd);
 		$sign = sprintf( m("With best wishes\n%s\n"), $conf->get('owner', 'common') );

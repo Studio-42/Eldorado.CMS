@@ -118,7 +118,7 @@ class elIShopFactory {
 		foreach ($this->_tb as $k=>$tb) {
 			$this->_tb[$k] = sprintf($tb, $this->pageID);
 		}
-		$this->ic = $this->create(EL_IS_ITEMSCOL);
+		$this->ic = & $this->create(EL_IS_ITEMSCOL);
 	}
 
 	/**

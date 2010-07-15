@@ -100,7 +100,7 @@ class OchkarikOrderExport
 			// update order status on success
 			if ($st == 'yes')
 			{
-				$sql = 'UPDATE el_order SET state="accept" WHERE id='.$order_id.' LIMIT 1';
+				$sql = 'UPDATE el_order SET state="accept", mtime=UNIX_TIMESTAMP() WHERE id='.$order_id.' LIMIT 1';
 				$eldb->query($sql);
 			}
 

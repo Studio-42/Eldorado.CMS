@@ -564,7 +564,7 @@ class elModuleAdminIShop extends elModuleIShop
 			'commision'   => $this->_conf('commision'),
 			'rate'        => $this->_conf('rate')
 		);
-		$yml_cur = sprintf('<currency id="%s" rate="1">', $currency->current['intCode']);
+		$yml_cur = sprintf('<currency id="%s" rate="1" />', $currency->current['intCode']);
 
 		// Categories
 		$cat = $this->_factory->create(EL_IS_CAT, 1);
@@ -580,40 +580,54 @@ class elModuleAdminIShop extends elModuleIShop
 
 		// Generate simple offers
 		$yml_offer = '';
-		$s = <<<EOL
+		$yml_offer_tpl = <<<EOL
 			<offer id="%d" available="true">
 				<url>%s</url>
 				<price>%.2f</price>
 				<currencyId>%s</currencyId>
 				<categoryId>%d</categoryId>
 				<picture>%s</picture>
-				<delivery>true</delivery>
-				<local_delivery_cost>%.2f</local_delivery_cost>
+				<delivery>%s</delivery>
 				<name>%s</name>
 				<vendor>%s</vendor>
-				<vendorCode>%s</vendorCode>
-				<description>%s</description>
-				<country_of_origin>%s</country_of_origin>
-				<barcode>%s</barcode>
+				<description>%s</description>%s
 			</offer>
 
 EOL;
+/*
+				<local_delivery_cost>%.2f</local_delivery_cost>
+				<vendorCode>%s</vendorCode>
+				<country_of_origin>%s</country_of_origin>
+				<barcode>%s</barcode>
+*/
+		$param_tpl = "\n\t\t\t\t".'<param name="%s">%s</param>';
 		foreach ($this->_factory->ic->create('yandex_market', 1) as $i)
 		{
-			$yml_offer .= sprintf($s,
+			$params = '';
+			foreach ($i->getProperties() as $pos)
+			{
+				foreach ($pos as $prop)
+				{
+					$params .= sprintf($param_tpl, $prop['name'], $prop['value']);
+				}
+			}
+
+			$yml_offer .= sprintf($yml_offer_tpl,
 				$i->ID,                                      // offer id
 				$this->getItemUrl($i->ID),                   // url
 				$currency->convert($i->price, $curOpts),     // price
 				$currency->current['intCode'],               // currencyId
 				array_shift($i->getCats()),                  // categoryId
 				$i->getDefaultTmb('c'),                      // picture
-				'',                                          // local_delivery_cost
+				'true',                                      // delivery
+				//'',                                        // local_delivery_cost
 				$this->_ymlSC($i->name),                     // name
 				$this->_ymlSC($i->getMnf()->name),           // vendor
-				'',                                          // vendor code
+				//'',                                        // vendor code
 				$this->_ymlSC($i->content),                  // description
-				'',                                          // country_of_origin
-				''                                           // barcode
+				//'',                                        // country_of_origin
+				//''                                         // barcode
+				$params                                      // last %s for param
 			);
 		}
 
@@ -637,8 +651,6 @@ EOL;
 %s
 		</categories>
 
-		<local_delivery_cost>%.2f</local_delivery_cost>
-
 		<offers>
 %s
 		</offers>
@@ -646,16 +658,20 @@ EOL;
 	</shop>
 </yml_catalog>
 EOL;
-		$full_yml = sprintf($yml
+/*
+		<local_delivery_cost>%.2f</local_delivery_cost>
+*/
+		$full_yml = sprintf($yml,
 			date('Y-m-d H:i'),  // yml_catalog date
-			null,  // name
-			null,  // company
-			null,  // url
+			'Мой магазин',  // name
+			'Супер Контора',  // company
+			'http://trash.mrtech.ru',  // url
 			$yml_cur,  // currencies
 			$yml_cat,  // categories
-			null,  // local_delivery_cost
+			//null,  // local_delivery_cost
 			$yml_offer  // offers
 		);
+		@file_put_contents('./storage/yandex-market.yml', $full_yml);
 	}
 
 	/**

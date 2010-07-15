@@ -582,60 +582,6 @@ class elIShopProperty extends elDataMapping {
 		return true;
 	}
 
-  /**
-   * После сохранения основных полей
-   * обновляет значения индексов сортировки для других  принадлежащих тому же elIShopItemType
-   * сохраняет варианты значний
-   *
-   * @return bool
-   */
-	  function _postSave($isNew, $params = null)
-	  {
-	    $db  = &elSingleton::getObj('elDb');
-	    $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx+1 WHERE '
-	      .'t_id='.intval($this->iTypeID).' AND id<>\''.$this->ID.'\' '
-	      .'AND sort_ndx>='.intval($this->sortNdx);
-	    $db->query($sql);
-
-	    $data   = $this->_form->getValue();
-	    $src    = $data['values'.$this->type];
-	    $tplIns = 'INSERT INTO '.$this->tbpval.' (p_id, value, is_default) VALUES (\''.$this->ID.'\', \'%s\', \'%d\')';
-	    $tplUpd = 'UPDATE '.$this->tbpval.' SET value=\'%s\', is_default=\'%d\' WHERE id=\'%d\'';
-
-	    if ( $this->hasTextType() )
-	    {
-	      if (empty($this->values))
-	      {
-	        $sql = sprintf( $tplIns, mysql_real_escape_string($src), 1); //echo $sql.'<br>';
-	      }
-	      else
-	      {
-	        $ID  = current( array_keys($this->values) );
-	        $sql = sprintf($tplUpd, mysql_real_escape_string($src), 1, $ID); //echo $sql.'<br>';
-	        $db->query('DELETE FROM '.$this->tbpval.' WHERE p_id=\''.$this->ID.'\' AND id<>\''.$ID.'\''); //echo $sql.'<br>';
-	        $db->optimizeTable($this->tbpval);
-	      }
-	      $db->query($sql);
-	    }
-	    else
-	    {
-	      $rm = array_diff( array_keys($this->values), array_keys($src) );
-	      if ( !empty($rm) )
-	      {
-	        $db->query('DELETE FROM '.$this->tbpval.' WHERE id IN ('.implode(',', $rm).')');
-	        $db->optimizeTable($this->tbpval);
-	      }
-	      foreach ($src as $ID=>$v)
-	      {
-	        $sql = empty($this->values[$ID])
-	          ? sprintf($tplIns, mysql_real_escape_string($v[0]), intval(!empty($v[1])))
-	          : sprintf($tplUpd, mysql_real_escape_string($v[0]), intval(!empty($v[1])), $ID);
-	        $db->query($sql);
-	      }
-	    }
-	    return true;
-	  }
-
 
 	/*********************************************************/
 	/***                     PRIVATE                       ***/

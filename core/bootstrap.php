@@ -210,6 +210,6 @@ elLoadMessages('Common');
 /**
  * Core version and name
  */
-define('EL_VER',  '3.9.4');
+define('EL_VER',  '3.9.5');
 define('EL_NAME', 'Kioto');
 

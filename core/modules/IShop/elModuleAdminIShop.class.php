@@ -46,7 +46,6 @@ class elModuleAdminIShop extends elModuleIShop
 		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
 		'yandex_market'   => array('m'=>'yandexMarketConf',    'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
-		'yandex_market2'  => array('m'=>'yandexMarket',        'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
 
@@ -516,12 +515,19 @@ class elModuleAdminIShop extends elModuleIShop
    }
 
 	/**
-	 * Yandex.Market configuration
+	 * Yandex.Market configure which products to export
 	 *
 	 * @return void
 	 **/
 	function yandexMarketConf()
 	{
+		if ($this->_args[0] == 'update')
+		{
+			$this->yandexMarket();
+			elMsgBox::put(m('Export updated'));
+			elLocation(EL_URL.$this->_mh);
+		}
+
 		if (isset($_POST['action']))
 		{
 			include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
@@ -570,19 +576,29 @@ class elModuleAdminIShop extends elModuleIShop
 						$i->save();
 					}
 				}
-				exit(elJSON::encode(array('error' => 'Data saved')));
+				exit(elJSON::encode(array('error' => m('Data saved'))));
 				//exit('[{"error": "Data saved"}]');
 			}
 		}
 
-		$cat = $this->_factory->create(EL_IS_CAT, 1);
+		$export_url  = $this->_conf('ymURL').'/'.EL_DIR_STORAGE_NAME.'/yandex-market-'.$this->pageID.'.yml';
+		$export_file = EL_DIR_STORAGE.'yandex-market-'.$this->pageID.'.yml';
+		$cat  = $this->_factory->create(EL_IS_CAT, 1);
 		$this->_initRenderer();
-		$this->_rnd->rndYandexMarket(array('id' => 'cat_'.$cat->ID, 'name' => $cat->name));
+		$this->_rnd->rndYandexMarket(array(
+			'id'          => 'cat_'.$cat->ID,
+			'name'        => $cat->name,
+			'export_url'  => $export_url,
+			'last_update' => filemtime($export_file) ? date(EL_DATETIME_FORMAT, filemtime($export_file)) : m('never')
+		));
+		//var_dump($this);
 	}
 
 	/**
 	 * Yandex.Market generate xml file
 	 *
+	 * @TODO   possible problem if catalog is too big we can hit memory_limit, can be fixed using
+	 *         direct write to file while generating
 	 * @return void
 	 **/
 	function yandexMarket()
@@ -603,15 +619,16 @@ class elModuleAdminIShop extends elModuleIShop
 		$categories = array();
 		$this->_yandexMarketGetCategories($cat, $categories);
 
-		$yml_cat = '';
-		$s       = "\t\t\t".'<category id="%d" parentId="%d">%s</category>'."\n";
+		$yml_cat     = '';
+		$yml_cat_tpl = "\t\t\t".'<category id="%d" parentId="%d">%s</category>'."\n";
 		foreach ($categories as $c)
 		{
-			$yml_cat .= sprintf($s, $c['id'], $c['parentID'], $this->_ymlSC($c['name']));
+			$yml_cat .= sprintf($yml_cat_tpl, $c['id'], $c['parentID'], $this->_ymlSC($c['name']));
 		}
+		$yml_cat = rtrim($yml_cat);
 
 		// Generate simple offers
-		$yml_offer = '';
+		$yml_offer     = '';
 		$yml_offer_tpl = <<<EOL
 			<offer id="%d" available="true">
 				<url>%s</url>
@@ -632,6 +649,7 @@ EOL;
 				<country_of_origin>%s</country_of_origin>
 				<barcode>%s</barcode>
 */
+		$delivery = $this->_conf('ymDelivery') == 1 ? 'true' : 'false';
 		$param_tpl = "\n\t\t\t\t".'<param name="%s">%s</param>';
 		foreach ($this->_factory->ic->create('yandex_market', 1) as $i)
 		{
@@ -651,17 +669,18 @@ EOL;
 				$currency->current['intCode'],               // currencyId
 				array_shift($i->getCats()),                  // categoryId
 				$i->getDefaultTmb('c'),                      // picture
-				'true',                                      // delivery
+				$delivery,                                   // delivery
 				//'',                                        // local_delivery_cost
 				$this->_ymlSC($i->name),                     // name
 				$this->_ymlSC($i->getMnf()->name),           // vendor
 				//'',                                        // vendor code
-				$this->_ymlSC($i->content),                  // description
+				strip_tags($this->_ymlSC($i->content)),      // description
 				//'',                                        // country_of_origin
 				//''                                         // barcode
 				$params                                      // last %s for param
 			);
 		}
+		$yml_offer = rtrim($yml_offer);
 
 		// TODO yandex type=vendor.model
 		$yml = <<<EOL
@@ -694,61 +713,18 @@ EOL;
 		<local_delivery_cost>%.2f</local_delivery_cost>
 */
 		$full_yml = sprintf($yml,
-			date('Y-m-d H:i'),  // yml_catalog date
-			'Мой магазин',  // name
-			'Супер Контора',  // company
-			'http://trash.mrtech.ru',  // url
-			$yml_cur,  // currencies
-			$yml_cat,  // categories
-			//null,  // local_delivery_cost
-			$yml_offer  // offers
+			date('Y-m-d H:i'),          // yml_catalog date
+			$this->_conf('ymName'),     // name
+			$this->_conf('ymCompany'),  // company
+			$this->_conf('ymURL'),      // url
+			$yml_cur,       // currencies
+			$yml_cat,       // categories
+			//null,         // local_delivery_cost
+			$yml_offer      // offers
 		);
-		@file_put_contents('./storage/yandex-market.yml', $full_yml);
-	}
-
-	/**
-	 * YML Sepcial Characters replace
-	 *
-	 * @param  string  $s
-	 * @return string
-	 **/
-	function _ymlSC($s)
-	{
-		$s = htmlspecialchars($s);
-		$s = str_replace("'", '&apos;', $s);
-		return $s;
-	}
-
-	/**
-	 * get categories for Yandex.Market
-	 *
-	 * @param  object  $cat    start category
-	 * @param  array   &$ar    array reference for information population
-	 * @return void
-	 **/
-	function _yandexMarketGetCategories($cat, &$ar)
-	{
-		$cat->_initTree();
-		$parentID = $cat->tree->getParentID($cat->ID);
-		if ($parentID == 1)
-		{
-			//$parentID = 0;
-		}
-		array_push($ar, array(
-			'name'     => $cat->name,
-			'id'       => (int)$cat->ID,
-			'parentID' => (int)$parentID
-		));
-		//echo $cat->name." : ".$cat->ID." (".$cat->tree->getParentID($cat->ID).")<br>";
-
-		$childs = $cat->getChilds(1);
-		if ($childs)
-		{
-			foreach ($childs as $c)
-			{
-				$this->_yandexMarketGetCategories($c, $ar);
-			}
-		}
+		@file_put_contents(EL_DIR_STORAGE.'yandex-market-'.$this->pageID.'.yml', $full_yml);
+		
+		//var_dump($this);
 	}
 
 	/**
@@ -823,9 +799,9 @@ EOL;
 		$this->_form->setRequired('source');
 	}
 
-  //**************************************************************************************//
- // =============================== PRIVATE METHODS ==================================== //
- //**************************************************************************************//
+	/**************************************************************************************
+	 *                                 PRIVATE METHODS                                    *
+	 **************************************************************************************/
 
 	/**
 	 * Create module config form
@@ -910,6 +886,13 @@ EOL;
 		$form->add( new elSelect('exchangeSrc', m('Use exchange rate'),           $this->_conf('exchangeSrc'), $params['exchangeSrc'], $attrs));
 		$form->add( new elText('commision',     m('Exchange rate commision (%)'), $this->_conf('commision'),   array('size' => 8)));
 		$form->add( new elText('rate',          m('Exchange rate'),               $this->_conf('rate'),        array('size' => 8)));
+		// Ynadex.Market
+		$form->add( new elCData('c07',          m('Yandex.Market')),    $cAttrs);
+		$form->add( new elText('ymName',        m('Shop name'),         $this->_conf('ymName'),     $attrs));
+		$form->add( new elText('ymCompany',     m('Company name'),      $this->_conf('ymCompany'),  $attrs));
+		$form->add( new elText('ymURL',         m('IShop URL'),         $this->_conf('ymURL'),      $attrs));
+		$form->add( new elSelect('ymDelivery',  m('Products delivery'), $this->_conf('ymDelivery'), $GLOBALS['yn'], $attrs));
+
 
 		$js = "
 		$('#currency').change(function() {
@@ -1035,6 +1018,53 @@ EOL;
 			$this->_removeMethods('cross_links');
 		} else {
 			$this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
+		}
+	}
+
+	// Yandex.Market related
+
+	/**
+	 * YML Sepcial Characters replace
+	 *
+	 * @param  string  $s
+	 * @return string
+	 **/
+	function _ymlSC($s)
+	{
+		$s = htmlspecialchars($s);
+		$s = str_replace("'", '&apos;', $s);
+		return $s;
+	}
+
+	/**
+	 * get categories for Yandex.Market
+	 *
+	 * @param  object  $cat    start category
+	 * @param  array   &$ar    array reference for information population
+	 * @return void
+	 **/
+	function _yandexMarketGetCategories($cat, &$ar)
+	{
+		$cat->_initTree();
+		$parentID = $cat->tree->getParentID($cat->ID);
+		if ($parentID == 1)
+		{
+			//$parentID = 0;
+		}
+		array_push($ar, array(
+			'name'     => $cat->name,
+			'id'       => (int)$cat->ID,
+			'parentID' => (int)$parentID
+		));
+		//echo $cat->name." : ".$cat->ID." (".$cat->tree->getParentID($cat->ID).")<br>";
+
+		$childs = $cat->getChilds(1);
+		if ($childs)
+		{
+			foreach ($childs as $c)
+			{
+				$this->_yandexMarketGetCategories($c, $ar);
+			}
 		}
 	}
 

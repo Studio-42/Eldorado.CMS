@@ -110,7 +110,11 @@ class elModuleIShop extends elModule {
 		'exchangeSrc'        => 'auto',
 		'commision'          => 0,
 		'rate'               => 1,
-	    'pricePrec'          => 0
+	    'pricePrec'          => 0,
+	    'ymName'             => '',
+	    'ymCompany'          => '',
+	    'ymURL'              => '',
+	    'ymDelivery'         => 1
 	);
 	
 	var $_view;

@@ -445,10 +445,11 @@ class elRndIShop extends elCatalogRenderer {
 	 * @param  array  $cat
 	 * @return void
 	 **/
-	function rndYandexMarket($cat)
+	function rndYandexMarket($data)
 	{
 		$this->_setFile('yaMart');
-		$this->_te->assignBlockVars('YM_PAGE', $cat);
+		$this->_te->assignVars($data);
+		$this->_te->assignBlockVars('YM_PAGE', $data);
 	}
 
 	/**********************************************/

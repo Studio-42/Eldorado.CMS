@@ -1,8 +1,11 @@
 <div id="conf-ym">
 	<h2>{m('Yandex.Market')}</h2>
-	<p>{m('Some instruction message here')}</p>
+	<p>{m('Export URL')}: <a target="_blank" href="{export_url}">{export_url}</a>
+	<br/>{m('Last update')}: {last_update} (<a href="{URL}yandex_market/update">{m('update')})</a>
+	<br/><small><a target="_blank" href="http://www.advertising.yandex.ru/market/">{m('More info about Yandex.Market')}</a></small></p>
+	<hr/>
 	<form name="ym" id="ym" method="POST" action="{URL}yandex_market/">
-	<input type="submit" />
+	<input type="submit" value="{m('Submit')}" style="margin-left: 40px; margin-bottom: -10px;" />
 	<ul style="border: 0; margin-top: 20px; margin-left: 0;">
 		<!-- BEGIN YM_PAGE -->
 		<li id="li_cat_1" style="margin-left: 0;">
@@ -12,6 +15,7 @@
 		</li>
 		<!-- END YM_PAGE -->
 	</ul>
+	<input type="submit" value="{m('Submit')}" style="margin-left: 40px; margin-top: 10px;" />
 	</form>
 </div>
 

@@ -112,7 +112,7 @@ class OchkarikOrderExport
 	{
 		if (preg_match('!<m:return.*>(.+)</m:return>!is', $m, $match))
 		{
-			if ($match[1] == 'Accepted')
+			if (($match[1] == 'Accepted') || (strpos($match[1], 'Существует заказ') === 0))
 			{
 				return array(true, $match[1]);
 			}

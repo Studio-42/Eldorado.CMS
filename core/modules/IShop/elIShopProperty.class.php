@@ -36,7 +36,6 @@ class elIShopProperty extends elDataMapping {
 
 	var $dependID      = 0;
 	var $depend        = array();
-	var $_dependLoad   = 0;
 	var $_objName    = 'Property';
 	var $_factory    = null;
 	/**
@@ -150,10 +149,13 @@ class elIShopProperty extends elDataMapping {
 	 **/
 	function fetch() {
 		if (parent::fetch()) {
-			$db = &elSingleton::getObj('elDb');
+			$db = $this->_db();
 			$db->query(sprintf('SELECT id, value, is_default FROM %s WHERE p_id=%d', $this->tbpval, $this->ID));
 			while ($r = $db->nextRecord()) {
-				$this->values[$r['id']] = array($r['value'], $r['is_default']);
+				$this->_opts[$r['id']] = $r['value'];
+				if ($r['is_default']) {
+					$this->_default[] = $r['id'];
+				}
 			}
 			return true;
 		}
@@ -167,22 +169,18 @@ class elIShopProperty extends elDataMapping {
 	 **/
 	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
 		$coll = parent::collection(true, true, $clause);
-		
 		if ($coll) {
-			$db = $this->_db();
+			$db  = $this->_db();
 			$sql = sprintf('SELECT id, p_id, value, is_default FROM %s WHERE p_id IN (%s) ORDER BY value', $this->tbpval, implode(',', array_keys($coll)));
 			$db->query($sql);
 			
 			while ($r = $db->nextRecord()) {
 				$coll[$r['p_id']]->_opts[$r['id']] = $r['value'];
-				
 				if ($r['is_default']) {
 					$coll[$r['p_id']]->_default[] = $r['id'];
 				}
 			}
 		}
-	
-		// elPrintR($coll);
 		return $coll;
 	}
 

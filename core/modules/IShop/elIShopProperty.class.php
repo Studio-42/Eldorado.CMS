@@ -26,7 +26,7 @@ class elIShopProperty extends elDataMapping {
 	var $tbpval        = '';
 	var $tbp2i         = '';
 	var $ID            = 0;
-	var $iTypeID       = 0;
+	var $typeID       = 0;
 	var $type          = EL_IS_PROP_STR;
 	var $name          = '';
 	var $displayPos    = 'table';
@@ -138,6 +138,7 @@ class elIShopProperty extends elDataMapping {
 	function toArray() {
 		$ret = parent::toArray();
 		$ret['default'] = $this->defaultToString();
+		$ret['opts'] = $this->_opts;
 		// $ret['opts'] = $this->toString();
 		return $ret;
 	}
@@ -613,7 +614,7 @@ class elIShopProperty extends elDataMapping {
 	function _initMapping() {
 		$map = array(
 			'id'           => 'ID',
-			't_id'         => 'iTypeID',
+			't_id'         => 'typeID',
 			'type'         => 'type',
 			'depend_id'    => 'dependID',
 			'name'         => 'name',

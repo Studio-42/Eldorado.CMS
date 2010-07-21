@@ -340,8 +340,8 @@ class elRndIShop extends elCatalogRenderer {
 				'hidden'    => $p->isHidden ? m('Yes') : m('No'),
 				'opts'      => implode(', ', $p->opts)
 				);
-			elPrintR($data);
-			$this->_te->assignBlockVars('IS_PROP', $data);
+			elPrintR($p->getInfo());
+			// $this->_te->assignBlockVars('IS_PROP', $data);
 		}
 	}
 

@@ -22,20 +22,20 @@ function elIShopParsePropValue($str)
 }
 
 class elIShopProperty extends elDataMapping {
-	var $_tb           = '';
-	var $tbpval        = '';
-	var $tbp2i         = '';
-	var $ID            = 0;
-	var $typeID       = 0;
-	var $type          = EL_IS_PROP_STR;
-	var $name          = '';
-	var $displayPos    = 'table';
-	var $isHidden      = 0;
-	var $isAnnounced   = 0;  
-	var $sortNdx       = 1;
+	var $_tb         = '';
+	var $tbpval      = '';
+	var $tbp2i       = '';
+	var $ID          = 0;
+	var $typeID      = 0;
+	var $type        = EL_IS_PROP_STR;
+	var $name        = '';
+	var $displayPos  = 'table';
+	var $isHidden    = 0;
+	var $isAnnounced = 0;  
+	var $sortNdx     = 1;
 
-	var $dependID      = 0;
-	var $depend        = array();
+	var $dependID    = 0;
+	var $depend      = array();
 	var $_objName    = 'Property';
 	var $_factory    = null;
 	/**
@@ -68,9 +68,10 @@ class elIShopProperty extends elDataMapping {
 	function isList() {
 		return EL_IS_PROP_LIST == $this->type;
 	}
-	
+
+
 	/**
-	 * return true if type is multi select
+	 * return true if type is multiselect
 	 *
 	 * @return bool
 	 **/
@@ -79,54 +80,59 @@ class elIShopProperty extends elDataMapping {
 	}
 
 	/**
-	 * return default values ids
+	 * undocumented function
 	 *
-	 * @return array
+	 * @return void
+	 * @author Dmitry Levashov
 	 **/
-	function defaultIDs() {
-		return !empty($this->_default) ? $this->_default : array(key($this->_opts));
-	}
-
-	/**
-	 * return options as string
-	 *
-	 * @return string
-	 **/
-	function toString() {
-		return $this->_toString(array_keys($this->_opts));
-	}
-
-	/**
-	 * return default values as string
-	 *
-	 * @return string
-	 **/
-	function defaultToString() {
-		return $this->_toString($this->defaultIDs());
-	}
-
-	/**
-	 * fetch values by ids and concat in string
-	 *
-	 * @param  array  $ids
-	 * @return string
-	 **/
-	function valuesToString($ids) {
-		if ($this->type == EL_IS_PROP_MLIST) {
-			return $this->_toString($ids);
-		} elseif ($this->type == EL_IS_PROP_LIST) {
-			return $this->_toString($ids ? $ids : $this->defaultIDs());
+	function valuesToString($val) {
+		switch ($this->type) {
+			case EL_IS_PROP_LIST:
+				return isset($val[0]) && isset($this->_opts[$val[0]]) ? $this->_opts[$val[0]] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : current($this->_opts));
+			case EL_IS_PROP_MLIST:
+				if (empty($val) || !is_array($val)) {
+					$val = $this->_default;
+				}
+				$ret = array();
+				foreach($val as $id) {
+					if (isset($this->_opts[$id])) {
+						$ret[] = $this->_opts[$id];
+					}
+				}
+				return implode(', ', $ret);
+			default:
+				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
+				
 		}
-		return !empty($ids[0]) ? $ids[0] : current($this->_opts);
 	}
 
+
 	/**
-	 * return options
+	 * undocumented function
 	 *
-	 * @return array
+	 * @return void
+	 * @author Dmitry Levashov
 	 **/
-	function opts() {
-		return $this->_opts;
+	function getInfo() {
+		$pTypes = array(
+			EL_IS_PROP_STR   => m('String'),
+		    EL_IS_PROP_TXT   => m('Text'),
+		    EL_IS_PROP_LIST  => m('Values list (one value can be selected)'),
+		    EL_IS_PROP_MLIST => m('Values list (any numbers of value can be selected)')
+			);
+		$ret = array(
+			'id'        => $this->ID,
+			'typeID'    => $this->typeID,
+			'type'      => $pTypes[$this->type],
+			'name'      => $this->name,
+			'position'  => m($this->displayPos),
+			'announced' => m($this->isAnnounced ? 'Yes' : 'No'),
+			'hidden'    => m($this->isHidden ? 'Yes' : 'No'),
+			'opts'      => $this->isText() ? m('No') : implode(', ', $this->_opts),
+			'default'   => ''
+			);
+		elPrintR($this->_opts);
+		return $ret;
 	}
 
 	/**
@@ -134,7 +140,7 @@ class elIShopProperty extends elDataMapping {
 	 *
 	 * @return array
 	 **/
-	function toArray() {
+	function _toArray() {
 		$ret = parent::toArray();
 		$ret['default'] = $this->defaultToString();
 		$ret['opts'] = $this->_opts;

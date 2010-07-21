@@ -66,7 +66,7 @@ class elIShopItem extends elCatalogItem {
 	 **/
 	function getType() {
 		if (!isset($this->_type)) {
-			$this->_type = $this->_factory->getFromRegistry(EL_IS_ITYPE, $this->mnfID);
+			$this->_type = $this->_factory->getFromRegistry(EL_IS_ITYPE, $this->typeID);
 		}
 		return $this->_type;
 	}
@@ -76,14 +76,11 @@ class elIShopItem extends elCatalogItem {
 	 *
 	 * @return array
 	 **/
-	function getCats()
-	{
+	function getCats() {
 		$a = array();
 		$db = $this->_db();
-		if ($db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d', $this->tbi2c, $this->ID)))
-		{
-			while ($r = $db->nextRecord())
-			{
+		if ($db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d', $this->tbi2c, $this->ID))) {
+			while ($r = $db->nextRecord()) {
 				array_push($a, $r['c_id']);
 			}
 		}

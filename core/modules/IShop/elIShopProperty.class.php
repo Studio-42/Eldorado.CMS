@@ -80,10 +80,10 @@ class elIShopProperty extends elDataMapping {
 	}
 
 	/**
-	 * undocumented function
+	 * Return property value for product or default value
 	 *
-	 * @return void
-	 * @author Dmitry Levashov
+	 * @param  array  $val  list of values ids
+	 * @return string
 	 **/
 	function valuesToString($val) {
 		switch ($this->type) {
@@ -108,10 +108,9 @@ class elIShopProperty extends elDataMapping {
 
 
 	/**
-	 * undocumented function
+	 * Return list of properties in human readable format (for admin mode)
 	 *
-	 * @return void
-	 * @author Dmitry Levashov
+	 * @return array
 	 **/
 	function getInfo() {
 		$pTypes = array(
@@ -129,7 +128,7 @@ class elIShopProperty extends elDataMapping {
 			'announced' => m($this->isAnnounced ? 'Yes' : 'No'),
 			'hidden'    => m($this->isHidden ? 'Yes' : 'No'),
 			'opts'      => $this->isText() ? m('No') : implode(', ', $this->_opts),
-			'default'   => ''
+			'default'   => $this->valuesToString($this->isText() ? array() : $this->_default)
 			);
 		elPrintR($this->_opts);
 		return $ret;

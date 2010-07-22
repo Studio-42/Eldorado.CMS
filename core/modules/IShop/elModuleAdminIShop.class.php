@@ -18,7 +18,9 @@ class elModuleAdminIShop extends elModuleIShop
 		'type_edit'  => array('m'=>'editType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
 		'type_rm'    => array('m' => 'rmType'),
 		'type_props'  => array('m' => 'typeProps'),
-		'prop_edit'  => array('m' => 'propEdit')
+		'prop_edit'  => array('m' => 'propEdit'),
+		'prop_rm'   => array('m' => 'propRm'),
+		'prop_dependance' => array('m' => 'propDependance')
 		
 		// 	  	'rm_item'     => array('m'=>'rmItem'),
 		// 	  	'item_img'    => array('m'=>'itemImg'),
@@ -233,13 +235,16 @@ class elModuleAdminIShop extends elModuleIShop
 			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
 			'name' => $this->_type->name)
 			);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+			'name' => m('Properties')
+			));
 	}
 
 	/**
-	 * undocumented function
+	 * Create/edit property
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function propEdit() {
 		$this->_type->idAttr((int)$this->_arg(0));
@@ -249,21 +254,83 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 
 		$prop = $this->_factory->create(EL_IS_PROP, $this->_arg(1));
-		$prop->iTypeID = $this->_type->ID;
+		$prop->attr('t_id', $this->_type->ID);
+
 		if (!$prop->editAndSave()) {
 			elAppendToPagePath(array(
 				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
 				'name' => $this->_type->name)
 				);
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+				'name' => m('Properties')
+				));
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
 		}
 		elMsgBox::put(m('Data saved'));
-		elLocation($this->_urlTypes.'type/'.$this->_type->ID);
-		
+		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
 	}
 
+	/**
+	 * Delete property
+	 *
+	 * @return void
+	 **/
+	function propRm() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
 
+		$prop = $this->_factory->create(EL_IS_PROP, $this->_arg(1));
+		if (!$prop->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($prop->getObjName(), $this->_arg(1)), $this->_urlTypes.'type_props/'.$this->_type->ID);
+		}
+		$prop->delete();
+		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $prop->getObjName(), $prop->name));
+		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function propDependance() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+
+		$prop = $this->_factory->create(EL_IS_PROP, $this->_arg(1));
+		if (!$prop->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($prop->getObjName(), $this->_arg(1)), $this->_urlTypes.'type_props/'.$this->_type->ID);
+		}
+		
+		if (!$prop->getDependOn()) {
+			elThrow(E_USER_WARNING, 'Unable edit dependance for this property', null, $this->_urlTypes.'type_props/'.$this->_type->ID);
+		}
+		
+		if (!$prop->editDependance()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+				'name' => $this->_type->name)
+				);
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+				'name' => m('Properties')
+				));
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($prop->formToHtml());
+		}
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
+		
+	}
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
 

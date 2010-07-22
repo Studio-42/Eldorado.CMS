@@ -319,29 +319,12 @@ class elRndIShop extends elCatalogRenderer {
 	function rndTypeProps($type) {
 		$this->_setFile('props');
 		$this->_te->assignVars('typeID', $type->ID);
-		$pTypes = array(
-			EL_IS_PROP_STR   => m('String'),
-		    EL_IS_PROP_TXT   => m('Text'),
-		    EL_IS_PROP_LIST  => m('Values list (one value can be selected)'),
-		    EL_IS_PROP_MLIST => m('Values list (any numbers of value can be selected)')
-			);
-		// 
+
 		foreach ($type->getProperties() as $p) {
-			$p1 = $p;
-			unset($p1->_factory);
-			
-			$data = array(
-				'id'        => $p->ID, 
-				'name'      => $p->name,
-				'typeID'    => $p->iTypeID,
-				'type'      => $pTypes[$p->type],
-				'position'  => m($p->displayPos),
-				'announced' => $p->isAnnounced ? m('Yes') : m('No'),
-				'hidden'    => $p->isHidden ? m('Yes') : m('No'),
-				'opts'      => implode(', ', $p->opts)
-				);
-			elPrintR($p->getInfo());
-			// $this->_te->assignBlockVars('IS_PROP', $data);
+			$this->_te->assignBlockVars('IS_PROP', $p->getInfo());
+			if (false != ($d = $p->getDependOn())) {
+				$this->_te->assignBlockVars('IS_PROP.DEPEND', array('typeID' => $type->ID, 'id' => $p->ID, 'name' => $d->name), 1);
+			}
 		}
 	}
 

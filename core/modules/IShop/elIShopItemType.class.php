@@ -37,12 +37,21 @@ class elIShopItemType extends elDataMapping {
 	}
 	
 	/**
-	 * Return all properties
+	 * Load properties if not loaded and return its
 	 *
 	 * @return array
 	 **/
 	function getProperties() {
-		return $this->_getProperties();
+		if (!isset($this->_props)) {
+			$this->_props = array();
+			$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
+			foreach ($props as $p) {
+				if ($p->typeID == $this->ID) {
+					$this->_props[$p->ID] = $p;
+				}
+			}
+		}
+		return $this->_props;
 	}
 
 	/**
@@ -51,7 +60,7 @@ class elIShopItemType extends elDataMapping {
 	 * @return array
 	 **/
 	function getAnnouncedProperties() {
-		$ret = $this->_getProperties();
+		$ret = $this->getProperties();
 		foreach ($ret as $p) {
 			if (!$p->isAnnounced) {
 				unset($ret[$p->ID]);
@@ -70,24 +79,6 @@ class elIShopItemType extends elDataMapping {
 			$p->delete();
 		}
 		parent::delete();
-	}
-
-	/**
-	 * Load properties if not loaded and return
-	 *
-	 * @return array
-	 **/
-	function _getProperties() {
-		if (!isset($this->_props)) {
-			$this->_props = array();
-			$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
-			foreach ($props as $p) {
-				if ($p->typeID) {
-					$this->_props[$p->ID] = $p;
-				}
-			}
-		}
-		return $this->_props;
 	}
 
 	/**

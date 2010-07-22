@@ -1,19 +1,7 @@
 <?php
 
 
-$GLOBALS['elIShopPropTypes'] = array(
-    EL_IS_PROP_STR   => array( m('String'), 'elText', array('maxlength'=>256)),
-    EL_IS_PROP_TXT   => array( m('Text'), 'elTextArea', array('rows'=>10)),
-    EL_IS_PROP_LIST  => array( m('Values list (one value can be selected)'), 'elVariantsList', null),
-    EL_IS_PROP_MLIST => array( m('Values list (any numbers of value can be selected)'), 'elVariantsList', null)
-    );
 
-$GLOBALS['elIShopPropPos'] = array(
-                                   'top'    => m('top'),
-                                   'middle' => m('middle'),
-                                   'table'  => m('table'),
-                                   'bottom' => m('bottom')
-                                   );
 
 function elIShopParsePropValue($str)
 {
@@ -25,6 +13,7 @@ class elIShopProperty extends elDataMapping {
 	var $_tb         = '';
 	var $tbpval      = '';
 	var $tbp2i       = '';
+	var $tbpdep      = '';
 	var $ID          = 0;
 	var $typeID      = 0;
 	var $type        = EL_IS_PROP_STR;
@@ -33,11 +22,12 @@ class elIShopProperty extends elDataMapping {
 	var $isHidden    = 0;
 	var $isAnnounced = 0;  
 	var $sortNdx     = 1;
-
+	
 	var $dependID    = 0;
 	var $depend      = array();
 	var $_objName    = 'Property';
 	var $_factory    = null;
+	var $_rangeReg   = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
 	/**
 	 * value variants list
 	 *
@@ -50,6 +40,55 @@ class elIShopProperty extends elDataMapping {
 	 * @var array
 	 **/
 	var $_default = array();
+	
+	var $_types = array(
+	    EL_IS_PROP_STR   => 'String',
+	    EL_IS_PROP_TXT   => 'Text',
+	    EL_IS_PROP_LIST  => 'Values list (one value can be selected)',
+	    EL_IS_PROP_MLIST => 'Values list (any numbers of value can be selected)'
+	    );
+	
+	/**
+	 * fetch property object from db
+	 *
+	 * @return bool
+	 **/
+	function fetch() {
+		if (parent::fetch()) {
+			$db = $this->_db();
+			$db->query(sprintf('SELECT id, value, is_default FROM %s WHERE p_id=%d', $this->tbpval, $this->ID));
+			while ($r = $db->nextRecord()) {
+				$this->_opts[$r['id']] = $r['value'];
+				if ($r['is_default']) {
+					$this->_default[] = $r['id'];
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * return all properties
+	 *
+	 * @return array
+	 **/
+	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
+		$coll = parent::collection(true, true, $clause, 't_id, sort_ndx');
+		if ($coll) {
+			$db  = $this->_db();
+			$sql = sprintf('SELECT id, p_id, value, is_default FROM %s WHERE p_id IN (%s) ORDER BY id', $this->tbpval, implode(',', array_keys($coll)));
+			$db->query($sql);
+			
+			while ($r = $db->nextRecord()) {
+				$coll[$r['p_id']]->_opts[$r['id']] = $r['value'];
+				if ($r['is_default']) {
+					$coll[$r['p_id']]->_default[] = $r['id'];
+				}
+			}
+		}
+		return $coll;
+	}
 	
 	/**
 	 * return true if type is text or textarea
@@ -68,7 +107,6 @@ class elIShopProperty extends elDataMapping {
 	function isList() {
 		return EL_IS_PROP_LIST == $this->type;
 	}
-
 
 	/**
 	 * return true if type is multiselect
@@ -96,16 +134,17 @@ class elIShopProperty extends elDataMapping {
 				$ret = array();
 				foreach($val as $id) {
 					if (isset($this->_opts[$id])) {
+						
 						$ret[] = $this->_opts[$id];
 					}
 				}
 				return implode(', ', $ret);
 			default:
 				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
-				
 		}
 	}
 
+	
 
 	/**
 	 * Return list of properties in human readable format (for admin mode)
@@ -113,123 +152,90 @@ class elIShopProperty extends elDataMapping {
 	 * @return array
 	 **/
 	function getInfo() {
-		$pTypes = array(
-			EL_IS_PROP_STR   => m('String'),
-		    EL_IS_PROP_TXT   => m('Text'),
-		    EL_IS_PROP_LIST  => m('Values list (one value can be selected)'),
-		    EL_IS_PROP_MLIST => m('Values list (any numbers of value can be selected)')
-			);
+		$this->_types = array_map('m', $this->_types);
+		
 		$ret = array(
 			'id'        => $this->ID,
 			'typeID'    => $this->typeID,
-			'type'      => $pTypes[$this->type],
+			'type'      => $this->_types[$this->type],
 			'name'      => $this->name,
 			'position'  => m($this->displayPos),
 			'announced' => m($this->isAnnounced ? 'Yes' : 'No'),
-			'hidden'    => m($this->isHidden ? 'Yes' : 'No'),
-			'opts'      => $this->isText() ? m('No') : implode(', ', $this->_opts),
+			'hidden'    => m($this->isHidden    ? 'Yes' : 'No'),
+			'opts'      => $this->isText()      ? m('No') : implode(', ', $this->isMultiList() ? array_map(array($this, '_rangeToString'), $this->_opts) : $this->_opts),
 			'default'   => $this->valuesToString($this->isText() ? array() : $this->_default)
 			);
-		elPrintR($this->_opts);
 		return $ret;
 	}
 
 	/**
-	 * override parent method
+	 * returns property on which depends current property
 	 *
-	 * @return array
+	 * @return elIShopProperty
 	 **/
-	function _toArray() {
-		$ret = parent::toArray();
-		$ret['default'] = $this->defaultToString();
-		$ret['opts'] = $this->_opts;
-		// $ret['opts'] = $this->toString();
-		return $ret;
+	function getDependOn() {
+		return $this->isMultiList() && $this->dependID ? $this->_factory->getFromRegistry(EL_IS_PROP, $this->dependID) : null;
 	}
 
-  	/**
-	 * fetch property object from db
+	/**
+	 * Delete property
 	 *
-	 * @return bool
+	 * @return void
 	 **/
-	function fetch() {
-		if (parent::fetch()) {
-			$db = $this->_db();
-			$db->query(sprintf('SELECT id, value, is_default FROM %s WHERE p_id=%d', $this->tbpval, $this->ID));
-			while ($r = $db->nextRecord()) {
-				$this->_opts[$r['id']] = $r['value'];
-				if ($r['is_default']) {
-					$this->_default[] = $r['id'];
+	function delete() {
+		$tbpval = $this->_factory->tb('tbpval');
+		$tbp2i  = $this->_factory->tb('tbp2i');
+		$tbdep  = $this->_factory->tb('tbpdep');
+		$tbs    = array($tbpval => 'p_id', $tbp2i => 'p_id', $tbdep => 'm_id');
+		parent::delete($tbs);
+		parent::delete(array($tbdep => 's_id'));
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function options() {
+		return $this->_opts;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function editDependance() {
+		if ($this->isMultiList() && false != ($master = $this->getDependOn())) {
+			$this->_makeDependForm();
+			if ($this->_form->isSubmitAndValid()) {
+				$db = $this->_db();
+				$data = $this->_form->getValue();
+				
+				$db->query(sprintf('DELETE FROM %s WHERE m_id=%d AND s_id=%d', $this->tbpdep, $master->ID, $this->ID));
+				$db->optimizeTable($this->tbpdep);
+				$val = array();
+				$db->prepare('INSERT INTO '.$this->tbpdep.' (m_id, m_value, s_id, s_value) VALUES ', '(%d, %d, %d, %d)');
+				foreach ($data as $masterVal=>$slaveVals) {
+					
+					if (preg_match('/^m_id_\d/', $masterVal)) {
+						$masterVal = str_replace('m_id_', '', $masterVal);
+						foreach ($slaveVals as $v) {
+							$val[] = array($master->ID, $masterVal, $this->ID, $v);
+						}
+					}
+				}
+				if (!empty($val)) {
+					$db->prepareData($val, true);
+					$db->execute();
 				}
 			}
 			return true;
-		}
-		return false;
+		} 
+		
 	}
-
-	/**
-	 * return all properties
-	 *
-	 * @return array
-	 **/
-	function collection($obj=false, $assoc=false, $clause=null, $sort=null, $offset=0, $limit=0, $onlyFields=null) {
-		$coll = parent::collection(true, true, $clause);
-		if ($coll) {
-			$db  = $this->_db();
-			$sql = sprintf('SELECT id, p_id, value, is_default FROM %s WHERE p_id IN (%s) ORDER BY value', $this->tbpval, implode(',', array_keys($coll)));
-			$db->query($sql);
-			
-			while ($r = $db->nextRecord()) {
-				$coll[$r['p_id']]->_opts[$r['id']] = $r['value'];
-				if ($r['is_default']) {
-					$coll[$r['p_id']]->_default[] = $r['id'];
-				}
-			}
-		}
-		return $coll;
-	}
-
-
-  /**
-   * Возвращает поля объекта в виде массива
-   *
-   * @return array
-   */
-  // function toArray()
-  // {
-  //   $ret = array(
-  //               array('l'=>m('Name'), 'v'=>$this->name),
-  //               array('l'=>m('Property type'), 'v'=>$GLOBALS['elIShopPropTypes'][$this->type][0]),
-  //               );
-  //   if ( EL_IS_PROP_LIST <= $this->type )
-  //   {
-  //     $ret[] = array('l'=>m('Value variants'), 'v'=>$this->valuesToString());
-  //   }
-  //   $ret[] = array('l'=>m('Default value'), 'v'=>$this->valuesToString(true));
-  //   if ( EL_IS_PROP_MLIST == $this->type && $this->isHidden )
-  //   {
-  //     $ret[] = array('l'=>m('Display only in order form'), 'v'=>m('Yes'));
-  //   }
-  //   else
-  //   {
-  //     $ret[] = array('l'=>m('Display position in item card'), 'v'=>m($this->displayPos) );
-  //     $ret[] = array('l'=>m('Display property name in item card'), 'v'=>$GLOBALS['yn'][$this->displayName]);
-  //     $ret[] = array('l'=>m('Announce propery in items list'), 'v'=>$GLOBALS['yn'][$this->isAnnounced]);
-  //   }
-  //   return $ret;
-  // }
-
-  // function isDependAvailable()
-  // {
-  //   if ( EL_IS_PROP_MLIST == $this->type )
-  //   {
-  //     $db = & elSingleton::getObj('elDb');
-  //     $sql = 'SELECT id FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\'';
-  //     $db->query( $sql );
-  //     return $db->numRows();
-  //   }
-  //   return false;
-  // }
 
 
   // function inDepend()
@@ -323,174 +329,6 @@ class elIShopProperty extends elDataMapping {
 //   }
 
 
-
-  // function getValuesByIDs( $IDs, $h=false )
-  // {
-  //   $ret = array();
-  //   foreach ( $IDs as $ID )
-  //   {
-  //     if ( isset($this->values[$ID]) )
-  //     {
-  //       $ret[$ID] = (EL_IS_PROP_MLIST == $this->type && $h)
-  //         ? elIShopParsePropValue($this->values[$ID][0])
-  //         : $this->values[$ID][0];
-  //     }
-  //   }
-  //   return $ret;
-  // }
-
-
-	function _editAndSave( $params=null )
-	{
-		$this->_makeForm( $params );
-
-		if ( $this->_form->isSubmitAndValid() && $this->_validForm() )
-		{
-			elPrintR($this->_form->getValue());
-			// $this->attr( $this->_form->getValue() );
-			// return $this->save($params);
-		}
-	}
-
-  /**
-   * Создает объект-форму для редактирования своих полей
-   *
-   */
-	function _makeForm($params = null) {
-		parent::_makeForm();
-
-		$itype = $this->_factory->create(EL_IS_ITYPE, $this->iTypeID);
-		$maxNdx = count($itype->getProperties());
-		$types = array(
-		    EL_IS_PROP_STR   => m('String'),
-		    EL_IS_PROP_TXT   => m('Text'),
-		    EL_IS_PROP_LIST  => m('Values list (one value can be selected)'),
-		    EL_IS_PROP_MLIST => m('Values list (any numbers of value can be selected)')
-		    );
-		$pos = array(
-			'top'    => m('top'),
-			'table'  => m('table'),
-			'bottom' => m('bottom')
-			);
-
-		if ($this->ID) {
-			$label = 'Edit property for type "%s"';
-		} else {
-			$label = 'Create new property for type "%s"';
-			$this->sortNdx = ++$maxNdx;
-		}
-
-		$this->_form->setLabel(sprintf(m($label), $itype->name));
-		$this->_form->add(new elText('name',                           m('Name'),                           $this->name));
-		$this->_form->add(new elSelect('type',                         m('Property type'),                  $this->type, $types));
-		$this->_form->add(new elText('values'.EL_IS_PROP_STR,          m('Default value'),                  '', array('maxlength' => '256', 'style' => 'width:100%')));
-		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                  '', array('rows' => 5)));
-		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_LIST,  m('Values variants')));
-		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_MLIST, m('Values variants')));
-		$this->_form->add(new elSelect('display_pos',                  m('Display position in item card'),  $this->displayPos, $pos));
-		$this->_form->add(new elSelect('is_announced',                 m('Announce propery in items list'), $this->isAnnounced, $GLOBALS['yn'] ) );
-		$this->_form->add(new elSelect('is_hidden',                    m('Display only in order form'),     $this->isHidden, $GLOBALS['yn'] ) );
-		$this->_form->add(new elSelect('sort_ndx',                     m('Order position'),                 $this->sortNdx, range(1, $maxNdx), null, false, false) );
-		$this->_form->setRequired('name');
-	
-		$id = $this->_form->getAttr('name'); 
-		$js = '$("#'.$this->_form->getAttr('name').' #type").change(function() {
-			$(this).parents("form").find("tr[id^=\'row_values\']").hide().filter("#row_values"+$(this).val()).show();
-		}).trigger("change");';
-		
-		elAddJs($js, EL_JS_SRC_ONREADY);
-	return;
-
-
-    if (EL_IS_PROP_MLIST == $this->type)
-    {
-      $db = & elSingleton::getObj('elDb');
-      // $sql = 'SELECT id, name FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\' ORDER BY sort_ndx';
-      $dList = array(0=>'none') + $db->queryToArray('SELECT id, name FROM '.$this->_tb.' WHERE t_id=\''.$this->iTypeID.'\' AND type=\''.$this->type.'\' AND id<>\''.$this->ID.'\' ORDER BY sort_ndx', 'id', 'name');
-      $this->_form->add( new elSelect('depend_id', m('Depend on'), $this->dependID, $dList) );
-    }
-
-
-	}
-
-
-
-  /**
-   * Возвращает объект-элемент формы в зав-ти от собственного типа
-   * Используется в объекте elIShopItem
-   *
-   * @param array $itemValues
-   * @return object
-   */
-  // function getFormElement( $itemValues=null )
-  // {
-  //   //echo $this->type.'<br>'; elPrintR($itemValues);
-  //   if ( $this->hasTextType() )
-  //   {
-  //     if ( isset($itemValues[0]) )
-  //     {
-  //       $value = $itemValues[0];
-  //     }
-  //     else
-  //     {
-  //       $cur   = current($this->values);
-  //       $value = isset($cur[0]) ? $cur[0] : '';
-  //     }
-  //     $class = EL_IS_PROP_STR == $this->type ? 'elText' : 'elTextArea';
-  //     return new $class('props['.$this->ID.']', $this->name, $value);
-  //   }
-  //   else
-  //   {
-  //     $opts = $default = array();
-  //     foreach ( $this->values as $ID=>$value )
-  //     {
-  //       $opts[$ID] = elIShopParsePropValue($value[0]);
-  //       if ( !empty($value[1]) )
-  //       {
-  //         $default[] = $ID;
-  //       }
-  //     }
-  //     if ( EL_IS_PROP_LIST == $this->type )
-  //     {
-  //       $values = !empty($itemValues) ? current($itemValues) : current($default);
-  //       $class = 'elSelect';
-  //     }
-  //     else
-  //     {
-  //       $values = !empty($itemValues) ? $itemValues : $default; //elPrintR($values);
-  //       $class  = 'elMultiSelectList';
-  //     }
-  // 
-  //     return new $class('props['.$this->ID.']', $this->name, $values, $opts, null, false, true, 'span');
-  //   }
-  // }
-
-
-  /**
-   * Удаляет поля объекта из всех таблиц в БД
-   */
-  // function delete()
-  // {
-  //   $db  = &elSingleton::getObj('elDb');
-  //   $sql = 'UPDATE '.$this->_tb.' SET sort_ndx=sort_ndx-1 WHERE '
-  //     .'t_id='.intval($this->iTypeID).' AND id<>\''.$this->ID.'\' '
-  //     .'AND sort_ndx>='.intval($this->sortNdx);
-  //   $db->query($sql);
-  // 
-  //   $sql = 'DELETE FROM '.$this->tbpdep.' WHERE id=\''.$this->iTypeID.'\' '
-  //     .'AND (s_id=\''.$this->ID.'\' OR m_id=\''.$this->ID.'\')';
-  //   $db->query($sql);
-  //   $db->optimizeTable( $this->tbpdep );
-  //   parent::delete( array($this->tbpval=>'p_id', $this->tbp2i=>'p_id') );
-  // }
-
-
-  /***************************************************/
-  //                    PRIVATE                      //
-  /***************************************************/
-
-
-
   	/**
   	 * overide parent method
   	 *
@@ -506,22 +344,93 @@ class elIShopProperty extends elDataMapping {
 		$this->values = array();
 	}
 
+	/*********************************************************/
+	/***                     PRIVATE                       ***/
+	/*********************************************************/
+
 	/**
-   * Возвращает значение свойства в виде строки или массива в зав-ти от требуемого типа свойства
-   * используется при редактировании объекта
-   *
-   * @param int $type
-   * @return misc
-   */
-  // function _getValueByType($type)
-  // {
-  //   if ( EL_IS_PROP_LIST <= $type )
-  //   {
-  //     return $this->values;
-  //   }
-  //   $cur = current($this->values);
-  //   return isset($cur[0]) ? $cur[0] : '';
-  // }
+	 * For multiselect translate range(start, end, step) into human readable form
+	 *
+	 * @param  string
+	 * @return string
+	 **/
+	function _rangeToString($str) {
+		if (preg_match($this->_rangeReg, $str, $m)) {
+			$str = sprintf(m('from %s till %s (step %s)'), $m[1], $m[2], $m[3]);
+			if (!empty($m[5])) {
+				$str .= ' '.sprintf(m('exclude %s'), $m[5]);
+			}
+		}
+		return $str;
+	}
+
+	/**
+	 * Create form for edit object
+	 *
+	 * @return void
+	 **/
+	function _makeForm($params = null) {
+		parent::_makeForm();
+
+		$itype        = $this->_factory->create(EL_IS_ITYPE, $this->typeID);
+		$maxNdx       = count($itype->getProperties());
+		$this->_types = array_map('m', $this->_types);
+		$pos          = array(
+			'top'    => m('top'),
+			'table'  => m('table'),
+			'bottom' => m('bottom')
+			);
+
+		if ($this->ID) {
+			$label = 'Edit property for type "%s"';
+		} else {
+			$label = 'Create new property for type "%s"';
+			$this->sortNdx = ++$maxNdx;
+		}
+
+		$test = array('a' => array('letter a', 1), 2 => array('letter 2', 0));
+		
+		$opts = array();
+		if (!$this->isText()) {
+			foreach ($this->_opts as $id => $v) {
+				$opts[$id] = array($v, (int)in_array($id, $this->_default));
+			}
+		}
+		
+		$valStr   = $this->type == EL_IS_PROP_STR   ? $this->valuesToString() : '';
+		$valTxt   = $this->type == EL_IS_PROP_TXT   ? $this->valuesToString() : '';
+		$valList  = $this->type == EL_IS_PROP_LIST  ? $opts : null;
+		$valMList = $this->type == EL_IS_PROP_MLIST ? $opts : null;
+
+		$this->_form->setLabel(sprintf(m($label), $itype->name));
+		$this->_form->add(new elText('name',                           m('Name'),                           $this->name));
+		$this->_form->add(new elSelect('type',                         m('Property type'),                  $this->type, $this->_types));
+		$this->_form->add(new elText('values'.EL_IS_PROP_STR,          m('Default value'),                  $valStr, array('maxlength' => '256', 'style' => 'width:100%')));
+		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                  $valTxt, $this->valuesToString(), array('rows' => 5)));
+		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_LIST,  m('Values variants'),               $valList));
+		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_MLIST, m('Values variants'),               $valMList));
+		$this->_form->add(new elSelect('display_pos',                  m('Display position in item card'),  $this->displayPos, $pos));
+		$this->_form->add(new elSelect('is_announced',                 m('Announce propery in items list'), $this->isAnnounced, $GLOBALS['yn'] ) );
+		$this->_form->add(new elSelect('is_hidden',                    m('Display only in order form'),     $this->isHidden, $GLOBALS['yn'] ) );
+		$this->_form->add(new elSelect('sort_ndx',                     m('Order position'),                 $this->sortNdx, range(1, $maxNdx), null, false, false) );
+		$this->_form->setRequired('name');
+	
+		$id = $this->_form->getAttr('name'); 
+		$js = '$("#'.$this->_form->getAttr('name').' #type").change(function() {
+			$(this).parents("form").find("tr[id^=\'row_values\']").hide().filter("#row_values"+$(this).val()).show();
+		}).trigger("change");';
+		
+		elAddJs($js, EL_JS_SRC_ONREADY);
+
+		if ($this->isMultiList()) {
+			$db     = $this->_db();
+			$sql    = sprintf('SELECT id, name FROM %s WHERE t_id=%d AND type=%d AND id<>%d AND depend_id<>%d ORDER BY sort_ndx', $this->_tb, $this->typeID, $this->type, $this->ID, $this->ID);
+			$depend = $db->queryToArray($sql, 'id', 'name');
+			if (count($depend) > 0) {
+				$this->_form->add(new elSelect('depend_id', m('Depend on'), $this->dependID, array(m('No'))+$depend));
+			}
+		}
+	}
 
 	/**
 	 * Проверка формы редактирования полей объекта
@@ -530,32 +439,34 @@ class elIShopProperty extends elDataMapping {
 	 * @return bool
 	 */
 	function _validForm() {
-		$data = $this->_form->getValue(); //echo $data['type'];
+		$data = $this->_form->getValue(); 
 		$src = $data['values'.$data['type']];
 		return EL_IS_PROP_LIST <= $data['type'] && empty($src)
 			? $this->_form->pushError('values'.$data['type'], 'Could not be empty')
 			: true;
 	}
 
-
 	/**
-	 * undocumented function
+	 * Save value variants/default value, update sort indexes for other properies
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
-	function _postSave() {
+	function _postSave($isNew) {
 		$db = $this->_db();
-		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE t_id="'.$this->iTypeID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
+		$indexes = $db->queryToArray('SELECT id, sort_ndx FROM '.$this->_tb.' WHERE t_id="'.$this->typeID.'" ORDER BY sort_ndx', 'id', 'sort_ndx');
 		$i = 1;
 		$s = sizeof($indexes);
 		foreach ($indexes as $id=>$ndx) {
+			
 			if ($id != $this->ID) {
+				$_ndx = $ndx;
 				if ($i == $this->sortNdx) {
-					$i = $i == $s ? $s-1 : $i++;
+					$_ndx = $i == $s ? $s-1 : $i+1;
+				} elseif ($i != $ndx) {
+					$_ndx = $i;
 				}
-				if ($ndx != $i) {
-					$db->query(sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb, $i, $id));
+				if ($_ndx != $ndx) {
+					$db->query(sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb, $_ndx, $id));
 				}
 			}
 			$i++;
@@ -567,46 +478,47 @@ class elIShopProperty extends elDataMapping {
 		$upd  = 'UPDATE %s SET value="%s", is_default="%d" WHERE id=%d';
 		
 		if ($this->isText()) {
-			if (!empty($this->values)) {
-				$db->query(sprintf('DELETE FROM %s WHERE p_id=%d AND id<>%d', $this->tbpval, $this->ID, key($this->values)));
+			if ($isNew) {
+				
+				$sql = sprintf($ins, $this->tbpval, $this->ID, mysql_real_escape_string($src), 1);
+			} else {
+				$sql = sprintf('DELETE FROM %s WHERE p_id=%d AND id<>%d', $this->tbpval, $this->ID, !empty($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_default[0] : key($this->_opts) );
+				$db->query($sql);
+				$sql = sprintf($upd, $this->tbpval, mysql_real_escape_string($src), 1, $this->ID);
 			}
-			$sql = empty($this->values) 
-				? sprintf($ins, $this->tbpval, $this->ID, mysql_real_escape_string($src), 1) 
-				: sprintf($upd, $this->tbpval, mysql_real_escape_string($src), 1, $this->ID);
 			$db->query($sql);
 		} else {
-			$rm = array_diff(array_keys($this->values), array_keys($src));
+			$rm = array_diff(array_keys($this->_opts), array_keys($src));
 			if (!empty($rm)) {
 				$db->query(sprintf('DELETE FROM %s WHERE id IN (%s)', $this->tbpval, implode(',', $rm)));
 			}
-			// foreach ($src as )
+			foreach ($src as $id=>$v) {
+				$sql = isset($this->_opts[$id])
+					? sprintf($upd, $this->tbpval, mysql_real_escape_string($v[0]), $v[1], $id)
+					: sprintf($ins, $this->tbpval, $this->ID, mysql_real_escape_string($v[0]), $v[1]);
+				$db->query($sql);
+			}
 			
 		}
 		$db->optimizeTable($this->tbpval);
 		return true;
 	}
 
-
-	/*********************************************************/
-	/***                     PRIVATE                       ***/
-	/*********************************************************/
-	
-
-
 	/**
-	 * fetch values by id and concat in string
+	 * Create form for edit dependance
 	 *
-	 * @param  array  $ids  list of values ids
-	 * @return string
+	 * @return void
 	 **/
-	function _toString($ids) {
-		$ret = array();
-		foreach ($ids as $id) {
-			if (isset($this->_opts[$id])) {
-				$ret[] = $this->_opts[$id];
+	function _makeDependForm() {
+		parent::_makeForm();
+		if (false != ($master = $this->getDependOn())) {
+			$this->_form->setLabel(sprintf(m('Edit dependance %s/%s'), $master->name, $this->name));
+			$this->_form->add(new elCData2('c', $master->name, $this->name));
+			$opts = array_map(array($this, '_rangeToString'), $this->_opts);
+			foreach (array_map(array($this, '_rangeToString'), $master->options()) as $id=>$v) {
+				$this->_form->add(new elMultiSelectList('m_id_'.$id, $v, null, $opts));
 			}
 		}
-		return implode(', ', $ret);
 	}
 
 	/**

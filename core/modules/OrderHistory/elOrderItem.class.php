@@ -118,17 +118,17 @@ class elOrderItem extends elDataMapping
 		}
 	
 		// delivery 
-		$this->_form->add(new elCData('del_1',  ''));
-		$this->_form->add(new elCData('del_s',  m('Delivery')),     array('colspan' => '3'));
-		$this->_form->add(new elText('del_del', '', $order['delivery_price'], array('size' => 6)));
+		$this->_form->add(new elCData('del_1',   ''));
+		$this->_form->add(new elCData('del_s',   m('Delivery')),     array('colspan' => '3'));
+		$this->_form->add(new elText( 'del_del', '', $order['delivery_price'], array('size' => 6)));
 		
 		// discount
-		$this->_form->add(new elCData('dis_1',  ''));
-		$this->_form->add(new elCData('dis_s',  m('Discount')),     array('colspan' => '3'));
-		$this->_form->add(new elText('dis_dis', '', $order['discount'], array('size' => 6)));
+		$this->_form->add(new elCData('dis_1',   ''));
+		$this->_form->add(new elCData('dis_s',   m('Discount')),     array('colspan' => '3'));
+		$this->_form->add(new elText( 'dis_dis', '', $order['discount'], array('size' => 6)));
 
 		// footer
-		$this->_form->add(new elCData('n_l',  ''),             array('colspan' => '3'));
+		$this->_form->add(new elCData( 'n_l', ''),             array('colspan' => '3'));
 		$this->_form->add(new elSubmit('s_s', '', m('Submit'), array('class'=>'submit')));
 		$this->_form->add(new elReset( 'r_r', '', m('Drop'),   array('class'=>'submit')));
 	}
@@ -148,7 +148,7 @@ class elOrderItem extends elDataMapping
 'SELECT i.name, SUM(i.price) AS sum, SUM(i.qnt) AS qnt, i.price
 FROM el_order_item AS i, el_order AS o
 WHERE i.order_id = o.id AND o.state <> "aborted"
-GROUP BY i.code ORDER BY qnt DESC  LIMIT 12';
+GROUP BY i.code ORDER BY qnt DESC LIMIT 12';
 		$db   = & elSingleton::getObj('elDb');
 		$db->query($sql);
 		while ($r = $db->nextRecord())
@@ -170,6 +170,49 @@ WHERE i.order_id = o.id AND o.state <> "aborted" LIMIT 1';
 		      . m('Total') . ': '. ($r['sum'] - $sum) . ')';
 		$top[$name] = $r['qnt'] - $qnt;
 		return $top;
+	}
+
+	/**
+	 * Best selling products for period (used in SpecialOffer plugin)
+	 *
+	 * @param  int   $shop_id   IShop ID = Page ID
+	 * @param  int   $limit     how many of best selling items to return
+	 * @param  int   $period    search within this period (in days)
+	 * @return array
+	 **/
+	function bestSellers($shop_id = 0, $limit = 10, $period = 30)
+	{
+		$where = array();
+		if ($period > 0)
+		{
+			array_push($where, 'crtime>='.(time() - ($period * 86400)));
+		}
+		if ($shop_id > 0)
+		{
+			array_push($where, 'page_id='.$shop_id);
+		}
+
+		$sql = 'SELECT i_id, SUM(qnt) AS qnt FROM '.$this->_tb;
+
+		if (!empty($where))
+		{
+			$sql .= ' WHERE '.implode(' AND ', $where);
+		}
+		$sql .= ' GROUP BY i_id ORDER BY qnt DESC';
+
+		if ($limit > 0)
+		{
+			$sql .= ' LIMIT 0, '.intval($limit);
+		}
+
+		$ret = array();
+		$db  = & elSingleton::getObj('elDb');
+		$db->query($sql);
+		while ($r = $db->nextRecord())
+		{
+			array_push($ret, $r['i_id']);
+		}
+		return $ret;
 	}
 
 }

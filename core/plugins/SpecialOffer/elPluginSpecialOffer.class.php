@@ -2,11 +2,11 @@
 
 class elPluginSpecialOffer extends elPlugin
 {
-	var $_posNfo = array(
-		EL_POS_LEFT   => array('PLUGIN_SPECIAL_OFFER_LEFT',   'left-right.html'),
-		EL_POS_RIGHT  => array('PLUGIN_SPECIAL_OFFER_RIGHT',  'left-right.html'),
-		EL_POS_TOP    => array('PLUGIN_SPECIAL_OFFER_TOP',    'top-bottom.html'),
-		EL_POS_BOTTOM => array('PLUGIN_SPECIAL_OFFER_BOTTOM', 'top-bottom.html')
+	var $_posNfo = array();
+	var $_variants = array(
+		'so' => 'Special Offer',
+		'bs' => 'Best Sellers',
+		'na' => 'New Arrivals'
 	);
 
 	function onUnload()
@@ -31,6 +31,16 @@ class elPluginSpecialOffer extends elPlugin
 		$rnd = & elSingleton::getObj('elTE');
 		foreach ($srcs as $src)
 		{
+			list($sid, $variant) = explode('_', $src, 2);
+
+			// define templates
+			$this->_posNfo = array(
+				EL_POS_LEFT   => array('PLUGIN_SPECIAL_OFFER_LEFT',   $variant.'-left-right.html'),
+				EL_POS_RIGHT  => array('PLUGIN_SPECIAL_OFFER_RIGHT',  $variant.'-left-right.html'),
+				EL_POS_TOP    => array('PLUGIN_SPECIAL_OFFER_TOP',    $variant.'-top-bottom.html'),
+				EL_POS_BOTTOM => array('PLUGIN_SPECIAL_OFFER_BOTTOM', $variant.'-top-bottom.html')
+			);
+
 			// check currect page
 			$pages = $this->_param($src, 'pages', array());
 			if (!in_array('1', $pages) && !in_array($this->pageID, $pages)) {
@@ -58,6 +68,7 @@ class elPluginSpecialOffer extends elPlugin
 			if (!$pos) {
 				continue;
 			}
+
 			$rnd->setFile($tplVar, $tpl);
 			switch ($pos) {
 				case EL_POS_TOP:   $cssClass = 'pl-so-top'; break;
@@ -89,8 +100,40 @@ class elPluginSpecialOffer extends elPlugin
 			// get special offers from IShop
 			$sort = ($this->_param($src, 'sort', 0) == '0' ? EL_IS_SORT_RAND : EL_IS_SORT_TIME);
 			$shop = & elSingleton::getObj('elModuleIShop');
-			$shop->init($src, array(), 'IShop');
-			$items = $shop->_factory->ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
+			$shop->init($sid, array(), 'IShop');
+			$items = array();
+			switch ($variant)
+			{
+				case 'so':
+					$items = $shop->_factory->ic->create('special', 1, 0, $this->_param($src, 'num', 1), $sort);
+					break;
+
+				case 'na':
+					$item  = $shop->_factory->create(EL_IS_ITEM);
+					$items = $item->collection(true, true, null, 'crtime DESC', 0, $this->_param($src, 'num', 1));
+					unset($item);
+					break;
+
+				case 'bs':
+					if (!elSingleton::incLib('./modules/OrderHistory/elOrderItem.class.php'))
+					{
+						return;
+					}
+					$oi = & elSingleton::getObj('elOrderItem');
+					$ids = $oi->bestSellers($sid, $this->_param($src, 'num', 1), $this->_param($src, 'period', 30));
+					$items_unsorted = $shop->_factory->ic->create('search', $ids, 0, 0, 0);
+					foreach ($ids as $id)
+					{
+						if (array_key_exists($id, $items_unsorted))
+						{
+							$items[$id] = $items_unsorted[$id];
+						}
+					}
+					unset($oi);
+					unset($items_unsorted);
+					break;
+			}
+
 			if (empty($items))
 			{
 				continue;
@@ -160,13 +203,14 @@ class elPluginSpecialOffer extends elPlugin
 				if (!empty($data['src_'.$src]))
 				{
 					$params[$src] = array();
-					$params[$src]['title'] = $data['title_'.$src];
-					$params[$src]['num']   = $data['num_'.$src];
-					$params[$src]['sort']  = $data['sort_'.$src];
-					$params[$src]['pos']   = $data['pos_'.$src];
-					$params[$src]['pos2']  = $data['pos2_'.$src];
-					$params[$src]['pos3']  = $data['pos3_'.$src];
-					$params[$src]['pages'] = $data['pages_'.$src];
+					$params[$src]['title']  = $data['title_' .$src];
+					$params[$src]['num']    = $data['num_'   .$src];
+					$params[$src]['sort']   = $data['sort_'  .$src];
+					$params[$src]['period'] = $data['period_'.$src];
+					$params[$src]['pos']    = $data['pos_'   .$src];
+					$params[$src]['pos2']   = $data['pos2_'  .$src];
+					$params[$src]['pos3']   = $data['pos3_'  .$src];
+					$params[$src]['pages']  = $data['pages_' .$src];
 				}
 			}
 			$conf = & elSingleton::getObj('elXmlConf');
@@ -192,7 +236,12 @@ class elPluginSpecialOffer extends elPlugin
 		$pages[1] = m('Whole site');
 		$swLabel  = m('Use this data source');
 		$sort     = array(m('Random'), m('Last added'));
-
+		$period   = array(
+			7  => m('Week'),
+			30 => m('Month'),
+			90 => m('3 month'),
+			0  => m('All time')
+		);
 		$this->form = &elSingleton::getObj('elForm');
 		$this->form->setRenderer(elSingleton::getObj('elTplFormRenderer'));
 		$this->form->setLabel(m('Configure plugin'));
@@ -200,7 +249,8 @@ class elPluginSpecialOffer extends elPlugin
 
 		foreach ($srcs as $src)
 		{
-			$pageName = $nav->getPageName($src);
+			list($sid, $variant) = explode('_', $src, 2);
+			$pageName = $nav->getPageName($sid).': '.m($this->_variants[$variant]);
 			$box = & new elExpandBox('src_'.$src, $pageName, array('swLabel'=>$swLabel));
 			if ($this->_param($src))
 			{
@@ -208,7 +258,14 @@ class elPluginSpecialOffer extends elPlugin
 			}
 			$box->add(new elText( 'title_'.$src, m('Title'),                       $this->_param($src, 'title', $pageName)));
 			$box->add(new elSelect( 'num_'.$src, m('How many offers to show'),     $this->_param($src, 'num',   1), $nums));
-			$box->add(new elSelect('sort_'.$src, m('How to sort offers'),          $this->_param($src, 'sort',  0), $sort));
+			if ($variant == 'so')
+			{
+				$box->add(new elSelect('sort_'.$src, m('How to sort offers'),      $this->_param($src, 'sort',  0), $sort));
+			}
+			elseif ($variant == 'bs')
+			{
+				$box->add(new elSelect('period_'.$src, m('Best for period'),       $this->_param($src, 'period',  0), $period));
+			}
 			$box->add(new elSelect( 'pos_'.$src, m('Position on module main page'),$this->_param($src, 'pos',   EL_POS_TOP), $GLOBALS['posNLRTB']));
 			$box->add(new elSelect('pos2_'.$src, m('Position on module category'), $this->_param($src, 'pos2',  EL_POS_TOP), $GLOBALS['posNLRTB']));
 			$box->add(new elSelect('pos3_'.$src, m('Position on module item'),     $this->_param($src, 'pos3',  EL_POS_TOP), $GLOBALS['posNLRTB']));
@@ -238,4 +295,22 @@ class elPluginSpecialOffer extends elPlugin
 		return isset($this->_params[$src][$param]) ? $this->_params[$src][$param] : $defVal;
 	}
 
+	/**
+	 * Find sources but use multi source in each IShop
+	 *
+	 * @param  string  $module
+	 * @return array   of multi sources
+	 **/
+	function findSources($module)
+	{
+		$srcs = array();
+		foreach (parent::findSources($module) as $src)
+		{
+			foreach ($this->_variants as $k => $v)
+			{
+				array_push($srcs, $src.'_'.$k);
+			}
+		}
+		return $srcs;
+	}
 }

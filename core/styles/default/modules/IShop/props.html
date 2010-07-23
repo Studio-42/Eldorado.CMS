@@ -1,11 +1,44 @@
-<ul class="adm-icons">
-	<li><a href="{ishopTypesURL}prop_edit/{typeID}/" class="icons create" title="{m('New property')}"></a></li>
+<ul class="adm-icons" style="margin:5px 5px 0 0">
+	<li><a href="{ishopTypesURL}prop_edit/{typeID}/"  class="icons create"   title="{m('New property')}"></a></li>
+	<li><a href="{ishopTypesURL}prop_sort/{typeID}/" class="icons sort-num" title="{m('Sort properties')}"></a></li>
 </ul>
-<h4>{m('Properties')}</h4>
-<ul>
+<h4 class="mod-ishop-props-list-title rounded-5">{m('Properties')}</h4>
+<ul class="mod-ishop-props-list">
 	<!-- BEGIN IS_PROP -->
-	<li>
-		<strong>{name}</strong>
+	<li class="rounded-5">
+		<ul class="adm-icons">
+			<li><a href="{URL}prop_edit/{typeID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{URL}prop_rm/{typeID}/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+		</ul>
+		<a href="#" class="el-collapsed">{name}</a>
+		<div class="clearfix"></div>
+		<hr style="display:none" />
+		<table cellspacing="0" rules="rows" style="display:none">
+			<tr><td>{m('Type')}: </td><td>{type}</td></tr>
+			<tr><td>{m('Position')}: </td><td>{position}</td></tr>
+			<tr><td>{m('Announce in products list')}: </td><td>{announced}</td></tr>
+			<tr><td>{m('Hide on product page')}: </td><td>{hidden}</td></tr>
+			<tr><td>{m('Values variants')}: </td><td>{opts}</td></tr>
+			<tr><td>{m('Default value')}: </td><td>{default}</td></tr>	
+			<!-- BEGIN DEPEND -->
+			<tr><td>{m('Depend from')}: </td><td>{name} [<a href="{URL}prop_depend/{typeID}/{id}/">{m('Edit dependance')}</a>]</td></tr>	
+			<!-- END DEPEND -->
+		</table>
 	</li>
 	<!-- END IS_PROP -->
 </ul>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		// alert($('.el-collapsed').length)
+		$('.el-collapsed').click(function(e) {
+			e.preventDefault();
+			$(this).toggleClass('el-expanded').nextAll('hr,table').toggle(200)
+		});
+		$('a.icons.delete').click(function(e) {
+			if (!confirm('{m('Do You really want to delete')}?')) {
+				e.preventDefault();
+			}
+		});
+	})
+</script>

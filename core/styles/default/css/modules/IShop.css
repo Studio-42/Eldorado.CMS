@@ -171,6 +171,28 @@ table.mod-ishop-items-twocol-clearfix td { padding:0; }
 /* описание товара */
 .mod-ishop-item-content {}
 
+/* props list (admin mode) */
+.mod-ishop-props-list-title {
+	border:1px solid #ccc;
+	margin:3px 0;
+	padding:5px;
+	background-color:#eee;
+}
+
+.mod-ishop-props-list {
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+.mod-ishop-props-list li {
+	border:1px solid #ccc;
+	margin:0 0 5px 0;
+	padding:5px;
+}
+.el-collapsed { font-weight:bold; }
+.mod-ishop-props-list hr { margin-bottom:5px;}
+.mod-ishop-props-list table td { padding:2px 15px 2px 7px; border-color:#ccc;}
+
 /* Yandex.Market */
 #conf-ym ul              { margin-bottom: 0; border-left: 3px solid #DEE7ED; margin-left: 44px; }
 #conf-ym ul li           { list-style-type: none; margin-left: 0; }

@@ -3,7 +3,7 @@ include_once EL_DIR_CORE.'lib/elCatalogRenderer.class.php';
 /**
  * IShop renderer
  *
- * @package Ishop
+ * @package IShop
  **/
 class elRndIShop extends elCatalogRenderer {
 	/**
@@ -319,12 +319,12 @@ class elRndIShop extends elCatalogRenderer {
 	function rndTypeProps($type) {
 		$this->_setFile('props');
 		$this->_te->assignVars('typeID', $type->ID);
-		// 
+
 		foreach ($type->getProperties() as $p) {
-			$p1 = $p;
-			unset($p1->_factory);
-			elPrintR($p1->toArray());
-			$this->_te->assignBlockVars('IS_PROP', $p->toArray());
+			$this->_te->assignBlockVars('IS_PROP', $p->getInfo());
+			if (false != ($d = $p->getDependOn())) {
+				$this->_te->assignBlockVars('IS_PROP.DEPEND', array('typeID' => $type->ID, 'id' => $p->ID, 'name' => $d->name), 1);
+			}
 		}
 	}
 

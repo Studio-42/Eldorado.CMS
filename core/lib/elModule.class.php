@@ -256,7 +256,9 @@ class elModule {
 					if (!isset($acts[$v['g']])) {
 						$acts[$v['g']] = array();
 					}
-					$g = array( 'url'    => EL_URL.$this->_smPath.$k.'/'.(isset($v['apUrl']) ? $v['apUrl'].'/' : ''),
+					$apURL   = isset($v['apUrl']) ? '/'.$v['apUrl'].'/' : '/';
+					$prepURL = isset($v['prepUrl']) ? $v['prepUrl'].'/' : '';
+					$g = array( 'url'    => EL_URL.$this->_smPath.$prepURL.$k.$apURL,
                       			'ico'    => !empty($v['ico']) ? $v['ico'] : '',
                       			'label'  => $v['l'],
                       			'onClick'=> !empty($v['onClick']) ? $v['onClick'] : ''

@@ -289,7 +289,7 @@ class elVariantsList extends elFormInput
     }
 
     $name  = $this->getName();
-    $html  = '<div id="'.$name.'_body" '.$this->attrsToString().' class="formVLControl">';
+    $html  = '<div id="'.$name.'_body" '.$this->attrsToString().' class="form-varlist-container">';
     foreach ($this->value as $ID=>$v)
     {
       $html .= '<div>';
@@ -302,11 +302,10 @@ class elVariantsList extends elFormInput
 
 	$js = '$(".form-varlist-ctrl").click(function(e) {
 		e.preventDefault();
-		var p = $(this).prev(".formVLControl"),
+		var p = $(this).prev(".form-varlist-container"),
 			c = p.children(":last").clone(),
 			l = p.children().length,
-			n = p.attr("name")+"["+l+"]";
-		
+			n = p.attr("name")+"["+"random-"+Math.random().toString().substring(2)+"]";
 		c.children(":text").val("").attr("name", n+"[0]");
 		c.children(":checkbox").attr("name", n+"[1]").removeAttr("checked");
 		p.append(c);

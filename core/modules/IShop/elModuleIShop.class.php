@@ -210,8 +210,8 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewManufacturer() {
-
-		if(!$this->_mnf->ID) {
+		$this->_mnf->idAttr($this->_arg());
+		if(!$this->_mnf->fetch()) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
@@ -232,8 +232,6 @@ class elModuleIShop extends elModule {
 			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 			'name' => $this->_mnf->name)
 			);
-		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    // $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -242,21 +240,20 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewTrademark() {
-		
-		$tm = $this->_factory->create(EL_IS_TM, $this->_arg());
-		if (!$tm->ID) {
-			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
-		}
-		$this->_mnf->ID = $tm->mnfID;
-
+		$this->_mnf->idAttr($this->_arg());
 		if(!$this->_mnf->fetch()) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
 
+		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1));
+		if (!$tm->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
+		}
+
 		list($total, $current, $offset, $step) = $this->_getPagerInfo(
-			$this->_factory->ic->count(EL_IS_TM, $tm->ID), (int)$this->_arg(1)
+			$this->_factory->ic->count(EL_IS_TM, $tm->ID), (int)$this->_arg(2)
 		);
 
 		$this->_initRenderer();
@@ -269,15 +266,12 @@ class elModuleIShop extends elModule {
 			'url'  => $this->_urlMnfs.'tm/'.$tm->ID.'/',	
 			'name' => $tm->name)
 			);
-		$mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
-	 * undocumented function
+	 * display type
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function viewType() {
 		$this->_type->idAttr((int)$this->_arg(0));
@@ -668,7 +662,7 @@ EOL;
 	*/
 	function _initNormal() {
 		parent::_initNormal();
-		
+
 		$h = $this->_arg();
 		$defaultView = $this->_conf['default_view'];
 		if (in_array($h, array_keys($this->_viewMap))) {
@@ -692,24 +686,29 @@ EOL;
 			default:
 				$this->_urlCats  = EL_URL;
 		}
+		
+
+		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
+		$this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_mnf  = $this->_factory->create(EL_IS_MNF);
+		$this->_type = $this->_factory->create(EL_IS_ITYPE);
+		
 		switch ($this->_view) {
 			case EL_IS_VIEW_MNFS:
 				$this->_url = $this->_urlMnfs;
+				$this->_mnf->idAttr($this->_arg(0));
+				$this->_mnf->fetch();
 				break;
 			case EL_IS_VIEW_TYPES:
 				$this->_url = $this->_urlTypes;
+				$this->_type->idAttr($this->_arg(0));
+				$this->_type->fetch();
 				break;
 			default:
 				$this->_url = $this->_urlCats;
+				$this->_cat->idAttr($this->_arg(0));
+				$this->_cat->fetch();
 		}
-		
-		// echo 'mnfs: '.$this->_urlMnfs.'<br/>';
-		// echo 'cats: '.$this->_urlCats.'<br/>';
-		// echo 'types: '.$this->_urlTypes.'<br/>';
-		// echo 'url: '.$this->_url.'<br/>';
-
-		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
-		
 	}
 
 	/**
@@ -718,20 +717,30 @@ EOL;
 	 * @return void
 	 **/
 	function _onInit() {
-		$this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
-		$this->_mnf  = $this->_factory->create(EL_IS_MNF);
-		$this->_type = $this->_factory->create(EL_IS_ITYPE);
 
-		if ($this->_view == EL_IS_VIEW_CATS) {
-			$this->_cat->idAttr($this->_arg(0));
-			
-		} else {
-			$this->_mnf->idAttr($this->_arg(0));
-			$this->_mnf->fetch();
-			
-		}
-
-		$this->_cat->fetch();
+		// $this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
+		// $this->_mnf  = $this->_factory->create(EL_IS_MNF);
+		// $this->_type = $this->_factory->create(EL_IS_ITYPE);
+		// 
+		// switch($this->_view) {
+		// 	case EL_IS_VIEW_CATS:
+		// 	
+		// 		break;
+		// 	case EL_IS_VIEW_MNFS:
+		// 		break;
+		// 	
+		// }
+		// 
+		// if ($this->_view == EL_IS_VIEW_CATS) {
+		// 	$this->_cat->idAttr($this->_arg(0));
+		// 	
+		// } else {
+		// 	$this->_mnf->idAttr($this->_arg(0));
+		// 	$this->_mnf->fetch();
+		// 	
+		// }
+		// 
+		// $this->_cat->fetch();
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 
 		$this->itemsNum = $this->_factory->ic->countAll();

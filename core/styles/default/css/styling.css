@@ -422,13 +422,12 @@ a.icons {
 .user-group-new  { background-position: -3px -1220px; }
 .user-group-edit { background-position: -3px -1914px; }
 
-a.el-collapsed { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1679px no-repeat; }
-a.el-expanded  { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1697px no-repeat; }
-a.el-empty-set { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1660px no-repeat; }
-/*
 a.el-collapsed { padding: 0 0 0 20px; background: url(../images/icons2.png) -4px -1829px no-repeat; }
 a.el-expanded  { padding: 0 0 0 20px; background: url(../images/icons2.png) -4px -1846px no-repeat; }
-*/
+a.el-collapsed2 { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1679px no-repeat; }
+a.el-expanded2  { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1697px no-repeat; }
+a.el-empty-set { padding: 0 0 0 20px; background: url(../images/icons2.png) -5px -1660px no-repeat; }
+
 a.link { background:url(../images/links.png) 0 0 no-repeat; line-height:2em; padding: 3px 19px 3px 0;}
 
 a.forward   { background-position: right -18px;}

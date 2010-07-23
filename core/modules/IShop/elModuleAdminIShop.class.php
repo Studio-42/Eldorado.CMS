@@ -5,22 +5,25 @@ elLoadMessages('ModuleAdminDocsCatalog');
 class elModuleAdminIShop extends elModuleIShop
 {
    var $_mMapAdmin = array(
+		// categories
 	  	'edit'        => array('m'=>'editCat',          'g'=>'Actions', 'ico'=>'icoCatNew',         'l'=>'New category'),
 	  	'rm'          => array('m'=>'rmCat'),
 	  	'move'        => array('m'=>'moveCat'),
-		// 'mnfs'        => array('m'=>'viewManufacturers', 'g'=>'Actions', 'ico'=>'icoMnfList',       'l'=>'Manufacturers list' ),
-	  	'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
+	  	// manufacturers
+		'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
 		'mnf_rm'      => array('m'=>'rmMnf'),
+		// trademarks
 		'tm_edit'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
       	'tm_rm'       => array('m'=>'rmTm'),
-		
-		
-		'type_edit'  => array('m'=>'editType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
-		'type_rm'    => array('m' => 'rmType'),
+		// item types
+		'type_edit'   => array('m'=>'editType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
+		'type_rm'     => array('m' => 'rmType'),
 		'type_props'  => array('m' => 'typeProps'),
-		'prop_edit'  => array('m' => 'propEdit'),
-		'prop_rm'   => array('m' => 'propRm'),
-		'prop_dependance' => array('m' => 'propDependance')
+		// properties
+		'prop_edit'   => array('m' => 'propEdit'),
+		'prop_rm'     => array('m' => 'propRm'),
+		'prop_depend' => array('m' => 'propDependance'),
+		'prop_sort'   => array('m' => 'propSort')
 		
 		// 	  	'rm_item'     => array('m'=>'rmItem'),
 		// 	  	'item_img'    => array('m'=>'itemImg'),
@@ -180,8 +183,6 @@ class elModuleAdminIShop extends elModuleIShop
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $tm->getObjName(), $tm->name) );
 	    elLocation($this->_urlMnfs.'mnf/'.$tm->mnfID.'/');
 	}
-
-
 	
 	/**
 	 * Create/edit products type
@@ -294,10 +295,9 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * undocumented function
+	 * Edit property dependance
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function propDependance() {
 		$this->_type->idAttr((int)$this->_arg(0));
@@ -330,6 +330,34 @@ class elModuleAdminIShop extends elModuleIShop
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
 		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 **/
+	function propSort() {
+		$this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+		}
+		
+		if (!$this->_type->sortProps()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
+				'name' => $this->_type->name)
+				);
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+				'name' => m('Properties')
+				));
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($this->_type->formToHtml());
+		}
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
 	}
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
@@ -917,6 +945,7 @@ class elModuleAdminIShop extends elModuleIShop
 		parent::_initAdminMode();
 
 		$tList = $this->_factory->getTypesList(); 
+
 		foreach ($tList as $id=>$t) {
 			$this->_mMap['edit'.$id] = array('m'=>'editItem',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
 		}

@@ -82,6 +82,28 @@ class elIShopItemType extends elDataMapping {
 	}
 
 	/**
+	 * Sort properties
+	 *
+	 * @return bool
+	 **/
+	function sortProps() {
+		$this->_makeSortForm();
+		if ($this->_form->isSubmitAndValid()) {
+			$db    = $this->_db();
+			$props = $this->getProperties();
+			$data  = $this->_form->getValue();
+			asort($data);
+			$i = 1;
+			foreach ($data as $id => $ndx) {
+				if (isset($props[$id])) {
+					$db->query(sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d', $this->tbp, $i++, $id));
+				}
+			}
+			return true;
+		}
+	}
+
+	/**
 	 * create form
 	 *
 	 * @return void
@@ -104,6 +126,23 @@ class elIShopItemType extends elDataMapping {
 		}
 		$attrs['mtime'] = time();
 		return $attrs;
+	}
+
+	/**
+	 * Create sort properties form
+	 *
+	 * @return void
+	 **/
+	function _makeSortForm() {
+		parent::_makeForm();
+		$this->_form->setLabel(sprintf(m('Sort properties for %s'), $this->name));
+		$props = $this->getProperties();
+		if ($props) {
+			$ndxs = range(1, count($props));
+			foreach ($props as $id => $p) {
+				$this->_form->add(new elSelect($id, $p->name, $p->sortNdx, $ndxs, null, false, false));
+			}
+		}
 	}
 
 	/**

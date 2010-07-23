@@ -24,7 +24,8 @@ class elIShopProperty extends elDataMapping {
 	var $sortNdx     = 1;
 	
 	var $dependID    = 0;
-	var $depend      = array();
+	var $_dependOn;
+	var $_dependance      = array();
 	var $_objName    = 'Property';
 	var $_factory    = null;
 	var $_rangeReg   = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
@@ -174,7 +175,35 @@ class elIShopProperty extends elDataMapping {
 	 * @return elIShopProperty
 	 **/
 	function getDependOn() {
+		// if (!isset($this->_dependOn)) {
+		// 	$this->_dependOn = null;
+		// 	if ($this->isMultiList() && $this->dependID && false != ($m = $this->_factory->getFromRegistry(EL_IS_PROP, $this->dependID))) {
+		// 		$this->_dependOn = $m;
+		// 	} 
+		// }
+		// return $this->_dependOn;
 		return $this->isMultiList() && $this->dependID ? $this->_factory->getFromRegistry(EL_IS_PROP, $this->dependID) : null;
+	}
+
+	/**
+	 * Return array of dependance values (master_value => array of slave values)
+	 *
+	 * @return void
+	 **/
+	function getDependance() {
+		$ret = array();
+		if (false != ($master = $this->getDependOn())) {
+			$db = $this->_db();
+			$sql = sprintf('SELECT m_value, s_value FROM %s WHERE m_id=%d AND s_id=%d', $this->tbpdep, $master->ID, $this->ID);
+			$db->query($sql);
+			while ($r = $db->nextRecord()) {
+				if (!isset($ret[$r['m_value']])) {
+					$ret[$r['m_value']] = array();
+				}
+				$ret[$r['m_value']][] = $r['s_value'];
+			}
+		}
+		return $ret;
 	}
 
 	/**
@@ -231,8 +260,9 @@ class elIShopProperty extends elDataMapping {
 					$db->prepareData($val, true);
 					$db->execute();
 				}
+				return true;
 			}
-			return true;
+			
 		} 
 		
 	}
@@ -512,14 +542,17 @@ class elIShopProperty extends elDataMapping {
 	function _makeDependForm() {
 		parent::_makeForm();
 		if (false != ($master = $this->getDependOn())) {
+			$dep = $this->getDependance();
 			$this->_form->setLabel(sprintf(m('Edit dependance %s/%s'), $master->name, $this->name));
 			$this->_form->add(new elCData2('c', $master->name, $this->name));
 			$opts = array_map(array($this, '_rangeToString'), $this->_opts);
 			foreach (array_map(array($this, '_rangeToString'), $master->options()) as $id=>$v) {
-				$this->_form->add(new elMultiSelectList('m_id_'.$id, $v, null, $opts));
+				$this->_form->add(new elMultiSelectList('m_id_'.$id, $v, isset($dep[$id]) ? $dep[$id] : null, $opts));
 			}
 		}
 	}
+
+
 
 	/**
 	 * init attrs mapping

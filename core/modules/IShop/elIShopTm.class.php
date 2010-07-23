@@ -2,7 +2,7 @@
 /**
  * ishop trademark
  *
- * @package Ishop
+ * @package IShop
  **/
 class elIShopTm extends elDataMapping {
 	var $ID       = 0;
@@ -48,18 +48,18 @@ class elIShopTm extends elDataMapping {
 	 **/
 	function _makeForm($params = null) {
 		parent::_makeForm();
-		$opts = array();
-		//$mnfs = $this->_factory->getMnfs();
-		//foreach ($mnfs as $id => $m) {
-		//	$mnfs[$id] = $m->name;
-		//}
-
-		$mnfs = $this->_factory->getAllFromRegistry(EL_IS_MNF);
-		foreach ($mnfs as $id => $m) {
-			$mnfs[$id] = $m->name;
+		
+		if ($this->ID) {
+			$mnf = $this->_factory->getFromRegistry(EL_IS_MNF, $this->mnfID);
+			$this->_form->add(new elCData2('c', m('Manufacturer'), $mnf->name));
+		} else {
+			$mnfs = $this->_factory->getAllFromRegistry(EL_IS_MNF);
+			foreach ($mnfs as $id => $m) {
+				$mnfs[$id] = $m->name;
+			}
+			$this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
 		}
-
-		$this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs) );
+		
 		$this->_form->add( new elText('name', m('Name'), $this->name) );
 		$this->_form->add( new elEditor('content', m('Description'), $this->descrip) );
 	}

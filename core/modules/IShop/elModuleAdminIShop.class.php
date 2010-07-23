@@ -6,18 +6,18 @@ class elModuleAdminIShop extends elModuleIShop
 {
    var $_mMapAdmin = array(
 		// categories
-	  	'edit'        => array('m'=>'editCat',          'g'=>'Actions', 'ico'=>'icoCatNew',         'l'=>'New category'),
-	  	'rm'          => array('m'=>'rmCat'),
-	  	'move'        => array('m'=>'moveCat'),
+	  	'edit'        => array('m' => 'catEdit',  'g'=>'Actions', 'ico'=>'icoCatNew', 'l'=>'New category'),
+	  	'rm'          => array('m' => 'catRm'),
+	  	'move'        => array('m' => 'catMove'),
 	  	// manufacturers
-		'mnf_edit'    => array('m'=>'editMnf',           'g'=>'Actions', 'ico'=>'icoMnfNew',        'l'=>'New manufacturer' ),
-		'mnf_rm'      => array('m'=>'rmMnf'),
+		'mnf_edit'    => array('m' => 'mnfEdit',  'g'=>'Actions', 'ico'=>'icoMnfNew', 'l'=>'New manufacturer' ),
+		'mnf_rm'      => array('m' => 'mnfRm'),
 		// trademarks
-		'tm_edit'     => array('m'=>'editTm',            'g'=>'Actions', 'ico'=>'icoTmNew',         'l'=>'New trade mark'),
-      	'tm_rm'       => array('m'=>'rmTm'),
+		'tm_edit'     => array('m' => 'tmEdit',   'g'=>'Actions', 'ico'=>'icoTmNew',  'l'=>'New trade mark'),
+      	'tm_rm'       => array('m' => 'tmRm'),
 		// item types
-		'type_edit'   => array('m'=>'editType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
-		'type_rm'     => array('m' => 'rmType'),
+		'type_edit'   => array('m' => 'typeEdit', 'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
+		'type_rm'     => array('m' => 'typeRm'),
 		'type_props'  => array('m' => 'typeProps'),
 		// properties
 		'prop_edit'   => array('m' => 'propEdit'),
@@ -25,21 +25,7 @@ class elModuleAdminIShop extends elModuleIShop
 		'prop_depend' => array('m' => 'propDependance'),
 		'prop_sort'   => array('m' => 'propSort')
 		
-		// 	  	'rm_item'     => array('m'=>'rmItem'),
-		// 	  	'item_img'    => array('m'=>'itemImg'),
-		// 	  	'rm_img'      => array('m'=>'rmItemImg'),
-		// 	
-		
-		// 
-		// 	  	'edit_type'   => array('m'=>'editItemsType',     'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
-		// 	  	
-		// 'sort'        => array('m'=>'sortItems',         'g'=>'Actions', 'ico'=>'icoSortAlphabet',  'l'=>'Sort documents in current category'),
-		// 	  	'rm_group'    => array('m'=>'rmItems',           'g'=>'Actions', 'ico'=>'icoDocGroupRm',    'l'=>'Delete group of documents',),
-		// 'cross_links' => array('m'=>'editCrossLinks',    'g'=>'Actions', 'ico'=>'icoCrosslinks',    'l'=>'Edit linked objects list' ),
-		//       	'rm_type'     => array('m'=>'rmItemsType'),
-		// 	  	'edit_prop'   => array('m'=>'editProperty'),
-		// 	  	'edit_pdep'   => array('m'=>'editPropertyDependance'),
-		// 	  	'rm_prop'     => array('m'=>'rmProperty')
+
       
 	);
 
@@ -59,7 +45,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function editCat()  {
+	function catEdit()  {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
 		if (!$cat->ID) {
 			$cat->parentID = (int)$this->_arg(0);
@@ -77,7 +63,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function moveCat() {
+	function catMove() {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
   		if (!$cat->ID) {
 	  		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), $this->_urlCats.$this->_cat->ID);
@@ -96,7 +82,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function rmCat() {
+	function catRm() {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
 		if (!$cat->ID) {
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), $this->_urlCats.$this->_cat->ID);
@@ -115,11 +101,15 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function editMnf() {
-		$mnf = $this->_factory->create(EL_IS_MNF, (int)$this->_arg(0)); 
-		if (!$mnf->editAndSave()) {
+	function mnfEdit() {
+		$this->_mnf = $this->_factory->create(EL_IS_MNF, (int)$this->_arg(0)); 
+		if (!$this->_mnf->editAndSave()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlMnfs,
+				'name' => m('Manufacturers')
+				));
 			$this->_initRenderer();
-			return $this->_rnd->addToContent($mnf->formToHtml());
+			return $this->_rnd->addToContent($this->_mnf->formToHtml());
 		}
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlMnfs);
@@ -130,7 +120,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function rmMnf() {
+	function mnfRm() {
 		$mnf = $this->_factory->create(EL_IS_MNF, (int)$this->_arg(0)); 
 		if (!$mnf->ID) {
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($mnf->getObjName(), $this->_arg(1)), $this->_urlMnfs);	
@@ -145,7 +135,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function editTm() {
+	function tmEdit() {
 		$this->_mnf->idAttr($this->_arg(0));
 		$this->_mnf->fetch();
 
@@ -157,6 +147,10 @@ class elModuleAdminIShop extends elModuleIShop
 			$tm->mnfID = $this->_mnf->ID;
 		}
 		if (!$tm->editAndSave()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlMnfs,
+				'name' => m('Manufacturers')
+				));
 			elAppendToPagePath(array(
 				'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
 				'name' => $this->_mnf->name)
@@ -174,7 +168,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function rmTm() {
+	function tmRm() {
 		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1) );
 		if (!$tm->ID) {
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($tm->getObjName(), $this->_arg(1)), EL_URL.$this->_cat->ID);	
@@ -189,9 +183,13 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function editType() {
+	function typeEdit() {
 		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(0));
 		if (!$type->editAndSave()) {
+			elAppendToPagePath(array(
+				'url'  => $this->_urlTypes,	
+				'name' => m('Products types'))
+				);
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($type->formToHtml());
 		}
@@ -204,7 +202,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function rmType() {
+	function typeRm() {
 		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(0));
 		if (!$type->ID) {
 			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
@@ -231,14 +229,13 @@ class elModuleAdminIShop extends elModuleIShop
 		
 		$this->_initRenderer();
 		$this->_rnd->rndTypeProps($this->_type);
-		
 		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
-			'name' => $this->_type->name)
+			'url'  => $this->_urlTypes,	
+			'name' => m('Products types'))
 			);
 		elAppendToPagePath(array(
 			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-			'name' => m('Properties')
+			'name' => $this->_type->name
 			));
 	}
 
@@ -259,13 +256,14 @@ class elModuleAdminIShop extends elModuleIShop
 
 		if (!$prop->editAndSave()) {
 			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name)
+				'url'  => $this->_urlTypes,	
+				'name' => m('Products types'))
 				);
 			elAppendToPagePath(array(
 				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => m('Properties')
+				'name' => $this->_type->name
 				));
+			
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
 		}
@@ -317,12 +315,12 @@ class elModuleAdminIShop extends elModuleIShop
 		
 		if (!$prop->editDependance()) {
 			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name)
+				'url'  => $this->_urlTypes,	
+				'name' => m('Products types'))
 				);
 			elAppendToPagePath(array(
 				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => m('Properties')
+				'name' => $this->_type->name
 				));
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
@@ -362,60 +360,7 @@ class elModuleAdminIShop extends elModuleIShop
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
 
-
-  /**
-   * Создание/редактирование свойства для типа товара
-   *
-   */
-  function editProperty()
-  {
-    $type = $this->_factory->getItemType( (int)$this->_arg(1) );
-    if ( !$type->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
-    }
-    if ( !$type->editProperty((int)$this->_arg(2)) )
-    {
-      $this->_initRenderer();
-	    return $this->_rnd->addToContent( $type->formToHtml() );
-    }
-    elMsgBox::put( m('Data saved'));
-	  elLocation(EL_URL.'types');
-  }
-
-  /**
-   * Удаляет объект-свойство у типа товара
-   *
-   */
-  function rmProperty()
-  {
-    $type = $this->_factory->getItemType( (int)$this->_arg(1) );
-    if ( !$type->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
-    }
-    $pID = (int)$this->_arg(2);
-    $type->removeProperty((int)$this->_arg(2));
-    elLocation(EL_URL.'types');
-  }
-
-  function editPropertyDependance()
-  {
-    $type = $this->_factory->getItemType( (int)$this->_arg(1) );
-    if ( !$type->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
-    }
-    if ( !$type->editPropertyDependance((int)$this->_arg(2)) )
-    {
-      $this->_initRenderer();
-	    return $this->_rnd->addToContent( $type->formToHtml() );
-    }
-    elMsgBox::put( m('Data saved'));
-	  elLocation(EL_URL.'types');
-  }
-
-  /**
+ /**
    * Создание/редактирование товара
    *
    */
@@ -886,7 +831,6 @@ class elModuleAdminIShop extends elModuleIShop
     	return $form;
 	}
 
-
 	/**
 	 * Save new config. Update currency config if module currency is not equal to default one
 	 *
@@ -940,38 +884,18 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function _initAdminMode() {
-		// unset($this->_mMap['mnfs']); // fix commands order in admin menu
-		parent::_initAdminMode();
-
-		$tList = $this->_factory->getTypesList(); 
-
-		foreach ($tList as $id=>$t) {
-			$this->_mMap['edit'.$id] = array('m'=>'editItem',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
-		}
-	}
-
 	function _onInit() {
 		parent::_onInit();
-
-		$c = array('edit');
-		foreach ($c as $n) {
-			$this->_mMap[$n]['apUrl'] = $this->_cat->ID;
+		
+		foreach ($this->_factory->getTypesList() as $id=>$t) {
+			$this->_mMap['edit'.$id] = array('m'=>'editItem',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
 		}
+		$this->_mMap['edit']['apUrl'] = $this->_cat->ID;
 		if ($this->_mnf->ID) {
-			// elPrintR($this->_mnf);
 			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
-			$this->_mMap['tm_rm']['apUrl'] = $this->_mnf->ID;
-		}
-		if (!in_array($this->_mh, array('mnf', 'tm_edit'))) {
-			// $this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
+		} elseif (!sizeof($this->_factory->getAllFromRegistry(EL_IS_MNF))) {
 			unset($this->_mMap['tm_edit']);
 		}
-		// echo $this->_mh;
-		// $hndls = array_diff( array_keys($this->_mMap), $this->_mMapNoAppendCatID );
-		// foreach ($hndls as $k) {
-		// 	$this->_mMap[$k]['apUrl'] = $this->_cat->ID;
-		// }
 
 		if (!$this->_cat->countItems()) {
 			unset($this->_mMap['sort'], $this->_mMap['rm_group']);

@@ -356,6 +356,37 @@ class elIShopProperty extends elDataMapping {
 		$this->values = array();
 	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function toFormElement($v='', $admin=false) {
+		include_once EL_DIR_CORE.'forms/elForm.class.php';
+		switch ($this->type) {
+			case EL_IS_PROP_STR:
+				return new elText('prop_'.$this->ID, $this->name, $this->valuesToString($v));
+				break;
+			case EL_IS_PROP_TXT:
+				return new elTextArea('prop_'.$this->ID, $this->name, $this->valuesToString($v));
+				break;
+			case EL_IS_PROP_LIST:
+				return new elSelect('prop_'.$this->ID, $this->name, isset($v[0]) ? $v[0] : current($this->_default), $this->_opts);
+				break;
+			case EL_IS_PROP_MLIST:
+				if ($admin) {
+					return new elCheckboxesGroup('prop_'.$this->ID, $this->name, is_array($v) ? $v : $this->_default, $this->_opts);
+				} else {
+					$dep   = $this->getDependOn();
+					$attrs = $dep ? array('depend_on' => $dep->ID) : array();
+					return new elSelect('prop_'.$this->ID, $this->name, isset($v[0]) ? $v[0] : current($this->_default), $this->_opts, $attrs);
+				}
+				
+				break;
+		}
+	}
+
 	/*********************************************************/
 	/***                     PRIVATE                       ***/
 	/*********************************************************/

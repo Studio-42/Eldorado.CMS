@@ -23,13 +23,12 @@ class elModuleAdminIShop extends elModuleIShop
 		'prop_edit'   => array('m' => 'propEdit'),
 		'prop_rm'     => array('m' => 'propRm'),
 		'prop_depend' => array('m' => 'propDependance'),
-		'prop_sort'   => array('m' => 'propSort')
-		
+		'prop_sort'   => array('m' => 'propSort'),
+		// products
+
 
       
 	);
-
-	var $_mMapNoAppendCatID = array('mnfs', 'mnf_edit', 'mnf_rm');
 
 	var $_mMapConf  = array(
 		'conf'            => array('m'=>'configure',           'ico'=>'icoConf',          'l'=>'Configuration'),
@@ -331,7 +330,7 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * undocumented function
+	 * Sort properties for current products type
 	 *
 	 * @return void
 	 **/
@@ -357,6 +356,61 @@ class elModuleAdminIShop extends elModuleIShop
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
 	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function itemEdit() {
+		// elPrintR($this->_args);
+		
+		$this->_type->idAttr((int)str_replace('edit', '', $this->_mh));
+		if (!$this->_type->fetch()) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_url);
+		}
+		
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		
+		
+		if ($this->_view == EL_IS_VIEW_MNFS) {
+			$this->_mnf->idAttr($this->_arg());
+			$this->_mnf->fetch();
+		} elseif ($this->_view == EL_IS_VIEW_CATS) {
+			$this->_cat->idAttr($this->_arg());
+			$this->_cat->fetch();
+		}
+		$params = array(
+			'typeID' => $this->_type->ID,
+			'mnfID'  => $this->_mnf->ID,
+			'catID'  => $this->_cat->ID ? $this->_cat->ID : 1
+			);
+		
+		if (!$item->editAndSave($params)) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($item->formToHtml());
+		}
+		// switch ($this->_view) {
+		// 	case EL_IS_VIEW_TYPES:
+		// 		$url = $this->_urlTypes.'type/'.$this->_type->ID;
+		// 		break;
+		// 	case EL_IS_VIEW_MNFS:
+		// 		$this->_mnf->idAttr($this->_arg());
+		// 		$this->_mnf->fetch();
+		// 		$url = $this->_urlMnfs.'mnf/'.$this->_mnf->ID;
+		// 		break;
+		// 	default:
+		// 		$this->_cat->idAttr($this->_arg());
+		// 		$this->_cat->fetch();
+		// 		$catID = $this->_cat->ID ? $this->_cat->ID : 1;
+		// 		$url = $this->_urlCats.$this->_cat->ID;
+		// }
+		// 
+
+	}
+
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
 
@@ -880,6 +934,52 @@ class elModuleAdminIShop extends elModuleIShop
   }
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _onBeforeStop() {
+		// echo 'catID='.$this->_cat->ID.'<br>';
+		// echo 'mnfID='.$this->_mnf->ID.'<br>';
+		// echo 'typeID='.$this->_type->ID.'<br>';
+		// echo $this->_view;
+		$apURL = '';
+		$prepURL = '';
+		switch($this->_view) {
+			case EL_IS_VIEW_TYPES:
+				$prepURL = 'types';
+				$apURL = $this->_type->ID;
+				break;
+			case EL_IS_VIEW_MNFS:
+				$prepURL = 'mnfs';
+				$apURL = $this->_mnf->ID;
+				break;
+			default:
+				$prepURL = 'cats';
+				$apURL = $this->_cat->ID;
+		}
+		// echo $apURL;
+		foreach ($this->_factory->getTypesList() as $id=>$t) {
+			$this->_mMap['edit'.$id]['prepUrl'] = $prepURL;
+			$this->_mMap['edit'.$id]['apUrl'] = $apURL;
+		}
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _initAdminMode() {
+		parent::_initAdminMode();
+		foreach ($this->_factory->getTypesList() as $id=>$t) {
+			$this->_mMap['edit'.$id] = array('m'=>'itemEdit',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
+		}
+	}
+	
+	/**
 	 * Add methods to create products by types
 	 *
 	 * @return void
@@ -887,9 +987,6 @@ class elModuleAdminIShop extends elModuleIShop
 	function _onInit() {
 		parent::_onInit();
 		
-		foreach ($this->_factory->getTypesList() as $id=>$t) {
-			$this->_mMap['edit'.$id] = array('m'=>'editItem',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
-		}
 		$this->_mMap['edit']['apUrl'] = $this->_cat->ID;
 		if ($this->_mnf->ID) {
 			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;

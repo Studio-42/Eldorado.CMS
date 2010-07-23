@@ -1,8 +1,8 @@
 <?php
 
-include_once 'elCatalogItem.class.php';
+// include_once 'elCatalogItem.class.php';
 
-class elIShopItem extends elCatalogItem {
+class elIShopItem extends elDataMapping {
 	var $tbmnf      = '';
 	var $tbp2i      = '';
 	var $tbi2c      = '';
@@ -22,7 +22,7 @@ class elIShopItem extends elCatalogItem {
 	var $gallery;
 	var $crtime     = 0;
 	var $mtime      = 0;
-	var $propVals   = null;
+	var $propVals   = array();
 	var $_type      = null;
 	var $_factory   = null;
 	var $_objName = 'Product';
@@ -34,7 +34,6 @@ class elIShopItem extends elCatalogItem {
 	 **/
 	function fetch() {
 		if (parent::fetch()) {
-			
 			$vals = $this->fetchPropsValues(array($this->ID));
 			foreach ($vals as $v) {
 				if (!isset($this->propVals[$v['p_id']])) {
@@ -60,9 +59,9 @@ class elIShopItem extends elCatalogItem {
 	}
 
 	/**
-	 * return item manufacturer
+	 * return item type
 	 *
-	 * @return elIShopManufacturer
+	 * @return elIShopItemType
 	 **/
 	function getType() {
 		if (!isset($this->_type)) {
@@ -113,7 +112,6 @@ class elIShopItem extends elCatalogItem {
 	function getAnnouncedProperties() {
 		$ret   = array();
 		$type  = $this->getType();
-		$props = $type->getAnnouncedProperties();
 		foreach ($type->getAnnouncedProperties() as $p) {
 			$ret[] = array(
 				'name'  => $p->name,
@@ -316,12 +314,68 @@ class elIShopItem extends elCatalogItem {
     $this->typeID = $type->ID;
   }
 
+	/**
+	 * Create form for edit/create object 
+	 *
+	 * @param  array  $params 
+	 * @return void
+	 **/
+	function _makeForm($params=null) {
+		// elPrintR($params);
+		parent::_makeForm();
+		if ($this->ID) {
+			$cats = $this->getCats();
+		} else {
+			$this->typeID = $params['typeID'];
+			$this->mnfID  = $params['mnfID'];
+			$cats         = array($params['catID']);
+		}
+		$type = $this->_factory->getFromRegistry(EL_IS_ITYPE, $this->typeID);
+		$this->_form->setLabel(sprintf($this->ID ? m('Edit object "%s"') : m('Create object "%s"'), $type->name));
+		
+		$this->_form->add(new elText('code',  m('Code/Articul'), $this->code) );
+		$this->_form->add(new elText('name',  m('Name'),         $this->name,  array('style' => 'width:100%')));
+		$this->_form->add(new elText('price', m('Price'),        $this->price) );
+		
+		$cat = $this->_factory->create(EL_IS_CAT);
+		$this->_form->add(new elMultiSelectList('cat_id', m('Parent category'), $cats, $cat->getTreeToArray(0, true)));
+		
+		$mnfs  = array();
+		$_mnfs = $this->_factory->getAllFromRegistry(EL_IS_MNF);
+		foreach ($_mnfs as $m) {
+			$mnfs[$m->ID] = $m->name;
+		}
+		if ($mnfs) {
+			$this->_form->add(new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs));
+			$tms  = array();
+			$_tms = $this->_factory->getAllFromRegistry(EL_IS_TM);
+			foreach ($_tms as $id=>$tm) {
+				$tms[$id] = $tm->name;
+			}
+			if ($tms) {
+				$tms = array(m('Undefined')) + $tms;
+				$this->_form->add(new elSelect('tm_id', m('Trade mark/model'), $this->tmID, $tms));
+			}
+		}
+		
+		$this->_form->add(new elEditor('announce', m('Announce'), $this->announce, array('height' => 250)));
+	    $this->_form->add(new elEditor('content',  m('Content'),  $this->content));
+		// elPrintR($this->propVals);
+		foreach ($type->getProperties() as $p) {
+			$this->_form->add($p->toFormElement(isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : null, true));
+		}
+	
+		$this->_form->setRequired('cat_id[]');
+	    $this->_form->setRequired('code');
+	    $this->_form->setRequired('name');
+	}
+
   /**
    * Создает объект-форму для редактирования товара
    *
    * @param array $parents
    */
-  function _makeForm($params = null)
+  function _makeForm_($params = null)
   {
     $label = !$this->idAttr() ? 'Create object "%s"' : 'Edit object "%s"';
     $this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m($label), m($this->_objName))  );

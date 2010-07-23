@@ -1,33 +1,105 @@
 <?php
-
-
-
-
-function elIShopParsePropValue($str)
-{
-  static $reg = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
-  return preg_replace($reg, sprintf(m('from %s till %s (step %s)'), "\\1", "\\2", "\\3"), $str);
-}
-
+/**
+ * Item type property
+ *
+ * @package IShop
+ **/ 
 class elIShopProperty extends elDataMapping {
+	/**
+	 * main table
+	 *
+	 * @var string
+	 **/
 	var $_tb         = '';
+	/**
+	 * value variants table
+	 *
+	 * @var string
+	 **/
 	var $tbpval      = '';
+	/**
+	 * items values table
+	 *
+	 * @var string
+	 **/
 	var $tbp2i       = '';
+	/**
+	 * dependance table
+	 *
+	 * @var string
+	 **/
 	var $tbpdep      = '';
+	/**
+	 * ID
+	 *
+	 * @var int
+	 **/
 	var $ID          = 0;
+	/**
+	 * item type ID
+	 *
+	 * @var int
+	 **/
 	var $typeID      = 0;
+	/**
+	 * property type
+	 *
+	 * @var string
+	 **/
 	var $type        = EL_IS_PROP_STR;
+	/**
+	 * property name
+	 *
+	 * @var string
+	 **/
 	var $name        = '';
+	/**
+	 * position in item card
+	 *
+	 * @var string
+	 **/
 	var $displayPos  = 'table';
+	/**
+	 * hide property in item card
+	 *
+	 * @var int
+	 **/
 	var $isHidden    = 0;
+	/**
+	 * display property in items list
+	 *
+	 * @var int
+	 **/
 	var $isAnnounced = 0;  
+	/**
+	 * Sort index
+	 *
+	 * @var int
+	 **/
 	var $sortNdx     = 1;
-	
+	/**
+	 * Depend on property ID
+	 *
+	 * @var int
+	 **/
 	var $dependID    = 0;
-	var $_dependOn;
-	var $_dependance      = array();
+	/**
+	 * Object name
+	 *
+	 * @var string
+	 **/
 	var $_objName    = 'Property';
+	/**
+	 * IShop factory
+	 *
+	 * @var elIShopFactory
+	 **/
 	var $_factory    = null;
+	/**
+	 * Regexp to detect "range" construction in multilist values
+	 *
+	 * @var string
+	 **/
 	var $_rangeReg   = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
 	/**
 	 * value variants list
@@ -41,7 +113,11 @@ class elIShopProperty extends elDataMapping {
 	 * @var array
 	 **/
 	var $_default = array();
-	
+	/**
+	 * Properties types names
+	 *
+	 * @var array
+	 **/
 	var $_types = array(
 	    EL_IS_PROP_STR   => 'String',
 	    EL_IS_PROP_TXT   => 'Text',
@@ -144,8 +220,6 @@ class elIShopProperty extends elDataMapping {
 				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
 		}
 	}
-
-	
 
 	/**
 	 * Return list of properties in human readable format (for admin mode)
@@ -266,98 +340,6 @@ class elIShopProperty extends elDataMapping {
 		} 
 		
 	}
-
-
-  // function inDepend()
-  // {
-  //   if ( !$this->isDependAvailable() )
-  //   {
-  //     return false;
-  //   }
-  //   if ( $this->dependID )
-  //   {
-  //     return true;
-  //   }
-  //   $db = & elSingleton::getObj('elDb');
-  //   $db->query('SELECT id FROM '.$this->tbpdep.' WHERE s_id='.$this->ID.' OR m_id='.$this->ID);
-  //   return $db->numRows();
-  // }
-
-  // function editDependance( $iTypeName, $master )
-  // {
-  //   parent::_makeForm();
-  //   $rnd = & elSingleton::getObj('elTplGridFormRenderer');
-  //   $rnd->addButton( new elSubmit('submit', '', m('Submit')) );
-  //   $rnd->addButton( new elReset('reset', '', m('Drop')) );
-  //   $this->_form->setRenderer( $rnd );
-  //   $l = sprintf(m('Item type: %s. Edit properties dependance'), $iTypeName);
-  //   $this->_form->setLabel($l);
-  //   $this->_form->add( new elCData('myname', $this->name), array('class'=>'formSubheader') );
-  //   $this->_form->add( new elCData('two', $master->name), array('class'=>'formSubheader') );
-  // 
-  //   $mVals = array();
-  //   foreach ( $master->values as $ID=>$v)
-  //   {
-  //     $mVals[$ID] = elIShopParsePropValue($v[0]);
-  //   }
-  //   $dep = $this->getDependance(); //elPrintR( $dep );
-  //   foreach ( $this->values as $ID=>$v)
-  //   {
-  //     $this->_form->add( new elCData('s_'.$ID, elIShopParsePropValue($v[0])) );
-  //     //$vals = !empty($dep[$ID]) ? $dep[$ID] : null;
-  //     $this->_form->add( new elMultiSelectList('mvals['.$ID.']', '', !empty($dep[$ID]) ? $dep[$ID] : null, $mVals, null, false, true, 'span') );
-  //   }
-  // 
-  //   if ( $this->_form->isSubmitAndValid() )
-  //   {
-  //     $data = $this->_form->getValue(); //elPrintR($data);
-  //     $db   = & elSingleton::getObj('elDb');
-  //     $db->query( 'DELETE FROM '.$this->tbpdep.' WHERE s_id='.$this->ID );
-  //     $db->optimizeTable( $this->tbpdep );
-  //     $db->prepare('INSERT INTO '.$this->tbpdep.' (s_id, s_value, m_id, m_value) VALUES ', '(%d, %d, %d, %d)');
-  //     foreach ( $data['mvals'] as $sVal=>$mData )
-  //     {
-  //       if ( !empty($mData) )
-  //       {
-  //         $exec = 1;
-  //         foreach ( $mData as $mVal )
-  //         {
-  //           $db->prepareData( array($this->ID, $sVal, $master->ID, $mVal) ) ;
-  //         }
-  //       }
-  //     }
-  //     if ( !empty( $exec) )
-  //     {
-  //       $db->execute();
-  //     }
-  //     return true;
-  //   }
-  // 
-  //   return false;
-  // }
-
-//   function getDependance()
-//   {
-//     if ( !$this->_dependLoad )
-//     {
-//       $this->_dependLoad = 1;
-//       if ( EL_IS_PROP_MLIST == $this->type || $this->isDependAvailable() )
-//       {
-//         $db = & elSingleton::getObj('elDb');
-//         $db->query( 'SELECT s_value, m_value FROM '.$this->tbpdep.' WHERE s_id='.$this->ID.' AND m_id='.$this->dependID );
-//         while ( $r = $db->nextRecord() )
-//         {
-// //          if ( empty($this->depend[$r['s_value']]) )
-// //          {
-// //            $this->depend[$r['s_value']] = array();
-// //          }
-//           $this->depend[$r['s_value']][] = $r['m_value'];
-//         }
-//       }
-//     }
-//     return $this->depend;
-//   }
-
 
   	/**
   	 * overide parent method
@@ -552,8 +534,6 @@ class elIShopProperty extends elDataMapping {
 		}
 	}
 
-
-
 	/**
 	 * init attrs mapping
 	 *
@@ -574,5 +554,5 @@ class elIShopProperty extends elDataMapping {
 		return $map;
 	}
 
-}
+} // END class 
 ?>

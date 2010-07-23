@@ -3,7 +3,7 @@ include_once EL_DIR_CORE.'lib/elCatalogRenderer.class.php';
 /**
  * IShop renderer
  *
- * @package Ishop
+ * @package IShop
  **/
 class elRndIShop extends elCatalogRenderer {
 	/**

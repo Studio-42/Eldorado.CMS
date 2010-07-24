@@ -368,7 +368,7 @@ class elModuleAdminIShop extends elModuleIShop
 		$this->_type->idAttr((int)str_replace('edit', '', $this->_mh));
 		if (!$this->_type->fetch()) {
 			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_url);
+			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_redirURL);
 		}
 
 		$params = array(
@@ -388,12 +388,48 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * undocumented function
+	 * Create copy of selected product
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
+	 **/
+	function itemClone() {
+		elPrintR($this->_args);
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$item->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
+		}
+		$item->ID   = 0;
+		$item->code = '';
+		$params = array(
+			'typeID' => $this->_type->ID,
+			'mnfID'  => $this->_mnf->ID,
+			'catID'  => $this->_cat->ID
+			);
+		
+		if (!$item->editAndSave($params)) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($item->formToHtml());
+		}
+		
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_redirURL);
+	}
+
+	/**
+	 * Delete product
+	 *
+	 * @return void
 	 **/
 	function itemRm() {
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$item->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
+		}
+		$item->delete();
+		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $item->getObjName(), $item->name));
+		elLocation($this->_redirURL);
 	}
 
 	/**********    манипуляции со свойствами типов товаров   *******************/

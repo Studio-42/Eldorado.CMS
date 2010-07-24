@@ -86,7 +86,7 @@ class elIShopFactory {
 		),
 		EL_IS_MNF => array(
 			'name' => 'elIShopManufacturer',
-			'tbs'  => array('tbmnf', 'tbi')
+			'tbs'  => array('tbmnf')
 		),
 		EL_IS_ITYPE => array(
 			'name' => 'elIShopItemType',

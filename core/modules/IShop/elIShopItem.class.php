@@ -1,7 +1,9 @@
 <?php
-
-// include_once 'elCatalogItem.class.php';
-
+/**
+ * IShop product
+ *
+ * @package IShop
+ **/
 class elIShopItem extends elDataMapping {
 	var $tbmnf      = '';
 	var $tbp2i      = '';
@@ -46,7 +48,15 @@ class elIShopItem extends elDataMapping {
 		return false;
 	}
 
-
+	/**
+	 * delete item and all refrenced data
+	 *
+	 * @return void
+	 **/
+	function delete() {
+		parent::delete(array($this->tbp2i=>'i_id', $this->tbi2c=>'i_id', $this->tbgal => 'i_id'));
+	}
+	
 	/**
 	 * return properties values by items ids
 	 *
@@ -205,114 +215,78 @@ class elIShopItem extends elDataMapping {
 		return '.'.str_replace(EL_BASE_URL, '', $this->getTmbURL($id, $type));
 	}
 	
-	
-	
-	
+	/**
+	 * delete image from item gallery
+	 *
+	 * @return bool
+	 **/
+	function rmImage($img_id = false) {
+		if ((!$this->ID) || (!$img_id) || (($img = $this->getImg($img_id)) === false)) {
+			return false;
+		}
+		$db  = $this->_db();
+		$db->query(sprintf('DELETE FROM %s WHERE id=%d AND i_id=%d', $this->tbgal, $img_id, $this->ID));
+		list($tmbl, $tmbc) = $this->_getTmbNames($img);
+		@unlink('.'.$tmbl);
+		@unlink('.'.$tmbc);
+		return true;
+	}
 
- 
-  function getPropName($pID)
-  {
-	return isset($this->type->props[$pID]) ? $this->type->props[$pID]->name : '';
-  }
+	/**
+	 * change image in item gallery
+	 *
+	 * @return bool
+	 **/
+	function changeImage($img_id, $lSize, $cSize) {
+		if (empty($_POST['imgURL'])) {
+			return false;
+		}
 
+		$imgPath = urldecode(str_replace(EL_BASE_URL, '', $_POST['imgURL']));
+		if (in_array($imgPath, $this->getGallery())) {
+			return elThrow(E_USER_WARNING, 'This image is already in the gallery');
+		}
 
+		$_image = & elSingleton::getObj('elImage');
+		list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
 
+		// list image
+		$lSize = $lSize < 30 ? 120 : $lSize;
+		$info = $_image->imageInfo('.'.$imgPath);
+		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $lSize);
+		if (!$_image->tmb('.'.$imgPath, '.'.$tmbl, $w, $h)) {
+			return elThrow(E_USER_WARNING, $image->error);
+		}
 
+		// item card image
+		$cSize = $cSize < 30 ? 120 : $cSize;
+		$info = $_image->imageInfo('.'.$imgPath);
+		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $cSize);
+		if (!$_image->tmb('.'.$imgPath, '.'.$tmbc, $w, $h)) {
+			return elThrow(E_USER_WARNING, $image->error);
+		}
 
-  function _findValue($pID, $val)
-  {
-    $reg = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
-    foreach ( $this->type->props[$pID]->values as $vID=>$v )
-    {
-      if ( !preg_match($reg, $v[0], $m) )
-      {
-        if ( $val == $v[0])
-        {
-          return $vID;
-        }
-      }
-      else
-      {
-        $excl = !empty($m[5]) ? array_map('trim', explode(',', $m[5])) : null;
-        $range = elRange($m[1], $m[2], $m[3], $excl);
-        if ( in_array($val, $range) )
-        {
-          return $vID;
-        }
-      }
-    }
-    return 0;
-  }
+		if ($img_id > 0) {
+			if (($img = $this->getImg($img_id)) !== false) {
+				if ($img != $imgPath) // if set to the same image as before do not delete just generated thumbs 
+				{
+					list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
+					@unlink('.'.$tmbl);
+					@unlink('.'.$tmbc);
+				}
+			}
+			$sql = sprintf('UPDATE %s SET img="%s" WHERE id=%d AND i_id=%d LIMIT 1', $this->tbgal, $imgPath, $img_id, $this->ID);			
+		} else {
+			$sql = sprintf('INSERT INTO %s (i_id, img) VALUES (%d, "%s")', $this->tbgal, $this->ID, $imgPath);
+		}
+		$db = $this->_db();
+		$db->query($sql);
+		return true;
+	}
 
-  function getDependValues($propID, $propVal)
-  {
-    $vID = $this->_findValue($propID, $propVal); //echo 'ID='.$vID.'<br>';
-    $myVals = array();
-
-
-    $ret = array(); $tmp = array(); //echo $propID.' '.$propVal;
-    $db = &elSingleton::getObj('elDb');
-    $sql = 'SELECT m_id, m_value FROM '.$this->tbpdep.' WHERE s_id='.$propID.' AND s_value='.$vID;
-    $db->query($sql);
-    while ($r = $db->nextRecord())
-    {
-      $tmp[$r['m_id']][] = $r['m_value'];
-    }
-    $tmp1 = $db->queryToArray($sql, 'm_id', 'm_value');
-    $sql = 'SELECT s_id, s_value FROM '.$this->tbpdep.' WHERE m_id='.$propID.' AND m_value='.$vID; //echo $sql;
-    $db->query($sql);
-
-    while ($r = $db->nextRecord())
-    {
-      $tmp[$r['s_id']][] = $r['s_value'];
-    }
-
-    $reg = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
-    foreach ($tmp as $pID=>$vIDs)
-    {
-      $vals = $this->type->props[$pID]->getValuesByIDs($vIDs); //elPrintR($vals);
-      foreach ( $vals as $v )
-      {
-        if ( !preg_match($reg, $v, $m) )
-        {
-          $ret[$pID][] = $v;
-        }
-        else
-        {
-          $excl = !empty($m[5]) ? array_map('trim', explode(',', $m[5])) : null;
-          $range = elRange($m[1], $m[2], $m[3], $excl);
-          $ret[$pID] = array_merge_recursive($ret[$pID], $range);
-        }
-      }
-    }
-    $xml = '';
-    $xml .= "<response>\n";
-		$xml .= "<method>updateProps</method>\n";
-		$xml .= "<result>\n";
-    foreach ( $ret as $pID=>$pVals )
-    {
-      $xml .= "<property>\n";
-      $xml .= "<id>".$pID."</id>";
-      $xml .= "<value>".implode("</value>\n<value>", $pVals)."</value>\n";
-      $xml .= "</property>\n";
-    }
-    $xml .= "</result>\n";
-		$xml .= "</response>\n";
-    //$sql = 'SELECT DISTINCT s_id, m_id, s_value, m_value FROM '.$this->tbpdep.' WHERE s_id='.$propID.' OR m_id='.$propID;
-    //elPrintR( $ret);
-    return $xml;
-  }
-
-   /**
-   * устанавливает аттрибут - объект тип товара
-   *
-   * @param object $type
-   */
-  function setType(&$type)
-  {
-    $this->type   = &$type;
-    $this->typeID = $type->ID;
-  }
+	/*********************************************************/
+	/***                     PRIVATE                       ***/
+	/*********************************************************/	
 
 	/**
 	 * Create form for edit/create object 
@@ -370,10 +344,25 @@ class elIShopItem extends elDataMapping {
 	    $this->_form->setRequired('code');
 	    $this->_form->setRequired('name');
 	}
+	
+	/**
+	 * check for unique item articul/code
+	 *
+	 * @return bool
+	 **/
+	function _validForm() {
+		$data = $this->_form->getValue();
+		$code = mysql_real_escape_string($data['code']);
+		$db   = $this->_db();
+		$test = $db->queryToArray(sprintf('SELECT id FROM %s WHERE code="%s" AND id<>%d', $this->_tb, mysql_real_escape_string($data['code']), $this->ID));
+		return count($test) ? $this->_form->pushError('code', m('Item code must be unique')) : true;
+	}
 
 	/**
 	 * save categories and properties values for item
 	 *
+	 * @param  bool  $isNew  flag - is this item created right now?
+	 * @param  array $params form params
 	 * @return bool
 	 **/
 	function _postSave($isNew, $params=null) {
@@ -425,246 +414,7 @@ class elIShopItem extends elDataMapping {
 		}
 		return true;
 	}
-
-
-  /**
-   * Удаляет данные объекта из таблиц товаров, значений свойств и привязки к категориям
-   * tb, tbp2i tbi2c
-   *
-   */
-  function delete($ref = null)
-  {
-    parent::delete( array($this->tbp2i=>'i_id', $this->tbi2c=>'i_id') );
-  }
-
-  function removeItems($catID, $sortID=0)
-  {
-    $db = & elSingleton::getObj('elDb');
-    $sql = 'SELECT id, CONCAT(code, " ", name) AS name  FROM '.$this->_tb.', '.$this->tbi2c
-    	  .' WHERE c_id=\''.$catID.'\' AND id=i_id ORDER BY '.$this->_getOrderBy($sortID);
-    $items = $db->queryToArray($sql, 'id', 'name');
-    $this->_form = & elSingleton::getObj( 'elForm', 'mf',  m('Select documents to remove')  );
-	$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
 	
-    $this->_form->add( new elCheckBoxesGroup('items', '', null, $items) );
-
-    if ( $this->_form->isSubmitAndValid() )
-    {
-      $data = $this->_form->getValue();
-      if ( !empty($data['items']) )
-      {
-        $iIDs = '('.implode(',', $data['items']).')';
-        $db->query('DELETE FROM '.$this->_tb.'    WHERE id IN '.$iIDs);
-        $db->query('DELETE FROM '.$this->tbi2c.' WHERE i_id IN '.$iIDs);
-        $db->query('DELETE FROM '.$this->tbp2i.' WHERE i_id IN '.$iIDs);
-        $db->optimizeTable($this->_tb);
-        $db->optimizeTable($this->tbi2c);
-        $db->optimizeTable($this->tbp2i);
-      }
-      return true;
-    }
-    return false;
-  }
-
-	// Image manipulation
-
-
-
-
-
-
-	function rmImage($img_id = false)
-	{
-		if ((!$this->ID) || (!$img_id) || (($img = $this->getImg($img_id)) === false))
-		{
-			return false;
-		}
-
-		$db  = & elSingleton::getObj('elDb');
-		$sql = sprintf('DELETE FROM %s WHERE id=%d AND i_id=%d', $this->tbgal, $img_id, $this->ID);
-		$db->query($sql);
-		list($tmbl, $tmbc) = $this->_getTmbNames($img);
-		@unlink('.'.$tmbl);
-		@unlink('.'.$tmbc);
-		return true;
-	}
-
-	function changeImage($img_id, $lSize, $cSize)
-	{
-		if (empty($_POST['imgURL']))
-		{
-			return false;
-		}
-
-		$imgPath = urldecode(str_replace(EL_BASE_URL, '', $_POST['imgURL']));
-		if (in_array($imgPath, $this->getGallery()))
-		{
-			return elThrow(E_USER_WARNING, 'This image is already in the gallery');
-		}
-
-		$_image = & elSingleton::getObj('elImage');
-		list($tmbl, $tmbc) = $this->_getTmbNames($imgPath);
-
-		// list image
-		$lSize = $lSize < 30 ? 120 : $lSize;
-		$info = $_image->imageInfo('.'.$imgPath);
-		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $lSize);
-		if (!$_image->tmb('.'.$imgPath, '.'.$tmbl, $w, $h))
-		{
-			return elThrow(E_USER_WARNING, $image->error);
-		}
-
-		// item card image
-		$cSize = $cSize < 30 ? 120 : $cSize;
-		$info = $_image->imageInfo('.'.$imgPath);
-		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $cSize);
-		if (!$_image->tmb('.'.$imgPath, '.'.$tmbc, $w, $h))
-		{
-			return elThrow(E_USER_WARNING, $image->error);
-		}
-
-		if ($img_id > 0)
-		{
-			if (($img = $this->getImg($img_id)) !== false)
-			{
-				if ($img != $imgPath) // if set to the same image as before do not delete just generated thumbs 
-				{
-					list($tmbl, $tmbc) = $this->_getTmbNames($this->img);
-					@unlink('.'.$tmbl);
-					@unlink('.'.$tmbc);
-				}
-			}
-			$sql = sprintf('UPDATE %s SET img="%s" WHERE id=%d AND i_id=%d LIMIT 1', $this->tbgal, $imgPath, $img_id, $this->ID);			
-		}
-		else
-		{
-			$sql = sprintf('INSERT INTO %s (i_id, img) VALUES (%d, "%s")', $this->tbgal, $this->ID, $imgPath);
-		}
-		$db = & elSingleton::getObj('elDb');
-		$db->query($sql);
-		return true;
-	}
-
-
-
-
-
-
-  /***********************************************************/
-  //                      PRIVATE                            //
-  /***********************************************************/
-
-  /**
-   * возвращает значение свойства товара в виде строки
-   *
-   * @param int $pID
-   * @return array
-   */
-  function _propertyToString($pID)
-  {
-    $clue = ', ';
-    return ( $this->type->props[$pID]->hasTextType() )
-      ? $this->propVals[$pID][0]
-      : implode($clue, $this->type->props[$pID]->getValuesByIDs($this->propVals[$pID], true));
-  }
-
-  /**
-   * возвращает значение свойства товара с типом multi-list в виде массива
-   * заменяя конструкции вида range(begin end step) exclude(val1 val2..)
-   * в соответствующие диапазоны значений
-   * Используется для выбора параметров товара при заказе
-   *
-   * @param int $pID
-   * @return array
-   */
-  function _propertyToArray($pID)
-  {
-    $raw = $this->type->props[$pID]->getValuesByIDs($this->propVals[$pID]);
-     //elPrintR($this->propVals[$pID]);
-     //echo 'raw='; elPrintR($raw);
-    $enabled = $this->propVals[$pID];
-    if ( $this->type->props[$pID]->dependID )
-    {
-      $mID = $this->type->props[$pID]->dependID;
-      //echo $pID.' depend on '.$mID;
-      $mVal = $this->propVals[$mID][0]; //echo 'mval='.$mVal.' ';
-      //echo $dependOnVal;
-      //elPrintR($this->propVals[$this->type->props[$pID]->dependID]);
-      $enabled = $this->getDependOnValue( $pID, $mVal );
-    }
-    //echo 'enable=';elPrintR($enabled);
-    $enabled = array_flip($enabled ); //elPrintR($enabled);
-    $ret = array();
-    $reg = '/range\(([0-9\-\.]+)\,?\s*([0-9\-\.]+)\,?\s*([0-9\-\.]+)\s*\)\s*(exclude\((.+)\))?.*/si';
-    foreach ( $raw as $ID=>$v )
-    {
-      $en = intval(isset($enabled[$ID])); //echo $ID.' ';
-      if ( !preg_match($reg, $v, $m) )
-      {
-        $ret[] = array($v, $en);
-      }
-      else
-      {
-        $excl = !empty($m[5]) ? array_map('trim', explode(',', $m[5])) : null;
-        $range = elRange($m[1], $m[2], $m[3], $excl);
-        //$ret = array_merge($ret, elRange($m[1], $m[2], $m[3], $excl));
-        for ($i=0, $s=sizeof($range); $i<$s; $i++)
-        {
-          $ret[] = array($range[$i], $en);
-        }
-      }
-    }
-    //elPrintR($ret);
-    return $ret;
-  }
-
-  function getDependOnValue( $pID, $mVal )
-  {
-    $db  = & elSingleton::getObj('elDb');
-    return $db->queryToArray('SELECT DISTINCT d.s_value FROM '.$this->tbpdep.' AS d WHERE s_id='.$pID.' AND m_value='.$mVal, null, 's_value');
-  }
-
-
-	/*********************************************************/
-	/***                     PRIVATE                       ***/
-	/*********************************************************/	
-
-
-  function _getPropVal( $pID )
-  {
-    return isset( $this->propVals[$pID] ) ? $this->propVals[$pID] : null;
-  }
-
-  function _mnfsList()
-  {
-    $db = &elSingleton::getObj('elDb');
-    return $db->queryToArray('SELECT id, name FROM '.$this->tbmnf.' ORDER BY name', 'id', 'name');
-  }
-
-
-  /**
-   * Проверяет данные формы на предмет дубликатов артикулов
-   *
-   * @return bool
-   */
-  function _validForm()
-  {
-    $data = $this->_form->getValue();
-    $code = mysql_real_escape_string($data['code']);
-    $db   = &elSingleton::getObj('elDb');
-    $db->query('SELECT id FROM '.$this->_tb.' WHERE code=\''.$code.'\''.($this->ID ? ' AND id<>'.$this->ID : ''));
-    if ($db->numRows())
-    {
-      return $this->_form->pushError('code', m('Item code must be unique'));
-    }
-    return true;
-  }
-
-
-
-
-
-
 	/**
 	 * update timestamps before save
 	 *
@@ -715,6 +465,6 @@ class elIShopItem extends elDataMapping {
 		return $map;
 	}
 
-}
+} // END class 
 
 ?>

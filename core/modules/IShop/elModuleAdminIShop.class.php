@@ -25,7 +25,8 @@ class elModuleAdminIShop extends elModuleIShop
 		'prop_depend' => array('m' => 'propDependance'),
 		'prop_sort'   => array('m' => 'propSort'),
 		// products
-
+		'item_rm'     => array('m' => 'itemRm'),
+		'item_clone'  => array('m' => 'itemClone')
 
       
 	);
@@ -364,16 +365,11 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @author Dmitry Levashov
 	 **/
 	function itemEdit() {
-		// elPrintR($this->_args);
-		
 		$this->_type->idAttr((int)str_replace('edit', '', $this->_mh));
 		if (!$this->_type->fetch()) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_url);
 		}
-		
-		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
-		
 		
 		if ($this->_view == EL_IS_VIEW_MNFS) {
 			$this->_mnf->idAttr($this->_arg());
@@ -388,29 +384,38 @@ class elModuleAdminIShop extends elModuleIShop
 			'catID'  => $this->_cat->ID ? $this->_cat->ID : 1
 			);
 		
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
 		if (!$item->editAndSave($params)) {
 			$this->_initRenderer();
-			$this->_rnd->addToContent($item->formToHtml());
+			return $this->_rnd->addToContent($item->formToHtml());
 		}
-		// switch ($this->_view) {
-		// 	case EL_IS_VIEW_TYPES:
-		// 		$url = $this->_urlTypes.'type/'.$this->_type->ID;
-		// 		break;
-		// 	case EL_IS_VIEW_MNFS:
-		// 		$this->_mnf->idAttr($this->_arg());
-		// 		$this->_mnf->fetch();
-		// 		$url = $this->_urlMnfs.'mnf/'.$this->_mnf->ID;
-		// 		break;
-		// 	default:
-		// 		$this->_cat->idAttr($this->_arg());
-		// 		$this->_cat->fetch();
-		// 		$catID = $this->_cat->ID ? $this->_cat->ID : 1;
-		// 		$url = $this->_urlCats.$this->_cat->ID;
-		// }
-		// 
-
+		
+		elMsgBox::put(m('Data saved'));
+		switch ($this->_view) {
+			case EL_IS_VIEW_TYPES:
+				$url = $this->_urlTypes.'type/'.$this->_type->ID;
+				break;
+			case EL_IS_VIEW_MNFS:
+				$url = $this->_urlMnfs;
+				if ($this->_mnf->ID) {
+					$url .= 'mnf/'.$this->_mnf->ID;
+				}
+				break;
+			case EL_IS_VIEW_CATS:
+				$url = $this->_urlCats.$this->_cat->ID;
+				break;
+		}
+		elLocation($url);
 	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function itemRm() {
+	}
 
 	/**********    манипуляции со свойствами типов товаров   *******************/
 

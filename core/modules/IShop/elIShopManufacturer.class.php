@@ -52,6 +52,19 @@ class elIShopManufacturer extends elDataMapping {
 	}
 
 	/**
+	 * Delete manufacturer and its trademarks/models and update items table
+	 *
+	 * @return void
+	 **/
+	function delete() {
+		$tbtm = $this->_factory->tb('tbtm');
+		$tbi  = $this->_factory->tb('tbi');
+		parent::delete(array($tbtm => 'mnf_id'));
+		$db = $this->_db();
+		$db->query(sprintf('UPDATE %s SET mnf_id=0, tm_id=0 WHERE mnf_id=%s', $tbi, $this->ID));
+	}
+
+	/**
 	 * create form
 	 *
 	 * @return void

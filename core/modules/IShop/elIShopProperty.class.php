@@ -200,7 +200,7 @@ class elIShopProperty extends elDataMapping {
 	 * @param  array  $val  list of values ids
 	 * @return string
 	 **/
-	function valuesToString($val) {
+	function valuesToString($val=null) {
 		switch ($this->type) {
 			case EL_IS_PROP_LIST:
 				return isset($val[0]) && isset($this->_opts[$val[0]]) ? $this->_opts[$val[0]] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : current($this->_opts));
@@ -217,7 +217,6 @@ class elIShopProperty extends elDataMapping {
 				}
 				return implode(', ', $ret);
 			default:
-				// elPrintr($this->_opts);
 				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
 		}
 	}

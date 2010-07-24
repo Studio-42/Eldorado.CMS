@@ -54,7 +54,7 @@ class elModuleAdminIShop extends elModuleIShop
 			return $this->_rnd->addToContent($cat->formToHtml());
 		}
 		elMsgBox::put( m('Data saved') );
-		elLocation($this->_urlCats.$this->_cat->ID);
+		elLocation($this->_urlCats.intval($this->_arg()));
 	}
 
 	/**

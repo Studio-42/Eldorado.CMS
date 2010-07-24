@@ -321,7 +321,6 @@ class elIShopItem extends elDataMapping {
 	 * @return void
 	 **/
 	function _makeForm($params=null) {
-		// elPrintR($params);
 		parent::_makeForm();
 		if ($this->ID) {
 			$cats = $this->getCats();
@@ -365,84 +364,68 @@ class elIShopItem extends elDataMapping {
 			$this->_form->add($p->toFormElement(isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : null, true));
 		}
 	
+		$this->_form->add(new elSelect('ym', m('Upload into Yandex market'), $this->ym, $GLOBALS['yn']));
+	
 		$this->_form->setRequired('cat_id[]');
 	    $this->_form->setRequired('code');
 	    $this->_form->setRequired('name');
 	}
 
-  /**
-   * Создает объект-форму для редактирования товара
-   *
-   * @param array $parents
-   */
-  function _makeForm_($params = null)
-  {
-    $label = !$this->idAttr() ? 'Create object "%s"' : 'Edit object "%s"';
-    $this->_form = & elSingleton::getObj( 'elForm', 'mf',  sprintf( m($label), m($this->_objName))  );
-    $this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+	/**
+	 * save categories and properties values for item
+	 *
+	 * @return bool
+	 **/
+	function _postSave($isNew, $params=null) {
+		$db = $this->_db();
+		
+		// set categories
+		$catIDs = $this->_form->getElementValue('cat_id[]');
+		$rm = array();
+		$add = array();
+		if ($isNew) {
+			$add = $catIDs;
+		} else {
+			$old = $this->getCats();
+			$add = array_diff($catIDs, $old);
+			$rm  = array_diff($old, $catIDs);
+		}
+		
+		if ($rm) {
+			$db->query(sprintf('DELETE FROM %s WHERE i_id=%d AND c_id IN (%s)', $this->tbi2c, $this->ID, implode(',', $rm)));
+			$db->optimizeTable($this->tbi2c);
+		}
+		if ($add) {
+			$db->prepare('INSERT INTO '.$this->tbi2c.' (c_id, i_id) VALUES ', '(%d, %d)');
+			foreach ($add as $catID) {
+				$db->prepareData(array($catID, $this->ID));
+			}
+			$db->execute();
+		}
+		
+		// save properties values
+		$db->query(sprintf('DELETE FROM %s WHERE i_id=%d', $this->tbp2i, $this->ID));
+		$db->optimizeTable($this->tbp2i);
+		$data  = $this->_form->getValue();
+		$type  = $this->getType();
+		$props = $type->getProperties();
+		foreach ($data as $k=>$v) {
+			if (preg_match('/^prop_\d+/i', $k)) {
+				$k = (int)str_replace('prop_', '', $k);
+				if (isset($props[$k])) {
+					if (is_array($v)) {
+						foreach ($v as $_v) {
+							$db->query(sprintf('INSERT INTO %s (i_id, p_id, value) VALUES (%d, %d, "%s")', $this->tbp2i, $this->ID, $k, mysql_real_escape_string($_v)));
+						}
+					} else {
+						$db->query(sprintf('INSERT INTO %s (i_id, p_id, value) VALUES (%d, %d, "%s")', $this->tbp2i, $this->ID, $k, mysql_real_escape_string($v)));
+					}
+				}
+			}
+		}
+		return true;
+	}
 
-    $this->_form->add( new elCData2('t', m('Type'), $this->type->name) );
-
-    if ( empty($params['parents']) )
-    {
-      $params['parents'] = array(1);
-    }
-    
-    if ( false == ($pIDs = $this->_getParents()) )
-    {
-      $pIDs = array( $params['catID'] );
-    }
-    $this->_form->add( new elMultiSelectList('pids', m('Parent categories'), $pIDs, $params['parents']) );
-
-
-    if ( EL_IS_USE_MNF == $this->mnfNfo )
-    {
-      $this->_form->add( new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $this->_mnfsList()) );
-    }
-    elseif ( 0 <> $this->mnfNfo )
-    {
-      $sel     = & new elExtSelect('tm_id', m('Manufacturers / Trade marks'), $this->tmID);
-      $mnfsTms = $this->_mnfsTmsList();
-      foreach ( $mnfsTms as $g )
-      {
-        $gid = $sel->addGroup( $g[0], $g[1] );
-      }
-      $this->_form->add( $sel );
-    }
-    $textAttrs = array('style'=>'width:100%;');
-    $this->_form->add( new elText('code',  m('Code/Articul'),  $this->code,     $textAttrs) );
-    $this->_form->add( new elText('name',  m('Name'),          $this->name,     $textAttrs) );
-    $this->_form->add( new elText('price', m('Price'),         $this->price,    $textAttrs) );
-    $this->_form->add( new elEditor('announce', m('Announce'), $this->announce, array('height' => 250)) );
-    $this->_form->add( new elEditor('content',  m('Content'),  $this->content) );
-    $this->_form->setRequired('pids[]');
-    $this->_form->setRequired('code');
-    $this->_form->setRequired('name');
-    foreach ($this->type->props as $ID=>$p)
-    {
-      $this->_form->add( $p->getFormElement( $this->_getPropVal($p->ID) ) );//$this->_getPropValue($p->ID)) );
-    }
-  }
-
-
-  function _mnfsTmsList()
-  {
-    $ret = array();
-    $db = & elSingleton::getObj('elDb');
-    $sql = 'SELECT  m.name AS mnf, t.id, t.mnf_id, t.name '
-      .'FROM '.$this->tbmnf.' AS m, '.$this->tbtm.' AS t '
-      .'WHERE t.mnf_id=m.id ORDER BY m.name, t.name';
-    $db->query( $sql );
-    while ( $r = $db->nextRecord() )
-    {
-      if ( empty($ret[$r['mnf_id']]))
-      {
-        $ret[$r['mnf_id']] = array($r['mnf'], array());
-      }
-      $ret[$r['mnf_id']][1][$r['id']] = $r['name'];
-    }
-    return $ret;
-  }
 
   /**
    * Удаляет данные объекта из таблиц товаров, значений свойств и привязки к категориям
@@ -646,19 +629,6 @@ class elIShopItem extends elDataMapping {
 	/***                     PRIVATE                       ***/
 	/*********************************************************/	
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author /bin/bash: niutil: command not found
-	 **/
-	function _loadProps() {
-		if (!is_array($this->_propsVal)) {
-			$sql = 'SELECT id, value FROM %s WHERE i_id=%d AND p_id ID (%s)';
-			// $sql = sprintf($sql, $this->_tbp2i, $this->ID, implode(",", ))
-		}
-	}
-
 
   function _getPropVal( $pID )
   {
@@ -690,51 +660,7 @@ class elIShopItem extends elDataMapping {
     return true;
   }
 
-  /**
-   * сохраняет привязку товара к категориям и значения свойств-товара
-   *
-   * @return bool
-   */
-  function _postSave($isNew, $params = null)
-	{
-	  $db = &elSingleton::getObj('elDb');
 
-	  if ( EL_IS_USE_TM == $this->mnfNfo || EL_IS_USE_MNF_TM == $this->mnfNfo ) //!empty($this->tmID) )
-	  {
-	    $db->query('UPDATE '.$this->_tb.' SET mnf_id=(SELECT mnf_id FROM '.$this->tbtm.' WHERE id='.intval($this->tmID).' LIMIT 0,1) WHERE id='.$this->ID);
-	  }
-
-	  $db->query('DELETE FROM '.$this->tbp2i.' WHERE i_id='.$this->ID);
-	  $db->optimizeTable($this->tbp2i);
-
-    $data = array();
-    if ($this->_form)
-    {
-    	$data = $this->_form->getValue(); //elPrintR($data); exit;
-    }
-
-    foreach ($data['props'] as $pID=>$value)
-    {
-      if ( !empty($value) )
-      {
-      $db->prepare('INSERT INTO '.$this->tbp2i.' (i_id, p_id, value, pv_id) VALUES', '(%d, %d, \'%s\', \'%d\')');
-      if ( !is_array($value))
-      {
-        $pvID = EL_IS_PROP_LIST == $this->type->props[$pID]->type ? $value : 0;
-        $db->prepareData( array($this->ID, $pID, $value, $pvID));
-      }
-      else
-      {
-        foreach ($value as $pvID)
-        {
-          $db->prepareData( array($this->ID, $pID, '', $pvID));
-        }
-      }
-      $db->execute();
-      }
-    }
-    return parent::_postSave();
-	}
 
 
 

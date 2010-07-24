@@ -26,8 +26,9 @@ class elModuleAdminIShop extends elModuleIShop
 		'prop_sort'   => array('m' => 'propSort'),
 		// products
 		'item_rm'     => array('m' => 'itemRm'),
-		'item_clone'  => array('m' => 'itemClone')
-
+		'item_clone'  => array('m' => 'itemClone'),
+		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort items'),
+		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items')
       
 	);
 
@@ -359,10 +360,9 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * undocumented function
+	 * Create/edit product
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function itemEdit() {
 		$this->_type->idAttr((int)str_replace('edit', '', $this->_mh));
@@ -370,18 +370,11 @@ class elModuleAdminIShop extends elModuleIShop
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_url);
 		}
-		
-		if ($this->_view == EL_IS_VIEW_MNFS) {
-			$this->_mnf->idAttr($this->_arg());
-			$this->_mnf->fetch();
-		} elseif ($this->_view == EL_IS_VIEW_CATS) {
-			$this->_cat->idAttr($this->_arg());
-			$this->_cat->fetch();
-		}
+
 		$params = array(
 			'typeID' => $this->_type->ID,
 			'mnfID'  => $this->_mnf->ID,
-			'catID'  => $this->_cat->ID ? $this->_cat->ID : 1
+			'catID'  => $this->_cat->ID
 			);
 		
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
@@ -391,21 +384,7 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		
 		elMsgBox::put(m('Data saved'));
-		switch ($this->_view) {
-			case EL_IS_VIEW_TYPES:
-				$url = $this->_urlTypes.'type/'.$this->_type->ID;
-				break;
-			case EL_IS_VIEW_MNFS:
-				$url = $this->_urlMnfs;
-				if ($this->_mnf->ID) {
-					$url .= 'mnf/'.$this->_mnf->ID;
-				}
-				break;
-			case EL_IS_VIEW_CATS:
-				$url = $this->_urlCats.$this->_cat->ID;
-				break;
-		}
-		elLocation($url);
+		elLocation($this->_redirURL);
 	}
 
 	/**
@@ -423,38 +402,6 @@ class elModuleAdminIShop extends elModuleIShop
    * Создание/редактирование товара
    *
    */
-  function editItem()
-  {
-    $typeID = (int)str_replace('edit', '', $this->_mh);
-    $item = $this->_factory->getItem( (int)$this->_arg(2), $typeID );// elPrintR($item->type);
-    if ( !$item->type )
-    {
-      elThrow(E_USER_WARNING, 'You are trying to create %s with undefined type!', $item->getObjName(), EL_URL.'types');
-    }
-    $params = array(
-      'parents' => $this->_cat->getTreeToArray(0, true),
-      'catID'   => $this->_cat->ID,
-      'mnfNfo'  => (int)$this->_conf('mnfNfo'));// echo $this->_conf('mnfNfo');
-    if ( !$item->editAndSave( $params ) )
-    {
-      $this->_initRenderer();
-      return $this->_rnd->addToContent( $item->formToHtml());
-    }
-    elMsgBox::put( m('Data saved') );
-	  elLocation(EL_URL.$this->_cat->ID);
-  }
-
-  function rmItem()
-  {
-    $item = $this->_factory->getItem( (int)$this->_arg(1) );
-    if ( !$item->ID )
-    {
-      elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
-    }
-    $item->delete();
-    elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $item->getObjName(), $item->name) );
-    elLocation(EL_URL.$this->_cat->ID);
-  }
 
 	function itemImg()
 	{
@@ -523,95 +470,61 @@ class elModuleAdminIShop extends elModuleIShop
         elLocation(EL_URL.$this->_cat->ID);
       }
   }
-  /*********    Манипуляции с категориями    ********************/
-
-
-
-
-
-
-
-
-
-
-
-  function editCrossLinks()
-	{
+ 
+	function editCrossLinks() {
 		$this->_item =  $this->_factory->getItem( (int)$this->_arg(1));
-		if ( !$this->_item->ID )
-		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"',
-				array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
+		if (!$this->_item->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
 		}
 		$clm = & $this->_getCrossLinksManager();
-		if (!$clm->editCrossLinks($this->_item))
-		{
-		  $this->_initRenderer();
-		  $this->_rnd->addToContent($clm->formToHtml());
-		}
-		else
-		{
-		  elMsgBox::put( m('Data saved') );
-			elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
-		}
+		if (!$clm->editCrossLinks($this->_item)) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($clm->formToHtml());
+		} 
+		elMsgBox::put( m('Data saved') );
+		elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
 	}
 
-	function configureCrossLinks()
-	{
-    $clm = & $this->_getCrossLinksManager();
-    if ( !$clm->confCrossLinks() )
-    {
-      $this->_initRenderer();
-		  return $this->_rnd->addToContent($clm->formToHtml());
-    }
-    elMsgBox::put( m('Configuration was saved') );
-	  elLocation( EL_URL );
+	function configureCrossLinks() {
+		$clm = & $this->_getCrossLinksManager();
+		if (!$clm->confCrossLinks()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($clm->formToHtml());
+		}
+		elMsgBox::put( m('Configuration was saved') );
+		elLocation( EL_URL );
 	}
 
-  function configureNav()
-  {
-  	$conf = &elSingleton::getObj('elXmlConf');
-  	$form = & $this->_makeNavForm( $conf->get($this->pageID, 'catalogsNavs') );
+	function configureNav() {
+		$conf = &elSingleton::getObj('elXmlConf');
+		$form = & $this->_makeNavForm( $conf->get($this->pageID, 'catalogsNavs') );
 
-  	if (!$form->isSubmitAndValid())
-  	{
-  		$this->_initRenderer();
-		return $this->_rnd->addToContent($form->toHtml());
-  	}
+		if (!$form->isSubmitAndValid()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($form->toHtml());
+		}
 
-  	$raw = $form->getValue();
-  	$data = array();
-  	$data['pos']   = isset($GLOBALS['posNLRTB'][$raw['pos']]) ? $raw['pos'] : 0;
-  	$data['title'] = !empty($raw['title']) ? $raw['title'] : '';
-  	$data['deep']  = (int)$raw['deep'];
-	$data['pIDs']  = $raw['pIDs'];
+		$raw = $form->getValue();
+		$data = array();
+		$data['pos']   = isset($GLOBALS['posNLRTB'][$raw['pos']]) ? $raw['pos'] : 0;
+		$data['title'] = !empty($raw['title']) ? $raw['title'] : '';
+		$data['deep']  = (int)$raw['deep'];
+		$data['pIDs']  = $raw['pIDs'];
 
-  	if (!$data['pos'])
-  	{
-  		$conf->drop($this->pageID, 'catalogsNavs');
-  	}
-  	else
-  	{
-  		if ( empty($data['pIDs']) )
-  		{
-  			$form->pushError('pIDs[]', m('You should select at least one page') );
-  			$this->_initRenderer();
-  			return $this->_rnd->addToContent($form->toHtml());
-  		}
-  		$conf->set($this->pageID, $data, 'catalogsNavs');
-  	}
-  	$conf->save();
-  	elMsgBox::put( m('Configuration was saved') );
-  	elLocation( EL_URL );
-
-  }
-
-   function configureSearch()
-   {
-      $sa = $this->_factory->getSearchAdmin(); //elPrintR($sa);
-      $this->_initRenderer();
-      $sa->run( $this->_rnd, $this->_args );
-   }
+		if (!$data['pos']) {
+			$conf->drop($this->pageID, 'catalogsNavs');
+		} else {
+			if (empty($data['pIDs'])) {
+				$form->pushError('pIDs[]', m('You should select at least one page') );
+				$this->_initRenderer();
+				return $this->_rnd->addToContent($form->toHtml());
+			}
+			$conf->set($this->pageID, $data, 'catalogsNavs');
+		}
+		$conf->save();
+		elMsgBox::put( m('Configuration was saved') );
+		elLocation(EL_URL);
+	}
 
 	/**
 	 * Yandex.Market configure which products to export
@@ -911,45 +824,47 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 	
 
-  function &_makeNavForm($c)
-  {
-  	$cat     = & elSingleton::getObj('elCatalogCategory');
-  	$cat->tb('el_menu');
-  	$tree    = $cat->getTreeToArray(0, true, false); 
-  	$tree[1] = m('Whole site');
-	$form    = & parent::_makeConfForm();
-	$form->setLabel( m('Configure navigation for catalog') );
-  	$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
-  	$c['title'] = !empty($c['title']) ? $c['title'] : '';
-  	$c['deep']  = isset($c['deep'])   ? $c['deep']  : 0;
-  	$c['all']   = isset($c['all'])    ? $c['all']   : 0;
-  	$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
+	function &_makeNavForm($c) {
+		$cat     = & elSingleton::getObj('elCatalogCategory');
+		$cat->tb('el_menu');
+		$tree    = $cat->getTreeToArray(0, true, false); 
+		$tree[1] = m('Whole site');
+		$form    = & parent::_makeConfForm();
+		$form->setLabel( m('Configure navigation for catalog') );
+		$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
+		$c['title'] = !empty($c['title']) ? $c['title'] : '';
+		$c['deep']  = isset($c['deep'])   ? $c['deep']  : 0;
+		$c['all']   = isset($c['all'])    ? $c['all']   : 0;
+		$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
 
-  	
-  	$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'], $GLOBALS['posNLRTB']) );
-  	$form->add( new elText('title', m('Navigation title'), $c['title']) );
-  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
-  	$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
-  	$ms = new elMultiSelectList('pIDs', '', $c['pIDs'], $tree);
-	$ms->setSwitchValue(1);
-	$form->add( $ms );
-	
-	elAddJs("$('#pos').change(function() { $(this).parents('tr').eq(0).nextAll('tr').toggle(this.value != '0'); }).trigger('change');", EL_JS_SRC_ONLOAD);
-  	return $form;
-  }
+		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'], $GLOBALS['posNLRTB']) );
+		$form->add( new elText('title', m('Navigation title'), $c['title']) );
+		$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+		$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
+		$ms = new elMultiSelectList('pIDs', '', $c['pIDs'], $tree);
+		$ms->setSwitchValue(1);
+		$form->add( $ms );
+
+		elAddJs("$('#pos').change(function() { $(this).parents('tr').eq(0).nextAll('tr').toggle(this.value != '0'); }).trigger('change');", EL_JS_SRC_ONLOAD);
+		return $form;
+	}
 
 	/**
-	 * undocumented function
+	 * create methods to create items by types
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
-	function _onBeforeStop() {
-		// echo 'catID='.$this->_cat->ID.'<br>';
-		// echo 'mnfID='.$this->_mnf->ID.'<br>';
-		// echo 'typeID='.$this->_type->ID.'<br>';
-		// echo $this->_view;
-		$apURL = '';
+	function _initAdminMode() {
+		parent::_initAdminMode();
+		foreach ($this->_factory->getTypesList() as $id=>$t) {
+			$this->_mMap['edit'.$id] = array(
+				'm'   => 'itemEdit',  
+				'l'   => htmlspecialchars($t), 
+				'g'   => 'New item', 
+				'ico' => 'icoOK'
+				);
+		}
+		$apURL   = '';
 		$prepURL = '';
 		switch($this->_view) {
 			case EL_IS_VIEW_TYPES:
@@ -964,49 +879,38 @@ class elModuleAdminIShop extends elModuleIShop
 				$prepURL = 'cats';
 				$apURL = $this->_cat->ID;
 		}
-		// echo $apURL;
 		foreach ($this->_factory->getTypesList() as $id=>$t) {
 			$this->_mMap['edit'.$id]['prepUrl'] = $prepURL;
 			$this->_mMap['edit'.$id]['apUrl'] = $apURL;
 		}
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function _initAdminMode() {
-		parent::_initAdminMode();
-		foreach ($this->_factory->getTypesList() as $id=>$t) {
-			$this->_mMap['edit'.$id] = array('m'=>'itemEdit',  'l'=>htmlspecialchars($t), 'g'=>'New item', 'ico'=>'icoOK');
+		
+		$this->_mMap['edit']['apUrl'] = $this->_cat->ID;
+		
+		if (isset($this->_mMap['tm_edit']) && $this->_mnf->ID) {
+			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
 		}
 	}
 	
 	/**
-	 * Add methods to create products by types
+	 * remove some methods if needed
 	 *
 	 * @return void
 	 **/
 	function _onInit() {
 		parent::_onInit();
 		
-		$this->_mMap['edit']['apUrl'] = $this->_cat->ID;
-		if ($this->_mnf->ID) {
-			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
-		} elseif (!sizeof($this->_factory->getAllFromRegistry(EL_IS_MNF))) {
+		if (!sizeof($this->_factory->getAllFromRegistry(EL_IS_MNF))) {
 			unset($this->_mMap['tm_edit']);
 		}
 
-		if (!$this->_cat->countItems()) {
-			unset($this->_mMap['sort'], $this->_mMap['rm_group']);
+		if ($this->_factory->ic->count(EL_IS_CAT, $this->_cat->ID) < 2) {
+			unset($this->_mMap['items_sort'], $this->_mMap['items_rm']);
 		}
 
 		if ('item' != $this->_mh && 'cross_links' != $this->_mh ) {
 			$this->_removeMethods('cross_links');
 		} else {
-			$this->_mMap['cross_links']['apUrl'] .= '/'.($this->_arg(1)).'/';
+			$this->_mMap['cross_links']['apUrl'] .= $this->_arg(1);
 		}
 	}
 

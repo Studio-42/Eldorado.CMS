@@ -21,35 +21,30 @@ class elIShopFactory {
 	 * @var int
 	 **/
 	var $pageID = 0;
-
 	/**
 	 * default sort
 	 *
 	 * @var int
 	 **/
 	var $itemsSortID = 0;
-
 	/**
 	 * ItemsCollection for use from created objects as $this->_factory->ic
 	 *
 	 * @var elIShopItemsCollection
 	 **/
 	var $ic = null;
-
 	/**
 	 * database
 	 *
 	 * @var elDb
 	 **/
 	var $_db = null;
-
 	/**
 	 * internal registry
 	 *
 	 * @var string
 	 **/
 	var $_registry = array();
-
 	/**
 	 * tables list
 	 *
@@ -69,7 +64,6 @@ class elIShopFactory {
 		'tbs'       => 'el_ishop_%d_search',
 		'tbgal'     => 'el_ishop_%d_gallery'
 	);
-
 	/**
 	 * classes list
 	 *
@@ -169,7 +163,6 @@ class elIShopFactory {
 	 * @return object
 	 **/
 	function getFromRegistry($type, $ID) {
-
 		!isset($this->_registry[$type]) && $this->_loadRegistry($type);
 		return isset($this->_registry[$type][$ID]) 
 			? $this->_registry[$type][$ID]
@@ -188,7 +181,7 @@ class elIShopFactory {
 	}
 
 	/**
-	 * return types id/name list
+	 * return types (id/name) list
 	 *
 	 * @return array
 	 **/
@@ -219,16 +212,6 @@ class elIShopFactory {
 	}
 
 	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 **/
-	function countItems($type, $ID) {
-		return $this->ic->count($type, $ID);
-	}
-
-
-	/**
 	 * return tables list
 	 *
 	 * @return array
@@ -250,8 +233,6 @@ class elIShopFactory {
 	/*********************************************************/
 	//                     PRIVATE                           //
 	/*********************************************************/
-	
-
 
 	/**
 	 * load part of regisry
@@ -270,7 +251,6 @@ class elIShopFactory {
 		}
 		
 	}
-
 
 } // END class 
 

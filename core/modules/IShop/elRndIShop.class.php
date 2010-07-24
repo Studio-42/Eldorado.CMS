@@ -46,15 +46,24 @@ class elRndIShop extends elCatalogRenderer {
 	 **/
 	function init($dirname, $conf, $admin=false, $tabs=null, $curTab=null) {
 		parent::init($dirname, $conf, $admin);
-		
-		if ($this->_view != $this->_conf('default_view')) {
-			$this->_te->assignVars('ishopView', $this->_view == EL_IS_VIEW_MNFS ? 'mnfs/' : 'cats/');
+		$parentID = 0;
+		switch ($this->_view) {
+			case EL_IS_VIEW_TYPES:
+				$parentID = $this->_type->ID ? $this->_type->ID : 0;
+				break;
+			case EL_IS_VIEW_MNFS:
+				$parentID = $this->_mnf->ID ? $this->_mnf->ID : 0;
+				break;
+			case EL_IS_VIEW_CATS:
+				$parentID = $this->_cat->ID ? $this->_cat->ID : 0;
+				break;
 		}
 		
+
 		$this->_te->assignVars(array(
 			'catID'        => $this->_cat->ID,
 			'mnfID'        => $this->_mnf->ID,
-			'parentID'     => $this->_view == EL_IS_VIEW_MNFS ? $this->_mnf->ID : $this->_cat->ID,
+			'parentID'     => $parentID,
 			'ishopURL'     => $this->_url,
 			'ishopCatsURL' => $this->_urlCats,
 			'ishopMnfsURL' => $this->_urlMnfs,
@@ -495,8 +504,9 @@ class elRndIShop extends elCatalogRenderer {
 	 * @return void
 	 **/
 	function _rndItemInList($block, $item, $css) {
-		$this->_te->assignBlockVars($block.'.ITEM', $css, 1);
-		$this->_te->assignBlockVars($block.'.ITEM', $item->toArray(), 2);
+
+		$this->_te->assignBlockVars($block.'.ITEM', $css+$item->toArray(), 1);
+
 		$mnf = $item->getMnf();
 		if ($mnf->ID) {
 			$data = $mnf->toArray();
@@ -507,9 +517,8 @@ class elRndIShop extends elCatalogRenderer {
 		if ($tm->ID) {
 			$this->_te->assignBlockVars($block.'.ITEM.TM', $tm->toArray(), 2);
 		}
-		
 		if ($this->_admin) {
-			$this->_te->assignBlockVars($block.'.ITEM.ADMIN', array('id'=>$item->ID, 'type_id' => $item->typeID), 2);
+			$this->_te->assignBlockVars($block.'.ITEM.ADMIN', array('id'=>$item->ID, 'typeID' => $item->typeID), 2);
 		}
 		if ($this->_conf('displayCode')) {
 			$this->_te->assignBlockVars($block.'.ITEM.CODE', array('code'=>$item->code), 2);

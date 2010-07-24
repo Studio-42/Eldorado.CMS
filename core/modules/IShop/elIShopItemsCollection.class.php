@@ -1,12 +1,11 @@
 <?php
 
-class elIShopItemsCollection
-{
-	var $_tb    = '';
-	var $tbi2c  = '';
-	var $tbmnf  = '';
-	var $tbtm   = '';
-	var $tbp2i  = '';
+class elIShopItemsCollection {
+	var $_tb     = '';
+	var $tbi2c   = '';
+	var $tbmnf   = '';
+	var $tbtm    = '';
+	var $tbp2i   = '';
 	var $_db     = null;
 	var $_item   = null;
 	var $_count  = array();
@@ -43,13 +42,12 @@ class elIShopItemsCollection
 	}
 
 	/**
-	 * undocumented function
+	 * return number of all items
 	 *
-	 * @return void
+	 * @return int
 	 **/
 	function countAll() {
-		$r = $this->_db->queryToArray('SELECT COUNT(id) AS num FROM '.$this->_tb, null, 'num');
-		return $r[0];
+		return $this->count('all', 0);
 	}
 
 	/**
@@ -140,6 +138,11 @@ class elIShopItemsCollection
 			case EL_IS_TM:
 				$sql = sprintf('SELECT tm_id, COUNT(id) AS num FROM %s GROUP BY tm_id', $this->_tb);
 				$cnt = $this->_db->queryToArray($sql, 'tm_id', 'num');
+				break;
+			
+			case 'all':
+				$sql = sprintf('SELECT 0 AS id, COUNT(id) AS num FROM %s', $this->_tb);
+				$cnt = $this->_db->queryToArray($sql, 'id', 'num');
 				break;
 				
 			default:

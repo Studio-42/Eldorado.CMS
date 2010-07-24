@@ -23,10 +23,15 @@ class elModuleIShop extends elModule {
 	var $itemsNum = 0;
 	/**
 	 * Current base url
-	 * @todo kill ?
 	 * @var string
 	 **/
 	var $_url = EL_URL;
+	/**
+	 * url to witch redirect if object was not found
+	 *
+	 * @var string
+	 **/
+	var $_redirURL = EL_URL;
 	/**
 	 * Categories url
 	 *
@@ -63,13 +68,27 @@ class elModuleIShop extends elModule {
 	 * @var elIShopItemType
 	 **/
 	var $_type = null;
-	var $_item      = null;
-	var $_jslib     = true;
+	/**
+	 * Current item
+	 *
+	 * @var elIShopItem
+	 **/
+	var $_item = null;
+	/**
+	 * mapping path to view type
+	 *
+	 * @var array
+	 **/
 	var $_viewMap   = array(
 		'cats'  => EL_IS_VIEW_CATS,
 		'mnfs'  => EL_IS_VIEW_MNFS,
 		'types' => EL_IS_VIEW_TYPES
 		);
+	/**
+	 * methods mapping
+	 *
+	 * @var array
+	 **/
 	var $_mMap      = array(
 		'cats'          => array('m' => 'viewCategories'),
 		'mnfs'          => array('m' => 'viewManufacturers'),
@@ -82,7 +101,11 @@ class elModuleIShop extends elModule {
 		'search_params' => array('m' => 'searchParams'),
 		'order'         => array('m' => 'order') 
 	);
-
+	/**
+	 * default config
+	 *
+	 * @var array
+	 **/
 	var $_conf      = array(
 		'default_view'       => EL_IS_VIEW_CATS,
 		'displayViewSwitch'  => 0,
@@ -116,18 +139,19 @@ class elModuleIShop extends elModule {
 	    'ymURL'              => '',
 	    'ymDelivery'         => 1
 	);
-	
+	/**
+	 * current view
+	 *
+	 * @var int
+	 **/
 	var $_view;
 	/**
 	 * shared with render members
 	 *
 	 * @var array
 	 **/
-	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
- //**************************************************************************************//
- // *******************************  PUBLIC METHODS  *********************************** //
- //**************************************************************************************//
- 
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_type', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
+
 	/**
 	 * display categories or manufacturers according to config
 	 *
@@ -180,7 +204,6 @@ class elModuleIShop extends elModule {
 		$mt = &elSingleton::getObj('elMetaTagsCollection');  
 	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
-
 
 	/**
 	 * display manufacturers 
@@ -300,31 +323,35 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewItem() {
+		// echo $this->_view.' '.EL_IS_VIEW_TYPES.'<br>';
+		// echo $this->_url.'<br>';
+		// echo "catID=".$this->_cat->ID.' url='.$this->_urlCats.'<br>';
+		// echo "mnfID=".$this->_mnf->ID.' url='.$this->_urlMnfs.'<br>';
+		// echo "typeID=".$this->_type->ID.' url='.$this->_urlTypes.'<br>';
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
-		// $clm = & $this->_getCrossLinksManager();
-		// $cl = $clm->getLinkedObjects($item->ID) 
+		if (!$item->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
+		}
 		$this->_initRenderer();
 		$this->_rnd->rndItem($item);
 		
-		if ($this->_view == EL_IS_VIEW_CATS) {
-			$this->_cat->pathToPageTitle();
-		} else {
-			$mnf = $item->getMnf();
-			elAppendToPagePath(array(
-				'url'  => $this->_urlMnfs.'mnf/'.$mnf->ID.'/',	
-				'name' => $mnf->name)
-				);
-
-			if ($this->_arg(2) == 'tm') {
-				$tm = $item->getTm();
+		switch ($this->_view) {
+			case EL_IS_VIEW_TYPES:
 				elAppendToPagePath(array(
-					'url'  => $this->_urlMnfs.'tm/'.$tm->ID.'/',	
-					'name' => $tm->name)
+					'url'  => $this->_url.'type/'.$this->_type->ID.'/',	
+					'name' => $this->_type->name)
 					);
-			}
+				break;
+			case EL_IS_VIEW_MNFS:
+				elAppendToPagePath(array(
+					'url'  => $this->_url.'mnf/'.$this->_mnf->ID.'/',	
+					'name' => $this->_mnf->name)
+					);
+				break;
+			default:
+				$this->_cat->pathToPageTitle();
 		}
-		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    // $mt->init($this->pageID, $this->_cat->ID, $this->_item->ID, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -631,51 +658,26 @@ EOL;
 		return array($total, $current <= $total ? $current : 0, $offset, $step);
 	}
 	
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function _onBeforeStop_() {
-		
-		if ($this->_mh == 'item' && $this->_conf('searchFormOnItemPage')) {
-			echo 'item search';
-		} elseif ((in_array($this->_mh, array('mnf', 'tm')) || (!$this->_mh && $this->_cat->ID>1)) && $this->_conf('searchFormOnListPage')) {
-			echo 'list search';
-		} elseif (!$this->_mh && $this->_conf('searchFormOnDefaultPage')) {
-			$this->_loadFinder();
-			// elPrintr($this->_finder);
-			$this->_initRenderer();
-			$this->_rnd->addToContent($this->_finder->formToHtml());
-
-		}
-		
-	}
 
 
 	/**
-	* create factory (here because list of types required in _initAdmin() wich called before _onInit())
+	* create factory (here because list of types required in _initAdmin() witch called before _onInit())
 	* check required view
 	*
 	* @return void
 	*/
 	function _initNormal() {
 		parent::_initNormal();
-
-		$h = $this->_arg();
-		$defaultView = $this->_conf['default_view'];
-		if (in_array($h, array_keys($this->_viewMap))) {
-			$this->_view = $this->_viewMap[$h];
-			array_shift($this->_args);
-		} else {
-			$this->_view = $defaultView;
-			
-		}
+		
+		// set default view and urls
 		$this->_urlCats  = EL_URL.'cats/';
 		$this->_urlMnfs  = EL_URL.'mnfs/';
 		$this->_urlTypes = EL_URL.'types/';
 		
+		$defaultView = in_array($this->_conf['default_view'], $this->_viewMap) 
+			? $this->_conf['default_view'] 
+			: EL_IS_VIEW_CATS;
+			
 		switch ($defaultView) {
 			case EL_IS_VIEW_MNFS:
 				$this->_urlMnfs  = EL_URL;
@@ -687,27 +689,38 @@ EOL;
 				$this->_urlCats  = EL_URL;
 		}
 		
-
-		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
-		$this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
-		$this->_mnf  = $this->_factory->create(EL_IS_MNF);
-		$this->_type = $this->_factory->create(EL_IS_ITYPE);
+		// set current view
+		$this->_view = isset($this->_viewMap[$this->_arg()])
+			? $this->_viewMap[array_shift($this->_args)]
+			: $defaultView;
 		
+		// create parents objects
+		$this->_factory = & elSingleton::getObj('elIShopFactory', $this->pageID);
+		$this->_cat     = $this->_factory->create(EL_IS_CAT, 1);
+		$this->_mnf     = $this->_factory->create(EL_IS_MNF);
+		$this->_type    = $this->_factory->create(EL_IS_ITYPE);
+		$id             = isset($this->_args[0]) && !is_numeric($this->_args[0]) ? $this->_arg(1) : $this->_arg();
+
 		switch ($this->_view) {
 			case EL_IS_VIEW_MNFS:
 				$this->_url = $this->_urlMnfs;
-				$this->_mnf->idAttr($this->_arg(0));
+				$this->_mnf->idAttr($id);
 				$this->_mnf->fetch();
+				$this->_redirURL = $this->_url.($this->_mnf->ID ? 'mnf/'.$this->_mnf->ID.'/' : '');
 				break;
 			case EL_IS_VIEW_TYPES:
 				$this->_url = $this->_urlTypes;
-				$this->_type->idAttr($this->_arg(0));
+				$this->_type->idAttr($id);
 				$this->_type->fetch();
+				$this->_redirURL = $this->_url.($this->_type->ID ? 'type/'.$this->_type->ID.'/' : '');
 				break;
-			default:
+			case EL_IS_VIEW_CATS:
 				$this->_url = $this->_urlCats;
-				$this->_cat->idAttr($this->_arg(0));
-				$this->_cat->fetch();
+				$this->_cat->idAttr($id);
+				if (!$this->_cat->fetch()) {
+					$this->_cat->idAttr(1);
+				}
+				$this->_redirURL = $this->_url.$this->_cat->ID;
 		}
 	}
 
@@ -717,30 +730,6 @@ EOL;
 	 * @return void
 	 **/
 	function _onInit() {
-
-		// $this->_cat  = $this->_factory->create(EL_IS_CAT, 1);
-		// $this->_mnf  = $this->_factory->create(EL_IS_MNF);
-		// $this->_type = $this->_factory->create(EL_IS_ITYPE);
-		// 
-		// switch($this->_view) {
-		// 	case EL_IS_VIEW_CATS:
-		// 	
-		// 		break;
-		// 	case EL_IS_VIEW_MNFS:
-		// 		break;
-		// 	
-		// }
-		// 
-		// if ($this->_view == EL_IS_VIEW_CATS) {
-		// 	$this->_cat->idAttr($this->_arg(0));
-		// 	
-		// } else {
-		// 	$this->_mnf->idAttr($this->_arg(0));
-		// 	$this->_mnf->fetch();
-		// 	
-		// }
-		// 
-		// $this->_cat->fetch();
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 
 		$this->itemsNum = $this->_factory->ic->countAll();
@@ -774,13 +763,12 @@ EOL;
 	// Yandex.Market related
 
 	/**
-	 * YML Sepcial Characters replace
+	 * YML Special Characters replace
 	 *
 	 * @param  string  $s
 	 * @return string
 	 **/
-	function _ymlSC($s)
-	{
+	function _ymlSC($s) {
 		$s = htmlspecialchars($s);
 		$s = str_replace("'", '&apos;', $s);
 		return $s;
@@ -793,12 +781,10 @@ EOL;
 	 * @param  array   &$ar    array reference for information population
 	 * @return void
 	 **/
-	function _yandexMarketGetCategories($cat, &$ar)
-	{
+	function _yandexMarketGetCategories($cat, &$ar) {
 		$cat->_initTree();
 		$parentID = $cat->tree->getParentID($cat->ID);
-		if ($parentID == 1)
-		{
+		if ($parentID == 1) {
 			//$parentID = 0;
 		}
 		array_push($ar, array(
@@ -809,10 +795,8 @@ EOL;
 		//echo $cat->name." : ".$cat->ID." (".$cat->tree->getParentID($cat->ID).")<br>";
 
 		$childs = $cat->getChilds(1);
-		if ($childs)
-		{
-			foreach ($childs as $c)
-			{
+		if ($childs) {
+			foreach ($childs as $c) {
 				$this->_yandexMarketGetCategories($c, $ar);
 			}
 		}

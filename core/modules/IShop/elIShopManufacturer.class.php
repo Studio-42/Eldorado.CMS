@@ -3,6 +3,7 @@
  * Manufacturer
  *
  * @package IShop
+ * @todo  set lago
  **/
 class elIShopManufacturer extends elDataMapping {
 	var $ID       = 0;

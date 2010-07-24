@@ -217,6 +217,7 @@ class elIShopProperty extends elDataMapping {
 				}
 				return implode(', ', $ret);
 			default:
+				// elPrintr($this->_opts);
 				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
 		}
 	}
@@ -449,7 +450,7 @@ class elIShopProperty extends elDataMapping {
 		$this->_form->add(new elText('name',                           m('Name'),                           $this->name));
 		$this->_form->add(new elSelect('type',                         m('Property type'),                  $this->type, $this->_types));
 		$this->_form->add(new elText('values'.EL_IS_PROP_STR,          m('Default value'),                  $valStr, array('maxlength' => '256', 'style' => 'width:100%')));
-		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                  $valTxt, $this->valuesToString(), array('rows' => 5)));
+		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                  $valTxt, array('rows' => 5)));
 		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_LIST,  m('Values variants'),               $valList));
 		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_MLIST, m('Values variants'),               $valMList));
 		$this->_form->add(new elSelect('display_pos',                  m('Display position in item card'),  $this->displayPos, $pos));
@@ -525,9 +526,10 @@ class elIShopProperty extends elDataMapping {
 				
 				$sql = sprintf($ins, $this->tbpval, $this->ID, mysql_real_escape_string($src), 1);
 			} else {
-				$sql = sprintf('DELETE FROM %s WHERE p_id=%d AND id<>%d', $this->tbpval, $this->ID, !empty($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_default[0] : key($this->_opts) );
+				$id = isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_default[0] : key($this->_opts);
+				$sql = sprintf('DELETE FROM %s WHERE p_id=%d AND id<>%d', $this->tbpval, $this->ID,  $id);
 				$db->query($sql);
-				$sql = sprintf($upd, $this->tbpval, mysql_real_escape_string($src), 1, $this->ID);
+				$sql = sprintf($upd, $this->tbpval, mysql_real_escape_string($src), 1, $id);
 			}
 			$db->query($sql);
 		} else {

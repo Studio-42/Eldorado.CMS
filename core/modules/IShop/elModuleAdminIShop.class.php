@@ -73,7 +73,7 @@ class elModuleAdminIShop extends elModuleIShop
 	  		elThrow(E_USER_NOTICE, $msg, array($cat->getObjName(), $cat->name),	$this->_urlCats.$this->_cat->ID );
 	  	}
 	  	elMsgBox::put(m('Data saved'));
-	  	elLocation($this->_urlCats.$this->_cat->ID);
+	  	elLocation($this->_urlCats.intval($this->_arg()));
 	}
 
 	/**
@@ -92,7 +92,7 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		$cat->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
-		elLocation($this->_urlCats.$this->_cat->ID);
+		elLocation($this->_urlCats.intval($this->_arg()));
 	}
 
 	/**

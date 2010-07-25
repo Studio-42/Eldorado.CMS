@@ -1,9 +1,9 @@
 <div class="mod-ishop-item rounded-5 ">
 	<!-- BEGIN ITEM_ADMIN -->
 	<ul class="adm-icons">
-		<li><a href="{URL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
-		<li><a href="{URL}item_img/{catID}/{id}/"                 class="icons image ishop-sel-img" title="{m('Change item image')}"></a></li>
-		<li><a href="{URL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+		<li><a href="{ishopURL}edit{type_id}/{parentID}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
+		<li><a href="{ishopURL}item_img/{parentID}/{id}/"       class="icons image ishop-sel-img" title="{m('Change item image')}"></a></li>
+		<li><a href="{ishopURL}rm_item/{parentID}/{id}/"        class="icons delete" title="{m('Delete')}"></a></li>
 	</ul>
 	<!-- END ITEM_ADMIN -->
 	<h2>{name}</h2>

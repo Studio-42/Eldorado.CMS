@@ -28,15 +28,15 @@ class elModuleAdminIShop extends elModuleIShop
 		'item_rm'     => array('m' => 'itemRm'),
 		'item_clone'  => array('m' => 'itemClone'),
 		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort items'),
-		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items')
+		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items'),
+		'item_img'    => array('m' => 'itemImg')
       
 	);
 
 	var $_mMapConf  = array(
 		'conf'            => array('m'=>'configure',           'ico'=>'icoConf',          'l'=>'Configuration'),
-		'conf_search'     => array('m'=>'configureSearch',     'ico'=>'icoSearchConf',    'l'=>'Configure advanced search'),
-		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
-		'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
+		// 'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
+		// 'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
 		'yandex_market'   => array('m'=>'yandexMarketConf',    'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
 	);
@@ -164,7 +164,7 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * Reove trade mark (model)
+	 * Remove trade mark (model)
 	 *
 	 * @return void
 	 **/
@@ -485,100 +485,66 @@ class elModuleAdminIShop extends elModuleIShop
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_redirURL);
 	}
-	
-	/**********    манипуляции со свойствами типов товаров   *******************/
 
- /**
-   * Создание/редактирование товара
-   *
-   */
-
+	/**
+	 * Add new image to product gallery
+	 *
+	 * @return void
+	 **/
 	function itemImg() {
-		
-		elPrintR($this->_args);
-		return;
-				
-		$item = $this->_factory->getItem((int)$this->_arg(1));
-		if (!$item->ID)
-		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$item->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), $this->_redirURL);
 		}
-		if (!$item->changeImage((int)$this->_arg(2), $this->_conf('tmbListSize'), $this->_conf('tmbItemCardSize')))
-		{
-			elThrow(E_USER_WARNING, 'Cannot add image to this item', null, EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
+		
+		$url   = $this->_url.'item/'.$this->_parentID.'/'.$item->ID;
+		$error = '';
+		if (!$item->changeImage((int)$this->_arg(2), $this->_conf('tmbListSize'), $this->_conf('tmbItemCardSize'), $error)) {
+			elThrow(E_USER_WARNING, $error, null, $url);
 		}
 		elMsgBox::put(m('Data saved'));
-		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
+		elLocation($url);
 	}
 
-	function rmItemImg()
-	{
-		$item = $this->_factory->getItem((int)$this->_arg(1));
-		if (!$item->ID)
-		{
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), EL_URL.$this->_cat->ID);
+	/**
+	 * Remove image from product gallery
+	 *
+	 * @return void
+	 **/
+	function rmItemImg() {
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$item->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), $this->_redirURL);
 		}
 		$img_id = (int)$this->_arg(2);
 		$item->rmImage((int)$this->_arg(2));
 		elMsgBox::put(m('Data saved'));
-		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
+		elLocation($this->_url.'item/'.$this->_parentID.'/'.$item->ID);
 	}
   
-
-	function editCrossLinks() {
-		$this->_item =  $this->_factory->getItem( (int)$this->_arg(1));
-		if (!$this->_item->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
-		}
-		$clm = & $this->_getCrossLinksManager();
-		if (!$clm->editCrossLinks($this->_item)) {
-			$this->_initRenderer();
-			return $this->_rnd->addToContent($clm->formToHtml());
-		} 
-		elMsgBox::put( m('Data saved') );
-		elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
-	}
-
-	function configureCrossLinks() {
-		$clm = & $this->_getCrossLinksManager();
-		if (!$clm->confCrossLinks()) {
-			$this->_initRenderer();
-			return $this->_rnd->addToContent($clm->formToHtml());
-		}
-		elMsgBox::put( m('Configuration was saved') );
-		elLocation( EL_URL );
-	}
-
-	function configureNav() {
-		$conf = &elSingleton::getObj('elXmlConf');
-		$form = & $this->_makeNavForm( $conf->get($this->pageID, 'catalogsNavs') );
-
-		if (!$form->isSubmitAndValid()) {
-			$this->_initRenderer();
-			return $this->_rnd->addToContent($form->toHtml());
-		}
-
-		$raw = $form->getValue();
-		$data = array();
-		$data['pos']   = isset($GLOBALS['posNLRTB'][$raw['pos']]) ? $raw['pos'] : 0;
-		$data['title'] = !empty($raw['title']) ? $raw['title'] : '';
-		$data['deep']  = (int)$raw['deep'];
-		$data['pIDs']  = $raw['pIDs'];
-
-		if (!$data['pos']) {
-			$conf->drop($this->pageID, 'catalogsNavs');
-		} else {
-			if (empty($data['pIDs'])) {
-				$form->pushError('pIDs[]', m('You should select at least one page') );
-				$this->_initRenderer();
-				return $this->_rnd->addToContent($form->toHtml());
-			}
-			$conf->set($this->pageID, $data, 'catalogsNavs');
-		}
-		$conf->save();
-		elMsgBox::put( m('Configuration was saved') );
-		elLocation(EL_URL);
-	}
+	// function editCrossLinks() {
+	// 	$this->_item =  $this->_factory->getItem( (int)$this->_arg(1));
+	// 	if (!$this->_item->ID) {
+	// 		elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_item->getObjName(), $this->_arg(1)),EL_URL.$this->_cat->ID);
+	// 	}
+	// 	$clm = & $this->_getCrossLinksManager();
+	// 	if (!$clm->editCrossLinks($this->_item)) {
+	// 		$this->_initRenderer();
+	// 		return $this->_rnd->addToContent($clm->formToHtml());
+	// 	} 
+	// 	elMsgBox::put( m('Data saved') );
+	// 	elLocation( EL_URL.'item/'.$this->_cat->ID.'/'.$this->_item->ID.'/' );
+	// }
+	// 
+	// function configureCrossLinks() {
+	// 	$clm = & $this->_getCrossLinksManager();
+	// 	if (!$clm->confCrossLinks()) {
+	// 		$this->_initRenderer();
+	// 		return $this->_rnd->addToContent($clm->formToHtml());
+	// 	}
+	// 	elMsgBox::put( m('Configuration was saved') );
+	// 	elLocation( EL_URL );
+	// }
 
 	/**
 	 * Yandex.Market configure which products to export
@@ -707,8 +673,6 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 	}
 	
-	
-
 	/**************************************************************************************
 	 *                                 PRIVATE METHODS                                    *
 	 **************************************************************************************/
@@ -865,32 +829,6 @@ class elModuleAdminIShop extends elModuleIShop
 		$this->_form->setLabel( m('Import Commerce ML') );
 		$this->_form->add( new elFileInput('source', m('CL file')) );
 		$this->_form->setRequired('source');
-	}
-
-
-	function &_makeNavForm($c) {
-		$cat     = & elSingleton::getObj('elCatalogCategory');
-		$cat->tb('el_menu');
-		$tree    = $cat->getTreeToArray(0, true, false); 
-		$tree[1] = m('Whole site');
-		$form    = & parent::_makeConfForm();
-		$form->setLabel( m('Configure navigation for catalog') );
-		$c['pos']   = isset($c['pos'])    ? $c['pos']   : '';
-		$c['title'] = !empty($c['title']) ? $c['title'] : '';
-		$c['deep']  = isset($c['deep'])   ? $c['deep']  : 0;
-		$c['all']   = isset($c['all'])    ? $c['all']   : 0;
-		$c['pIDs']  = !empty($c['pIDs'])  ? $c['pIDs']  : array();
-
-		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'], $GLOBALS['posNLRTB']) );
-		$form->add( new elText('title', m('Navigation title'), $c['title']) );
-		$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
-		$form->add( new elCData('c1', m('Select pages on which catalog navigation will be displayed') ) );
-		$ms = new elMultiSelectList('pIDs', '', $c['pIDs'], $tree);
-		$ms->setSwitchValue(1);
-		$form->add( $ms );
-
-		elAddJs("$('#pos').change(function() { $(this).parents('tr').eq(0).nextAll('tr').toggle(this.value != '0'); }).trigger('change');", EL_JS_SRC_ONLOAD);
-		return $form;
 	}
 
 	/**

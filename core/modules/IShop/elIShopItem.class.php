@@ -235,16 +235,21 @@ class elIShopItem extends elDataMapping {
 	/**
 	 * change image in item gallery
 	 *
+	 * @param  int     $img_id  image id
+	 * @param  int     $lSize   item list's tmb size
+	 * @param  int     $cSize   item card's tmb size
+	 * @param  string  $err  error
 	 * @return bool
 	 **/
-	function changeImage($img_id, $lSize, $cSize) {
+	function changeImage($img_id, $lSize, $cSize, &$err) {
 		if (empty($_POST['imgURL'])) {
 			return false;
 		}
 
 		$imgPath = urldecode(str_replace(EL_BASE_URL, '', $_POST['imgURL']));
 		if (in_array($imgPath, $this->getGallery())) {
-			return elThrow(E_USER_WARNING, 'This image is already in the gallery');
+			$err = 'This image is already in the gallery';
+			return false;
 		}
 
 		$_image = & elSingleton::getObj('elImage');
@@ -255,7 +260,8 @@ class elIShopItem extends elDataMapping {
 		$info = $_image->imageInfo('.'.$imgPath);
 		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $lSize);
 		if (!$_image->tmb('.'.$imgPath, '.'.$tmbl, $w, $h)) {
-			return elThrow(E_USER_WARNING, $image->error);
+			$err = $image->error;
+			return false;
 		}
 
 		// item card image
@@ -263,7 +269,8 @@ class elIShopItem extends elDataMapping {
 		$info = $_image->imageInfo('.'.$imgPath);
 		list($w, $h) = $_image->calcTmbSize($info['width'], $info['height'], $cSize);
 		if (!$_image->tmb('.'.$imgPath, '.'.$tmbc, $w, $h)) {
-			return elThrow(E_USER_WARNING, $image->error);
+			$err = $image->error;
+			return false;
 		}
 
 		if ($img_id > 0) {

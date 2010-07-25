@@ -22,6 +22,36 @@ class elModuleIShop extends elModule {
 	 **/
 	var $itemsNum = 0;
 	/**
+	 * Parent object (cat/mnf/type) type
+	 *
+	 * @var int
+	 **/
+	var $_parentType = EL_IS_CAT;
+	/**
+	 * Parent ID
+	 *
+	 * @var int
+	 **/
+	var $_parentID = 0;
+	/**
+	 * Parent name
+	 *
+	 * @var string
+	 **/
+	var $_parentName = '';
+	/**
+	 * Parent path (url part)
+	 *
+	 * @var string
+	 **/
+	var $_parentPath = '';
+	/**
+	 * Parents list path (url part)
+	 *
+	 * @var string
+	 **/
+	var $_parentsPath = '';
+	/**
 	 * Current base url
 	 * @var string
 	 **/
@@ -350,10 +380,9 @@ class elModuleIShop extends elModule {
 	}
 
 	/**
-	 * undocumented function
+	 * Read request from GET and output json with search params
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function searchParams() {
 		include_once EL_DIR_CORE.'lib/elJSON.class.php';
@@ -366,9 +395,6 @@ class elModuleIShop extends elModule {
 		}
 		
 		exit(elJSON::encode($finder->getParams($_GET['name'], $_GET['value'])));
-		
-		exit(elJSON::encode(array('result' => 'OK')));
-		
 	}
 
 	/**
@@ -404,7 +430,6 @@ class elModuleIShop extends elModule {
 		}
 	}
 
-
 	/**
 	 * Return Item URL by item ID
 	 *
@@ -416,6 +441,20 @@ class elModuleIShop extends elModule {
 		if (!$item->ID) {
 			return false;
 		}
+		
+		switch ($this->_conf('default_view')) {
+			case EL_IS_VIEW_TYPES:
+				$parentID = $item->typeID;
+				break;
+			case EL_IS_VIEW_MNFS:
+				$parentID = $item->mnfID;
+				break;
+			default:
+				$cats = $item->getCats();
+				$parentID = !empty($cats[0]) ? $cats[0] : 1;
+		}
+		
+		return EL_URL.'item/'.$parentID.'/'.$item->ID;
 		
 		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
 			$db = & elSingleton::getObj('elDb');
@@ -437,8 +476,7 @@ class elModuleIShop extends elModule {
 	 *         direct write to file while generating
 	 * @return void
 	 **/
-	function yandexMarket()
-	{
+	function yandexMarket() {
 		// Currency
 		$currency = & elSingleton::getObj('elCurrency');
 		$curOpts  = array(

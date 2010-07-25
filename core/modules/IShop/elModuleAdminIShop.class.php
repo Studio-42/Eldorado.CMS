@@ -49,14 +49,14 @@ class elModuleAdminIShop extends elModuleIShop
 	function catEdit()  {
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
 		if (!$cat->ID) {
-			$cat->parentID = (int)$this->_arg(0);
+			$cat->parentID = $this->_cat->ID;
 		}
 		if (!$cat->editAndSave()) {
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($cat->formToHtml());
 		}
 		elMsgBox::put( m('Data saved') );
-		elLocation($this->_urlCats.intval($this->_arg()));
+		elLocation($this->_urlCats.$this->_cat->ID);
 	}
 
 	/**
@@ -84,17 +84,18 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function catRm() {
+		$url = $this->_urlCats.$this->_cat->ID;
 		$cat = $this->_factory->create(EL_IS_CAT, $this->_arg(1));
 		if (!$cat->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), $this->_urlCats.$this->_cat->ID);
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($cat->getObjName(), $cat->ID), $url);
 		}
 
 		if (!$cat->isEmpty()) {
-			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($cat->getObjName(),$cat->name), $this->_urlCats.$this->_cat->ID);
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($cat->getObjName(),$cat->name), $url);
 		}
 		$cat->delete();
 		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $cat->getObjName(), $cat->name) );
-		elLocation($this->_urlCats.intval($this->_arg()));
+		elLocation($url);
 	}
 
 	/**
@@ -103,7 +104,6 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function mnfEdit() {
-		$this->_mnf = $this->_factory->create(EL_IS_MNF, (int)$this->_arg(0)); 
 		if (!$this->_mnf->editAndSave()) {
 			elAppendToPagePath(array(
 				'url'  => $this->_urlMnfs,
@@ -122,12 +122,11 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function mnfRm() {
-		$mnf = $this->_factory->create(EL_IS_MNF, (int)$this->_arg(0)); 
-		if (!$mnf->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($mnf->getObjName(), $this->_arg(1)), $this->_urlMnfs);	
+		if (!$this->_mnf->ID) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($this->_mnf->getObjName(), $this->_arg(1)), $this->_urlMnfs);	
 		}
-		$mnf->delete();
-		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $mnf->getObjName(), $mnf->name) );
+		$this->_mnf->delete();
+		elMsgBox::put( sprintf(m('Object "%s" "%s" was deleted'), $this->_mnf->getObjName(), $this->_mnf->name) );
 	    elLocation($this->_urlMnfs);
 	}
 
@@ -206,14 +205,14 @@ class elModuleAdminIShop extends elModuleIShop
 	function typeRm() {
 		$type = $this->_factory->create(EL_IS_ITYPE, $this->_arg(0));
 		if (!$type->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), EL_URL.'types');
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($type->getObjName(), $type->ID), $this->_redirURL);
 		}
 		if ($this->_factory->ic->count(EL_IS_ITYPE, $type->ID)) {
-			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), EL_URL.'types');
+			elThrow(E_USER_WARNING, 'You can not delete non empty object "%s" "%s"', array($type->getObjName(), $type->name), $this->_redirURL);
 		}
 		$type->delete();
 		elMsgBox::put(sprintf(m('Object "%s" "%s" was deleted'), $type->getObjName(), $type->name));
-		elLocation(EL_URL.'types');
+		elLocation($this->_redirURL);
 	}
 
 	/**
@@ -224,7 +223,7 @@ class elModuleAdminIShop extends elModuleIShop
 	function typeProps() {
 		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_redirURL);
 		}
 		
 		$this->_initRenderer();
@@ -233,10 +232,6 @@ class elModuleAdminIShop extends elModuleIShop
 			'url'  => $this->_urlTypes,	
 			'name' => m('Products types'))
 			);
-		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-			'name' => $this->_type->name
-			));
 	}
 
 	/**
@@ -260,7 +255,7 @@ class elModuleAdminIShop extends elModuleIShop
 				);
 			elAppendToPagePath(array(
 				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name
+				'name' => $this->_type->name.' ('.m('Properties').')'
 				));
 			
 			$this->_initRenderer();
@@ -317,7 +312,7 @@ class elModuleAdminIShop extends elModuleIShop
 				);
 			elAppendToPagePath(array(
 				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name
+				'name' => $this->_type->name.' ('.m('Properties').')'
 				));
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
@@ -388,7 +383,6 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function itemClone() {
-		elPrintR($this->_args);
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
 		if (!$item->ID) {
 			header('HTTP/1.x 404 Not Found');
@@ -401,7 +395,6 @@ class elModuleAdminIShop extends elModuleIShop
 			'mnfID'  => $this->_mnf->ID,
 			'catID'  => $this->_cat->ID
 			);
-		
 		if (!$item->editAndSave($params)) {
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($item->formToHtml());
@@ -427,6 +420,71 @@ class elModuleAdminIShop extends elModuleIShop
 		elLocation($this->_redirURL);
 	}
 
+	/**
+	 * Remove group of products
+	 *
+	 * @return void
+	 **/
+	function itemsRm() {
+		$items = $this->_factory->ic->create($this->_parentType, $this->_parentID);
+		if (!count($items)) {
+			elThrow(E_USER_WARNING, 'There are no products in this category', null, $this->_redirURL);
+		}
+
+		$form = & parent::_makeConfForm();
+		$form->setLabel(m('Select products to delete'));
+		$opts = array();
+		foreach ($items as $id=>$i) {
+			$opts[$id] = $i->name;
+		}
+		$form->add(new elCheckBoxesGroup('i_id', '', null, $opts));
+		if (!$form->isSubmitAndValid()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($form->toHtml());
+		}
+		
+		$data = $form->getValue();
+		if (!empty($data['i_id']) && is_array($data['i_id'])) {
+			foreach ($data['i_id'] as $id) {
+				if (isset($items[$id])) {
+					$items[$id]->delete();
+				}
+			}
+			elMsgBox::put(m('Selected products was deleted'));
+		}
+		elLocation($this->_redirURL);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function itemsSort() {
+		if ($this->_view != EL_IS_VIEW_CATS) {
+			elThrow(E_USER_WARNING, 'You can sort products only in parent category', null, $this->_redirURL);
+		}
+		$items = $this->_factory->ic->create(EL_IS_CAT, $this->_cat->ID);
+		if (!count($items)) {
+			elThrow(E_USER_WARNING, 'There are no products in this category', null, $this->_redirURL);
+		}
+		$form = & parent::_makeConfForm();
+		$form->setLabel(sprintf(m('Sort products in "%s"'), $this->_cat->name));
+		$attrs = array('size' => 8);
+		$indexes = $this->_factory->ic->getSortIndexes(array_keys($items));
+		foreach ($items as $id=>$i) {
+			$form->add(new elText('sort_ndx['.$id.']', $i->name, isset($indexes[$id]) ? $indexes[$id] : 0));
+		}
+		
+		if (!$form->isSubmitAndValid()) {
+			$this->_initRenderer();
+			return $this->_rnd->addToContent($form->toHtml());
+		}
+		$data = $form->getValue();
+		$this->_factory->ic->setSortIndexes($this->_cat->ID, $data['sort_ndx']);
+	}
+	
 	/**********    манипуляции со свойствами типов товаров   *******************/
 
  /**
@@ -482,25 +540,7 @@ class elModuleAdminIShop extends elModuleIShop
       }
   }
   
-  function rmItems()
-  {
-	  if ( !$this->_cat->countItems() )
-      {
-        elThrow(E_USER_WARNING, 'There are no one documents in this category was found', null, EL_URL);
-      }
-      $item = $this->_factory->getItem( 0 );
 
-      if ( !$item->removeItems($this->_cat->ID) )
-      {
-          $this->_initRenderer();
-        $this->_rnd->addToContent( $item->formToHtml() );
-      }
-      else
-      {
-        elMsgBox::put(m('Selected documents was deleted'));
-        elLocation(EL_URL.$this->_cat->ID);
-      }
-  }
  
 	function editCrossLinks() {
 		$this->_item =  $this->_factory->getItem( (int)$this->_arg(1));
@@ -889,35 +929,33 @@ class elModuleAdminIShop extends elModuleIShop
 		parent::_initAdminMode();
 		foreach ($this->_factory->getTypesList() as $id=>$t) {
 			$this->_mMap['edit'.$id] = array(
-				'm'   => 'itemEdit',  
-				'l'   => htmlspecialchars($t), 
-				'g'   => 'New item', 
-				'ico' => 'icoOK'
+				'm'       => 'itemEdit',  
+				'l'       => htmlspecialchars($t), 
+				'g'       => 'New item', 
+				'ico'     => 'icoOK',
+				'prepUrl' => $this->_parentsPath,
+				'apUrl'   => $this->_parentID
 				);
 		}
-		$apURL   = '';
-		$prepURL = '';
-		switch($this->_view) {
-			case EL_IS_VIEW_TYPES:
-				$prepURL = 'types';
-				$apURL = $this->_type->ID;
-				break;
-			case EL_IS_VIEW_MNFS:
-				$prepURL = 'mnfs';
-				$apURL = $this->_mnf->ID;
-				break;
-			default:
-				$prepURL = 'cats';
-				$apURL = $this->_cat->ID;
-		}
-		foreach ($this->_factory->getTypesList() as $id=>$t) {
-			$this->_mMap['edit'.$id]['prepUrl'] = $prepURL;
-			$this->_mMap['edit'.$id]['apUrl'] = $apURL;
-		}
-		
 		$this->_mMap['edit']['apUrl'] = $this->_cat->ID;
 		
-		if (isset($this->_mMap['tm_edit']) && $this->_mnf->ID) {
+		if ($this->_parentID && $this->_factory->ic->count($this->_parentType, $this->_parentID) > 1) {
+			$this->_mMap['items_rm']['prepUrl'] = $this->_parentsPath;
+			$this->_mMap['items_rm']['apUrl']   = $this->_parentID;
+		} else {
+			unset($this->_mMap['items_rm']);
+		}
+		
+		if ($this->_parentType == EL_IS_CAT && $this->_parentID && $this->_factory->ic->count($this->_parentType, $this->_parentID) > 1) {
+			$this->_mMap['items_sort']['prepUrl'] = $this->_parentsPath;
+			$this->_mMap['items_sort']['apUrl']   = $this->_parentID;
+		} else {
+			unset($this->_mMap['items_sort']);
+		}
+		
+		if (!count($this->_factory->getAllFromRegistry(EL_IS_MNF))) {
+			unset($this->_mMap['tm_edit']);
+		} elseif (isset($this->_mMap['tm_edit']) && $this->_mnf->ID) {
 			$this->_mMap['tm_edit']['apUrl'] = $this->_mnf->ID;
 		}
 	}
@@ -929,15 +967,6 @@ class elModuleAdminIShop extends elModuleIShop
 	 **/
 	function _onInit() {
 		parent::_onInit();
-		
-		if (!sizeof($this->_factory->getAllFromRegistry(EL_IS_MNF))) {
-			unset($this->_mMap['tm_edit']);
-		}
-
-		if ($this->_factory->ic->count(EL_IS_CAT, $this->_cat->ID) < 2) {
-			unset($this->_mMap['items_sort'], $this->_mMap['items_rm']);
-		}
-
 		if ('item' != $this->_mh && 'cross_links' != $this->_mh ) {
 			$this->_removeMethods('cross_links');
 		} else {

@@ -117,6 +117,28 @@ class elIShopItemsCollection {
 	}
 
 	/**
+	 * Return list of sort indexes for items group
+	 *
+	 * @return array
+	 **/
+	function getSortIndexes($ids) {
+		return $this->_db->queryToArray(sprintf('SELECT i_id, sort_ndx FROM %s WHERE i_id IN (%s) ORDER BY sort_ndx', $this->tbi2c, implode(',', $ids)), 'i_id', 'sort_ndx');
+	}
+
+	/**
+	 * Update sort indexes for items in category
+	 *
+	 * @param  int    $catID  category id
+	 * @param  array  $ndxs   indexes
+	 * @return void
+	 **/
+	function setSortIndexes($catID, $ndxs) {
+		$sql = 'UPDATE '.$this->tbi2c.' SET sort_ndx=%d WHERE c_id='.intval($catID).' AND i_id=%d';
+		foreach ($ndxs as $id=>$ndx) {
+			$this->_db->query(sprintf($sql, $ndx, $id));
+		}
+	}
+	/**
 	 * load items counts for required parent type
 	 *
 	 * @param  int  $type  type of parent object (category/manufacturer/trademark)

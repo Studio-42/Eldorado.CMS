@@ -201,8 +201,8 @@ class elModuleIShop extends elModule {
 		        $this->_cat
 		      );
 		
-		$mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    // $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -321,51 +321,18 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewItem() {
-		// echo $this->_view.' '.EL_IS_VIEW_TYPES.'<br>';
-		// echo $this->_url.'<br>';
-		// echo "catID=".$this->_cat->ID.' url='.$this->_urlCats.'<br>';
-		// echo "mnfID=".$this->_mnf->ID.' url='.$this->_urlMnfs.'<br>';
-		// echo "typeID=".$this->_type->ID.' url='.$this->_urlTypes.'<br>';
-		
-		if (($this->_view == EL_IS_VIEW_TYPES && !$this->_type->ID)
-		||  ($this->_view == EL_IS_VIEW_MNFS  && !$this->_mnf->ID)
-		||  ($this->_view == EL_IS_VIEW_CATS  && !$this->_cat->ID)) {
+		if (!$this->_parentID) {
 			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'No such category',	null, $this->_redirURL);
+			elThrow(E_USER_WARNING, 'No such category ',	null, $this->_redirURL);
 		}
 		
-		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
-		if (!$item->ID) {
+		$this->_item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$this->_item->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
 		}
 		$this->_initRenderer();
-		$this->_rnd->rndItem($item);
-
-		$parentID=0;
-		switch ($this->_view) {
-			case EL_IS_VIEW_TYPES:
-				elAppendToPagePath(array(
-					'url'  => $this->_url.'type/'.$this->_type->ID.'/',	
-					'name' => $this->_type->name)
-					);
-				$parentID = $this->_type->ID;
-				break;
-			case EL_IS_VIEW_MNFS:
-				elAppendToPagePath(array(
-					'url'  => $this->_url.'mnf/'.$this->_mnf->ID.'/',	
-					'name' => $this->_mnf->name)
-					);
-				$parentID = $this->_mnf->ID;
-				break;
-			default:
-				$this->_cat->pathToPageTitle();
-				$parentID = $this->_cat->ID;
-		}
-		elAppendToPagePath(array(
-			'url'  => $this->_url.'item/'.$parentID.'/'.$item->ID.'/',	
-			'name' => $item->name)
-			);
+		$this->_rnd->rndItem($this->_item);
 	}
 
 	/**
@@ -672,7 +639,37 @@ EOL;
 		return array($total, $current <= $total ? $current : 0, $offset, $step);
 	}
 	
+	/**
+	 * Add page path
+	 *
+	 * @return void
+	 **/
+	function _appendPath() {
+		if ($this->_parentType == EL_IS_CAT) {
+			$this->_cat->pathToPageTitle();
+		} elseif ($this->_parentID) {
+			elAppendToPagePath(array(
+				'url'  => $this->_url.$this->_parentPath.'/'.$this->_parentID.'/',	
+				'name' => $this->_parentName)
+				);
+		}
+		
+		if ($this->_item) {
+			elAppendToPagePath(array(
+				'url'  => $this->_url.'item/'.$this->_parentID.'/'.$this->_item->ID,	
+				'name' => $this->_item->name)
+				);
+		}
+	}
 
+	/**
+	 * Add page path
+	 *
+	 * @return void
+	 **/
+	function _onBeforeStop() {
+		$this->_appendPath();
+	}
 
 	/**
 	* create factory (here because list of types required in _initAdmin() witch called before _onInit())
@@ -720,13 +717,23 @@ EOL;
 				$this->_url = $this->_urlMnfs;
 				$this->_mnf->idAttr($id);
 				$this->_mnf->fetch();
-				$this->_redirURL = $this->_url.($this->_mnf->ID ? 'mnf/'.$this->_mnf->ID.'/' : '');
+				$this->_parentType = EL_IS_MNF;
+				$this->_parentPath = 'mnf';
+				$this->_parentsPath = 'mnfs';
+				$this->_parentID   = $this->_mnf->ID;
+				$this->_parentName = $this->_mnf->name;
+				$this->_redirURL   = $this->_url.($this->_mnf->ID ? 'mnf/'.$this->_mnf->ID.'/' : '');
 				break;
 			case EL_IS_VIEW_TYPES:
 				$this->_url = $this->_urlTypes;
 				$this->_type->idAttr($id);
 				$this->_type->fetch();
-				$this->_redirURL = $this->_url.($this->_type->ID ? 'type/'.$this->_type->ID.'/' : '');
+				$this->_parentType = EL_IS_ITYPE;
+				$this->_parentPath = 'type';
+				$this->_parentsPath = 'types';
+				$this->_parentID   = $this->_type->ID;
+				$this->_parentName = $this->_type->name;
+				$this->_redirURL   = $this->_url.($this->_type->ID ? 'type/'.$this->_type->ID.'/' : '');
 				break;
 			case EL_IS_VIEW_CATS:
 				$this->_url = $this->_urlCats;
@@ -734,7 +741,12 @@ EOL;
 				if (!$this->_cat->fetch()) {
 					$this->_cat->idAttr(1);
 				}
-				$this->_redirURL = $this->_url.$this->_cat->ID;
+				$this->_parentType = EL_IS_CAT;
+				$this->_parentPath = 'cat';
+				$this->_parentsPath = 'cats';
+				$this->_parentID   = $this->_cat->ID;
+				$this->_parentName = $this->_cat->name;
+				$this->_redirURL   = $this->_url.$this->_cat->ID;
 		}
 	}
 

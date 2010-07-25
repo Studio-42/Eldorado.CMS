@@ -337,7 +337,8 @@ class elIShopItem extends elDataMapping {
 		foreach ($type->getProperties() as $p) {
 			$this->_form->add($p->toFormElement(isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : null, true));
 		}
-	
+		
+		$this->_form->add(new elSelect('special', m('Set as special offer'), $this->special, $GLOBALS['yn']));
 		$this->_form->add(new elSelect('ym', m('Upload into Yandex market'), $this->ym, $GLOBALS['yn']));
 	
 		$this->_form->setRequired('cat_id[]');

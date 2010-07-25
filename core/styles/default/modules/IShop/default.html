@@ -166,12 +166,12 @@
 	<li>
 		<!-- BEGIN ADMIN -->
 		<ul class="adm-icons">
-			<li><a href="{URL}type_edit/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
-			<li><a href="{URL}type_rm/{id}/" class="icons delete" title="{m('Delete')}"></a></li>
+			<li><a href="{ishopURL}type_edit/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{ishopURL}type_rm/{id}/" class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
-		<a href="{ishopTypesURL}type/{id}/" class="mod-ishop-tms-onecol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span> 
-		<a href="{ishopTypesURL}type_props/{id}/">[{m('Properties')}]</a>
+		<a href="{ishopURL}type/{id}/" class="mod-ishop-tms-onecol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span> 
+		<a href="{ishopURL}type_props/{id}/">[{m('Properties')}]</a>
 		<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-onecol-descrip">{descrip}</div><!-- END DESCRIP -->
 		<div class="clearfix"></div>
 	</li>
@@ -186,11 +186,11 @@
 		<div class="grid-25-content{cssLastClass}">
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
-				<li><a href="{ishopTypesURL}{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
-				<li><a href="{ishopTypesURL}{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+				<li><a href="{ishopURL}{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+				<li><a href="{ishopURL}{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
-			<a href="{ishopTypesURL}type/{id}/" class="mod-ishop-tms-twocol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span>  
+			<a href="{ishopURL}type/{id}/" class="mod-ishop-tms-twocol-name">{name}</a> <span class="mod-ishop-tm-cnt">{itemsCnt}</span>  
 			<!-- BEGIN DESCRIP --> <div class="mod-ishop-tms-twocol-descrip">{descrip}</div><!-- END DESCRIP -->
 		</div>
 	<!-- END TYPE -->

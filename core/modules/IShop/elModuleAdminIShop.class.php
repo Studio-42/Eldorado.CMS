@@ -456,10 +456,9 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 
 	/**
-	 * undocumented function
+	 * Manually sorting products in category
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function itemsSort() {
 		if ($this->_view != EL_IS_VIEW_CATS) {
@@ -483,6 +482,8 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		$data = $form->getValue();
 		$this->_factory->ic->setSortIndexes($this->_cat->ID, $data['sort_ndx']);
+		elMsgBox::put(m('Data saved'));
+		elLocation($this->_redirURL);
 	}
 	
 	/**********    манипуляции со свойствами типов товаров   *******************/
@@ -492,8 +493,11 @@ class elModuleAdminIShop extends elModuleIShop
    *
    */
 
-	function itemImg()
-	{
+	function itemImg() {
+		
+		elPrintR($this->_args);
+		return;
+				
 		$item = $this->_factory->getItem((int)$this->_arg(1));
 		if (!$item->ID)
 		{
@@ -520,28 +524,7 @@ class elModuleAdminIShop extends elModuleIShop
 		elLocation(EL_URL.'item/'.$this->_cat->ID.'/'.$item->ID);
 	}
   
-  function sortItems()
-  {
-      if ( !$this->_cat->countItems() )
-      {
-        elThrow(E_USER_WARNING, 'There are no one documents in this category was found', null, EL_URL);
-      }
-      $item = $this->_factory->getItem( 0 );
 
-      if ( !$item->sortItems($this->_cat->ID, $this->_conf('itemsSortID')) )
-      {
-          $this->_initRenderer();
-        $this->_rnd->addToContent( $item->formToHtml());
-      }
-      else
-      {
-        elMsgBox::put( m('Data saved') );
-        elLocation(EL_URL.$this->_cat->ID);
-      }
-  }
-  
-
- 
 	function editCrossLinks() {
 		$this->_item =  $this->_factory->getItem( (int)$this->_arg(1));
 		if (!$this->_item->ID) {
@@ -682,72 +665,49 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function importCommerceML()
-	{
+	function importCommerceML() {
 		$this->_makeImportCMLForm();
 		
-		if (!$this->_form->isSubmitAndValid() )
-		{
+		if (!$this->_form->isSubmitAndValid()) {
 			$this->_initRenderer();
 			$this->_rnd->addToContent( $this->_form->toHtml() );
 			return;
 		}
 		
 		$data = $this->_form->getValue();
-		//elPrintR($data);
-		//echo file_get_contents($data['source']['tmp_name']);
 		
 		$cmlParser = & elSingleton::getObj('elCommerceMLv2');
 		$raw = $cmlParser->parse(file_get_contents($data['source']['tmp_name']));
-		
-		
 
 		$source = array();
-		for($i=0, $s=sizeof($raw); $i<$s; $i++)
-		{
-			
+		for($i=0, $s=sizeof($raw); $i<$s; $i++) {
 			$source[$raw[$i]['Id']] = $raw[$i];
 		}
 		unset($raw);
-		//elPrintR($source);
 		$itemsIDs = array();
-		$db = & elSingleton::getObj('elDb');
+		$db = $this->_db;
 		$tb = $this->_factory->tb('tbi');
 		$tbi2c = $this->_factory->tb('tbi2c');
 		$sql = 'SELECT code_1c FROM '.$tb; echo $sql;
 		
 		$itemsIDs = $db->queryToArray('SELECT code_1c FROM '.$tb, null, 'code_1c');
-		//elPrintR($itemsIDs);
 		
 		$insert = array_diff(array_keys($source), $itemsIDs); 
 		$update = array_intersect($itemsIDs, array_keys($source)); 
-		//elPrintR($insert);
-		elPrintR($update);
 		$sql = 'INSERT INTO %s (code_1c, name, price) VALUES ("%s", "%s", "%s")';
-		foreach ($insert as $id)
-		{
+		foreach ($insert as $id) {
 			$db->query( sprintf($sql, $tb, $id, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice']));
 			$itemID = $db->insertID();
 			$db->query('INSERT INTO '.$tbi2c.' (i_id, c_id) VALUES ('.$itemID.', 1)');
 		}
 		
 		$sql = 'UPDATE %s SET name="%s", price="%s" WHERE code_1c="%s"';
-		foreach ($update as $id)
-		{
+		foreach ($update as $id) {
 			$db->query( sprintf($sql, $tb, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice'], $id));
 		}
-		
 	}
 	
-	function _makeImportCMLForm()
-	{
-		$this->_form = & elSingleton::getObj('elForm');
-		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-		$this->_form->setLabel( m('Import Commerce ML') );
-		$this->_form->add( new elFileInput('source', m('CL file')) );
-		
-		$this->_form->setRequired('source');
-	}
+	
 
 	/**************************************************************************************
 	 *                                 PRIVATE METHODS                                    *
@@ -894,6 +854,19 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 	}
 	
+	/**
+	 * Create form to export 1C XML
+	 *
+	 * @return void
+	 **/
+	function _makeImportCMLForm() {
+		$this->_form = & elSingleton::getObj('elForm');
+		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
+		$this->_form->setLabel( m('Import Commerce ML') );
+		$this->_form->add( new elFileInput('source', m('CL file')) );
+		$this->_form->setRequired('source');
+	}
+
 
 	function &_makeNavForm($c) {
 		$cat     = & elSingleton::getObj('elCatalogCategory');

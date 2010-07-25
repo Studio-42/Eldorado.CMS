@@ -326,6 +326,14 @@ class elModuleIShop extends elModule {
 		// echo "catID=".$this->_cat->ID.' url='.$this->_urlCats.'<br>';
 		// echo "mnfID=".$this->_mnf->ID.' url='.$this->_urlMnfs.'<br>';
 		// echo "typeID=".$this->_type->ID.' url='.$this->_urlTypes.'<br>';
+		
+		if (($this->_view == EL_IS_VIEW_TYPES && !$this->_type->ID)
+		||  ($this->_view == EL_IS_VIEW_MNFS  && !$this->_mnf->ID)
+		||  ($this->_view == EL_IS_VIEW_CATS  && !$this->_cat->ID)) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such category',	null, $this->_redirURL);
+		}
+		
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
 		if (!$item->ID) {
 			header('HTTP/1.x 404 Not Found');

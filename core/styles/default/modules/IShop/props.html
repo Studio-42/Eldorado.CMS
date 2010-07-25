@@ -7,8 +7,8 @@
 	<!-- BEGIN IS_PROP -->
 	<li class="rounded-5">
 		<ul class="adm-icons">
-			<li><a href="{URL}prop_edit/{typeID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
-			<li><a href="{URL}prop_rm/{typeID}/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
+			<li><a href="{ishopTypesURL}prop_edit/{typeID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+			<li><a href="{ishopTypesURL}prop_rm/{typeID}/{id}/"   class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<a href="#" class="el-collapsed">{name}</a>
 		<div class="clearfix"></div>
@@ -21,7 +21,7 @@
 			<tr><td>{m('Values variants')}: </td><td>{opts}</td></tr>
 			<tr><td>{m('Default value')}: </td><td>{default}</td></tr>	
 			<!-- BEGIN DEPEND -->
-			<tr><td>{m('Depend from')}: </td><td>{name} [<a href="{URL}prop_depend/{typeID}/{id}/">{m('Edit dependance')}</a>]</td></tr>	
+			<tr><td>{m('Depend from')}: </td><td>{name} [<a href="{ishopTypesURL}prop_depend/{typeID}/{id}/">{m('Edit dependance')}</a>]</td></tr>	
 			<!-- END DEPEND -->
 		</table>
 	</li>

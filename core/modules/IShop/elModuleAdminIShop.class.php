@@ -222,8 +222,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function typeProps() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
@@ -246,8 +245,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function propEdit() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
@@ -278,8 +276,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function propRm() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
@@ -299,8 +296,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function propDependance() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
@@ -337,8 +333,7 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @return void
 	 **/
 	function propSort() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}

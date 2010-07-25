@@ -213,8 +213,8 @@ class elModuleIShop extends elModule {
 	function viewManufacturers() {
 		$this->_initRenderer();
 		$this->_rnd->rndMnfs($this->_factory->getAllFromRegistry(EL_IS_MNF));
-		$mt = &elSingleton::getObj('elMetaTagsCollection');  
-	    $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
+		// $mt = &elSingleton::getObj('elMetaTagsCollection');  
+	    // $mt->init($this->pageID, $this->_cat->ID, 0, $this->_factory->tb('tbc'));
 	}
 
 	/**
@@ -233,8 +233,7 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewManufacturer() {
-		$this->_mnf->idAttr($this->_arg());
-		if(!$this->_mnf->fetch()) {
+		if(!$this->_mnf->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
@@ -263,8 +262,7 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewTrademark() {
-		$this->_mnf->idAttr($this->_arg());
-		if(!$this->_mnf->fetch()) {
+		if(!$this->_mnf->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
@@ -297,8 +295,8 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function viewType() {
-		$this->_type->idAttr((int)$this->_arg(0));
-		if (!$this->_type->fetch()) {
+		// $this->_type->idAttr((int)$this->_arg(0));
+		if (!$this->_type->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
@@ -335,23 +333,31 @@ class elModuleIShop extends elModule {
 		}
 		$this->_initRenderer();
 		$this->_rnd->rndItem($item);
-		
+
+		$parentID=0;
 		switch ($this->_view) {
 			case EL_IS_VIEW_TYPES:
 				elAppendToPagePath(array(
 					'url'  => $this->_url.'type/'.$this->_type->ID.'/',	
 					'name' => $this->_type->name)
 					);
+				$parentID = $this->_type->ID;
 				break;
 			case EL_IS_VIEW_MNFS:
 				elAppendToPagePath(array(
 					'url'  => $this->_url.'mnf/'.$this->_mnf->ID.'/',	
 					'name' => $this->_mnf->name)
 					);
+				$parentID = $this->_mnf->ID;
 				break;
 			default:
 				$this->_cat->pathToPageTitle();
+				$parentID = $this->_cat->ID;
 		}
+		elAppendToPagePath(array(
+			'url'  => $this->_url.'item/'.$parentID.'/'.$item->ID.'/',	
+			'name' => $item->name)
+			);
 	}
 
 	/**

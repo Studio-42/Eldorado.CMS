@@ -27,7 +27,9 @@ $elMsg['Values list (one value can be selected)']            = 'Список з�
 $elMsg['Values list (any numbers of value can be selected)'] = 'Список значений (выбирается любое кол-во значений)';
 $elMsg['Add field']                                          = 'Добавить поле';
 $elMsg['Values list could not be empty']                     = 'Список значений не должен быть пустым';
-
+$elMsg['Depend on']                                          = 'Зависит от';
+$elMsg['Configure dependance']                               = 'Настроить зависимость';
+$elMsg['Configure dependance %s/%s']                         = 'Настроить зависимость %s/%s';
 
 // confing form
 $elMsg['Layout']                                = 'Внешний вид';
@@ -59,6 +61,12 @@ $elMsg['There are no features to sort'] = 'Нет свойств для сорт
 
 
 
+
+
+
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';

@@ -301,7 +301,6 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
-		
 	}
 
 	/**
@@ -327,26 +326,6 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function _appendTypePropsPath() {
-		$this->_appendPath = false;
-		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes,	
-			'name' => m('Products types'))
-			);
-		// if ($this->_type->ID)
-		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-			'name' => $this->_type->name.' ('.m('Features').')'
-			));
-		
 	}
 
 	/**
@@ -663,13 +642,13 @@ class elModuleAdminIShop extends elModuleIShop
 	}
 	
 	/**
-	 * undocumented function
+	 * Output json based on $_GET['cmd']
+	 * For now used by edit item form while swith manufacturer/trademark
 	 *
+	 * @TODO  move search request here
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function json() {
-		// elPrintr($_GET);
 		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
 		$cmd = isset($_GET['cmd']) ? trim($_GET['cmd']) : '';
 		switch ($cmd) {
@@ -697,6 +676,22 @@ class elModuleAdminIShop extends elModuleIShop
 	/**************************************************************************************
 	 *                                 PRIVATE METHODS                                    *
 	 **************************************************************************************/
+	/**
+	 * disable append path in _onBeforeStop method, append paths to type properties instead
+	 *
+	 * @return void
+	 **/
+	function _appendTypePropsPath() {
+		$this->_appendPath = false;
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes,	
+			'name' => m('Products types'))
+			);
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name.' ('.m('Features').')'
+			));
+	}
 
 	/**
 	 * Create module config form

@@ -555,7 +555,7 @@ class elIShopProperty extends elDataMapping {
 		parent::_makeForm();
 		if (false != ($master = $this->getDependOn())) {
 			$dep = $this->getDependance();
-			$this->_form->setLabel(sprintf(m('Edit dependance %s/%s'), $master->name, $this->name));
+			$this->_form->setLabel(sprintf(m('Configure dependance %s/%s'), $master->name, $this->name));
 			$this->_form->add(new elCData2('c', $master->name, $this->name));
 			$opts = array_map(array($this, '_rangeToString'), $this->_opts);
 			foreach (array_map(array($this, '_rangeToString'), $master->options()) as $id=>$v) {

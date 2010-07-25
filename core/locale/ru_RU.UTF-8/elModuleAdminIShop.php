@@ -1,7 +1,12 @@
 <?php
 //common
-$elMsg['Products']      = 'Товары';
-$elMsg['Manufacturers'] = 'Производители';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
+$elMsg[''] = '';
 
 // confing form
 $elMsg['Layout']                                = 'Внешний вид';

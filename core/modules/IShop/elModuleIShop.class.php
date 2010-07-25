@@ -280,11 +280,6 @@ class elModuleIShop extends elModule {
 		
 		$this->_initRenderer();
 		$this->_rnd->rndMnf($this->_mnf, $this->_factory->ic->create(EL_IS_MNF, $this->_mnf->ID, $offset, $step), $total, $current);
-		
-		elAppendToPagePath(array(
-			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
-			'name' => $this->_mnf->name)
-			);
 	}
 
 	/**
@@ -340,10 +335,6 @@ class elModuleIShop extends elModule {
 		}
 		$this->_initRenderer();
 		$this->_rnd->rndType($this->_type, $this->_factory->ic->create(EL_IS_ITYPE, $this->_type->ID, $offset, $step), $total, $current);
-		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
-			'name' => $this->_type->name)
-			);
 	}
 
 	/**

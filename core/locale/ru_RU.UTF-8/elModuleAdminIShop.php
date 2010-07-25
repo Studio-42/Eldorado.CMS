@@ -31,6 +31,10 @@ $elMsg['Depend on']                                          = 'Зависит �
 $elMsg['Configure dependance']                               = 'Настроить зависимость';
 $elMsg['Configure dependance %s/%s']                         = 'Настроить зависимость %s/%s';
 
+// product edit
+$elMsg['Set as special offer']      = 'Отметить как спецпредложение';
+$elMsg['Upload into Yandex market'] = 'Выгружать в Яндекс-маркет';
+
 // confing form
 $elMsg['Layout']                                = 'Внешний вид';
 $elMsg['Default view']                          = 'Вид по умолчанию';
@@ -51,21 +55,14 @@ $elMsg['Thumbnails size (px)']                  = 'Размер миниатюр
 $elMsg['Preview size (px)']                     = 'Размер изображения товара (px)';
 $elMsg['Slider size']                           = 'Размер слайдера';
 $elMsg['Price format']                          = 'Формат цены';
-// $elMsg['Products types'] = 'Типы товаров';
-$elMsg['Types list view'] = 'Вид списка типов';
-$elMsg['Display empty types'] = 'Паказать пустые типы';
-$elMsg['Display type descriptions'] = 'Показать описание типа';
+$elMsg['Types list view']                       = 'Вид списка типов';
+$elMsg['Display empty types']                   = 'Показать пустые типы';
+$elMsg['Display type descriptions']             = 'Показать описание типа';
 
-
+// messages/warnings
 $elMsg['There are no features to sort'] = 'Нет свойств для сортировки';
 
 
-
-
-
-
-$elMsg[''] = '';
-$elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';

@@ -29,7 +29,8 @@ class elModuleAdminIShop extends elModuleIShop
 		'item_clone'  => array('m' => 'itemClone'),
 		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort items'),
 		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items'),
-		'item_img'    => array('m' => 'itemImg')
+		'item_img'    => array('m' => 'itemImg'),
+		'json'        => array('m' => 'json')
       
 	);
 
@@ -551,31 +552,25 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function yandexMarketConf()
-	{
-		if ($this->_args[0] == 'update')
-		{
+	function yandexMarketConf() {
+		if ($this->_args[0] == 'update') {
 			$this->yandexMarket();
 			elMsgBox::put(m('Export updated'));
 			elLocation(EL_URL.$this->_mh);
 		}
 
-		if (isset($_POST['action']))
-		{
+		if (isset($_POST['action'])) {
 			include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
-			if ($_POST['action'] == 'childs')
-			{
+			if ($_POST['action'] == 'childs') {
 				$ID = !empty($_POST['id']) ? trim($_POST['id']) : '';
 				list($null, $ID) = explode('_', $ID, 2);
 				$ID = (int)$ID;
-				if (!$ID)
-				{
+				if (!$ID) {
 					exit(elJSON::encode(array('error' => 'Invalid argument')));
 				}
 
 				$nodes = array();
-				foreach ($this->_factory->create(EL_IS_CAT, $ID)->getChilds(1) as $child)
-				{
+				foreach ($this->_factory->create(EL_IS_CAT, $ID)->getChilds(1) as $child) {
 					array_push($nodes, array(
 						'id'         => 'cat_'.$child->ID,
 						'name'       => $child->name,
@@ -583,8 +578,7 @@ class elModuleAdminIShop extends elModuleIShop
 						'is_cat'     => true
 					));
 				}
-				foreach ($this->_factory->ic->create(EL_IS_ITEM, $ID) as $i)
-				{
+				foreach ($this->_factory->ic->create(EL_IS_ITEM, $ID) as $i) {
 					array_push($nodes, array(
 						'id'         => 'item_'.$i->ID,
 						'name'       => $i->name.' ('.$i->ID.')',
@@ -593,14 +587,10 @@ class elModuleAdminIShop extends elModuleIShop
 					));
 				}
 				exit(elJSON::encode($nodes));
-			}
-			elseif($_POST['action'] == 'save')
-			{
-				foreach ($_POST as $k => $v)
-				{
+			} elseif($_POST['action'] == 'save') {
+				foreach ($_POST as $k => $v) {
 					list($item, $id) = explode('_', $k);
-					if (($item == 'item') && ($id > 0))
-					{
+					if (($item == 'item') && ($id > 0)) {
 						//print "$id:$v\n";
 						$i = $this->_factory->create(EL_IS_ITEM, $id);
 						$i->attr('ym', $v);
@@ -671,6 +661,38 @@ class elModuleAdminIShop extends elModuleIShop
 		foreach ($update as $id) {
 			$db->query( sprintf($sql, $tb, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice'], $id));
 		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function json() {
+		// elPrintr($_GET);
+		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$cmd = isset($_GET['cmd']) ? trim($_GET['cmd']) : '';
+		switch ($cmd) {
+			case 'tms':
+				$mnf = $this->_factory->create(EL_IS_MNF, isset($_GET['id']) ? (int)$_GET['id'] : 0);
+				if (!$mnf->ID) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				$tm = $this->_factory->create(EL_IS_TM);
+				$tms = $tm->collection(true, true, 'mnf_id='.$mnf->ID);
+				exit(elJSON::encode(array('tms' => array_keys($tms))));
+				break;
+			case 'mnf':
+				$tm = $this->_factory->create(EL_IS_TM, isset($_GET['id']) ? (int)$_GET['id'] : 0);
+				if (!$tm->ID) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				exit(elJSON::encode(array('mnf' => $tm->mnfID)));
+				break;
+		}
+		
+		exit(elJSON::encode($_GET));
 	}
 	
 	/**************************************************************************************

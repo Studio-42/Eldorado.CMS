@@ -34,7 +34,6 @@ CREATE TABLE el_ishop_{pageID}_item (
 	tm_id     tinyint(3)    NOT NULL default '0',
 	code      varchar(256)  NOT NULL,
 	name      varchar(256)  NOT NULL,
-	altername varchar(350)  NOT NULL,
 	announce  text          NOT NULL,
 	content   mediumtext    NOT NULL,
 	price     double(12,2)  NOT NULL,

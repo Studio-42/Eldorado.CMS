@@ -326,16 +326,70 @@ class elIShopItem extends elDataMapping {
 			$mnfs[$m->ID] = $m->name;
 		}
 		if ($mnfs) {
-			$this->_form->add(new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, $mnfs));
+			$this->_form->add(new elSelect('mnf_id', m('Manufacturer'), $this->mnfID, array(m('Undefined')) + $mnfs));
 			$tms  = array();
 			$_tms = $this->_factory->getAllFromRegistry(EL_IS_TM);
 			foreach ($_tms as $id=>$tm) {
 				$tms[$id] = $tm->name;
 			}
 			if ($tms) {
-				$tms = array(m('Undefined')) + $tms;
-				$this->_form->add(new elSelect('tm_id', m('Trade mark/model'), $this->tmID, $tms));
+				$this->_form->add(new elSelect('tm_id', m('Trade mark/model'), $this->tmID, array(m('Undefined')) + $tms));
 			}
+			
+			$js = "
+				var mnf = $('#mnf_id'),
+					tm  = $('#tm_id');
+				if (mnf.length && tm.length) {
+					mnf.change(function() {
+						var val = $(this).val();
+						
+						if (val == 0) {
+							tm.children('option').removeAttr('disabled').end().val(0);
+						} else {
+							$.ajax({
+								url      : elURL+'json/',
+								type     : 'get',
+								dataType : 'json',
+								data     : { cmd : 'tms', id : val },
+								success  : function(data) {
+									if (data.error) {
+										return window.console && window.console.log && window.console.log(data);
+									}
+									tm.children('option').each(function() {
+										var v = $(this).val();
+										if (v==0 || $.inArray(parseInt(v), data.tms) != -1) {
+											$(this).removeAttr('disabled');
+										} else {
+											$(this).attr('disabled', 'on');
+										}
+									}).end().val(0);
+								}
+							});
+						}
+					}).change();
+					
+					tm.change(function() {
+						var val = parseInt($(this).val());
+						if (val > 0) {
+							$.ajax({
+								url      : elURL+'json/',
+								type     : 'get',
+								dataType : 'json',
+								data     : { cmd : 'mnf', id : val },
+								success  : function(data) {
+									if (data.error) {
+										return window.console && window.console.log && window.console.log(data);
+									}
+									mnf.val(data.mnf);
+								}
+							});
+						}
+					});
+				}
+			";
+			
+			elAddJs($js, EL_JS_SRC_ONREADY);
+			
 		}
 		
 		$this->_form->add(new elEditor('announce', m('Announce'), $this->announce, array('height' => 250)));

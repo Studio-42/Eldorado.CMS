@@ -6,6 +6,7 @@ include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php'
 /**
  * Internet shop module
  *
+ * @TODO  order fix
  * @package IShop
  **/
 class elModuleIShop extends elModule {

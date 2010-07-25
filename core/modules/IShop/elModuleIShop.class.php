@@ -182,6 +182,13 @@ class elModuleIShop extends elModule {
 	 * @var array
 	 **/
 	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_type', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
+	/**
+	 * undocumented class variable
+	 *
+	 * @var string
+	 **/
+	var $_appendPath = true;
+
 
 	/**
 	 * display categories or manufacturers according to config
@@ -674,31 +681,26 @@ EOL;
 	 *
 	 * @return void
 	 **/
-	function _appendPath() {
-		if ($this->_parentType == EL_IS_CAT) {
-			$this->_cat->pathToPageTitle();
-		} elseif ($this->_parentID) {
-			elAppendToPagePath(array(
-				'url'  => $this->_url.$this->_parentPath.'/'.$this->_parentID.'/',	
-				'name' => $this->_parentName)
-				);
+	function _onBeforeStop() {
+		
+		if ($this->_appendPath) {
+			if ($this->_parentType == EL_IS_CAT) {
+				$this->_cat->pathToPageTitle();
+			} elseif ($this->_parentID) {
+				elAppendToPagePath(array(
+					'url'  => $this->_url.$this->_parentPath.'/'.$this->_parentID.'/',	
+					'name' => $this->_parentName)
+					);
+			}
+
+			if ($this->_item) {
+				elAppendToPagePath(array(
+					'url'  => $this->_url.'item/'.$this->_parentID.'/'.$this->_item->ID,	
+					'name' => $this->_item->name)
+					);
+			}
 		}
 		
-		if ($this->_item) {
-			elAppendToPagePath(array(
-				'url'  => $this->_url.'item/'.$this->_parentID.'/'.$this->_item->ID,	
-				'name' => $this->_item->name)
-				);
-		}
-	}
-
-	/**
-	 * Add page path
-	 *
-	 * @return void
-	 **/
-	function _onBeforeStop() {
-		$this->_appendPath();
 	}
 
 	/**

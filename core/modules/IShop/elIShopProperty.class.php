@@ -88,7 +88,7 @@ class elIShopProperty extends elDataMapping {
 	 *
 	 * @var string
 	 **/
-	var $_objName    = 'Property';
+	var $_objName    = 'Feature';
 	/**
 	 * IShop factory
 	 *
@@ -425,14 +425,12 @@ class elIShopProperty extends elDataMapping {
 			);
 
 		if ($this->ID) {
-			$label = 'Edit property for type "%s"';
+			$label = 'Edit feature for type "%s"';
 		} else {
-			$label = 'Create new property for type "%s"';
+			$label = 'Create new feature for type "%s"';
 			$this->sortNdx = ++$maxNdx;
 		}
 
-		$test = array('a' => array('letter a', 1), 2 => array('letter 2', 0));
-		
 		$opts = array();
 		if (!$this->isText()) {
 			foreach ($this->_opts as $id => $v) {
@@ -446,16 +444,16 @@ class elIShopProperty extends elDataMapping {
 		$valMList = $this->type == EL_IS_PROP_MLIST ? $opts : null;
 
 		$this->_form->setLabel(sprintf(m($label), $itype->name));
-		$this->_form->add(new elText('name',                           m('Name'),                           $this->name));
-		$this->_form->add(new elSelect('type',                         m('Property type'),                  $this->type, $this->_types));
-		$this->_form->add(new elText('values'.EL_IS_PROP_STR,          m('Default value'),                  $valStr, array('maxlength' => '256', 'style' => 'width:100%')));
-		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                  $valTxt, array('rows' => 5)));
-		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_LIST,  m('Values variants'),               $valList));
-		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_MLIST, m('Values variants'),               $valMList));
-		$this->_form->add(new elSelect('display_pos',                  m('Display position in item card'),  $this->displayPos, $pos));
-		$this->_form->add(new elSelect('is_announced',                 m('Announce propery in items list'), $this->isAnnounced, $GLOBALS['yn'] ) );
-		$this->_form->add(new elSelect('is_hidden',                    m('Display only in order form'),     $this->isHidden, $GLOBALS['yn'] ) );
-		$this->_form->add(new elSelect('sort_ndx',                     m('Order position'),                 $this->sortNdx, range(1, $maxNdx), null, false, false) );
+		$this->_form->add(new elText('name',                           m('Name'),                             $this->name));
+		$this->_form->add(new elSelect('type',                         m('Property type'),                    $this->type, $this->_types));
+		$this->_form->add(new elText('values'.EL_IS_PROP_STR,          m('Default value'),                    $valStr, array('maxlength' => '256', 'style' => 'width:100%')));
+		$this->_form->add(new elTextArea('values'.EL_IS_PROP_TXT,      m('Default value'),                    $valTxt, array('rows' => 5)));
+		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_LIST,  m('Values variants'),                 $valList));
+		$this->_form->add(new elVariantsList('values'.EL_IS_PROP_MLIST, m('Values variants'),                 $valMList));
+		$this->_form->add(new elSelect('display_pos',                  m('Display position on product page'), $this->displayPos, $pos));
+		$this->_form->add(new elSelect('is_announced',                 m('Display in items list'),            $this->isAnnounced, $GLOBALS['yn'] ) );
+		$this->_form->add(new elSelect('is_hidden',                    m('Hide on product page'),             $this->isHidden, $GLOBALS['yn'] ) );
+		$this->_form->add(new elSelect('sort_ndx',                     m('Order position'),                   $this->sortNdx, range(1, $maxNdx), null, false, false) );
 		$this->_form->setRequired('name');
 	
 		$id = $this->_form->getAttr('name'); 
@@ -485,7 +483,7 @@ class elIShopProperty extends elDataMapping {
 		$data = $this->_form->getValue(); 
 		$src = $data['values'.$data['type']];
 		return EL_IS_PROP_LIST <= $data['type'] && empty($src)
-			? $this->_form->pushError('values'.$data['type'], 'Could not be empty')
+			? $this->_form->pushError('values'.$data['type'], m('Values list could not be empty'))
 			: true;
 	}
 

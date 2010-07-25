@@ -13,10 +13,10 @@ class elModuleAdminIShop extends elModuleIShop
 		'mnf_edit'    => array('m' => 'mnfEdit',  'g'=>'Actions', 'ico'=>'icoMnfNew', 'l'=>'New manufacturer' ),
 		'mnf_rm'      => array('m' => 'mnfRm'),
 		// trademarks
-		'tm_edit'     => array('m' => 'tmEdit',   'g'=>'Actions', 'ico'=>'icoTmNew',  'l'=>'New trade mark'),
+		'tm_edit'     => array('m' => 'tmEdit',   'g'=>'Actions', 'ico'=>'icoTmNew',  'l'=>'New trade mark/model'),
       	'tm_rm'       => array('m' => 'tmRm'),
 		// item types
-		'type_edit'   => array('m' => 'typeEdit', 'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New items type'),
+		'type_edit'   => array('m' => 'typeEdit', 'g'=>'Actions', 'ico'=>'icoItemTypeNew',   'l'=>'New products type'),
 		'type_rm'     => array('m' => 'typeRm'),
 		'type_props'  => array('m' => 'typeProps'),
 		// properties
@@ -226,13 +226,9 @@ class elModuleAdminIShop extends elModuleIShop
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_redirURL);
 		}
-		
+		$this->_appendTypePropsPath();
 		$this->_initRenderer();
 		$this->_rnd->rndTypeProps($this->_type);
-		elAppendToPagePath(array(
-			'url'  => $this->_urlTypes,	
-			'name' => m('Products types'))
-			);
 	}
 
 	/**
@@ -250,15 +246,7 @@ class elModuleAdminIShop extends elModuleIShop
 		$prop->attr('t_id', $this->_type->ID);
 
 		if (!$prop->editAndSave()) {
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes,	
-				'name' => m('Products types'))
-				);
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name.' ('.m('Properties').')'
-				));
-			
+			$this->_appendTypePropsPath();
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
 		}
@@ -307,14 +295,7 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 		
 		if (!$prop->editDependance()) {
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes,	
-				'name' => m('Products types'))
-				);
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name.' ('.m('Properties').')'
-				));
+			$this->_appendTypePropsPath();
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($prop->formToHtml());
 		}
@@ -334,20 +315,38 @@ class elModuleAdminIShop extends elModuleIShop
 			elThrow(E_USER_WARNING, 'No such category',	null, $this->_urlTypes);
 		}
 		
+		if (!count($this->_type->getProperties())) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'There are no features to sort', null, $this->_urlTypes);
+		}
+		
 		if (!$this->_type->sortProps()) {
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type/'.$this->_type->ID.'/',	
-				'name' => $this->_type->name)
-				);
-			elAppendToPagePath(array(
-				'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
-				'name' => m('Properties')
-				));
+			$this->_appendTypePropsPath();
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($this->_type->formToHtml());
 		}
 		elMsgBox::put(m('Data saved'));
 		elLocation($this->_urlTypes.'type_props/'.$this->_type->ID);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _appendTypePropsPath() {
+		$this->_appendPath = false;
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes,	
+			'name' => m('Products types'))
+			);
+		// if ($this->_type->ID)
+		elAppendToPagePath(array(
+			'url'  => $this->_urlTypes.'type_props/'.$this->_type->ID.'/',	
+			'name' => $this->_type->name.' ('.m('Features').')'
+			));
+		
 	}
 
 	/**

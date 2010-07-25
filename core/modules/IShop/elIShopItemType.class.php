@@ -110,7 +110,7 @@ class elIShopItemType extends elDataMapping {
 	 **/
 	function _makeForm($params = null) {
 		parent::_makeForm();
-		$this->_form->add(new elText('name', m('Type name'), $this->name));
+		$this->_form->add(new elText('name', m('Name'), $this->name));
 		$this->_form->setRequired('name');
 	}
 

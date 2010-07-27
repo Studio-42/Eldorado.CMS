@@ -48,6 +48,7 @@ $elMsg['Display empty trade marks/models']      = 'Показать пустые
 $elMsg['Display Trade mark/model descriptions'] = 'Показать описания торговых марок/моделей';
 $elMsg['Products list view']                    = 'Вид списка товаров';
 $elMsg['Sort products by']                      = 'Сортировать товары';
+$elMsg['Allow user sort products']              = 'Разрешить пользователям сортировать товары';
 $elMsg['Number of products per page']           = 'Кол-во товаров на страницу';
 $elMsg['Display product code/articul']          = 'Показать код товара/артикул';
 $elMsg['Products images']                       = 'Изображения товара';

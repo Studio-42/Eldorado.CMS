@@ -711,9 +711,6 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_te->assignBlockVars($block.'.TYPE', $css, 1);
 		
 		$this->_te->assignBlockVars($block.'.TYPE', $type->toArray(), 2);
-		if ($mnf->descrip) {
-			$this->_te->assignBlockVars($block.'.TYPE.DESCRIP', array('descrip' => $mnf->descrip), 2);
-		}
 		if ($this->_admin) {
 			$this->_te->assignBlockVars($block.'.TYPE.ADMIN', array('id' => $type->ID), 2);
 		}

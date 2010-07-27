@@ -155,6 +155,7 @@ class elModuleIShop extends elModule {
 		'displayTypeDescrip' => EL_CAT_DESCRIP_IN_LIST,
 		'itemsCols'          => 1,
 		'itemsSortID'        => EL_IS_SORT_NAME,
+		'allowUserSort'      => 0,
 		'itemsPerPage'       => 10,
 		'displayCode'        => 1,
 		'tmbListSize'        => 125,
@@ -184,9 +185,9 @@ class elModuleIShop extends elModule {
 	 **/
 	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_type', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
 	/**
-	 * undocumented class variable
+	 * Flag - flag - allow auto formed path in _onBeforeStop() method
 	 *
-	 * @var string
+	 * @var bool
 	 **/
 	var $_appendPath = true;
 
@@ -864,6 +865,15 @@ EOL;
 		if ($this->_conf('itemsPerPage') < 1) {
 			$this->_conf['itemsPerPage'] = 10;
 		}
+		
+		if ($this->_conf('allowUserSort')) {
+			$ats = & elSingleton::getObj('elATS');
+			$user = $ats->getUser();
+			$sort = $user->prefrence('shop-'.$this->pageID.'-sort');
+		}
+		// $this->_sortID = 
+		// echo $user->prefrence('shop-'.$this->pageID.'-sort');
+
 	}
 
 	// Yandex.Market related

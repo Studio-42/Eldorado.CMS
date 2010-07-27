@@ -736,6 +736,7 @@ class elModuleAdminIShop extends elModuleIShop
 		$form->add( new elCData('c04',           m('Products')),                    $cAttrs);
 		$form->add( new elSelect('itemsCols',    m('Products list view'),           $this->_conf('itemsCols'),    $params['view'], $attrs) );
 		$form->add( new elSelect('itemsSortID',  m('Sort products by'),             $this->_conf('itemsSortID'),  $params['sort'], $attrs) );
+		$form->add( new elSelect('allowUserSort',m('Allow user sort products'),     $this->_conf('allowUserSort'),$GLOBALS['yn'], $attrs) );
 		$form->add( new elSelect('itemsPerPage', m('Number of products per page'),  $this->_conf('itemsPerPage'), $params['nums'], $attrs) );
 		$form->add( new elSelect('displayCode',  m('Display product code/articul'), $this->_conf('displayCode'),  $GLOBALS['yn'], $attrs) );
 		// images

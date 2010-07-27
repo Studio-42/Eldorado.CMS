@@ -142,17 +142,20 @@ class elIShopItem extends elDataMapping {
 		$props = $type->getProperties();
 
 		foreach ($props as $p) {
-			
-			$ml = $p->isMultiList();
-			if ($ml) {
+			$value = isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : array();
+			$e = $p->toFormElement($value);
+			if ($p->isMultiList()) {
 				$ret['order'][] = array(
 					'name'  => $p->name, 
-					'value' => $p->valuesToString($value)
+					'value' => $e->toHtml()
 					);
 			}
-			if (!($ml || $p->isHidden)) {
-				$value = isset($this->propVals[$p->ID]) ? $this->propVals[$p->ID] : array();
+			if (!$p->isHidden) {
+				// echo $p->name.' ';
+				// echo 'item value:';
+				// elPrintR($value);
 				$value = $p->valuesToString($value);
+				// echo "value : $value";
 				if ($value) {
 					$ret[$p->displayPos][] = array(
 						'name'  => $p->name, 
@@ -162,6 +165,18 @@ class elIShopItem extends elDataMapping {
 			}
 		}
 		return $ret;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function getProperty($id) {
+		$type  = $this->getType();
+		$props = $type->getProperties();
+		return isset($props[$id]) ? $props[$id] : null;
 	}
 
 	/**

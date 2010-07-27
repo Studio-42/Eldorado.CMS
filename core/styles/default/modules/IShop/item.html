@@ -11,18 +11,11 @@
 	<!-- BEGIN IS_ITEM_PRICE --><div class="mod-ishop-item-price">{m('Price')}: <strong>{price}</strong> {currencySign}</div><!-- END IS_ITEM_PRICE -->
 	<!-- BEGIN IS_ITEM_ORDER -->
 	<div class="mod-ishop-item-order rounded-3">
-		<form action="{URL}order/{catID}/{id}/" method="post">
+		<form action="{ishopURL}order/{parentID}/{id}/" method="post">
 	     	<table>
 	       		<tr>
 	         		<!-- BEGIN IP_ORDER -->
-	         		<td>
-	           			{name} :
-	           			<select name="prop[{id}]" id="prop_{id}" {onChange}>
-	             			<!-- BEGIN IPO_OPT -->
-	             			<option value="{val}" {disable} {sel}>{val}</option>
-	             			<!-- END IPO_OPT -->
-	           			</select>
-	         		</td>
+	         		<td>{name} : {value} </td>
 	         		<!-- END IP_ORDER -->
 	         		<td>
 						<input type="submit" value="{m('Buy')}" class="form-submit" />
@@ -30,6 +23,44 @@
 	       		</tr>
 	     	</table>
 		</form>
+		<script type="text/javascript" charset="utf-8">
+			$().ready(function() {
+				var s, m, s_id, m_id;
+				s = $('.mod-ishop-item-order').find('select[depend_on]');
+				if (s.length) {
+					s_id = parseInt(s.attr('id').substring(5));
+					m_id = s.attr('depend_on');
+					m    = $('.mod-ishop-item-order').find('#prop\\['+m_id+'\\]');
+					
+					if (m.length) {
+						m.change(function() {
+							s.attr('disabled', 'on');
+							$.ajax({
+								url      : elURL+'json',
+								type     : 'get',
+								data     : { cmd :'depend', i_id : "{id}", s_id : s_id, m_id : m_id, m_value : m.val() },
+								dataType : 'json',
+								success  : function(data) {
+									if (data.error) {
+										return window.console && window.console.log && window.console.log(data.error);
+									}
+									s.removeAttr('disabled');
+									if (data.values && data.values.length) {
+										s.children('option').each(function() {
+											if ($.inArray($(this).attr('value'), data.values) != -1) {
+												$(this).removeAttr('disabled');
+											} else {
+												$(this).attr('disabled', 'on');
+											}
+										}).end().val(data.values[0]);
+									}
+								}
+							});
+						}).trigger('change');
+					}
+				}
+			})
+		</script>
 	</div>
    	<!-- END IS_ITEM_ORDER -->
 	<!-- BEGIN IS_ITEM_CODE --><div class="mod-ishop-item-code">{m('Code/Articul')}: <strong>{code}</strong></div><!-- END IS_ITEM_CODE -->

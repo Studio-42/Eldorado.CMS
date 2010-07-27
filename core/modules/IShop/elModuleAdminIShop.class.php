@@ -29,8 +29,8 @@ class elModuleAdminIShop extends elModuleIShop
 		'item_clone'  => array('m' => 'itemClone'),
 		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort items'),
 		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items'),
-		'item_img'    => array('m' => 'itemImg'),
-		'json'        => array('m' => 'json')
+		'item_img'    => array('m' => 'itemImg')
+		
       
 	);
 
@@ -641,37 +641,7 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 	}
 	
-	/**
-	 * Output json based on $_GET['cmd']
-	 * For now used by edit item form while swith manufacturer/trademark
-	 *
-	 * @TODO  move search request here
-	 * @return void
-	 **/
-	function json() {
-		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
-		$cmd = isset($_GET['cmd']) ? trim($_GET['cmd']) : '';
-		switch ($cmd) {
-			case 'tms':
-				$mnf = $this->_factory->create(EL_IS_MNF, isset($_GET['id']) ? (int)$_GET['id'] : 0);
-				if (!$mnf->ID) {
-					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
-				}
-				$tm = $this->_factory->create(EL_IS_TM);
-				$tms = $tm->collection(true, true, 'mnf_id='.$mnf->ID);
-				exit(elJSON::encode(array('tms' => array_keys($tms))));
-				break;
-			case 'mnf':
-				$tm = $this->_factory->create(EL_IS_TM, isset($_GET['id']) ? (int)$_GET['id'] : 0);
-				if (!$tm->ID) {
-					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
-				}
-				exit(elJSON::encode(array('mnf' => $tm->mnfID)));
-				break;
-		}
-		
-		exit(elJSON::encode($_GET));
-	}
+
 	
 	/**************************************************************************************
 	 *                                 PRIVATE METHODS                                    *
@@ -894,11 +864,11 @@ class elModuleAdminIShop extends elModuleIShop
 	 **/
 	function _onInit() {
 		parent::_onInit();
-		if ('item' != $this->_mh && 'cross_links' != $this->_mh ) {
-			$this->_removeMethods('cross_links');
-		} else {
-			$this->_mMap['cross_links']['apUrl'] .= $this->_arg(1);
-		}
+		// if ('item' != $this->_mh && 'cross_links' != $this->_mh ) {
+		// 	$this->_removeMethods('cross_links');
+		// } else {
+		// 	$this->_mMap['cross_links']['apUrl'] .= $this->_arg(1);
+		// }
 	}
 
 }

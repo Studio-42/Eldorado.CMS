@@ -312,15 +312,15 @@ class elModuleICartConf extends elModule {
 		$this->_dm = & elSingleton::getObj('elDirectoryManager');
 		$this->_fc = & new elFormConstructor('icart_add_field', m('Additional fields'));
 		$this->_orderConf = & elSingleton::getObj('elICartConf');
-		if (!$this->_dm->directoryExists('icart_region')) {
-			$this->_dm->create('icart_region', m('Regions'));
-		}
-		if (!$this->_dm->directoryExists('icart_delivery')) {
-			$this->_dm->create('icart_delivery', m('Delivery'));
-		}
-		if (!$this->_dm->directoryExists('icart_payment')) {
-			$this->_dm->create('icart_payment', m('Payment'));
-		}
+		// if (!$this->_dm->directoryExists('icart_region')) {
+		// 	$this->_dm->create('icart_region', m('Regions'));
+		// }
+		// if (!$this->_dm->directoryExists('icart_delivery')) {
+		// 	$this->_dm->create('icart_delivery', m('Delivery'));
+		// }
+		// if (!$this->_dm->directoryExists('icart_payment')) {
+		// 	$this->_dm->create('icart_payment', m('Payment'));
+		// }
 	}
 	
 }

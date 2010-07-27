@@ -19,5 +19,8 @@ $elMsg['No such category']     = 'Нет такой категории';
 $elMsg['No such page']         = 'Нет такой страницы';
 $elMsg['No such manufacturer'] = 'Нет такого производителя';
 $elMsg['No such product']      = 'Нет такого товара';
+$elMsg['from %s till %s (step %s)'] = 'от %s до %s (шаг %s)';
+$elMsg['exclude %s']           = 'кроме %s';
 $elMsg['Nothing was found on this request'] = 'По данному запросу ничего не найдено!';
+$elMsg['Unable to order product, because of price is not defined!'] = 'Невозможно заказать товар поскольку его цена не определена!';
 ?>

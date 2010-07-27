@@ -63,8 +63,7 @@ $elMsg['Display type descriptions']             = 'Показать описан
 $elMsg['There are no features to sort'] = 'Нет свойств для сортировки';
 
 
-$elMsg[''] = '';
-$elMsg[''] = '';
+
 $elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';

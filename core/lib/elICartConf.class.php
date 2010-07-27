@@ -11,6 +11,16 @@ class elICartConf {
 		$this->_conf = & elSingleton::getObj('elXmlConf');
 		$this->_ec   = & elSingleton::getObj('elEmailsCollection');
 		$this->_db   = & elSingleton::getObj('elDb');
+		$dm          = & elSingleton::getObj('elDirectoryManager');
+		if (!$dm->directoryExists('icart_region')) {
+			$dm->create('icart_region', m('Regions')); echo 'here';
+		}
+		if (!$dm->directoryExists('icart_delivery')) {
+			$dm->create('icart_delivery', m('Delivery'));
+		}
+		if (!$dm->directoryExists('icart_payment')) {
+			$dm->create('icart_payment', m('Payment'));
+		}
 	}
 	
 	function recipients($vals=null) {

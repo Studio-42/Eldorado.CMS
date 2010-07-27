@@ -130,7 +130,8 @@ class elModuleIShop extends elModule {
 		'item'          => array('m' => 'viewItem'),
 		'search'        => array('m' => 'search'),
 		'search_params' => array('m' => 'searchParams'),
-		'order'         => array('m' => 'order') 
+		'order'         => array('m' => 'order'),
+		'json'        => array('m' => 'json') 
 	);
 	/**
 	 * default config
@@ -402,7 +403,12 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function addToICart($itemID = null, $props = array(), $qnt = false) {
-		return $this->_addToICart($itemID, $props, $qnt);
+		// return $this->_addToICart($itemID, $props, $qnt);
+		$item = $this->_factory->create(EL_IS_ITEM, $itemID);
+		if (!$item || !$item->price || $qnt<1) {
+			return false;
+		}
+		return $this->_addToICart($item, $props, $qnt);
 	}
 
 	/**
@@ -411,16 +417,28 @@ class elModuleIShop extends elModule {
 	 * @return void
 	 **/
 	function order() {
-		$catID  = (int)$this->_arg();
-		$itemID = (int)$this->_arg(1);
-		$url    = EL_URL.'item/'.$catID.'/'.$itemID.'/';
+		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		if (!$item->ID) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
+		} elseif (!$item->price) {
+			header('HTTP/1.x 404 Not Found');
+			elThrow(E_USER_WARNING, 'Unable to order product, because of price is not defined!', null, $this->_redirURL);
+		}
+		
+		$props = array();
+		if (!empty($_POST['prop']) && is_array($_POST['prop'])) {
+			foreach ($_POST['prop'] as $id => $v) {
+				if (false != ($p = $item->getProperty($id))) {
+					$props[] = array($p->name, $p->getOption($v));
+				}
+			}
+		}
 
 		elLoadMessages('ServiceICart');
-		$ICart = & elSingleton::getObj('elICart');
-
-		if ($this->_addToICart($itemID)) {
-			$item = $this->_factory->getItem($itemID);
-			$msg = sprintf(m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), $item->code.' '.$item->name, EL_URL.'__icart__/' );
+		$url = $this->_url.'item/'.$this->_parentID.'/'.$item->ID;
+		if ($this->_addToICart($item, $props, 1)) {
+			$msg = sprintf(m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), ($this->_conf('displayCode') ? $item->code : '').' '.$item->name, EL_URL.'__icart__/' );
 			elMsgBox::put($msg);
 			elLocation($url);
 		} else {
@@ -598,28 +616,84 @@ EOL;
 		@file_put_contents(EL_DIR_STORAGE.'yandex-market-'.$this->pageID.'.yml', $full_yml);
 	}
 
+	/**
+	 * Output json based on $_GET['cmd']
+	 * For now used by edit item form while swith manufacturer/trademark and while switch multilist with dependance in order form
+	 *
+	 * @TODO  move search request here
+	 * @return void
+	 **/
+	function json() {
+		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$cmd = isset($_GET['cmd']) ? trim($_GET['cmd']) : '';
+		switch ($cmd) {
+			case 'tms':
+				$mnf = $this->_factory->create(EL_IS_MNF, isset($_GET['id']) ? (int)$_GET['id'] : 0);
+				if (!$mnf->ID) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				$tm = $this->_factory->create(EL_IS_TM);
+				$tms = $tm->collection(true, true, 'mnf_id='.$mnf->ID);
+				exit(elJSON::encode(array('tms' => array_keys($tms))));
+				break;
+			case 'mnf':
+				$tm = $this->_factory->create(EL_IS_TM, isset($_GET['id']) ? (int)$_GET['id'] : 0);
+				if (!$tm->ID) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				exit(elJSON::encode(array('mnf' => $tm->mnfID)));
+				break;
+			case 'depend':
+				$item = $this->_factory->create(EL_IS_ITEM, $_GET['i_id']);
+				if (!$item->ID) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				$master = $item->getProperty((int)$_GET['m_id']);
+				$slave = $item->getProperty((int)$_GET['s_id']);
+				if (!$master || !$slave) {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
+				}
+				exit(elJSON::encode(array('values' => $slave->getDependanceValues($_GET['m_value']))));
+				break;
+		}
+		
+		exit(elJSON::encode($_GET));
+	}
+
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function _addToICart_($item, $props=array(), $qnt=1) {
+		if (!$item->price || $qnt<1) {
+			return false;
+		}
+	}
 
 	/**
 	 * add to icart routine
 	 *
 	 * @return bool
 	 **/
-	function _addToICart($itemID = null, $props = array(), $qnt = 1) {
+	function _addToICart($item, $props = array(), $qnt = 1) {
 	
-		$item = $this->_factory->getItem((int)$itemID);
-		if (!$item->ID or !$item->price or $qnt < 1) {
-			return false;
-		}
+		// $item = $this->_factory->getItem((int)$itemID);
+		// if (!$item->ID or !$item->price or $qnt < 1) {
+		// 	return false;
+		// }
 
 		// if $props is empty try to load from POST
-		if (!empty($_POST['prop']) && is_array($_POST['prop']) && empty($props)) {
-			foreach ($_POST['prop'] as $pID => $v) {
-				$props[] = array($item->getPropName($pID), $v);
-			}
-		}
+		// if (!empty($_POST['prop']) && is_array($_POST['prop']) && empty($props)) {
+		// 	foreach ($_POST['prop'] as $pID => $v) {
+		// 		$props[] = array($item->getPropName($pID), $v);
+		// 	}
+		// }
 
 		$currency = &elSingleton::getObj('elCurrency');
 		$curOpts = array(

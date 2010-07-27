@@ -211,10 +211,10 @@ class elIShopProperty extends elDataMapping {
 				$ret = array();
 				foreach($val as $id) {
 					if (isset($this->_opts[$id])) {
-						
 						$ret[] = $this->_opts[$id];
 					}
 				}
+				$ret = array_map(array($this, '_rangeToString'), $ret);
 				return implode(', ', $ret);
 			default:
 				return isset($val[0]) ? $val[0] : (isset($this->_default[0]) && isset($this->_opts[$this->_default[0]]) ? $this->_opts[$this->_default[0]] : '');
@@ -281,6 +281,29 @@ class elIShopProperty extends elDataMapping {
 	}
 
 	/**
+	 * Return slave values depend on required master value
+	 *
+	 * @return array
+	 **/
+	function getDependanceValues($mVal) {
+		$mVal = preg_replace('/^expand_([0-9]+)/', "\\1", $mVal);
+		$dep  = $this->getDependance();
+		return empty($dep)
+			? $this->_opts // no dependance - not configured yet?
+			: isset($dep[$mVal]) ? $dep[$mVal] : array();
+	}
+
+	/**
+	 * return option value by id
+	 *
+	 * @param  string  $id
+	 * @return string
+	 **/
+	function getOption($id) {
+		return strstr($id, 'expand_') ? preg_replace('/^expand_[0-9]+_(.+)/', "\\1", $id) : (isset($this->_opts[$id]) ? $this->_opts[$id] : '');
+	}
+
+	/**
 	 * Delete property
 	 *
 	 * @return void
@@ -305,10 +328,9 @@ class elIShopProperty extends elDataMapping {
 	}
 
 	/**
-	 * undocumented function
+	 * Create form and save dependance
 	 *
 	 * @return void
-	 * @author Dmitry Levashov
 	 **/
 	function editDependance() {
 		if ($this->isMultiList() && false != ($master = $this->getDependOn())) {
@@ -357,10 +379,11 @@ class elIShopProperty extends elDataMapping {
 	}
 
 	/**
-	 * undocumented function
+	 * Return form element (edit item or multilist in order form)
 	 *
-	 * @return void
-	 * @author Dmitry Levashov
+	 * @param  mixed  $v      item property value
+	 * @param  bool   $admin  flag - for edit form
+	 * @return object
 	 **/
 	function toFormElement($v='', $admin=false) {
 		include_once EL_DIR_CORE.'forms/elForm.class.php';
@@ -380,9 +403,9 @@ class elIShopProperty extends elDataMapping {
 				} else {
 					$dep   = $this->getDependOn();
 					$attrs = $dep ? array('depend_on' => $dep->ID) : array();
-					return new elSelect('prop_'.$this->ID, $this->name, isset($v[0]) ? $v[0] : current($this->_default), $this->_opts, $attrs);
+					$opts  = $this->_expandValues(!empty($v) ? $v : $this->_default);
+					return new elSelect('prop['.$this->ID.']', $this->name, isset($v[0]) ? $v[0] : null, $opts, $attrs);
 				}
-				
 				break;
 		}
 	}
@@ -405,6 +428,37 @@ class elIShopProperty extends elDataMapping {
 			}
 		}
 		return $str;
+	}
+
+	/**
+	 * For multilist expand "range" constructions and return result array of values
+	 *
+	 * @param  array  $vals  item property values  
+	 * @return array
+	 **/
+	function _expandValues($vals=array()) {
+		$ret = array();
+		foreach ($vals as $id) {
+			if (isset($this->_opts[$id])) {
+				$v = $this->_opts[$id];
+				if (preg_match($this->_rangeReg, $v, $m)) {
+					$excl = array();
+					if (!empty($m[5])) {
+						foreach (explode(',', $m[5]) as $tmp) {
+							$excl[] = trim($tmp);
+						}
+					}
+					for ($i=$m[1]; $i<=$m[2]; $i+=$m[3]) {
+						if (!in_array($i, $excl)) {
+							$ret['expand_'.$id.'_'.$i] = $i;
+						}
+					}
+				} else {
+					$ret[$id] = $v;
+				}
+			}
+		}
+		return $ret;
 	}
 
 	/**

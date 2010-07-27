@@ -47,11 +47,12 @@ class elServiceICart extends elService
 		);
     
     function init($args) {
+
         $this->_args  = $args;
 		$this->_ats   = & elSingleton::getObj('elATS');
 		$this->_user  = & $this->_ats->getUser();
 		$this->_iCart = & elSingleton::getObj('elICart');
-		$this->_conf  = & elSingleton::getObj('elICartConf');
+		$this->_conf  = & elSingleton::getObj('elICartConf'); //elPrintR($this->_conf);
         $nav          = & elSingleton::getObj('elNavigator');
         $page         = $nav->getCurrentPage();
 		$this->_url   = $page['url'];

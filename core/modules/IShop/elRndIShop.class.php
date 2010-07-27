@@ -275,7 +275,7 @@ class elRndIShop extends elCatalogRenderer {
 		if (!$this->_admin && !$this->_conf('displayEmptyTypes')) {
 			foreach ($types as $id => $type) {
 				if (!$type->countItems()) {
-					unset($type[$id]);
+					unset($types[$id]);
 				}
 			}
 		}
@@ -372,10 +372,13 @@ class elRndIShop extends elCatalogRenderer {
   		}
 		
 		$props = $item->getProperties();
+		// elPrintR($props);
 		foreach ($props as $pos=>$p) {
+			// elPrintR($p);
 			if ($pos == 'order') {
-				
-			} elseif (isset($this->_propBlocks[$pos])) {
+				$this->_te->assignBlockFromArray('IS_ITEM_ORDER.IP_ORDER', $p, 1);
+			} 
+			if (isset($this->_propBlocks[$pos])) {
 				$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
 			}
 		}

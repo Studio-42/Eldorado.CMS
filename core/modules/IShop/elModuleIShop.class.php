@@ -685,7 +685,7 @@ EOL;
 		
 		if ($this->_appendPath) {
 			if ($this->_parentType == EL_IS_CAT) {
-				$this->_cat->pathToPageTitle();
+				$this->_cat->pathToPageTitle('cats/');
 			} elseif ($this->_parentID) {
 				elAppendToPagePath(array(
 					'url'  => $this->_url.$this->_parentPath.'/'.$this->_parentID.'/',	

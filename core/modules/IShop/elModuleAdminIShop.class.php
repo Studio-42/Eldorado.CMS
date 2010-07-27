@@ -339,7 +339,11 @@ class elModuleAdminIShop extends elModuleIShop
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product type',	null, $this->_redirURL);
 		}
-
+		if ($this->_view == EL_IS_VIEW_TYPES) {
+			$this->_parentID   = $this->_type->ID;
+			$this->_parentName = $this->_type->name;
+			$this->_redirURL   = $this->_url.'type/'.$this->_type->ID.'/';
+		}
 		$params = array(
 			'typeID' => $this->_type->ID,
 			'mnfID'  => $this->_mnf->ID,

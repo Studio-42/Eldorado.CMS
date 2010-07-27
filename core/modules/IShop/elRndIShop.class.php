@@ -256,6 +256,7 @@ class elRndIShop extends elCatalogRenderer {
 
 		// render items
 		if ($items) {
+			$this->_te->assignVars('fromTm', $tm->ID.'/');
 			$this->_rndItems($items, $total, $current);
 		}
 		

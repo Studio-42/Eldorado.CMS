@@ -301,26 +301,18 @@ class elModuleIShop extends elModule {
 			elThrow(E_USER_WARNING, 'No such manufacturer',	null, EL_URL);
 		}
 
-		$tm = $this->_factory->create(EL_IS_TM, $this->_arg(1));
-		if (!$tm->ID) {
+		$this->_tm = $this->_factory->create(EL_IS_TM, $this->_arg(1));
+		if (!$this->_tm->ID) {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such category', null, EL_URL);
 		}
 
 		list($total, $current, $offset, $step) = $this->_getPagerInfo(
-			$this->_factory->ic->count(EL_IS_TM, $tm->ID), (int)$this->_arg(2)
+			$this->_factory->ic->count(EL_IS_TM, $this->_tm->ID), (int)$this->_arg(2)
 		);
 
 		$this->_initRenderer();
-		$this->_rnd->rndTm($this->_mnf, $tm, $this->_factory->ic->create(EL_IS_TM, $tm->ID, $offset, $step), $total, $current);
-		elAppendToPagePath(array(
-			'url'  => $this->_urlMnfs.'mnf/'.$this->_mnf->ID.'/',	
-			'name' => $this->_mnf->name)
-			);
-		elAppendToPagePath(array(
-			'url'  => $this->_urlMnfs.'tm/'.$tm->ID.'/',	
-			'name' => $tm->name)
-			);
+		$this->_rnd->rndTm($this->_mnf, $this->_tm, $this->_factory->ic->create(EL_IS_TM, $this->_tm->ID, $offset, $step), $total, $current);
 	}
 
 	/**
@@ -353,7 +345,7 @@ class elModuleIShop extends elModule {
 	function viewItem() {
 		if (!$this->_parentID) {
 			header('HTTP/1.x 404 Not Found');
-			elThrow(E_USER_WARNING, 'No such category ',	null, $this->_redirURL);
+			elThrow(E_USER_WARNING, 'No such category ', null, $this->_redirURL);
 		}
 		
 		$this->_item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
@@ -361,6 +353,7 @@ class elModuleIShop extends elModule {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
 		}
+		$this->_tm = $this->_factory->create(EL_IS_TM, $this->_arg(2)); 
 		$this->_initRenderer();
 		$this->_rnd->rndItem($this->_item);
 	}
@@ -665,36 +658,11 @@ EOL;
  //**************************************************************************************//
 
 	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author Dmitry Levashov
-	 **/
-	function _addToICart_($item, $props=array(), $qnt=1) {
-		if (!$item->price || $qnt<1) {
-			return false;
-		}
-	}
-
-	/**
 	 * add to icart routine
 	 *
 	 * @return bool
 	 **/
 	function _addToICart($item, $props = array(), $qnt = 1) {
-	
-		// $item = $this->_factory->getItem((int)$itemID);
-		// if (!$item->ID or !$item->price or $qnt < 1) {
-		// 	return false;
-		// }
-
-		// if $props is empty try to load from POST
-		// if (!empty($_POST['prop']) && is_array($_POST['prop']) && empty($props)) {
-		// 	foreach ($_POST['prop'] as $pID => $v) {
-		// 		$props[] = array($item->getPropName($pID), $v);
-		// 	}
-		// }
-
 		$currency = &elSingleton::getObj('elCurrency');
 		$curOpts = array(
 			'precision'   => (int)$this->_conf('pricePrec'),
@@ -765,6 +733,12 @@ EOL;
 					'url'  => $this->_url.$this->_parentPath.'/'.$this->_parentID.'/',	
 					'name' => $this->_parentName)
 					);
+				if (!empty($this->_tm->ID)) {
+					elAppendToPagePath(array(
+						'url'  => $this->_urlMnfs.'tm/'.$this->_mnf->ID.'/'.$this->_tm->ID.'/',	
+						'name' => $this->_tm->name)
+						);
+				}
 			}
 
 			if ($this->_item) {

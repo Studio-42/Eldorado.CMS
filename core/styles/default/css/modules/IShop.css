@@ -154,12 +154,32 @@ table.mod-ishop-items-twocol-clearfix td { padding:0; }
 /* калерея картинок */
 #mod-ishop-item-gallery { border:1px solid #ccc; padding:5px; float:left; }
 /* контейнер большой картинки */
-#mod-ishop-item-gallery-preview { text-align:center; margin-bottom:5px; position:relative; }
+#mod-ishop-item-gallery-preview { text-align:center; margin-bottom:5px; position:relative;  }
+.mod-ishop-item-gallery-no-slider #mod-ishop-item-gallery-preview { float:left; }
+.mod-ishop-item-gallery-v-slider #mod-ishop-item-gallery-preview  { float:left; }
+.mod-ishop-item-gallery-h-slider #mod-ishop-item-gallery-preview  { float:none; }
 /* ссылка с большой картинки */
 #mod-ishop-item-gallery-preview-img { }
 /* слайдер */
 #mod-ishop-item-gallery-slider { }
-#mod-ishop-item-gallery-slider .mod-ishop-item-gallery-slider-item { padding:0 2px; position:relative; }
+.mod-ishop-item-gallery-slider-item {  position:relative; }
+.mod-ishop-item-gallery-slider { list-style:none; padding:0; margin:0; }
+/* no slider */
+.mod-ishop-item-gallery-slider .mod-ishop-item-gallery-slider-item {
+	display: -moz-inline-stack;
+	display: inline-block;
+	vertical-align: top;
+	margin: 0;
+	zoom: 1;
+	*display: inline;
+	padding:0 1px;
+}
+/* use slider */
+#mod-ishop-item-gallery .elslider ul li.mod-ishop-item-gallery-slider-item {padding:0 1px; }
+#mod-ishop-item-gallery .elslider-vert ul li.mod-ishop-item-gallery-slider-item { padding:0 0 2px 0; }
+#mod-ishop-item-gallery .elslider { padding:0;}
+#mod-ishop-item-gallery .elslider-vert { float:left; margin:0 3px; padding:0;}
+
 /* админские иконки */
 #mod-ishop-item-gallery .adm-icons { position:absolute; top:0; right:0; }
 /* свойства сверху */

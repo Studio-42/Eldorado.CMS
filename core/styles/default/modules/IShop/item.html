@@ -68,7 +68,7 @@
 	<!-- BEGIN IS_ITEM_TM --><div class='mod-ishop-item-tm'>{name}</div><!-- END IS_ITEM_TM -->
    	
 	<!-- BEGIN IS_ITEM_GALLERY -->
-	<div id="mod-ishop-item-gallery" class="rounded-3">
+	<div id="mod-ishop-item-gallery" class="rounded-3 {ishopGallClass}"> 
 		<div id="mod-ishop-item-gallery-preview">
 			<!-- BEGIN PREVIEW_ADMIN -->
 			<ul class="adm-icons">
@@ -79,7 +79,7 @@
 			<a href="{target}" id="mod-ishop-item-gallery-preview-img"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}"  /></a>
 		</div>
 		<!-- BEGIN IS_ITEM_SLIDER -->
-		<div id="mod-ishop-item-gallery-slider">
+		<div id="mod-ishop-item-gallery-slider" class="mod-ishop-item-gallery-slider">
 			<div>
 			<ul>
 			<!-- BEGIN IS_ITEM_TMB --><li class="mod-ishop-item-gallery-slider-item">
@@ -89,7 +89,7 @@
 					<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 				</ul>
 				<!-- END TMB_ADMIN -->
-				<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" /></a>
+				<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}" /></a>
 			</li><!-- END IS_ITEM_TMB -->
 			</ul>
 			</div>
@@ -144,8 +144,8 @@
 				$("#mod-ishop-item-gallery-slider a[rel]:has(img)").eq(0).click();
 			});
 			$("#mod-ishop-item-gallery-slider a[rel]:has(img)").fancybox();
-			if (cnt>{ishopSliderSize}) {
-				$('#mod-ishop-item-gallery-slider').addClass('elslider').elslider({	size : {ishopSliderSize} });	
+			if (cnt>{ishopSliderSize}) { 
+				$('#mod-ishop-item-gallery-slider').removeClass('mod-ishop-item-gallery-slider').addClass('{ishopSliderClass}').elslider({ size : {ishopSliderSize} });	
 			}
 		} else {
 			$('#mod-ishop-item-gallery-preview-img').fancybox(); 

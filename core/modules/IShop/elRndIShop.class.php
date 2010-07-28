@@ -351,9 +351,23 @@ class elRndIShop extends elCatalogRenderer {
 		elAddJs('jquery.fancybox.min.js', EL_JS_CSS_FILE);
 		elAddCss('fancybox.css');
 		$this->_setFile('item');
-		$this->_te->assignVars( $item->toArray() );
+		$this->_te->assignVars($item->toArray());
 		
-		$this->_te->assignVars('ishopSliderSize', (int)$this->_conf('ishopSliderSize'));
+		$sliderView = $this->_conf('sliderView');
+		$sliderSize = (int)$this->_conf('sliderSize');
+		
+		if ($sliderView) {
+			$this->_te->assignVars(array(
+				'ishopGallClass'   => $sliderView == EL_IS_SLIDER_VERT ? 'mod-ishop-item-gallery-v-slider' : 'mod-ishop-item-gallery-h-slider',
+				'ishopSliderClass' => $sliderView == EL_IS_SLIDER_VERT ? 'elslider-vert' : 'elslider',
+				'ishopSliderSize'  => $sliderSize > 0 ? $sliderSize : 4
+				));
+		} else {
+			$this->_te->assignVars(array(
+				'ishopGallClass' => 'mod-ishop-item-gallery-no-slider',
+				'ishopSliderSize'=>1000
+				));
+		}
 		
 		if (!empty($this->_conf['displayCode'])) {
 			$this->_te->assignBlockVars('IS_ITEM_CODE', array('code'=>$item->code));
@@ -408,12 +422,15 @@ class elRndIShop extends elCatalogRenderer {
 			}
 			if ($gsize > 1) {
 				foreach ($gallery as $id=>$img) {
+					$s = @getimagesize($item->getTmbPath($id, 'l'));
 					$vars = array(
 						'id'     => $item->ID,
 						'img_id' => $id,
 						'tmb'    => $item->getTmbURL($id, 'l'),
 						'alt'    => htmlspecialchars($item->name),
-						'target' => EL_BASE_URL.$img
+						'target' => EL_BASE_URL.$img,
+						'w'      => $s[0],
+						'h'      => $s[1]
 						);
 					$this->_te->assignBlockVars('IS_ITEM_GALLERY.IS_ITEM_SLIDER.IS_ITEM_TMB', $vars, 2);
 					if ($this->_admin) {

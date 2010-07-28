@@ -693,6 +693,7 @@ class elModuleAdminIShop extends elModuleIShop
 			),
 			'nums'    => array(m('All'), 10=>10, 15=>15, 20=>20, 25=>25, 30=>30, 40=>40, 50=>50, 100=>100),
 			'imgSize' => array(50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500),
+			'sliderView' => array(0=>m('No'),  EL_IS_SLIDER_HORIZ => m('Horizontal slider'), EL_IS_SLIDER_VERT => m('Vertical slider')),
 			'sliderSize' => range(1, 20),
 			'displayCatDescrip' => array(
 				EL_CAT_DESCRIP_NO      => m('Do not display'),
@@ -709,7 +710,7 @@ class elModuleAdminIShop extends elModuleIShop
 				'manual' => m('enter manually')
 				)
 		);
-
+	// elPrintr($params['sliderView']);
 		// view
 		$form->add( new elCData('c0', m('Layout')),   $cAttrs);
 		$form->add( new elSelect('default_view',      m('Default view'),        $this->_conf('default_view'),      $params['default_view'], $attrs));
@@ -743,6 +744,7 @@ class elModuleAdminIShop extends elModuleIShop
 		$form->add( new elCData('c05',              m('Products images')),     $cAttrs);
 		$form->add( new elSelect('tmbListSize',     m('Thumbnails size (px)'), $this->_conf('tmbListSize'),     $params['imgSize'], $attrs, false, false) );
 		$form->add( new elSelect('tmbItemCardSize', m('Preview size (px)'),    $this->_conf('tmbItemCardSize'), $params['imgSize'], $attrs, false, false) );
+		$form->add( new elSelect('sliderView',      m('Use slider'),           $this->_conf('sliderView'),      $params['sliderView'], $attrs));
 		$form->add( new elSelect('sliderSize',      m('Slider size'),          $this->_conf('sliderSize'),      range(1, 25),       $attrs, false, false));
 		// price
 		$form->add( new elCData('c06',          m('Price')),                      $cAttrs);

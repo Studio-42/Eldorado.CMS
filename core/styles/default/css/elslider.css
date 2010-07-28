@@ -2,7 +2,7 @@
 .elslider-vert {
 	position: relative;
 	padding: 3px 20px;
-	border: 1px solid #111;
+/*	border: 1px solid #111;*/
 }
 .elslider-vert { padding: 20px 3px; }
 .elslider>div,
@@ -11,7 +11,7 @@
 	overflow:hidden;
 	padding:0;
 	margin:0;
-	border:1px solid blue; 
+/*	border:1px solid blue; */
 }
 
 .elslider ul,
@@ -19,7 +19,7 @@
 	padding:0;
 	margin:0;
 	list-style:none;
-	border:1px solid green;
+/*	border:1px solid green;*/
 	position:absolute;
 }
 
@@ -35,12 +35,16 @@
 
 .elslider ul li {
 	float:left;
-	border:1px solid red;
+	margin:0;
+	padding:0;
+/*	border:1px solid red;*/
 }
 
 .elslider-vert ul li {
 	display:block;
-	border:1px solid red;
+	margin:0;
+	padding:0;
+/*	border:1px solid red;*/
 }
 
 /*.elslider ul li img { padding:0; margin:0; }*/

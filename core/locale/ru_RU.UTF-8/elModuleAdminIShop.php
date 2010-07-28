@@ -65,6 +65,10 @@ $elMsg['There are no features to sort'] = 'Нет свойств для сорт
 
 
 
+$elMsg['This image is already in the gallery'] = 'Это изображение уже существует в галерее';
+$elMsg['Use slider'] = 'Использовать слайдер';
+$elMsg['Vertical slider'] = 'Вертикальный слайдер';
+$elMsg['Horizontal slider'] = 'Горизонтальный слайдер';
 $elMsg[''] = '';
 $elMsg[''] = '';
 $elMsg[''] = '';

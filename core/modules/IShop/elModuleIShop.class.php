@@ -160,6 +160,7 @@ class elModuleIShop extends elModule {
 		'displayCode'        => 1,
 		'tmbListSize'        => 125,
 		'tmbItemCardSize'    => 250,
+		'sliderView'         => 0,
 		'sliderSize'         => 4,
 		'crossLinksGroups'   => array(),
 		'currency'           => '',

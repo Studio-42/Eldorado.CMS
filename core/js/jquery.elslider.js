@@ -30,8 +30,6 @@
 				pos          = vert ? 'top' : 'left'
 				;
 				
-
-				
 			$this.add(viewport).width(vert ? w : viewportSize).height(vert ? viewportSize : h);
 			slider[vert ? 'height' : 'width'](sliderSize).css(pos, 0)
 			prev.add(next).hide().appendTo(this).css(vert ? 'width' : 'height', '100%');

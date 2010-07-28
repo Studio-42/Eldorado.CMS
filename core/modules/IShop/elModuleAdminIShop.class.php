@@ -372,13 +372,14 @@ class elModuleAdminIShop extends elModuleIShop
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
 		}
-		$item->ID   = 0;
-		$item->code = '';
+		
 		$params = array(
 			'typeID' => $this->_type->ID,
-			'mnfID'  => $this->_mnf->ID,
-			'catID'  => $this->_cat->ID
+			'mnfID'  => $item->mnfID,
+			'catID'  => current($item->getCats())
 			);
+		$item->ID   = 0;
+		$item->code = '';
 		if (!$item->editAndSave($params)) {
 			$this->_initRenderer();
 			return $this->_rnd->addToContent($item->formToHtml());

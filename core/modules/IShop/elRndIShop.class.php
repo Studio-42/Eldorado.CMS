@@ -501,10 +501,12 @@ class elRndIShop extends elCatalogRenderer {
 	}
 
 	/**
-	 * undocumented function
+	 * reder items
 	 *
+	 * @param  array  $items
+	 * @param  int  $total    total pages number
+	 * @param  int  $current  current page number
 	 * @return void
-	 * @author /bin/bash: niutil: command not found
 	 **/
 	function _rndItems($items, $total, $current) {
 		if ($this->_conf('itemsCols') > 1) {
@@ -515,15 +517,15 @@ class elRndIShop extends elCatalogRenderer {
 		if ($total > 1) {
 			$this->_rndPager($total, $current);
 		}
-		if ($this->_conf('allowUserSort')) {
-			$sort = array(
-				EL_IS_SORT_NAME  => m('By name'),
-				// EL_IS_SORT_CODE  => m('By code/articul'),
-				EL_IS_SORT_PRICE => m('By price'),
-				EL_IS_SORT_TIME  => m('By publish date')
-				);
-			$this->_te->assignBlockVars('ISHOP_SORT');
-		}
+		// if ($this->_conf('allowUserSort')) {
+		// 	$sort = array(
+		// 		EL_IS_SORT_NAME  => m('By name'),
+		// 		// EL_IS_SORT_CODE  => m('By code/articul'),
+		// 		EL_IS_SORT_PRICE => m('By price'),
+		// 		EL_IS_SORT_TIME  => m('By publish date')
+		// 		);
+		// 	$this->_te->assignBlockVars('ISHOP_SORT');
+		// }
 	}
 
 	/**
@@ -772,13 +774,29 @@ class elRndIShop extends elCatalogRenderer {
 		return $this->_currency->convert($price, $this->_curOpts);
 	}
 
+	/**
+	 * Render pager
+	 *
+	 * @param  int  $total    total pages number
+	 * @param  int  $current  current page number
+	 * @return void
+	 **/
 	function _rndPager($total, $current) {
 		$this->_te->setFile('PAGER', 'common/pager.html');
-		
-		$url = $this->_view == $this->_conf('default_view')
-			? EL_URL
-			: EL_URL.($this->_view == EL_IS_VIEW_MNFS ? 'mnfs/'.$this->_mnf->ID : 'cats/'.$this->_cat->ID).'/';
-
+		switch ($this->_view) {
+			case EL_IS_VIEW_TYPES:
+				$url = $this->_url.'type/'.$this->_parentID.'/';
+				break;
+			case EL_IS_VIEW_MNFS:
+				if (!empty($this->_tm->ID)) {
+					$url = $this->_url.'tm/'.$this->_parentID.'/'.$this->_tm->ID.'/';
+				} else {
+					$url = $this->_url.'mnf/'.$this->_parentID.'/';
+				}
+				break;
+			default:
+				$url = $this->_url.$this->_parentID.'/';
+		}
 		if ($current > 1) {
 			$this->_te->assignBlockVars('PAGER.PREV', array('url' => $url, 'num'=>$current-1 ));
 		}

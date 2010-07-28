@@ -184,7 +184,7 @@ class elModuleIShop extends elModule {
 	 *
 	 * @var array
 	 **/
-	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_type', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum');
+	var $_sharedRndMembers = array('_view', '_cat', '_mnf', '_type', '_tm', '_url', '_urlCats', '_urlMnfs', '_urlTypes', 'itemsNum', '_parentID');
 	/**
 	 * Flag - flag - allow auto formed path in _onBeforeStop() method
 	 *
@@ -745,7 +745,7 @@ EOL;
 
 			if ($this->_item) {
 				elAppendToPagePath(array(
-					'url'  => $this->_url.'item/'.$this->_parentID.'/'.$this->_item->ID,	
+					'url'  => $this->_url.'item/'.$this->_parentID.'/'.$this->_item->ID.'/'.(!empty($this->_tm->ID) ? $this->_tm->ID : ''),	
 					'name' => $this->_item->name)
 					);
 			}
@@ -830,6 +830,7 @@ EOL;
 				$this->_parentName = $this->_cat->name;
 				$this->_redirURL   = $this->_url.$this->_cat->ID;
 		}
+
 	}
 
 	/**

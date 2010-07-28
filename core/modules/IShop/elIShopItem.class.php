@@ -193,10 +193,10 @@ class elIShopItem extends elDataMapping {
 	}
 
 	/**
-	 * undocumented function
+	 * Return true if image exists
 	 *
-	 * @return void
-	 * @author Dmitry Levashov
+	 * @param  int  $id  image id
+	 * @return bool
 	 **/
 	function imgExists($id) {
 		$g = $this->getGallery();
@@ -335,8 +335,10 @@ class elIShopItem extends elDataMapping {
 			$cats = $this->getCats();
 		} else {
 			$this->typeID = $params['typeID'];
-			$this->mnfID  = $params['mnfID'];
-			$cats         = array($params['catID']);
+			// if (!$this->mnfID) {
+				$this->mnfID  = $params['mnfID'];
+			// }
+			$cats = array($params['catID']);
 		}
 		$type = $this->_factory->getFromRegistry(EL_IS_ITYPE, $this->typeID);
 		$this->_form->setLabel(sprintf($this->ID ? m('Edit object "%s"') : m('Create object "%s"'), $type->name));
@@ -394,7 +396,7 @@ class elIShopItem extends elDataMapping {
 								}
 							});
 						}
-					}).change();
+					});
 					
 					tm.change(function() {
 						var val = parseInt($(this).val());

@@ -79,11 +79,11 @@ class elIShopItemsCollection {
 				break;
 			
 			case EL_IS_MNF:
-				$coll = $this->_item->collection(true, true, 'mnf_id='.intval($ID), $sort);
+				$coll = $this->_item->collection(true, true, 'mnf_id='.intval($ID), $sort, $offset, $step);
 				break;
 				
 			case EL_IS_TM:
-				$coll = $this->_item->collection(true, true, 'tm_id='.intval($ID), $sort);
+				$coll = $this->_item->collection(true, true, 'tm_id='.intval($ID), $sort, $offset, $step);
 				break;
 				
 			case 'special':

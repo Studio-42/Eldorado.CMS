@@ -142,7 +142,8 @@ class elIShopFactory {
 		if ($hndl == EL_IS_ITEMSCOL) // item collection is a little bit special, handle with care :)
 		{
 			$obj->_item = $this->create(EL_IS_ITEM);
-			$obj->_sortID = isset($obj->_sort[$this->itemsSortID]) ? $this->itemsSortID : EL_IS_SORT_NAME;
+			$conf = & elSingleton::getObj('elXmlConf');
+			$obj->setSortID($conf->get('itemsSortID', $this->pageID));
 		}
 		else
 		{

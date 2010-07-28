@@ -7,6 +7,19 @@
 	</div>
 	<!-- END ISHOP_VIEW_SWITCH -->
 
+	<!-- BEGIN ISHOP_SORT -->
+	<div>
+		sort:
+		<select name="ishop_sort" id="ishop_sort">
+			<!-- BEGIN ISHOP_SORT_NAME -->
+			<option value="1">{m('by name')}</option>
+			<!-- END ISHOP_SORT_NAME -->
+			<option value="option2">option2</option>
+			
+		</select>
+	</div>
+	<!-- END ISHOP_SORT -->
+
 <!-- BEGIN PARENT_CAT -->
 <div class="mod-ishop-parent-cat">
 	<h2>{name}</h2>
@@ -208,7 +221,7 @@
 		<!-- BEGIN ADMIN -->
 		<ul class="adm-icons">
 			<li style="border:none;padding:0"><a href="{ishopURL}edit{typeID}/{parentID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
-			<li style="border:none;padding:0"><a href="{ishopURL}item_clone/{parentID}/{id}/" class="icons edit"   title="{m('Clone')}"></a></li>
+			<li style="border:none;padding:0"><a href="{ishopURL}item_clone/{parentID}/{id}/"   class="icons create" title="{m('Make copy')}"></a></li>
 			<li style="border:none;padding:0"><a href="{ishopURL}item_rm/{parentID}/{id}/"      class="icons delete" title="{m('Delete')}"></a></li>
 		</ul>
 		<!-- END ADMIN -->
@@ -245,8 +258,9 @@
 		<div class="grid-25-content{cssLastClass} ">
 			<!-- BEGIN ADMIN -->
 			<ul class="adm-icons">
-				<li><a href="{ishopURL}edit{type_id}/{catID}/{type_id}/{id}/"  class="icons edit"  title="{m('Edit')}"></a></li>
-				<li><a href="{ishopURL}rm_item/{catID}/{id}/"                  class="icons delete" title="{m('Delete')}"></a></li>
+				<li style="border:none;padding:0"><a href="{ishopURL}edit{typeID}/{parentID}/{id}/" class="icons edit"   title="{m('Edit')}"></a></li>
+				<li style="border:none;padding:0"><a href="{ishopURL}item_clone/{parentID}/{id}/"   class="icons create" title="{m('Make copy')}"></a></li>
+				<li style="border:none;padding:0"><a href="{ishopURL}item_rm/{parentID}/{id}/"      class="icons delete" title="{m('Delete')}"></a></li>
 			</ul>
 			<!-- END ADMIN -->
 			<h4><a href="{ishopURL}item/{parentID}/{id}/{fromTm}">{name}</a></h4>

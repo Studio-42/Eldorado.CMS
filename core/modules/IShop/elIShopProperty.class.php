@@ -399,7 +399,7 @@ class elIShopProperty extends elDataMapping {
 				break;
 			case EL_IS_PROP_MLIST:
 				if ($admin) {
-					return new elCheckboxesGroup('prop_'.$this->ID, $this->name, is_array($v) ? $v : $this->_default, $this->_opts);
+					return new elCheckboxesGroup('prop_'.$this->ID, $this->name, is_array($v) ? $v : $this->_default, array_map(array($this, '_rangeToString'), $this->_opts));
 				} else {
 					$dep   = $this->getDependOn();
 					$attrs = $dep ? array('depend_on' => $dep->ID) : array();

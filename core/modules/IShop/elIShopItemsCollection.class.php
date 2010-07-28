@@ -28,6 +28,16 @@ class elIShopItemsCollection {
 	}
 		
 	/**
+	 * Set items sort id
+	 *
+	 * @param  int
+	 * @return void
+	 **/
+	function setSortID($sortID) {
+		$this->_sortID = isset($this->_sort[$sortID]) ? $sortID : EL_IS_SORT_NAME;
+	}
+	
+	/**
 	 * return number of items belongs to parent object with $type and $ID
 	 *
 	 * @param  int  $type  type of parent object (category/manufacturer/trademark)

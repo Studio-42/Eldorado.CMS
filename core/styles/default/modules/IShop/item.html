@@ -72,8 +72,8 @@
 		<div id="mod-ishop-item-gallery-preview">
 			<!-- BEGIN PREVIEW_ADMIN -->
 			<ul class="adm-icons">
-				<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
-				<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+				<li><a href="{ishopURL}item_img/{parentID}/{id}/{img_id}/" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+				<li><a href="{ishopURL}item_img_rm/{parentID}/{id}/{img_id}/"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 			</ul>
 			<!-- END PREVIEW_ADMIN -->
 			<a href="{target}" id="mod-ishop-item-gallery-preview-img"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}"  /></a>
@@ -85,8 +85,8 @@
 			<!-- BEGIN IS_ITEM_TMB --><li class="mod-ishop-item-gallery-slider-item">
 				<!-- BEGIN TMB_ADMIN -->
 				<ul class="adm-icons">
-					<li><a href="{URL}item_img/{catID}/{id}/{img_id}" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
-					<li><a href="{URL}rm_img/{catID}/{id}/{img_id}"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
+					<li><a href="{ishopURL}item_img/{parentID}/{id}/{img_id}/" class="icons image ishop-sel-img"  title="{m('Change item image')}"></a></li>
+					<li><a href="{ishopURL}item_img_rm/{parentID}/{id}/{img_id}/"   class="icons delete" title="{m('Delete image')}" onClick="return confirm('{m('Do You really want to delete')}?');"></a></li>
 				</ul>
 				<!-- END TMB_ADMIN -->
 				<a href="{target}" rel="fancy-tour"><img src="{tmb}" alt="{alt}" width="{w}" height="{h}" /></a>

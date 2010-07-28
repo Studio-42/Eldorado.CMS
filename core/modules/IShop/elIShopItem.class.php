@@ -193,6 +193,17 @@ class elIShopItem extends elDataMapping {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function imgExists($id) {
+		$g = $this->getGallery();
+		return isset($g[$id]);
+	}
+
+	/**
 	 * return first image thumbnail url 
 	 *
 	 * @return string
@@ -235,12 +246,14 @@ class elIShopItem extends elDataMapping {
 	 *
 	 * @return bool
 	 **/
-	function rmImage($img_id = false) {
-		if ((!$this->ID) || (!$img_id) || (($img = $this->getImg($img_id)) === false)) {
+	function rmImage($imgID = false) {
+		$gal = $this->getGallery();
+		if (!isset($gal[$imgID])) {
 			return false;
 		}
+		$img = $gal[$imgID];
 		$db  = $this->_db();
-		$db->query(sprintf('DELETE FROM %s WHERE id=%d AND i_id=%d', $this->tbgal, $img_id, $this->ID));
+		$db->query(sprintf('DELETE FROM %s WHERE id=%d AND i_id=%d', $this->tbgal, $imgID, $this->ID));
 		list($tmbl, $tmbc) = $this->_getTmbNames($img);
 		@unlink('.'.$tmbl);
 		@unlink('.'.$tmbc);

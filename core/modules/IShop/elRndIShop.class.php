@@ -497,6 +497,7 @@ class elRndIShop extends elCatalogRenderer {
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_MNFS', array('cssClass' => $this->_view == EL_IS_VIEW_MNFS ? 'current' : ''), 1);
 			$this->_te->assignBlockVars('ISHOP_VIEW_SWITCH.VIEW_TYPES', array('cssClass' => $this->_view == EL_IS_VIEW_TYPES ? 'current' : ''), 1);
 		}
+		
 	}
 
 	/**
@@ -513,6 +514,15 @@ class elRndIShop extends elCatalogRenderer {
 		}
 		if ($total > 1) {
 			$this->_rndPager($total, $current);
+		}
+		if ($this->_conf('allowUserSort')) {
+			$sort = array(
+				EL_IS_SORT_NAME  => m('By name'),
+				// EL_IS_SORT_CODE  => m('By code/articul'),
+				EL_IS_SORT_PRICE => m('By price'),
+				EL_IS_SORT_TIME  => m('By publish date')
+				);
+			$this->_te->assignBlockVars('ISHOP_SORT');
 		}
 	}
 

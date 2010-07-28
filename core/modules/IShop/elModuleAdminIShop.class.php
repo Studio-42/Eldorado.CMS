@@ -27,9 +27,10 @@ class elModuleAdminIShop extends elModuleIShop
 		// products
 		'item_rm'     => array('m' => 'itemRm'),
 		'item_clone'  => array('m' => 'itemClone'),
-		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort items'),
-		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of items'),
-		'item_img'    => array('m' => 'itemImg')
+		'items_sort'  => array('m' => 'itemsSort', 'g'=>'Actions', 'ico'=>'icoSort',       'l'=>'Sort products'),
+		'items_rm'    => array('m' => 'itemsRm',   'g'=>'Actions', 'ico'=>'icoDocGroupRm', 'l'=>'Remove group of products'),
+		'item_img'    => array('m' => 'itemImg'),
+		'item_img_rm' => array('m' => 'itemImgRm')
 		
       
 	);
@@ -494,15 +495,20 @@ class elModuleAdminIShop extends elModuleIShop
 	 *
 	 * @return void
 	 **/
-	function rmItemImg() {
+	function itemImgRm() {
 		$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+		$url = $this->_url.'item/'.$this->_parentID.'/'.$item->ID;
+		
 		if (!$item->ID) {
-			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), $this->_redirURL);
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array($item->getObjName(), $item->ID), $url);
 		}
-		$img_id = (int)$this->_arg(2);
-		$item->rmImage((int)$this->_arg(2));
+		$imgID = (int)$this->_arg(2);
+		if (!$item->imgExists($imgID)) {
+			elThrow(E_USER_WARNING, 'There is no object "%s" with ID="%d"', array(m('Image'), $item->ID), $url);
+		}
+		$item->rmImage($imgID);
 		elMsgBox::put(m('Data saved'));
-		elLocation($this->_url.'item/'.$this->_parentID.'/'.$item->ID);
+		elLocation($url);
 	}
   
 	// function editCrossLinks() {

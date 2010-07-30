@@ -672,6 +672,7 @@ class elSiteRenderer
 	function _rndMenuHoriz($pages, $var, $tpl, $icons)
 	{
 		$this->_te->setFile($var, 'menus/'.$tpl); //echo elPrintR($pages);
+		$this->_te->assignVars('navSuffix', '');
 		$size = sizeof($pages);
         $cellWidth = floor(100/$size);
 		$size--;

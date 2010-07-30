@@ -8,6 +8,7 @@ include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopProperty.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopTm.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopItemsCollection.class.php';
 include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopFinder.class.php';
+include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 
 /**
  * IShop factory and regisry for item types

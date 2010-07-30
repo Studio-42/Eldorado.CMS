@@ -1,7 +1,7 @@
 <?php
 
-include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'constants.php';
-include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'elIShopFactory.class.php';
+// include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elCatalogCategory.class.php';
 
 /**
  * Internet shop module
@@ -839,6 +839,8 @@ EOL;
 	 * @return void
 	 **/
 	function _onInit() {
+		$GLOBALS['ishopView'] = $this->_view;
+		$GLOBALS['ishopParentID'] = $this->_parentID;
 		$GLOBALS['categoryID'] = $this->_cat->ID;
 
 		$this->itemsNum = $this->_factory->ic->countAll();

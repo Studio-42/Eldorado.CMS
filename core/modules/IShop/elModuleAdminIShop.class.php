@@ -37,7 +37,7 @@ class elModuleAdminIShop extends elModuleIShop
 
 	var $_mMapConf  = array(
 		'conf'            => array('m'=>'configure',           'ico'=>'icoConf',          'l'=>'Configuration'),
-		// 'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
+		'conf_nav'        => array('m'=>'configureNav',        'ico'=>'icoNavConf',       'l'=>'Configure navigation for catalog'),
 		// 'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
 		'yandex_market'   => array('m'=>'yandexMarketConf',    'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
@@ -652,7 +652,29 @@ class elModuleAdminIShop extends elModuleIShop
 		}
 	}
 	
-
+	/**
+	 * configure ishop navigation for site pages
+	 *
+	 * @return void
+	 **/
+	function configureNav() {
+		$form = & parent::_makeConfForm();
+		$form->setLabel(m('Configure navigation for catalog'));
+		
+		$form->add(new elSelect('cats', m('Display categories navigation'), null, $GLOBALS['yn']));
+		$form->add( new elSelect('pos', m('Display catalog navigation'), $c['pos'],	$GLOBALS['posNLRTB'], array('onChange'=>$js)) );
+	  	$form->add( new elText('title', m('Navigation title'), $c['title']) );
+	  	$form->add( new elSelect('deep', m('How many levels of catalog display'), $c['deep'], array( m('All levels'), 1, 2, 3, 4 )) );
+		
+		$form->add(new elSelect('mnfs', m('Display manufacturers navigation'), null, $GLOBALS['yn']));
+		
+		$form->add(new elSelect('types', m('Display products types navigation'), null, $GLOBALS['yn']));
+		
+		if (!$form->isSubmitAndValid()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($form->toHtml());
+		}
+	}
 	
 	/**************************************************************************************
 	 *                                 PRIVATE METHODS                                    *

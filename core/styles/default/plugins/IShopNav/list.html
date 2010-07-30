@@ -1,0 +1,39 @@
+<h3>{m('Internet shops navigation')}</h3>
+<table class="grid-tb">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>{m('Internet shop')} / {m('Name')}</th>
+		<th>{m('Type')}</th>
+		<th>{m('Position')}</th>
+		<th>{m('Pages')}</th>
+		<th class="admin"><a href="{URL}pl_conf/{pluginName}/edit/" class="icons create float-right" title="{m('Create')}"></a></th>
+	</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN ISHOP_MENU -->
+		<tr>
+			<td>{id}</td>
+			<td>{src} / {name}</td>
+			<td>{type}</td>
+			<td>{pos}</td>
+			<td>{pages}</td>
+			<td class="admin">
+				<ul class="adm-icons">
+					<li><a href="{URL}pl_conf/{pluginName}/edit/{id}/"  class="icons edit"  title="{m('Edit')}" ></a></li>
+					<li><a href="{URL}pl_conf/{pluginName}/rm/{id}/" class="icons delete"  title="{m('Delete')}"></a></li>
+				</ul>
+			</td>
+		</tr>
+		<!-- END ISHOP_MENU -->
+	</tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		$('a.icons.delete').click(function(e) {
+			if (!confirm('{m('Do You really want to delete')}?')) {
+				e.preventDefault();
+			}
+		});
+	});
+</script>

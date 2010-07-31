@@ -49,7 +49,7 @@ class elPluginIShopNav extends elPlugin {
 	 **/
 	function onUnload() {
 		$db = & elSingleton::getObj('elDb');
-		$src = $db->queryToArray('SELECT m.id, m.src, m.type, m.pos, m.name, m.deep FROM el_plugin_ishop_nav AS m, el_plugin_ishop_nav2page AS p WHERE (p.page_id="'.$this->pageID.'" OR p.page_id=1) AND m.id=p.id ORDER BY id', 'id');
+		$src = $db->queryToArray('SELECT m.id, m.src, m.type, m.pos, m.name, m.deep, m.tpl FROM el_plugin_ishop_nav AS m, el_plugin_ishop_nav2page AS p WHERE (p.page_id="'.$this->pageID.'" OR p.page_id=1) AND m.id=p.id ORDER BY id', 'id');
 		if (empty($src)) {
 			return;
 		}
@@ -62,7 +62,7 @@ class elPluginIShopNav extends elPlugin {
 				$this->_manager->rm($id);
 				continue;
 			}
-			list($pos, $tplVar, $tpl) = $this->_getPosInfo($s['pos']);
+			list($pos, $tplVar, $tpl) = $this->_getPosInfo($s['pos'], $s['tpl']);
 			// echo "$pos, $tplVar, $tpl";
 			if (!$rnd->setFile($tplVar, $tpl)) {
 				continue;

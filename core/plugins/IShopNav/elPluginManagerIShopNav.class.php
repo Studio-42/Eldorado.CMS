@@ -40,13 +40,13 @@ class elPluginManagerIShopNav {
 		$this->_master = & $master;
 		$this->_types = array_map('m', $this->_types);
 		$this->_db    = & elSingleton::getObj('elDb');
-		$this->_menus = $this->_db->queryToArray('SELECT id, src, type, pos, name, deep FROM el_plugin_ishop_nav ORDER BY id', 'id');
+		$this->_menus = $this->_db->queryToArray('SELECT id, src, type, pos, name, deep, tpl FROM el_plugin_ishop_nav ORDER BY id', 'id');
 		$pages        = $this->_db->queryToArray('SELECT r.id, r.page_id, IF(r.page_id = 1, "'.m('Whole site').'", m.name) AS name FROM el_plugin_ishop_nav2page AS r, el_menu AS m WHERE m.id=r.page_id');
 		
 		foreach ($this->_menus as $id=>$menu) {
 			if (!isset($this->_master->src[$menu['src']])) {
-				// $this->rm($id);
-				// unset($this->_menus[$id]);
+				$this->rm($id);
+				unset($this->_menus[$id]);
 			} else {
 				$this->_menus[$id]['page_id'] = array();
 				foreach ($pages as $p) {
@@ -95,6 +95,11 @@ class elPluginManagerIShopNav {
 		}
 		
 		$deep = array(m('All'), 1, 2, 3);
+		
+		
+		$tpls = scandir('./style/menus');
+		$tpls = array_diff($tpls, array('.', '..', 'add-bottom.html', 'add-top.html', 'left.html', 'right.html', 'sub-top.html', 'top.html'));
+		
 		$menu = isset($this->_menus[$id])
 			? $this->_menus[$id]
 			: array(
@@ -104,10 +109,9 @@ class elPluginManagerIShopNav {
 				'pos'    => 'l',
 				'deep'   => 0,
 				'name'   => '',
+				'tpl'    => '',
 				'page_id' => array(1 => m('Whole site'))
 				);
-		// echo $id;
-		// elPrintr($menu);
 		$form = & elSingleton::getObj('elForm', 'ishop_nav_form',  m(!$menu['id'] ? 'Create internet shop menu' : 'Edit internet shop menu'));
 		$form->setRenderer(elSingleton::getObj('elTplFormRenderer'));
 		$form->add(new elSelect('src',  m('Internet shop'), $menu['src'], $this->_master->src));
@@ -119,6 +123,14 @@ class elPluginManagerIShopNav {
 		$pages = new elMultiSelectList('page_id', m('Pages'), array_keys($menu['page_id']), elGetNavTree('+', m('Whole site')));
 		$pages->setSwitchValue(1);
 		$form->add($pages);
+		if (!empty($tpls)) {
+			$_tpls = array('' => m('No'));
+			foreach ($tpls as $tpl) {
+				$_tpls[$tpl] = $tpl;
+			}
+			$form->add(new elSelect('tpl', m('Use alternative template'), $menu['tpl'], $_tpls));
+		}
+		
 		$js = "
 			$('#ishop_nav_form #type').change(function() {
 				var v = $(this).val(),
@@ -152,8 +164,8 @@ class elPluginManagerIShopNav {
 		$deep = $type == 'cats' ? $data['deep'] : ($type == 'mnfs' ? $data['tm'] : 0);
 		
 		$sql = $menu['id']
-			? sprintf('UPDATE el_plugin_ishop_nav SET src="%d", pos="%s", type="%s", deep="%d", name="%s" WHERE id="%d"', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), $id)
-			: sprintf('INSERT INTO el_plugin_ishop_nav (src, pos, type, deep, name) VALUES (%d, "%s", "%s", "%d", "%s")', $src, $pos, $type, $deep, mysql_real_escape_string($data['name'])) ;
+			? sprintf('UPDATE el_plugin_ishop_nav SET src="%d", pos="%s", type="%s", deep="%d", name="%s", tpl="%s" WHERE id="%d"', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($data['tpl']), $id)
+			: sprintf('INSERT INTO el_plugin_ishop_nav (src, pos, type, deep, name, tpl) VALUES (%d, "%s", "%s", "%d", "%s", "%s")', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($data['tpl'])) ;
 		// echo $sql;
 		if (!$this->_db->query($sql)) {
 			elThrow(E_USER_WARNING, 'Unable to create/edit menu', null, EL_URL.'pl_conf/IShopNav/');

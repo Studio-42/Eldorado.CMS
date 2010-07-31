@@ -736,6 +736,7 @@ EOL;
 					'name' => $this->_parentName)
 					);
 				if (!empty($this->_tm->ID)) {
+					$GLOBALS['ishopTmID'] = $this->_tm->ID;
 					elAppendToPagePath(array(
 						'url'  => $this->_urlMnfs.'tm/'.$this->_mnf->ID.'/'.$this->_tm->ID.'/',	
 						'name' => $this->_tm->name)
@@ -839,9 +840,9 @@ EOL;
 	 * @return void
 	 **/
 	function _onInit() {
-		$GLOBALS['ishopView'] = $this->_view;
+		$GLOBALS['ishopView']     = $this->_view;
 		$GLOBALS['ishopParentID'] = $this->_parentID;
-		$GLOBALS['categoryID'] = $this->_cat->ID;
+		$GLOBALS['categoryID']    = $this->_cat->ID;
 
 		$this->itemsNum = $this->_factory->ic->countAll();
 		

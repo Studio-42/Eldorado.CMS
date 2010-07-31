@@ -50,7 +50,6 @@ class elPluginIShopNav extends elPlugin {
 	function onUnload() {
 		$db = & elSingleton::getObj('elDb');
 		$src = $db->queryToArray('SELECT m.id, m.src, m.type, m.pos, m.name, m.deep FROM el_plugin_ishop_nav AS m, el_plugin_ishop_nav2page AS p WHERE (p.page_id="'.$this->pageID.'" OR p.page_id=1) AND m.id=p.id ORDER BY id', 'id');
-		// elPrintr($src);
 		if (empty($src)) {
 			return;
 		}
@@ -118,18 +117,29 @@ class elPluginIShopNav extends elPlugin {
 
 			}
 			
-			// elPrintr($menu);
+			if ($s['name'] && $s['pos'] != EL_POS_TOP ) {
+				$rnd->assignBlockVars('MENU_PARENT', array('parentName' => $s['name']));
+			}
 			$size = sizeof($menu);
 	        $cellWidth = floor(100/$size);
 			$size--;
-			$i = 0;
+			$i = 0; 
 			foreach ($menu as $page) {
 				$prefix = $s['pos'] == EL_POS_TOP 
 					? 'navtop'
 					: ($s['pos'] == EL_POS_LEFT ? 'navleft' : 'navright'); 
 				$cssClass = $prefix.'-item';
-				if ($s['src'] == $this->pageID && $GLOBALS['ishopView'] == $view && $GLOBALS['ishopParentID'] == $page['id']) {
-					$cssClass .= '-selected';
+				if ($s['src'] == $this->pageID && $GLOBALS['ishopView'] == $view ) {
+					if ($view == EL_IS_VIEW_MNFS) {
+						if (($page['level'] == 2 && !empty($GLOBALS['ishopTmID']) && $page['id'] == $GLOBALS['ishopTmID'])
+						|| ($page['level'] == 1 && $GLOBALS['ishopParentID'] == $page['id'])) {
+							$cssClass .= '-selected';
+						} 
+					} elseif ($GLOBALS['ishopParentID'] == $page['id']) {
+						$cssClass .= '-selected';
+					}
+					
+					
 				}
 				$cssClass .= $i==0 ? '-first' : ($i==$size ? '-last' : '');
 				if ($s['pos'] != EL_POS_TOP) {

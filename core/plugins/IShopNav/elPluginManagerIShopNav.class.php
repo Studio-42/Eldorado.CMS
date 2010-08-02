@@ -162,10 +162,11 @@ class elPluginManagerIShopNav {
 		$type = isset($this->_types[$data['type']]) ? $data['type'] : 'cats';
 		$pos  = isset($GLOBALS['posLRT'][$data['pos']]) ? $data['pos'] : 'l';
 		$deep = $type == 'cats' ? $data['deep'] : ($type == 'mnfs' ? $data['tm'] : 0);
+		$tpl  = isset($data['tpl']) ? $data['tpl'] : '';
 		
 		$sql = $menu['id']
-			? sprintf('UPDATE el_plugin_ishop_nav SET src="%d", pos="%s", type="%s", deep="%d", name="%s", tpl="%s" WHERE id="%d"', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($data['tpl']), $id)
-			: sprintf('INSERT INTO el_plugin_ishop_nav (src, pos, type, deep, name, tpl) VALUES (%d, "%s", "%s", "%d", "%s", "%s")', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($data['tpl'])) ;
+			? sprintf('UPDATE el_plugin_ishop_nav SET src="%d", pos="%s", type="%s", deep="%d", name="%s", tpl="%s" WHERE id="%d"', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($tpl), $id)
+			: sprintf('INSERT INTO el_plugin_ishop_nav (src, pos, type, deep, name, tpl) VALUES (%d, "%s", "%s", "%d", "%s", "%s")', $src, $pos, $type, $deep, mysql_real_escape_string($data['name']), mysql_real_escape_string($tpl)) ;
 		// echo $sql;
 		if (!$this->_db->query($sql)) {
 			elThrow(E_USER_WARNING, 'Unable to create/edit menu', null, EL_URL.'pl_conf/IShopNav/');

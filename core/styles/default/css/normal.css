@@ -241,7 +241,14 @@ ul.navright li, ul.navright-sidemenu li, ul.navright-catmenu li {
 }
 
 /*ul.navleft li.level1 ul.navleft li.level2, ul.navleft li.level3 {}*/
-
+li.navleft-item-selected a, 
+li.navleft-item-selected-first a, 
+li.navleft-item-selected-last a,
+li.navright-item-selected a, 
+li.navright-item-selected-first a, 
+li.navright-item-selected-last a {
+	text-decoration:underline;
+}
 
 /***********************************************/
 /**             Результаты поиска             **/

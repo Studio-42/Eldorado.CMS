@@ -67,7 +67,7 @@ INSERT INTO `el_plugin` (`name`, `label`, `descrip`, `is_on`, `status`) VALUES
 ('Poll',         'Poll',           'Show poll', '1', 'off'),
 ('RandomImage',  'Random Image',   'Show randmon images from gallery', '0', 'off'),
 ('SpecialOffer', 'Special Offers', 'Show special offers from IShop', '0', 'off'),
-('IShopNav',     'Internet shops navigation', 'Shop internet shops menu', '0', 'off');
+('CatsNav',     'Catalogs navigation', 'All types of catalogs menu', '0', 'off');
 
 INSERT INTO `el_user` (`uid`, `login`, `pass`, `f_name`, `l_name`, `email`, `crtime`, `mtime`, `atime`, `visits`) VALUES
 (1, 'root', 'b78bb582523a89da07ce348eb5e16d88', 'Administrator', '', '', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 1);

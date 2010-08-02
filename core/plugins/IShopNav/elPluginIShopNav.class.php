@@ -7,7 +7,7 @@ include_once EL_DIR_CORE.'lib/elPlugin.class.php';
  **/
 class elPluginIShopNav extends elPlugin {
 	/**
-	 * menus for current page
+	 * 
 	 *
 	 * @var array
 	 **/
@@ -54,19 +54,17 @@ class elPluginIShopNav extends elPlugin {
 			return;
 		}
 		include_once EL_DIR_CORE.'modules'.DIRECTORY_SEPARATOR.'IShop'.DIRECTORY_SEPARATOR.'elIShopFactory.class.php';
-		$rnd = & elSingleton::getObj('elTE');
+
+		$rnd = & elSingleton::getObj('elSiteRenderer');
+		
 		foreach ($src as $id=>$s) {
 			if (!isset($this->src[$s['src']])) {
-
 				$this->_loadManager();
 				$this->_manager->rm($id);
 				continue;
 			}
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($s['pos'], $s['tpl']);
 			// echo "$pos, $tplVar, $tpl";
-			if (!$rnd->setFile($tplVar, $tpl)) {
-				continue;
-			}
 			$menu    = array();
 			$url     = $this->_nav->getPageURL($s['src']);
 			$factory = & elSingleton::getObj('elIShopFactory', $s['src']);
@@ -117,46 +115,22 @@ class elPluginIShopNav extends elPlugin {
 
 			}
 			
-			if ($s['name'] && $s['pos'] != EL_POS_TOP ) {
-				$rnd->assignBlockVars('MENU_PARENT', array('parentName' => $s['name']));
-			}
-			$size = sizeof($menu);
-	        $cellWidth = floor(100/$size);
-			$size--;
-			$i = 0; 
-			foreach ($menu as $page) {
-				$prefix = $s['pos'] == EL_POS_TOP 
-					? 'navtop'
-					: ($s['pos'] == EL_POS_LEFT ? 'navleft' : 'navright'); 
-				$cssClass = $prefix.'-item';
+			foreach ($menu as $id=>$page) {
+				
 				if ($s['src'] == $this->pageID && $GLOBALS['ishopView'] == $view ) {
 					if ($view == EL_IS_VIEW_MNFS) {
 						if (($page['level'] == 2 && !empty($GLOBALS['ishopTmID']) && $page['id'] == $GLOBALS['ishopTmID'])
 						|| ($page['level'] == 1 && $GLOBALS['ishopParentID'] == $page['id'])) {
 							$cssClass .= '-selected';
+							$menu[$id]['selected'] = true;
 						} 
 					} elseif ($GLOBALS['ishopParentID'] == $page['id']) {
 						$cssClass .= '-selected';
+						$menu[$id]['selected'] = true;
 					}
-					
-					
 				}
-				$cssClass .= $i==0 ? '-first' : ($i==$size ? '-last' : '');
-				if ($s['pos'] != EL_POS_TOP) {
-					$cssClass = 'level'.$page['level'].' '.$cssClass;
-				} 
-				
-				$page['cssClass'] = $cssClass;
-				$page['odd']      = (int)($i++%2);
-				$page['num']      = $i;
-				$page['width']    = $cellWidth;
-				$rnd->assignBlockVars('MENU.PAGE', $page);
 			}
-			$rnd->assignVars('navSuffix', '-catmenu');
-			$rnd->parse($tplVar, null, true, false, true);
-			if ($s['pos'] != EL_POS_TOP) {
-				$GLOBALS['parseColumns'][$s['pos']] = true;
-			}
+			$rnd->rndDefaultMenu($menu, $pos, $tplVar, $tpl, $ico, $s['name'], '-catmenu');
 		}
 	}
 	
@@ -174,7 +148,7 @@ class elPluginIShopNav extends elPlugin {
 	
 	function _getPosInfo($pos, $altTpl=null) {
 		$pos = !empty($this->_posNfo[$pos]) ? $pos : EL_POS_LEFT;
-		return array($pos, $this->_posNfo[$pos][0], 'menus/'.(empty($altTpl) ? $this->_posNfo[$pos][1] : $altTpl));
+		return array($pos, $this->_posNfo[$pos][0], (empty($altTpl) ? $this->_posNfo[$pos][1] : $altTpl));
 	}
 	
 	/**

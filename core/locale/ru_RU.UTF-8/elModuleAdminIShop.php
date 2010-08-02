@@ -70,13 +70,7 @@ $elMsg['Display type descriptions']             = 'Показать описан
 
 // messages/warnings
 $elMsg['There are no features to sort'] = 'Нет свойств для сортировки';
-
-
-
 $elMsg['This image is already in the gallery'] = 'Это изображение уже существует в галерее';
-
-
-
 
 // Yandex.Market
 $elMsg['Yandex.Market']                            = 'Яндекс.Маркет';

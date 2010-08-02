@@ -292,6 +292,25 @@ CREATE TABLE IF NOT EXISTS `el_plugin_ib2page` (
   PRIMARY KEY (`id`,`page_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+DROP TABLE IF EXISTS `el_plugin_cats_nav`;
+CREATE TABLE IF NOT EXISTS `el_plugin_cats_nav` (
+  `id`     tinyint(2) NOT NULL AUTO_INCREMENT,
+  `src`    int(3) NOT NULL default 0,
+  `pos`    enum('l','r','t','b') COLLATE utf8_bin DEFAULT 'l',
+  `type`   enum('cats','mnfs','types') COLLATE utf8_bin DEFAULT 'cats',
+  `deep`   enum('0', '1', '2', '3', '4') COLLATE utf8_bin DEFAULT '0',
+  `name`   varchar(256) COLLATE utf8_bin NOT NULL,
+  `tpl`   varchar(256) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+DROP TABLE IF EXISTS `el_plugin_cats_nav2page`;
+CREATE TABLE IF NOT EXISTS `el_plugin_cats_nav2page` (
+  `id`      tinyint(2) NOT NULL,
+  `page_id` int(3) NOT NULL,
+  PRIMARY KEY (`id`,`page_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 DROP TABLE IF EXISTS `el_plugin_ishop_nav`;
 CREATE TABLE IF NOT EXISTS `el_plugin_ishop_nav` (
   `id`     tinyint(2) NOT NULL AUTO_INCREMENT,

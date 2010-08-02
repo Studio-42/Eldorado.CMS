@@ -67,7 +67,7 @@ INSERT INTO `el_plugin` (`name`, `label`, `descrip`, `is_on`, `status`) VALUES
 ('Poll',         'Голосования',             'Отображение голосований', '1', 'off'),
 ('RandomImage',  'Случайная картинка',      'Показ случайных картинок из альбомов изображений', '0', 'off'),
 ('SpecialOffer', 'Специальные предложения', 'Показ спец. предложений из Интернет магазина', '0', 'off'),
-('IShopNav',     'Навигация интернет магазинов', 'Показ меню Интернет магазинов', '0', 'off');
+('CatsNav',      'Навигация каталогов',     'Показ меню всех типов каталогов', '0', 'off');
 
 INSERT INTO `el_user` (`uid`, `login`, `pass`, `f_name`, `l_name`, `email`, `crtime`, `mtime`, `atime`, `visits`) VALUES
 (1, 'root', 'b78bb582523a89da07ce348eb5e16d88', 'Администратор', '', '', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 1);

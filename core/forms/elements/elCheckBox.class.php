@@ -202,13 +202,14 @@ class elMultiSelectList extends elCheckBoxesGroup
 				$(this).children("a.el-collapsed").eq(0).trigger("click");
 			}
 		}).children("a.el-collapsed").click(function(e) {
-			e.preventDefault;
+			// alert("here")
+			e.preventDefault();
 			e.stopPropagation();
 			if (!this.prepared) {
 				this.prepared = true;
 				$(this).parents().each(function() {
 					if ($(this).css("overflow") == "hidden") {
-						$(this).css("overflow", "visible");
+						// $(this).css("overflow", "visible");
 					}
 				});
 			}
@@ -301,6 +302,7 @@ class elVariantsList extends elFormInput
     $html .= '<a href="#" class="form-varlist-ctrl">+ '.m('Add field').' +</a>';
 
 	$js = '$(".form-varlist-ctrl").click(function(e) {
+
 		e.preventDefault();
 		var p = $(this).prev(".form-varlist-container"),
 			c = p.children(":last").clone(),

@@ -67,7 +67,7 @@ class elRndImageGalleries extends elModuleRenderer
 			$dsplFileName && $this->_te->assignBlockVars('GAL_IMG.FILE',  array('i_file'      => $images[$i]['i_file']), 1);
 			$dsplFileSize && $this->_te->assignBlockVars('GAL_IMG.FSIZE', array('i_file_size' => $images[$i]['i_file_size']), 1);
 			$dsplImgDate  && $this->_te->assignBlockVars('GAL_IMG.DATE',  array('date'        => $images[$i]['date']), 1);
-			$dsplImgSize  && $this->_te->assignBlockVars('GAL_IMG.SIZE',  array('i_width_0'   => $images[$i]['i_width_0'], 'i_height_0' => $images[$i]['i_height_0']), 1);
+			$dsplImgSize  && $this->_te->assignBlockVars('GAL_IMG.SIZE',  array('i_width_0'   => $images[$i]['i_width'], 'i_height_0' => $images[$i]['i_height']), 1);
 		}
 		if ( 1 < $content['pages'] )
 		{

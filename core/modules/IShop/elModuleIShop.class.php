@@ -547,7 +547,7 @@ EOL;
 					$params .= sprintf($param_tpl, $prop['name'], $prop['value']);
 				}
 			}
-
+			$mnf = $i->getMnf();
 			$yml_offer .= sprintf($yml_offer_tpl,
 				$i->ID,                                      // offer id
 				$this->getItemUrl($i->ID),                   // url
@@ -558,7 +558,7 @@ EOL;
 				$delivery,                                   // delivery
 				//'',                                        // local_delivery_cost
 				$this->_ymlSC($i->name),                     // name
-				$this->_ymlSC($i->getMnf()->name),           // vendor
+				$this->_ymlSC($mnf->name),           // vendor
 				//'',                                        // vendor code
 				strip_tags($this->_ymlSC($i->content)),      // description
 				//'',                                        // country_of_origin

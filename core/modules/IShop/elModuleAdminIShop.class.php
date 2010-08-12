@@ -558,7 +558,8 @@ class elModuleAdminIShop extends elModuleIShop
 				}
 
 				$nodes = array();
-				foreach ($this->_factory->create(EL_IS_CAT, $ID)->getChilds(1) as $child) {
+				$c = $this->_factory->create(EL_IS_CAT, $ID);
+				foreach ($c->getChilds(1) as $child) {
 					array_push($nodes, array(
 						'id'         => 'cat_'.$child->ID,
 						'name'       => $child->name,

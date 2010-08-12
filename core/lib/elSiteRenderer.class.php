@@ -559,6 +559,7 @@ class elSiteRenderer
 		if ( !empty($aMenus[EL_ADD_MENU_SIDE]) ) {
 			foreach ( $aMenus[EL_ADD_MENU_SIDE] as $menu ) {
 				if (!empty($menu['pages'])) {
+					
 					$pos   = $menu['pos'] == EL_POS_RIGHT ? EL_POS_RIGHT : EL_POS_LEFT;
 					$param = $this->_menuPos['side'][$pos];
 					$this->_rndDefaultMenu($menu['pages'], $pos, $param['var'], $param['tpl'], false, $menu['name'], '-sidemenu');
@@ -601,19 +602,20 @@ class elSiteRenderer
 		$curPageID = $this->_nav->getCurrentPageID();
 		$this->_te->setFile($var, 'menus/'.$tpl); 
 		$this->_te->assignVars('navSuffix', $suffix);
-		
+
 		$size = sizeof($pages);
         $cellWidth = floor(100/$size);
 		$size--;
 		$i = 0;
 		if ($pos == EL_POS_TOP) {
 			$prefix = 'navtop';
-			if ($parentName) {
-	      		$this->_te->assignBlockVars('MENU_PARENT', array('parentName'=>$parentName));
-	    	}
+			
 		} else {
 			$prefix = $pos == EL_POS_LEFT ? 'navleft' : 'navright';
 			$GLOBALS['parseColumns'][$pos] = true;
+			if ($parentName) {
+	      		$this->_te->assignBlockVars('MENU_PARENT', array('parentName'=>$parentName));
+	    	}
 		}
 		$prefix .= '-item';
 

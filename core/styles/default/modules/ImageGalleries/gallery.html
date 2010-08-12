@@ -52,8 +52,8 @@
 			h = h < _h ? _h : h;
 		}).each(function() { $(this).height(h) });
 		
-		if ($.fn.fancybox) {
-			$("li.img a:has(img)").fancybox(); 
+		if ($.fn.fancybox && $('.mod-ig-gallery a[rel="fancy-tour"]').length) {
+			$('.mod-ig-gallery a[rel="fancy-tour"]').fancybox();
 		}
 	})
 </script>

@@ -95,14 +95,15 @@ class elRndIShop extends elCatalogRenderer {
 	 * @param  array  $items    items
 	 * @param  int    $total    number of pages
 	 * @param  int    $current  current page number
+	 * @param  object $cat      current catalog
 	 * @return void
 	 **/
 	function render($cats, $items, $total, $current, $cat) {
 		$this->_setFile();
 		$this->_rndViewSwitch();
 
-		if ($this->_conf('displayCatDescrip') > EL_CAT_DESCRIP_IN_LIST && $this->_cat->content) {
-			$this->_te->assignBlockVars('PARENT_CAT', array('name' => $this->_cat->name, 'content' => $cat->descrip));
+		if ($this->_conf('displayCatDescrip') > EL_CAT_DESCRIP_IN_LIST && $cat->descrip) {
+			$this->_te->assignBlockVars('PARENT_CAT', array('name' => $cat->name, 'content' => $cat->descrip));
 		}
 
 		if ($cats) {

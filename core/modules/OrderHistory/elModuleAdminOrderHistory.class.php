@@ -13,7 +13,7 @@ class elModuleAdminOrderHistory extends elModuleOrderHistory
 		'edit'      => array('m' => 'editOrder'),
 		'items'     => array('m' => 'editItem'),
 		'status'    => array('m' => 'changeStatus'),
-		'analytics' => array('m' => 'showAnalytics', 'l' => 'Statistics', 'g' => 'Actions', 'ico' => 'icoItemTypesList')
+		//'analytics' => array('m' => 'showAnalytics', 'l' => 'Statistics', 'g' => 'Actions', 'ico' => 'icoItemTypesList')
 	);
 
 	function defaultMethod()

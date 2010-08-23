@@ -15,7 +15,8 @@ class elRndIShop extends elCatalogRenderer {
 		'item'   => 'item.html',
 		'mnfs'   => 'mnfs.html',
 		'props'  => 'props.html',
-		'yaMart' => 'yandexMarket.html'
+		'yaMart' => 'yandexMarket.html',
+		'searchConf' => 'search-conf.html'
 	);
 	/**
 	 * currency object
@@ -481,6 +482,18 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_setFile('yaMart');
 		$this->_te->assignVars($data);
 		$this->_te->assignBlockVars('YM_PAGE', $data);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function rndSearchConf($json) {
+		// echo $json;
+		$this->_setFile('searchConf');
+		$this->_te->assignVars('json', $json);
 	}
 
 	/**********************************************/

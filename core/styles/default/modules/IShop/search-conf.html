@@ -1,0 +1,115 @@
+<table cellspacing="0" rules="rows"  class="grid-tb">
+	<tr>
+		<th>{m('Label')}</th>
+		<th>{m('Type')}</th>
+		<th>{m('Position')}</th>
+		<!-- <td>{m('')}</td>
+		<td>{m('')}</td>
+		<td>{m('')}</td> -->
+		<th class="admin"><a href="{URL}" class="icons create float-right" title="{m('Create')}"></a></th>
+	</tr>
+</table>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		
+		function openForm(id) {
+			var d, f, t, o, fields, p;
+			
+			p = {json};
+			
+			fields = {
+				label : {
+					l : "{m('Label')}",
+					e : $('<input type="text" name="label" />')
+				},
+				type  : {
+					l : "{m('Type')}",
+					e : $('<select name="type"/>')
+						.append('<option value="price">{m('Price')}</option>')
+						.append('<option value="mnf">{m('Manufacturer')}</option>')
+						.append('<option value="tm">{m('Trade mark/model')}</option>')
+						.append('<option value="prop">{m('Feature')}</option>')
+						.change(function() {
+							var v = $(this).val();
+							if (v == 'prop') {
+								fields.prop.e.parents('tr').eq(0).show();
+								fields.pview.e.parents('tr').eq(0).show();
+								
+							} else {
+								
+								fields.prop.e.parents('tr').eq(0).hide();
+								fields.pview.e.parents('tr').eq(0).hide();
+							}
+							if (v == 'price') {
+								fields.noselect.e.parents('tr').eq(0).hide();
+							} else {
+								fields.noselect.e.parents('tr').eq(0).show();
+							}
+						})
+				},
+				prop : {
+					l : "{m('Feature')}",
+					e : $('<select name="prop_id"/>')
+				},
+				pview : {
+					l : "{m('Property view')}",
+					e : $('<select name="prop_view"/>')
+						.append('<option value="normal">{m('Normal')}</option>')
+						.append('<option value="period">{m('Period')}</option>')
+				},
+				position : {
+					l : "{m('Position')}",
+					e : $('<select name="position"/>')
+						.append('<option value="normal">{m('Default search')}</option>')
+						.append('<option value="advanced">{m('Advanced search')}</option>')
+				},
+				display : {
+					l : "{m('Show on load')}",
+					e : $('<select name="display_on_load"/>')
+						.append('<option value="yes">{m('Yes')}</option>')
+						.append('<option value="no">{m('No')}</option>')
+				},
+				noselect : {
+					l : "{m('Label for not selected value')}",
+					e : $('<input type="text" name="noselect_label" value="{m('not selected')}" />')
+				}
+				
+				
+			};
+			
+			$.each(p, function() {
+				fields.prop.e.append('<option value="'+this.id+'">'+this.name+'</option>');
+			});
+			
+			
+			f = $('<form method="POST"/>').append('<input type="hidden" name="edit" value="1" />');
+			t = $('<table />').appendTo(f);
+			
+			$.each(fields, function() {
+				$('<tr><td width="50%">'+this.l+'</td><td width="50%"></td></tr>').appendTo(t).children('td').eq(1).append(this.e);
+			});
+			
+			fields.type.e.change()
+			
+			o = {
+				title   : id != void 0 ? "{m('Edit field')}" : "{m('New field')}",
+				width : 400,
+				buttons : {
+					OK     : function() { f.submit(); },
+					Cancel : function() { $(this).dialog('close') }
+				}
+			};
+			
+			d = $('<div/>').append(f).dialog(o)
+			
+		}
+
+		$('a.icons.create').click(function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			openForm();
+		});
+
+	})
+</script>

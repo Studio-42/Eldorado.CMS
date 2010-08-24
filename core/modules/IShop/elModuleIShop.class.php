@@ -660,6 +660,14 @@ EOL;
 					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
 				}
 				break;
+			case 'search_fields_sort':
+				$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+				$ret = array();
+				foreach ($finder->getConf() as $id => $f) {
+					$ret[] = array('id' => $id, 'label' => $f['label']);
+				}
+				exit(elJSON::encode(array('ndxs' => $ret)));
+				break;
 			// case 'props':
 			// 	$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
 			// 	$ret = array();

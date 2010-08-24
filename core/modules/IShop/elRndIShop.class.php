@@ -501,6 +501,7 @@ class elRndIShop extends elCatalogRenderer {
 		$this->_te->assignVars('json', elJSON::encode($_props));
 		// elPrintR($fields);
 		$types = array(
+			'type' => m('Product type'),
 			'price' => m('Price'),
 			'mnf' => m('Manufacturer'),
 			'tm' => m('Trade mark/model'),

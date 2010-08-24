@@ -1,5 +1,5 @@
 /* контейнер */
-.ishop-finder { border:1px solid #ccc; background-color:#eee; padding:5px 12px; margin-bottom:5px; }
+.ishop-finder { border:1px solid #ccc; background-color:#eee; padding:5px 7px; margin-bottom:5px; }
 /* служебные классы контейнера для обычного/расширенного поиска */
 .ishop-finder-normal, .ishop-finder-advanced { } 
 /* заголовок формы */

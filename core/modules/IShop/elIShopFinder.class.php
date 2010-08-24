@@ -340,8 +340,6 @@ class elIShopFinder {
 	 * @author Dmitry Levashov
 	 **/
 	function updateField($data) {
-		// elPrintr($data);
-		// return;
 		$id       = !empty($data['id']) ? (int)$data['id'] : 0;
 		$label    = isset($data['label']) ? mysql_real_escape_string(trim($data['label'])) : '';
 		$type     = !empty($data['type']) && in_array($data['type'], array('type', 'price', 'mnf', 'tm', 'prop')) ? mysql_real_escape_string($data['type']) : 'price';
@@ -383,6 +381,21 @@ class elIShopFinder {
 		if (isset($this->_conf[$id])) {
 			$this->_db->query(sprintf('DELETE FROM %s WHERE id=%d LIMIT 1', $this->_tb['search'], $id));
 			$this->_db->optimizeTable($this->_tb['search']);
+		}
+	}
+	
+	/**
+	 * Update sort_ndx field in table
+	 *
+	 * @return void
+	 **/
+	function updateSort($ndxs) {
+		$i = 1;
+		foreach ($ndxs as $id => $ndx) {
+			if (isset($this->_conf[$id])) {
+				$sql = sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb['search'], $i++, $id);
+				$this->_db->query($sql);
+			}
 		}
 	}
 	

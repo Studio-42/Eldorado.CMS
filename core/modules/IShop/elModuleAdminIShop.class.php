@@ -680,6 +680,8 @@ class elModuleAdminIShop extends elModuleIShop
 			$finder->rmField($_POST['id']);
 			elMsgBox::put(m('Field removed'));
 			elLocation(EL_URL.'search_conf/');
+		} elseif ($cmd == 'sort' && !empty($_POST['ndx'])) {
+			$finder->updateSort($_POST['ndx']);
 		}
 		
 		// elPrintr($finder->_conf);

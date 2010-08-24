@@ -50,7 +50,7 @@ class elPluginRandomImage extends elPlugin
 			$name = $this->_param($src, 'name', 0);
 			$sort = $this->_param($src, 'sort', 0);
 			$num  = $this->_param($src, 'num', 1);
-			$sql  = 'SELECT i_id, i_gal_id, i_file, i_name, i_width_0, i_height_0, i_width_tmb, i_height_tmb '
+			$sql  = 'SELECT i_id, i_gal_id, i_file, i_name, i_width, i_height, i_width_tmb, i_height_tmb '
 					.'FROM '.$tb.(0==$sort ? ' ORDER BY RAND() ' : ' ORDER BY i_crtime DESC ')
 					.'LIMIT 0, '.$num;
 

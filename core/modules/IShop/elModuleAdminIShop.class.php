@@ -37,6 +37,7 @@ class elModuleAdminIShop extends elModuleIShop
 
 	var $_mMapConf  = array(
 		'conf'            => array('m'=>'configure',           'ico'=>'icoConf',          'l'=>'Configuration'),
+		'search_conf'     => array('m' => 'searchConf', 'ico'=>'icoConf', 'l'=>'Search form configuration'),
 		// 'conf_crosslinks' => array('m'=>'configureCrossLinks', 'ico'=>'icoCrosslinksConf','l'=>'Linked objects groups configuration'),
 		'yandex_market'   => array('m'=>'yandexMarketConf',    'ico'=>'icoYandexMarket',  'l'=>'Yandex.Market'),
 		'import_comml'    => array('m'=>'importCommerceML',    'ico'=>'icoConf',          'l'=>'Import from 1C')
@@ -650,6 +651,30 @@ class elModuleAdminIShop extends elModuleIShop
 		foreach ($update as $id) {
 			$db->query( sprintf($sql, $tb, mysql_real_escape_string($source[$id]['ItemName']), $source[$id]['ItemPrice'], $id));
 		}
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function searchConf() {
+		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+		// elPrintr($finder);
+		
+		if (!empty($_POST['edit'])) {
+			// elPrintr($_POST);
+			$finder->field($_POST);
+		}
+		$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
+		$_p = array();
+		foreach ($props as $p) {
+			$_p[] = array('id' => $p->ID, 'name' => $p->name);
+		}
+		$this->_initRenderer();
+		$this->_rnd->rndSearchConf(elJSON::encode($_p));
 	}
 	
 	/**************************************************************************************

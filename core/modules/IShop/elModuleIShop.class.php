@@ -650,6 +650,15 @@ EOL;
 				}
 				exit(elJSON::encode(array('values' => $slave->getDependanceValues($_GET['m_value']))));
 				break;
+			case 'props':
+				$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
+				$ret = array();
+				foreach ($props as $p) {
+					$ret[] = array('id' => $p->ID, 'name' => $p->name);
+					// $ret[$p->ID] = $p->name;
+				}
+				exit(elJSON::encode(array('props' => $ret)));
+				break;
 		}
 		
 		exit(elJSON::encode($_GET));

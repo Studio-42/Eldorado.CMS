@@ -18,7 +18,7 @@ class elIShopFinder {
 		'p2i'    => 'el_ishop_%d_p2i'
 		);
 	var $_conf    = array();
-	var $_propIDs = array();
+	// var $_propIDs = array();
 	var $_db      = null;
 	var $_form    = null;
 	var $_tpls = array(
@@ -41,7 +41,7 @@ class elIShopFinder {
 			$this->_tb[$k] = sprintf($v, $pageID);
 		}
 
-		$this->_db      = & elSingleton::getObj('elDb');
+		$this->_db = & elSingleton::getObj('elDb');
 		$sql = sprintf('SELECT id, label, sort_ndx, type, prop_id, prop_view, noselect_label, display_on_load, position FROM %s ORDER BY sort_ndx, id', $this->_tb['search']);
 		$this->_conf = $this->_db->queryToArray($sql, 'id');
 		$this->_form = elSingleton::getObj('elForm', 'ishop-finder-form-'.$this->_pageID, '', $this->_url);
@@ -319,6 +319,51 @@ class elIShopFinder {
 		}
 
 		return $ret;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function fieldExists($id) {
+		return !empty($this->_conf[$id]);
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function field($data) {
+
+		$id       = !empty($data['id']) ? (int)$data['id'] : 0;
+		$label    = isset($data['label']) ? mysql_real_escape_string(trim($data['label'])) : '';
+		$type     = !empty($data['type']) && in_array($data['type'], array('price', 'mnf', 'tm', 'prop')) ? mysql_real_escape_string($data['type']) : 'price';
+		$propID   = !empty($data['prop_id']) && $data['prop_id'] >0 ? (int)$data['prop_id'] : 0;
+		$propView = !empty($data['prop_view']) && in_array($data['prop_view'], array('normal', 'period')) ? mysql_real_escape_string($data['prop_view']) : 'normal';
+		$nsLabel  = !empty($data['noselect_label']) ? mysql_real_escape_string($data['noselect_label']) : '';
+		$onLoad   = !empty($data['display_on_load']) && in_array($data['display_on_load'], array('yes', 'no')) ? mysql_real_escape_string($data['display_on_load']) : 'yes';
+		$pos      = !empty($data['position']) && in_array($data['position'], array('normal', 'advanced')) ? mysql_real_escape_string($data['position']) : 'normal';
+
+		if ($type == 'prop') {
+			$pIDs = $this->_db->queryToArray('SELECT id FROM '.$this->_tb['propn'], 'id', 'id');
+			if (!$pIDs[$propID]) {
+				$propID = 0;
+				$type = 'price';
+			}
+		}
+		if ($this->fieldExists($id)) {
+			
+		} else {
+			$sortNdx = count($this->_conf)+1;
+			$sql = 'INSERT INTO %s (label, sort_ndx, type, prop_id, prop_view, noselect_label, display_on_load, position) 
+							VALUES ("%s",  %d,        "%s", %d,     "%s",      "%s",           "%s",            "%s")';
+			$sql = sprintf($sql, $this->_tb['search'], $label, $sortNdx, $type, $propID, $propView, $nsLabel, $onLoad, $pos);
+			echo $sql;
+		}
 	}
 	
 	/**

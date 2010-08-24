@@ -68,7 +68,6 @@ class elIShopFinderFormRenderer extends elFormRenderer {
 	}
 
 	function endForm() { 
-		// echo $this->_advCnt;
 		if ($this->type == 'normal' && $this->_advCnt>0) {
 			$this->_rnd->assignBlockVars('ADV_SEARCH');
 		}

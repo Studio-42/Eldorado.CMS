@@ -490,10 +490,33 @@ class elRndIShop extends elCatalogRenderer {
 	 * @return void
 	 * @author Dmitry Levashov
 	 **/
-	function rndSearchConf($json) {
+	function rndSearchConf($fields, $props) {
 		// echo $json;
 		$this->_setFile('searchConf');
-		$this->_te->assignVars('json', $json);
+		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
+		$_props = array();
+		foreach ($props as $id=>$name) {
+			$_props[] = array('id' => $id, 'name' => $name);
+		}
+		$this->_te->assignVars('json', elJSON::encode($_props));
+		// elPrintR($fields);
+		$types = array(
+			'price' => m('Price'),
+			'mnf' => m('Manufacturer'),
+			'tm' => m('Trade mark/model'),
+			'prop' => m('Feature')
+			);
+		$pos = array(
+			'normal' => m('Default search'),
+			'advanced' => m('Advanced search')
+			);
+		foreach ($fields as $f) {
+			$f['feature'] = $f['type'] == 'prop' && isset($props[$f['prop_id']]) ? $props[$f['prop_id']] : '';
+			$f['type'] = $types[$f['type']];
+			$f['position'] = $pos[$f['position']];
+			
+			$this->_te->assignBlockVars('ISHOP_SEARCH_FIELD', $f);
+		}
 	}
 
 	/**********************************************/

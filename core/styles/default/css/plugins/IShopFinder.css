@@ -1,0 +1,54 @@
+/* контейнер */
+.ishop-finder { border:1px solid #ccc; background-color:#eee; padding:5px 12px; margin-bottom:5px; }
+/* служебные классы контейнера для обычного/расширенного поиска */
+.ishop-finder-normal, .ishop-finder-advanced { } 
+/* заголовок формы */
+.ishop-finder-label { font-weight:bold; padding:5px; margin-bottom:5px; }
+/* общий класс для контейнера одного элемента формы */
+.ishop-finder-element { margin:1px 0; }
+/* служебные классы контейнера элемента формы */
+/* элемент относиться к обычному поиску */
+.ishop-finder .view-normal { }
+/* элемент относиться к расширеному поиску */
+.ishop-finder-normal .view-advanced { display:none; }
+.ishop-finder-advanced .view-advanced {  }
+/* тип товара */
+.ishop-finder .elem-type { }
+/* цена */
+.ishop-finder .elem-price { }
+/* производитель */
+.ishop-finder .elem-mnf { }
+/* тоговая марка */
+.ishop-finder .elem-tm { }
+/* свойство товара (дополнительно имеют класс prop-id_свойства) */
+.ishop-finder .elem-prop { }
+/* див с названием поля */
+.ishop-finder-element-label { }
+.ishop-finder .elem-type .ishop-finder-element-label,
+.ishop-finder .elem-mnf .ishop-finder-element-label,
+.ishop-finder .elem-tm .ishop-finder-element-label,
+.ishop-finder .elem-prop .ishop-finder-element-label { float:left; padding:1px 3px 1px 0;}
+/* див с селектом/текстовыми полями */
+.ishop-finder-element-value { }
+/* контейнер для одного из 2-х текстовых полей элемента */
+.ishop-finder-container {
+	display: -moz-inline-stack;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+	width:47%;
+	padding:0 1px;
+	overflow:hidden;
+}
+/* текст перед текстовым полем (от/до) */
+.ishop-finder-container-label {}
+/* текстовое поле */
+.ishop-finder-container-el { }
+
+/* панель с кнопкой искать и ссылкой на расширеный поиск */
+.ishop-finder-button { padding:3px 0; margin-top:3px; border-top:1px solid #ccc;}
+
+/* размер текстовых полей в зав-ти от положения */
+.pl-ishop-finder-l .ishop-finder-container input,
+.pl-ishop-finder-r .ishop-finder-container input,
+.pl-ishop-finder-t .ishop-finder-container input { width:53px; }

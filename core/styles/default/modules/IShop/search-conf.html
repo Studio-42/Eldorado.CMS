@@ -92,7 +92,6 @@
 						.append('<option value="normal">{m('Default search')}</option>')
 						.append('<option value="advanced">{m('Advanced search')}</option>')
 						.change(function(e) {
-							alert($(this).val())
 							if ($(this).is(':visible') && $(this).val() == 'normal') {
 								fields.display.e.parents('tr').eq(0).show();
 							} else {

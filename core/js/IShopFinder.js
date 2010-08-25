@@ -56,7 +56,7 @@ $().ready(function() {
 						finder.find('[el_itype]').each(function() {
 							var t = $(this).attr('el_itype');
 							if (adv || $(this).attr('rel') == 'normal') {
-								if ($.inArray(t, data.types) == -1) {
+								if ($.inArray(parseInt(t), data.types) == -1) {
 									$(this).parents('.ishop-finder-element').hide();
 								} else {
 									$(this).parents('.ishop-finder-element').show();
@@ -68,14 +68,11 @@ $().ready(function() {
 			})
 		}
 			
-			
-			
 		$(this).find('.ishop-finder-view-switch').click(function(e) {
-			log(finder)
 			e.preventDefault();
 			finder.toggleClass('ishop-finder-normal').toggleClass('ishop-finder-advanced');
 			$(this).children().toggle();
-		}).end().find('.ishop-type-type,.ishop-type-mnf,.ishop-type-tm').find('select').change(function() {
+		}).end().find('.elem-type,.elem-mnf,.elem-tm').find('select').change(function() {
 			update($(this).attr('name'), $(this).val());
 		});
 	});

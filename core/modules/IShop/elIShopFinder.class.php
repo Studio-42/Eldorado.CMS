@@ -97,7 +97,7 @@ class elIShopFinder {
 		}
 		// elPrintr($this->_conf);
 		foreach ($this->_conf as $id => $v) {
-			$attrs  = array();
+			$attrs  = array('rel' => $v['position']);
 			$params = array('class' => 'elem-'.$v['type'].' view-'.$v['position'], 'rel' => $v['position']);
 
 			switch ($v['type']) {

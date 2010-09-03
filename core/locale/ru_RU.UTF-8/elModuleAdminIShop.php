@@ -87,4 +87,19 @@ $elMsg['Mark category']                            = 'Отметить кате�
 $elMsg['Unmark category']                          = 'Снять категорию';
 $elMsg['Export updated']                           = 'Выгрузка обновлена';
 
+//search conf
+$elMsg['Type']                      = 'Тип поля';
+$elMsg['Edit field']                = 'Редактировать поле';
+$elMsg['New field']                 = 'Новое поле';
+$elMsg['Default search']            = 'Обычный поиск';
+$elMsg['Advanced search']           = 'Расширенный поиск';
+$elMsg['Hide']                      = 'Скрыть';
+$elMsg['Default option text']       = 'Текст опции по умолчанию';
+$elMsg['Search form configuration'] = 'Настройка формы поиска';
+$elMsg['View']                      = 'Вид';
+$elMsg['Drop-down list']            = 'Список';
+$elMsg['2 text fields']             = '2 текстовых поля';
+$elMsg['Sort']                      = 'Сортировать';
+$elMsg[''] = '';
+
 ?>

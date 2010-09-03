@@ -660,21 +660,40 @@ class elModuleAdminIShop extends elModuleIShop
 	 * @author Dmitry Levashov
 	 **/
 	function searchConf() {
-		include_once EL_DIR_CORE.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
-		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
-		// elPrintr($finder);
 		
-		if (!empty($_POST['edit'])) {
+		$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+		// return;
+		// elPrintr($finder->_conf);
+		$cmd = !empty($_POST['cmd']) ? trim($_POST['cmd']) : '';
+		if ($cmd == 'edit') {
+			
+			if ($finder->updateField($_POST)) {
+				elMsgBox::put(m('Data saved'));
+				elLocation(EL_URL.'search_conf/');
+			}
+		} elseif ($cmd == 'rm') {
 			// elPrintr($_POST);
-			$finder->field($_POST);
+			if (!$finder->fieldExists($_POST['id'])) {
+				elThrow(E_USER_WARNING, 'No such field', null, EL_URL.'search_conf/');
+			}
+			
+			$finder->rmField($_POST['id']);
+			elMsgBox::put(m('Field removed'));
+			elLocation(EL_URL.'search_conf/');
+		} elseif ($cmd == 'sort' && !empty($_POST['ndx'])) {
+			$finder->updateSort($_POST['ndx']);
 		}
+		
+		// elPrintr($finder->_conf);
 		$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
 		$_p = array();
 		foreach ($props as $p) {
-			$_p[] = array('id' => $p->ID, 'name' => $p->name);
+			if ($p->type == EL_IS_PROP_STR || $p->type == EL_IS_PROP_LIST) {
+				$_p[$p->ID] = $p->name;
+			}
 		}
 		$this->_initRenderer();
-		$this->_rnd->rndSearchConf(elJSON::encode($_p));
+		$this->_rnd->rndSearchConf($finder->getConf(), $_p);
 	}
 	
 	/**************************************************************************************

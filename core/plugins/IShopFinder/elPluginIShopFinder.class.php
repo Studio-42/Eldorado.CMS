@@ -52,12 +52,14 @@ class elPluginIShopFinder extends elPlugin {
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($pos);
 
 			$finder = & elSingleton::getObj('elIShopFinder', $src);
+
 			// $finder->setLabel($this->_param($src, 'title', false));
 			// $finder = & new elIShopFinder($src, $this->_param($src, 'title', false));
 			
 			if (!$pos || !$finder->isConfigured()) {
 				continue;
 			}
+
 			$rnd->setFile($tplVar, $tpl);
 			$rnd->assignVars('plIshopFinderPos', $pos);
 			$rnd->assignVars('ishopFinderForm', $finder->formToHtml($this->_param($src, 'title', false)));

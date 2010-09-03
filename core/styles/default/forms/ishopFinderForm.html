@@ -1,0 +1,22 @@
+<div class="ishop-finder ishop-finder-{type} clearfix">
+	<form {attrs}>
+		{hiddens}
+		<!-- BEGIN FORM_LABEL --><div class="ishop-finder-label">{label}</div><!-- END FORM_LABEL -->
+		<!-- BEGIN FORM_ELEMENT -->
+		<div class="ishop-finder-element {class} clearfix">
+			<!-- BEGIN LABEL --><div class="ishop-finder-element-label">{label}</div><!-- END LABEL -->
+			<div class="ishop-finder-element-value">{element}</div>
+		</div>
+		<!-- END FORM_ELEMENT -->
+		<div class="clearfix"></div>
+		<div class="ishop-finder-button">
+			<!-- BEGIN ADV_SEARCH -->
+			<a href="#" class="ishop-finder-view-switch">
+				<span>{m('Advanced search')} &laquo;</span>
+				<span class="hide">{m('Normal search')} &raquo;</span>
+			</a>
+			<!-- END ADV_SEARCH -->
+			<input type="submit" value="{m('Find')}">
+		</div>
+	</form>
+</div>

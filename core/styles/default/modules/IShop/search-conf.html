@@ -1,13 +1,30 @@
-<table cellspacing="0" rules="rows"  class="grid-tb">
+<table cellspacing="0" rules="rows"  class="grid-tb mod-shop-search-conf">
 	<tr>
 		<th>{m('Label')}</th>
 		<th>{m('Type')}</th>
 		<th>{m('Position')}</th>
-		<!-- <td>{m('')}</td>
-		<td>{m('')}</td>
-		<td>{m('')}</td> -->
-		<th class="admin"><a href="{URL}" class="icons create float-right" title="{m('Create')}"></a></th>
+		<th>{m('Feature')}</th>
+		<th class="admin">
+			<ul class="adm-icons">
+				<li><a href="#" class="icons create"  title="{m('Create')}"></a></li>
+				<li><a href="#" class="icons sort-num" title="{m('Sort')}"></a></li>
+			</ul>
+		</th>
 	</tr>
+	<!-- BEGIN ISHOP_SEARCH_FIELD -->
+	<tr>
+		<td>{label}</td>
+		<td>{type}</td>
+		<td>{position}</td>
+		<td>{feature}</td>
+		<td class="admin">
+			<ul class="adm-icons">
+				<li><a href="#{id}" class="icons edit"  title="{m('Edit')}"></a></li>
+				<li><a href="#{id}" class="icons delete" title="{m('Delete')}"></a></li>
+			</ul>
+		</td>
+	</tr>
+	<!-- END ISHOP_SEARCH_FIELD -->
 </table>
 
 <script type="text/javascript" charset="utf-8">
@@ -15,7 +32,6 @@
 		
 		function openForm(id) {
 			var d, f, t, o, fields, p;
-			
 			p = {json};
 			
 			fields = {
@@ -26,6 +42,7 @@
 				type  : {
 					l : "{m('Type')}",
 					e : $('<select name="type"/>')
+						.append('<option value="type">{m('Product type')}</option>')
 						.append('<option value="price">{m('Price')}</option>')
 						.append('<option value="mnf">{m('Manufacturer')}</option>')
 						.append('<option value="tm">{m('Trade mark/model')}</option>')
@@ -34,10 +51,10 @@
 							var v = $(this).val();
 							if (v == 'prop') {
 								fields.prop.e.parents('tr').eq(0).show();
-								fields.pview.e.parents('tr').eq(0).show();
-								
+								fields.pview.e.change().parents('tr').eq(0).show();
+								fields.position.e.change();
 							} else {
-								
+								fields.display.e.parents('tr').eq(0).hide();
 								fields.prop.e.parents('tr').eq(0).hide();
 								fields.pview.e.parents('tr').eq(0).hide();
 							}
@@ -53,27 +70,42 @@
 					e : $('<select name="prop_id"/>')
 				},
 				pview : {
-					l : "{m('Property view')}",
+					l : "{m('View')}",
 					e : $('<select name="prop_view"/>')
-						.append('<option value="normal">{m('Normal')}</option>')
-						.append('<option value="period">{m('Period')}</option>')
+						.append('<option value="normal">{m('Drop-down list')}</option>')
+						.append('<option value="period">{m('2 text fields')}</option>')
+						.change(function(e) {
+							if ($(this).is(':visible') && $(this).val() == 'normal') {
+								fields.noselect.e.parents('tr').eq(0).show();
+							} else {
+								fields.noselect.e.parents('tr').eq(0).hide();
+							}
+						})
+				},
+				noselect : {
+					l : "{m('Default option text')}",
+					e : $('<input type="text" name="noselect_label" value="{m('not selected')}" />')
 				},
 				position : {
 					l : "{m('Position')}",
 					e : $('<select name="position"/>')
 						.append('<option value="normal">{m('Default search')}</option>')
 						.append('<option value="advanced">{m('Advanced search')}</option>')
+						.change(function(e) {
+							if ($(this).is(':visible') && $(this).val() == 'normal') {
+								fields.display.e.parents('tr').eq(0).show();
+							} else {
+								fields.display.e.parents('tr').eq(0).hide();
+							}
+						})
 				},
 				display : {
-					l : "{m('Show on load')}",
+					l : "{m('Hide')}",
 					e : $('<select name="display_on_load"/>')
-						.append('<option value="yes">{m('Yes')}</option>')
-						.append('<option value="no">{m('No')}</option>')
-				},
-				noselect : {
-					l : "{m('Label for not selected value')}",
-					e : $('<input type="text" name="noselect_label" value="{m('not selected')}" />')
+						.append('<option value="yes">{m('No')}</option>')
+						.append('<option value="no">{m('Yes')}</option>')
 				}
+				
 				
 				
 			};
@@ -83,33 +115,106 @@
 			});
 			
 			
-			f = $('<form method="POST"/>').append('<input type="hidden" name="edit" value="1" />');
+			f = $('<form method="POST"/>').append('<input type="hidden" name="cmd" value="edit" /><input type="hidden" name="id" value="'+id+'" />');
 			t = $('<table />').appendTo(f);
 			
 			$.each(fields, function() {
 				$('<tr><td width="50%">'+this.l+'</td><td width="50%"></td></tr>').appendTo(t).children('td').eq(1).append(this.e);
 			});
 			
-			fields.type.e.change()
+			fields.type.e.change();
 			
 			o = {
 				title   : id != void 0 ? "{m('Edit field')}" : "{m('New field')}",
 				width : 400,
+				modal : true,
 				buttons : {
 					OK     : function() { f.submit(); },
 					Cancel : function() { $(this).dialog('close') }
 				}
 			};
 			
-			d = $('<div/>').append(f).dialog(o)
+			d = $('<div/>').append(f).dialog(o);
+			
+			if (id > 0) {
+				$.ajax({
+					url : "{URL}json/",
+					data : { cmd: 'search_field', id : id },
+					type : 'get',
+					dataType : 'json',
+					success : function(data) {
+						if (data.error) {
+							window.console && window.console.log && window.console.log(data.error);
+							return;
+						}
+						if (data.field) {
+							var f = data.field;
+							fields.label.e.val(f.label);
+							fields.prop.e.val(f.prop_id);
+							fields.pview.e.val(f.prop_view);
+							fields.position.e.val(f.position);
+							fields.display.e.val(f.display_on_load);
+							fields.noselect.e.val(f.noselect_label);
+							fields.type.e.val(f.type).change();
+						}
+					}
+				});
+			}
 			
 		}
 
-		$('a.icons.create').click(function(e) {
-			e.stopPropagation();
+		$('.mod-shop-search-conf a.create, .mod-shop-search-conf a.edit').click(function(e) {
 			e.preventDefault();
-			openForm();
+			openForm(parseInt($(this).attr('href').replace(/^#/, '')));
 		});
+
+		$('.mod-shop-search-conf a.delete').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Do You really want to delete')}?")) {
+				$('<form method="post" action="{URL}search_conf/"><input type="hidden" name="cmd" value="rm"/><input type="hidden" name="id" value="'+$(this).attr('href').replace(/^#/, '')+'"/> </form>')
+					.appendTo('body').submit();
+			}
+		});
+		
+		$('.mod-shop-search-conf a.sort-num').click(function(e) {
+			e.preventDefault();
+			var d, f, t, o;
+			
+			f = $('<form method="POST"/>').append('<input type="hidden" name="cmd" value="sort" />');
+			t = $('<table/>').appendTo(f);
+			o = {
+				title   : "{m('Sort')}",
+				width : 300,
+				modal : true,
+				buttons : {
+					OK     : function() { f.submit(); },
+					Cancel : function() { $(this).dialog('close') }
+				}
+			};
+			
+			d = $('<div/>').append(f).dialog(o);
+			
+			$.ajax({
+				url      : "{URL}json/",
+				data     : { cmd: 'search_fields_sort' },
+				type     : 'get',
+				dataType : 'json',
+				success  : function(data) {
+					if (data.error) {
+						window.console && window.console.log && window.console.log(data.error);
+						return;
+					}
+					window.console.log(data);
+					if (data.ndxs && data.ndxs.length) {
+						$.each(data.ndxs, function(i) {
+							t.append('<tr><td>'+this.label+'</td><td><input type="text" name="ndx['+this.id+']" value="'+(++i)+'" size="10"/></td></tr>')
+						})
+					}
+				}
+			});
+			// e.stopPropagation();
+		})
+		
 
 	})
 </script>

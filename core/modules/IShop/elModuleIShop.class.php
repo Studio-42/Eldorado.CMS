@@ -650,15 +650,33 @@ EOL;
 				}
 				exit(elJSON::encode(array('values' => $slave->getDependanceValues($_GET['m_value']))));
 				break;
-			case 'props':
-				$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
-				$ret = array();
-				foreach ($props as $p) {
-					$ret[] = array('id' => $p->ID, 'name' => $p->name);
-					// $ret[$p->ID] = $p->name;
+			case 'search_field':
+				$id = (int)$_GET['id'];
+				$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+				$fields = $finder->getConf();
+				if (!empty($fields[$id])) {
+					exit(elJSON::encode(array('field' => $fields[$id])));
+				} else {
+					exit(elJSON::encode(array('error' => m('Invalid parameters'))));
 				}
-				exit(elJSON::encode(array('props' => $ret)));
 				break;
+			case 'search_fields_sort':
+				$finder = & elSingleton::getObj('elIShopFinder', $this->pageID);
+				$ret = array();
+				foreach ($finder->getConf() as $id => $f) {
+					$ret[] = array('id' => $id, 'label' => $f['label']);
+				}
+				exit(elJSON::encode(array('ndxs' => $ret)));
+				break;
+			// case 'props':
+			// 	$props = $this->_factory->getAllFromRegistry(EL_IS_PROP);
+			// 	$ret = array();
+			// 	foreach ($props as $p) {
+			// 		$ret[] = array('id' => $p->ID, 'name' => $p->name);
+			// 		// $ret[$p->ID] = $p->name;
+			// 	}
+			// 	exit(elJSON::encode(array('props' => $ret)));
+			// 	break;
 		}
 		
 		exit(elJSON::encode($_GET));

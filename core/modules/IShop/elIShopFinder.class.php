@@ -54,59 +54,51 @@ class elIShopFinder {
 			// 'prop' => EL_IS_PROP
 			);
 		$props = array();
+		
 		foreach ($this->_conf as $id => $v) {
 			if (empty($v['noselect_label'])) {
 				$v['noselect_label'] = m('not selected');
 			}
-			if ($v['type'] == 'price') {
-				continue;
-			} elseif ($v['type'] == 'prop') {
-				if ($v['prop_id']) {
-					$props[$v['prop_id']] = $id;
-				} else {
+			
+			if ($v['type'] == 'prop') {
+				if (empty($v['prop_id'])) {
 					unset($this->_conf[$id]);
+					$this->rmField($id);
+				} else {
+					$props[$v['prop_id']] = array('type_id' => 0, 'prop_type' => 0, 'opts' => array());
 				}
-			} else {
-				$opts = $this->_list($v['type'], $v['noselect_label']);
-				if ($opts) {
-					$this->_conf[$id]['opts'] = $opts;
-				} else {
+			} elseif ($v['type'] != 'price') {
+				$this->_conf[$id]['opts'] = $this->_list($v['type'], $v['noselect_label']);
+				if (empty($this->_conf[$id]['opts'])) {
 					unset($this->_conf[$id]);
+					$this->rmField($id);
 				}
 			}
 		}
-
+		
 		if ($props) {
 			$ids = implode(',', array_keys($props));
 			$sql = sprintf('SELECT id, t_id, type FROM %s WHERE id IN (%s) AND (type="1" OR type="3")', $this->_tb['propn'], $ids);
 			$this->_db->query($sql);
 			while ($r = $this->_db->nextRecord()) {
-				$id = $props[$r['id']];
-				$this->_conf[$id]['type_id'] = $r['t_id'];
-				$this->_conf[$id]['prop_type'] = $r['type'];
+				$props[$r['id']]['type_id'] = $r['t_id'];
+				$props[$r['id']]['prop_type'] = $r['type'];
+			}
+			$this->_db->query(sprintf('SELECT id, p_id, value FROM %s WHERE p_id IN (%s) ORDER BY p_id, value', $this->_tb['prop'], $ids));
+			while ($r = $this->_db->nextRecord()) {
+				$props[$r['p_id']]['opts'][$r['id']] = $r['value'];
 			}
 			
-			$sql = sprintf('SELECT id, p_id, value FROM %s WHERE p_id IN (%s) ORDER BY p_id, value', $this->_tb['prop'], $ids);
-			$this->_db->query($sql);
-			$opts = array();
-			while ($r = $this->_db->nextRecord()) {
-				if (!isset($opts[$r['p_id']])) {
-					$opts[$r['p_id']] = array();
-				}
-				$opts[$r['p_id']][$r['id']] = $r['value'];
-			}
-			foreach ($props as $pID => $id) {
-				if ($this->_conf[$id]['prop_type'] == 3 && isset($opts[$pID])) {
-					$this->_conf[$id]['opts'] = $opts[$pID];
-				} elseif ($this->_conf[$id]['prop_type'] != 1) {
-					unset($this->_conf[$id]);
+			foreach ($this->_conf as $id=>$f) {
+				if ($f['type'] == 'prop' && !empty($props[$f['prop_id']])) {
+					$this->_conf[$id] = array_merge_recursive($this->_conf[$id], $props[$f['prop_id']]);
 				}
 			}
 		}
 		// elPrintr($this->_conf);
 		foreach ($this->_conf as $id => $v) {
 			$attrs  = array('rel' => $v['position']);
-			$params = array('class' => 'ishop-type-'.$v['type'].' ishop-search-'.$v['position'], 'rel' => $v['position']);
+			$params = array('class' => 'elem-'.$v['type'].' view-'.$v['position'], 'rel' => $v['position']);
 
 			switch ($v['type']) {
 				case 'type':
@@ -121,12 +113,12 @@ class elIShopFinder {
 				case 'price':
 					$el = & new elFormContainer('c-'.$id, $v['label']);
 					$el->setTpls($this->_tpls);
-					$el->add(new elText('price[0]', m('from').':', '', $attrs));
-					$el->add(new elText('price[1]', m('to').':',   '', $attrs));
+					$el->add(new elText('price[0]', m('from').':', '', $attrs+array('size' => '')));
+					$el->add(new elText('price[1]', m('to').':',   '', $attrs+array('size' => '')));
 					break;
 				default:
-					$attrs['el-itype'] = $v['type_id'];
-					$params['class'] .= ' ishop-type-prop-'.$id;
+					$attrs['el_itype'] = $v['type_id'];
+					$params['class'] .= ' prop-'.$id;
 					if ($v['position'] == 'normal' && $v['display_on_load'] == 'no') {
 						$params['class'] .= ' hide';
 					}
@@ -136,7 +128,7 @@ class elIShopFinder {
 						} else {
 							$el = & new elFormContainer('c-'.$id, $v['label']);
 							$el->setTpls($this->_tpls);
-							$el->add(new elSelect('props-'.$v['prop_id'].'[0]', m('from').':', 0, $v['opts'], $attrs));
+							$el->add(new elSelect('props-'.$v['prop_id'].'[0]', m('from').':', 0, $v['opts'], $attrs+array('size' => 10)));
 							$el->add(new elSelect('props-'.$v['prop_id'].'[1]', m('to').':', array_pop(array_keys($v['opts'])), $v['opts'], $attrs));
 						}
 					} else {
@@ -327,6 +319,16 @@ class elIShopFinder {
 	 * @return void
 	 * @author Dmitry Levashov
 	 **/
+	function getConf() {
+		return $this->_conf;
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
 	function fieldExists($id) {
 		return !empty($this->_conf[$id]);
 	}
@@ -337,11 +339,10 @@ class elIShopFinder {
 	 * @return void
 	 * @author Dmitry Levashov
 	 **/
-	function field($data) {
-
+	function updateField($data) {
 		$id       = !empty($data['id']) ? (int)$data['id'] : 0;
 		$label    = isset($data['label']) ? mysql_real_escape_string(trim($data['label'])) : '';
-		$type     = !empty($data['type']) && in_array($data['type'], array('price', 'mnf', 'tm', 'prop')) ? mysql_real_escape_string($data['type']) : 'price';
+		$type     = !empty($data['type']) && in_array($data['type'], array('type', 'price', 'mnf', 'tm', 'prop')) ? mysql_real_escape_string($data['type']) : 'price';
 		$propID   = !empty($data['prop_id']) && $data['prop_id'] >0 ? (int)$data['prop_id'] : 0;
 		$propView = !empty($data['prop_view']) && in_array($data['prop_view'], array('normal', 'period')) ? mysql_real_escape_string($data['prop_view']) : 'normal';
 		$nsLabel  = !empty($data['noselect_label']) ? mysql_real_escape_string($data['noselect_label']) : '';
@@ -354,15 +355,47 @@ class elIShopFinder {
 				$propID = 0;
 				$type = 'price';
 			}
+		} else {
+			$propID = 0;
 		}
 		if ($this->fieldExists($id)) {
-			
+			$sql = 'UPDATE %s SET label="%s", type="%s", prop_id="%d", prop_view="%s", noselect_label="%s", display_on_load="%s", position="%s" WHERE id="%d" LIMIT 1';
+			$sql = sprintf($sql, $this->_tb['search'], $label, $type, $propID, $propView, $nsLabel, $onLoad, $pos, $id);
 		} else {
 			$sortNdx = count($this->_conf)+1;
 			$sql = 'INSERT INTO %s (label, sort_ndx, type, prop_id, prop_view, noselect_label, display_on_load, position) 
 							VALUES ("%s",  %d,        "%s", %d,     "%s",      "%s",           "%s",            "%s")';
 			$sql = sprintf($sql, $this->_tb['search'], $label, $sortNdx, $type, $propID, $propView, $nsLabel, $onLoad, $pos);
-			echo $sql;
+			
+		}
+		return $this->_db->query($sql);
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author Dmitry Levashov
+	 **/
+	function rmField($id) {
+		if (isset($this->_conf[$id])) {
+			$this->_db->query(sprintf('DELETE FROM %s WHERE id=%d LIMIT 1', $this->_tb['search'], $id));
+			$this->_db->optimizeTable($this->_tb['search']);
+		}
+	}
+	
+	/**
+	 * Update sort_ndx field in table
+	 *
+	 * @return void
+	 **/
+	function updateSort($ndxs) {
+		$i = 1;
+		foreach ($ndxs as $id => $ndx) {
+			if (isset($this->_conf[$id])) {
+				$sql = sprintf('UPDATE %s SET sort_ndx=%d WHERE id=%d LIMIT 1', $this->_tb['search'], $i++, $id);
+				$this->_db->query($sql);
+			}
 		}
 	}
 	
@@ -404,6 +437,8 @@ class elIShopFinder {
 			case 'tm':
 				$sql = sprintf($sql, $this->_tb['tm'], $this->_tb['item'], 'tm_id');
 				break;
+			default:
+				return array();
 		}
 		if (false != ($opts = $this->_db->queryToArray($sql, 'id', 'name'))) {
 			return $default ? array(m($default)) + $opts : $opts;

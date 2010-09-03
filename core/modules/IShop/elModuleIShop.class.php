@@ -466,7 +466,7 @@ class elModuleIShop extends elModule {
 				$parentID = !empty($cats[0]) ? $cats[0] : 1;
 		}
 		
-		return EL_URL.'item/'.$parentID.'/'.$item->ID;
+		//return EL_URL.'item/'.$parentID.'/'.$item->ID;
 		
 		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
 			$db = & elSingleton::getObj('elDb');

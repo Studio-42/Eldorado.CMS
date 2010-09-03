@@ -63,6 +63,10 @@ class elPluginSpecialOffer extends elPlugin
 				}
 			}
 
+			if ($mypos == '0') { // if position is 'off'
+				continue;
+			}
+
 			list($pos, $tplVar, $tpl) = $this->_getPosInfo($mypos);
 
 			if (!$pos) {

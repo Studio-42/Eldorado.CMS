@@ -36,8 +36,63 @@ class elForumProfile extends elDataMapping
 	var $defaultAvatar  = '';
 	var $showEmail = false;
 	var $showOnline = false;
-	
-	
+
+
+	/**
+	 * __constructor
+	 *
+	 * @param  int
+	 * @return void
+	 **/
+	function elForumProfile($attr=null, $tb=null, $id=null)
+	{
+		// emulate DataMapping
+		$this->tb($tb);
+		$this->id($id);
+		$this->attr($attr);
+
+		// check profile fields
+		$db = & elSingleton::getObj('elDb');
+		$profile = & elSingleton::getObj('elUserProfile');
+		$fields = $db->fieldsNames('el_user');
+
+		//var_dump();
+		$fields = array_keys($profile->_elements);
+
+		$mapping = array();
+		//$mapping = array_values(array_flip($this->_initMapping()));
+		foreach (array_values(array_flip($this->_initMapping())) as $v)
+		{
+			if (in_array($v, array('uid', 'crtime', 'mtime', 'atime')))
+			{
+				continue;
+			}
+			array_push($mapping, $v);
+		}
+		$diff = array_diff($mapping, $fields);
+		// if diff is empty than ok
+		if (!empty($diff))
+		{	// create needes profile fields
+			$i = 0;
+			foreach ($diff as $v)
+			{
+				$i++;
+				$el = & new elUserProfileField(null, $this->_tbp);
+				//var_dump($el);
+				$el->ID = $v;
+				$el->label = ucfirst($v);
+				$el->sortNdx = count($fields) + $i;
+				if ($v == 'gender')
+				{
+					$el->type = 'select';
+					$el->opts = "male\nfemale";
+				}
+				$el->save();
+				unset($el);
+			}
+		}
+	}
+
 	/**
 	 * Возвращает массив данных пользователей
 	 * массив данных пользователя такой же как возвращается методом brief()
@@ -358,77 +413,7 @@ class elForumProfile extends elDataMapping
 			);
 		parent::delete($ref);
 	}
-	
-	/***************************************************/
-	/**                      PRIVATE                  **/
-	/***************************************************/
-	/**
-	 * Создание формы редактирования профайла
-	 *
-	 * @return void
-	 **/
-	function _makeForm()
-	{
-		elLoadMessages('Auth');
-		elLoadMessages('UserProfile');
-		$this->_form = & elSingleton::getObj('elForm');
-		$this->_form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-		
-		include_once './core/lib/elCoreAdmin.lib.php';
-		$skel = $this->_skel();
-		
-		// редактирование профайла - не меняем логин и показываем все поля
-		if ($this->UID)
-		{
-			$this->_form->setLabel( sprintf(m('Edit user %s profile'), $this->getName()) );
-			unset($skel['login']);
-		}
-		else // новый пользователь - только обязательные поля
-		{
-			$this->_form->setLabel( m('New user registration') );
-			foreach ( $skel as $k=>$v )
-			{
-				if ( $v['rq'] < 2 )
-				{
-					unset($skel[$k]);
-				}
-			}
-		}
 
-		foreach ($skel as $k => $v) 
-		{
-			switch ($v['type']) {
-				case 'textarea':
-					$this->_form->add( new elTextarea($k, m($v['label']), $this->attr($k)) );
-					break;
-					
-				case 'select':
-					$opts = array();
-					foreach (explode(',', $v['opts']) as $opt)
-					{
-						$tmp = explode(':', $opt);
-						$opts[$tmp[0]] = m($tmp[1]);
-					}
-					$this->_form->add( new elSelect($k, m($v['label']), $this->attr($k), $opts) );
-					break;
-					
-				default:
-					$this->_form->add( new elText($k, m($v['label']), $this->attr($k)) );
-			}
-			//$class = $v['type'] == 'textarea' ? 'elTextArea' : 'elText';
-			//$this->_form->add( new $class($k, m($v['label']), $this->attr($k)) );
-			if ( $v['is_func'] )
-	    	{
-	    		$this->_form->registerRule($v['rule'], 'func', $v['rule'], null);
-	    	}
-	    	$this->_form->setElementRule($k, $v['rule'], $v['rq']-1, $this->UID);
-		}
-		if ( !$this->UID )
-		{
-			$this->_form->add( new elCaptcha('cap1', m('Enter code from picture')) );
-		}
-	}
-	
 	function _passwd($passwd)
 	{
 		$db = &elSingleton::getObj('elDb');
@@ -460,26 +445,7 @@ class elForumProfile extends elDataMapping
 	     	elDebug($postman->error);
 	    }
 	}
-	
-	function _skel()
-	{
-		$db  = &elSingleton::getObj('elDb');
-		$sql = 'SELECT p.field, p.label, p.type, p.rule, p.opts, p.is_func, p.rq '
-		     . 'FROM '.$this->_tbp.' AS p WHERE p.rq!="0" ORDER BY p.sort_ndx';
-		return $db->queryToArray($sql, 'field');
-	}
-	
-	function _attrsForSave()
-	{
-		$attrs = $this->attr();
-		$attrs['mtime'] = time();
-		if (!$this->UID)
-		{
-			$attrs['crtime'] = time();
-		}
-		return $attrs;
-	}
-	
+
 	function _postSave($isNew, $params)
 	{
 		if ( $isNew )
@@ -496,22 +462,23 @@ class elForumProfile extends elDataMapping
 			{
 				$db->query( sprintf('REPLACE INTO el_user_in_group (user_id, group_id) VALUES (%d, %d)', $this->UID, $gid) );
 			}
-			
+
 			// уведомить админов о новом пользователе
 			if ( $params[0] || $params[1])
 			{
+
 				$pageID = $params[2];
 				$notify = array();
 				// админов 
 				if ($params[0])
 				{
 					$sql = sprintf(
-							'SELECT IF(u.f_name!="", CONCAT(u.f_name, " ", u.l_name), u.login) AS user_name, u.email 
-							FROM %s AS u, el_user_in_group AS ug, el_group_acl AS a, el_menu AS m, el_menu AS p 
-							WHERE p.id=%d AND m._left BETWEEN p._left AND p._right AND a.page_id=m.id AND a.perm>'.EL_READ
-							.' AND ug.group_id=a.group_id AND u.uid=ug.user_id',
-							$this->_tb, $pageID
-						);
+						'SELECT IF(u.f_name!="", CONCAT(u.f_name, " ", u.l_name), u.login) AS user_name, u.email 
+						FROM %s AS u, el_user_in_group AS ug, el_group_acl AS a, el_menu AS m, el_menu AS p 
+						WHERE p.id=%d AND m._left BETWEEN p._left AND p._right AND a.page_id=m.id AND a.perm>'.EL_READ
+						.' AND ug.group_id=a.group_id AND u.uid=ug.user_id',
+						$this->_tb, $pageID
+					);
 					$db->query($sql);
 					while ($r = $db->nextRecord())
 					{
@@ -532,7 +499,7 @@ class elForumProfile extends elDataMapping
 						$notify[] = sprintf('"'.$r['user_name'].'"<'.$r['email'].'>');
 					}
 				}
-				
+
 				if ( $notify )
 				{
 					$notify = array_unique($notify);

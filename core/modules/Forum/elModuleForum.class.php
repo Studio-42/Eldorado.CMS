@@ -797,16 +797,16 @@ class elModuleForum extends elModule
 			elThrow(E_USER_WARNING, 'You need to log out before register as new user', null, EL_URL);
 		}
 		$profile = & $this->_profile(0, false);
-		
+
 		if ( !$this->_profile->sessionData('rules_agree') )
 		{
 			elLoadMessages('Auth');
 			$form        = & elSingleton::getObj('elForm');
 			$form->label = m('New user registration');
-			$form->setRenderer( elSingleton::getObj('elTplFormRenderer') );
-			$form->add( new elCData('r', nl2br($this->_rules())) );
-			$form->add( new elCheckBox('agree', '<strong>'.m('I agree with forum rules').'</strong>', 1));
-			
+			$form->setRenderer(elSingleton::getObj('elTplFormRenderer'));
+			$form->add(new elCData('r', nl2br($this->_rules())));
+			$form->add(new elCheckBox('agree', '<strong>'.m('I agree with forum rules').'</strong>', 1));
+
 			if ( $form->isSubmit() )
 			{
 				$val = $form->getElementValue('agree');
@@ -822,14 +822,28 @@ class elModuleForum extends elModule
 		}
 		else
 		{
-			if ( $profile->editAndSave( array($this->_conf('notifyAdmins'), $this->_conf('notifyModerators'), $this->pageID) ) )
-			{
+			$ats  = & elSingleton::getObj('elATS');
+			if (!$ats->isRegistrationAllowed()) {
+				elThrow(E_USER_WARNING, m('Access denied'), null, EL_BASE_URL);
+			}
+
+			$user = $ats->createUser();
+			if (!$user->editAndSave()) {
+				$this->_initRenderer();
+				$this->_rnd->addToContent($user->formToHtml());
+			} else {
+				$this->_profile->idAttr($user->UID);
+				$this->_profile->fetch();
+				$this->_profile->_postSave(true, array(
+					$this->_conf('notifyAdmins'),
+					$this->_conf('notifyModerators'),
+					$this->pageID
+					)
+				);
 				$this->_profile->sessionData('rules_agree', '');
-				elMsgBox::put( m('Registration complite! Password was sent on Your e-mail address') );
+				elMsgBox::put( m('Registration complete! Password was sent on Your e-mail address') );
 				elLocation(EL_URL);
 			}
-			$this->_initRenderer();
-			$this->_rnd->addToContent($profile->formToHtml());
 		}
 	}
 	
@@ -840,21 +854,25 @@ class elModuleForum extends elModule
 	 **/
 	function profileEdit()
 	{
-		$profile =  $this->_profile((int)$this->_arg());
-		if ( $profile->UID<>$this->_profile->UID && !$this->_acl('profile_edit_any') && !$this->_admin )
+		//var_dump($this);
+		$ats  = & elSingleton::getObj('elATS');
+		$user = & $ats->createUser();
+		$user->idAttr((int)$this->_arg(0));
+		$user->fetch();
+		if ($this->_profile->UID != $user->UID && !$this->_acl('profile_edit_any') && !$this->_admin)
 		{
-			elThrow(E_USER_WARNING, 'Acess denied', null, EL_URL.'profile/'.$profile->UID);
+			elThrow(E_USER_WARNING, 'Acess denied', null, EL_URL.'profile/'.$user->UID);
 		}
-		
-		if ($profile->editAndSave())
-		{
-			elMsgBox::put( sprintf(m('Profile for user %s was updated'), $profile->getName()) );
-			elLocation(EL_URL.'profile/'.$profile->UID);
+
+		if (!$user->editAndSave()) {
+			$this->_initRenderer();
+			$this->_rnd->addToContent($user->formToHtml());
+			$this->_path[] = array('url'=>'users', 'name'=>m('Users'));
+			$this->_path[] = array('url'=>'profile/'.$user->UID, 'name'=>m('User profile').' '.$this->_profile->getName());
+		} else {
+			elMsgBox::put( sprintf(m('Profile for user %s was updated'), $this->_profile->getName()));
+			elLocation(EL_URL.'profile/'.$user->UID);
 		}
-		$this->_initRenderer();
-		$this->_rnd->addToContent( $profile->formToHtml() );
-		$this->_path[] = array('url'=>'users', 'name'=>m('Users'));
-		$this->_path[] = array('url'=>'profile/'.$profile->UID, 'name'=>m('User profile').' '.$profile->getName());
 	}
 	
 	/**
@@ -1017,7 +1035,7 @@ class elModuleForum extends elModule
 		}
 		if ( !$profile->fetch() && ($ID || $onlyExists) )
 		{
-			elThrow(E_USER_WARNING, 'Requested user does not exits', null, EL_URL.$this->_catID);
+			elThrow(E_USER_WARNING, 'Requested user does not exits', null);
 		}
 		return $profile;
 	}
@@ -1234,7 +1252,7 @@ class elModuleForum extends elModule
 		$this->_db       = &elSingleton::getObj('elDb');
 		$ats             = &elSingleton::getObj('elATS');
 		$user            = & $ats->getUser();
-		$this->_regAllow = $ats->isUserRegAllow();
+		$this->_regAllow = $ats->isRegistrationAllowed();
 		
 		if ( $user->UID )
 		{

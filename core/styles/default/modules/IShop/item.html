@@ -18,17 +18,28 @@
 	         		<td>{name} : {value} </td>
 	         		<!-- END IP_ORDER -->
 	         		<td>
-						<input type="submit" value="{m('Buy')}" class="form-submit" />
+						<!-- BEGIN ITEM_BUY -->
+						<input type="submit" value="{m('Buy')}"   class="form-submit" />
+						<!-- END ITEM_BUY -->
+						<!-- BEGIN ITEM_WL -->
+						<input type="submit" value="{m('Add to wishlist')}" class="form-submit" id="submit-wishlist" />
+						<input type="hidden" name="wishlist" value="0" />
+						<!-- END ITEM_WL -->
 					</td>
 	       		</tr>
 	     	</table>
 		</form>
 		<script type="text/javascript" charset="utf-8">
 			$().ready(function() {
+				$('#submit-wishlist').click(function(e) {
+					e.preventDefault();
+					$(this).parents('form').eq(0).find(':hidden[name="wishlist"]').val('1').end().submit();
+				});
+
 				var s, m, s_id, m_id;
 				s = $('.mod-ishop-item-order').find('select[depend_on]');
 				if (s.length) {
-					s_id = parseInt(s.attr('id').substring(5));
+					s_id = parse0Int(s.attr('id').substring(5));
 					m_id = s.attr('depend_on');
 					m    = $('.mod-ishop-item-order').find('#prop\\['+m_id+'\\]');
 					

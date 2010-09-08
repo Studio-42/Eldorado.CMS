@@ -42,7 +42,13 @@ class elICartRnd {
 		$this->_te->assignVars('amount', $icart->amountFormated);
 		$items = $icart->getItems();
 
+		$wishlist = array();
 		foreach ($items as $item) {
+			if ($item['wishlist'] == 1)
+			{
+				array_push($wishlist, $item);
+				continue;
+			}
 			$data = array(
 				'id'    => $item['id'],
 				'code'  => $item['code'],
@@ -59,8 +65,33 @@ class elICartRnd {
 			}
 			$this->_te->assignBlockVars('ICART_ITEM', $data);
 		}
-		
 		$this->_te->parse('ICART_CONTENT');
+
+		if (!empty($wishlist))
+		{
+			$this->_te->setFile('ICART_WISHLIST', 'services/ICart/wishlist.html');
+			//echo 'wow';
+			$nav = & elSingleton::getObj('elNavigator');
+			foreach ($wishlist as $d)
+			{
+				$data = array(
+					'link'  => $nav->getPageURL($d['page_id']).'find/'.$d['i_id'],
+					'id'    => $d['id'],
+					'code'  => $d['code'],
+					'name'  => $d['name'],
+					'price' => $d['priceFormated'],
+					'props' => ''
+				);
+				if (!empty($d['props'])) {
+					foreach ($d['props'] as $p) {
+						$data['props'] .= "$p[0]: $p[1]<br/>";
+					}
+				}
+				$this->_te->assignBlockVars('WISHLIST_ITEM', $data);
+			}
+			// and so on
+			$this->_te->parse('ICART_WISHLIST');
+		}
 	}
 	
 	/**
@@ -145,6 +176,10 @@ class elICartRnd {
 		$items = $icart->getItems();
 
 		foreach ($items as $item) {
+			if ($item['wishlist'] == 1)
+			{
+				continue;
+			}
 			$data = array(
 				'id'    => $item['id'],
 				'code'  => $item['code'],
@@ -224,9 +259,9 @@ class _elICartRnd extends elModuleRenderer
 		'icart'    => 'icart.html',
         'delivery' => 'delivery.html',
         'summary'  => 'summary.html',
-		'letter'   => 'letter.html'
-		);
-    
+		'letter'   => 'letter.html',
+		'wishlist' => 'wishlist.html'
+	);
 
     /**
      * получает мсасив-конфигурацию корзины

@@ -1,6 +1,8 @@
 <?php
+
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elJSON.class.php';
 include_once EL_DIR_CORE.'lib'.DIRECTORY_SEPARATOR.'elFormConstructor.class.php';
+
 elLoadMessages('ServiceICart');
 
 class elServiceICart extends elService
@@ -337,6 +339,9 @@ class elServiceICart extends elService
 		$db->prepare( 'INSERT INTO el_order_item (order_id, uid, page_id, i_id, m_id, code, name, qnt, price, props, crtime) VALUES ',
 		 	'(%d, %d, %d, %d, %d, "%s", "%s", %d, "%s", "%s", %d)');
 		foreach ($this->_iCart->getItems() as $i) {
+			if ($i['wishlist'] == 1) {
+				continue;
+			}
 			$i['props'] = serialize($i['props']);
 			$db->prepareData(array($orderID, $this->_user->UID, $i['page_id'], $i['i_id'], $i['m_id'], $i['code'], $i['name'], $i['qnt'], $i['price'], $i['props'], time()));
 		}

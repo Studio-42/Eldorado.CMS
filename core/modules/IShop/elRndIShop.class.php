@@ -383,23 +383,36 @@ class elRndIShop extends elCatalogRenderer {
 		if ($tm->ID) {
 			$this->_te->assignBlockVars('IS_ITEM_TM', $tm->toArray());
 		}
-		if ($item->price > 0) {
-			$this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$this->_price($item->price)));
-		    $this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
-  		}
-		
-		$props = $item->getProperties();
-		// elPrintR($props);
-		foreach ($props as $pos=>$p) {
-			// elPrintR($p);
-			if ($pos == 'order') {
-				$this->_te->assignBlockFromArray('IS_ITEM_ORDER.IP_ORDER', $p, 1);
-			} 
-			if (isset($this->_propBlocks[$pos])) {
-				$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
+
+		// price, order and order props
+		//var_dump($this->_conf);
+		if (($item->price > 0) or ($this->_conf['allowWishlist'] == 1))
+		{
+			$this->_te->assignBlockVars('IS_ITEM_ORDER', array('id'=>$item->ID));
+
+			if ($item->price > 0) {
+				$this->_te->assignBlockVars('IS_ITEM_PRICE', array('id'=>$item->ID, 'price'=>$this->_price($item->price)));
+				$this->_te->assignBlockVars('IS_ITEM_ORDER.ITEM_BUY', array(), 1);
+			}
+			
+			if ($this->_conf['allowWishlist'] == 1)
+			{
+				$this->_te->assignBlockVars('IS_ITEM_ORDER.ITEM_WL', array(), 1);
+			}
+
+			$props = $item->getProperties();
+			// elPrintR($props);
+			foreach ($props as $pos=>$p) {
+				// elPrintR($p);
+				if ($pos == 'order') {
+					$this->_te->assignBlockFromArray('IS_ITEM_ORDER.IP_ORDER', $p, 1);
+				} 
+				if (isset($this->_propBlocks[$pos])) {
+					$this->_te->assignBlockFromArray($this->_propBlocks[$pos].'.PROP', $p, 1);
+				}
 			}
 		}
-		
+
 		$gallery = $item->getGallery();
 		$gsize   = count($gallery);
 		if ($gsize) {

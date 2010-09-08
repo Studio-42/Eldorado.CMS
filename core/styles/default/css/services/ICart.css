@@ -27,11 +27,11 @@
 	background:url(../../images/links.png) 0 -19px no-repeat;
 }
 
-#icart-content { 
+#icart-content, #icart-wishlist { 
 	margin-right:220px; 
 	padding:.5em 1em;
 	background:#fff;
-	min-height:300px;
+	min-height:250px;
 
 }
 #icart-content table { margin-bottom:1em;}
@@ -53,8 +53,10 @@
 
 #icart-content table thead th,
 #icart-content table tfoot th,
-#icart-content table tr.foot td { border-bottom:2px solid #ccc; }
-#icart-content table tbody td { border-bottom:1px solid #ccc; }
+#icart-content table tr.foot td,
+#icart-wishlist table thead th { border-bottom:2px solid #ccc; }
+#icart-content  table tbody td,
+#icart-wishlist table tbody td { border-bottom:1px solid #ccc; }
 
 #icart-content table .icons { margin:0 auto;}
 

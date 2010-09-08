@@ -128,10 +128,11 @@ class elModuleIShop extends elModule {
 		'tm'            => array('m' => 'viewTrademark'),
 		'type'          => array('m' => 'viewType'),
 		'item'          => array('m' => 'viewItem'),
+		'find'          => array('m' => 'findById'),
 		'search'        => array('m' => 'search'),
 		'search_params' => array('m' => 'searchParams'),
 		'order'         => array('m' => 'order'),
-		'json'        => array('m' => 'json') 
+		'json'          => array('m' => 'json') 
 	);
 	/**
 	 * default config
@@ -156,6 +157,7 @@ class elModuleIShop extends elModule {
 		'itemsCols'          => 1,
 		'itemsSortID'        => EL_IS_SORT_NAME,
 		'allowUserSort'      => 0,
+		'allowWishlist'      => 0,
 		'itemsPerPage'       => 10,
 		'displayCode'        => 1,
 		'tmbListSize'        => 125,
@@ -361,6 +363,28 @@ class elModuleIShop extends elModule {
 	}
 
 	/**
+	 * Finds item by ID and redirects to it's item page
+	 *
+	 * @return bool
+	 **/
+	function findById()
+	{
+		$id = (int)$this->_arg(0);
+		if ($id > 0)
+		{
+			$found = $this->getItemUrl($id);
+			if ($found)
+			{
+				elLocation($found);
+				return true;
+			}
+		}
+		header('HTTP/1.x 404 Not Found');
+		elThrow(E_USER_WARNING, 'No such product',	null, $this->_redirURL);
+		return false;
+	}
+
+	/**
 	 * display finded items
 	 *
 	 * @return void
@@ -397,13 +421,13 @@ class elModuleIShop extends elModule {
 	 *
 	 * @return void
 	 **/
-	function addToICart($itemID = null, $props = array(), $qnt = false) {
+	function addToICart($itemID = null, $props = array(), $qnt = false, $wishlist = 0) {
 		// return $this->_addToICart($itemID, $props, $qnt);
 		$item = $this->_factory->create(EL_IS_ITEM, $itemID);
 		if (!$item || !$item->price || $qnt<1) {
 			return false;
 		}
-		return $this->_addToICart($item, $props, $qnt);
+		return $this->_addToICart($item, $props, $qnt, $wishlist);
 	}
 
 	/**
@@ -420,7 +444,7 @@ class elModuleIShop extends elModule {
 			header('HTTP/1.x 404 Not Found');
 			elThrow(E_USER_WARNING, 'Unable to order product, because of price is not defined!', null, $this->_redirURL);
 		}
-		
+
 		$props = array();
 		if (!empty($_POST['prop']) && is_array($_POST['prop'])) {
 			foreach ($_POST['prop'] as $id => $v) {
@@ -430,9 +454,17 @@ class elModuleIShop extends elModule {
 			}
 		}
 
+		// wishlist item instead buy
+		$wishlist = 0;
+		if (isset($_POST['wishlist']) && $_POST['wishlist'] == 1)
+		{
+			$wishlist = 1;
+		}
+
+		// handle here wishlist
 		elLoadMessages('ServiceICart');
 		$url = $this->_url.'item/'.$this->_parentID.'/'.$item->ID;
-		if ($this->_addToICart($item, $props, 1)) {
+		if ($this->_addToICart($item, $props, 1, $wishlist)) {
 			$msg = sprintf(m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), ($this->_conf('displayCode') ? $item->code : '').' '.$item->name, EL_URL.'__icart__/' );
 			elMsgBox::put($msg);
 			elLocation($url);
@@ -465,9 +497,12 @@ class elModuleIShop extends elModule {
 				$cats = $item->getCats();
 				$parentID = !empty($cats[0]) ? $cats[0] : 1;
 		}
-		
-		//return EL_URL.'item/'.$parentID.'/'.$item->ID;
-		
+
+		$path = 'item/'.$parentID.'/'.$item->ID;
+		$nav = & elSingleton::getObj('elNavigator');
+		return $nav->getPageURL($this->pageID).$path;
+
+/*		
 		if ($this->_conf('default_view') == EL_IS_VIEW_CATS) {
 			$db = & elSingleton::getObj('elDb');
 			$db->query(sprintf('SELECT c_id FROM %s WHERE i_id=%d LIMIT 1', $item->tbi2c, $item->ID));
@@ -477,8 +512,7 @@ class elModuleIShop extends elModule {
 			$path = 'item/'.$item->mnfID.'/'.$item->ID;
 		}
 		// TODO add type view
-		$nav = & elSingleton::getObj('elNavigator');
-		return $nav->getPageURL($this->pageID).$path;
+*/
 	}
 
 	/**
@@ -691,7 +725,7 @@ EOL;
 	 *
 	 * @return bool
 	 **/
-	function _addToICart($item, $props = array(), $qnt = 1) {
+	function _addToICart($item, $props = array(), $qnt = 1, $wishlist = 0) {
 		$currency = &elSingleton::getObj('elCurrency');
 		$curOpts = array(
 			'precision'   => (int)$this->_conf('pricePrec'),
@@ -707,7 +741,8 @@ EOL;
 			'code'    => $this->_conf('displayCode') ? $item->code : '',
 			'name'    => $item->name,
 			'price'   => $currency->convert($item->price, $curOpts),
-			'props'   => $props
+			'props'   => $props,
+			'wishlist'=> $wishlist
 		);
 
 		$ICart = & elSingleton::getObj('elICart');

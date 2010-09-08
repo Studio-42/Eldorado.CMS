@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS `el_icart` (
   `qnt` int(5) NOT NULL DEFAULT '1',
   `price` double(12,2) NOT NULL,
   `props` mediumtext COLLATE utf8_bin,
+  `wishlist` enum('0','1') COLLATE utf8_bin NOT NULL DEFAULT '0',
   `crtime` int(11) NOT NULL,
   `mtime` int(11) NOT NULL,
   PRIMARY KEY (`id`),

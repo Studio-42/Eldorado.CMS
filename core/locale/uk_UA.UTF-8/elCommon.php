@@ -80,6 +80,8 @@ $elMsg['Items']                       = 'Товари';
 $elMsg['Amount']                      = 'Разом';
 $elMsg['Checkout order']              = 'Оформити замовлення';
 $elMsg['Your shopping cart is empty'] = 'Ваш кошик порожній';
+$elMsg['Wishlist']                    = 'Отложенные товары';
+$elMsg['Items in wishlist']           = 'Отложенных товаров';
 //plugin news
 $elMsg['News'] = 'Новини';
 //plugin infoBlocks

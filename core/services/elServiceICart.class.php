@@ -12,7 +12,8 @@ class elServiceICart extends elService
 		'address'      => array('m' => 'address'),
 		'confirm'      => array('m' => 'confirm'),
 		'payment'      => array('m' => 'onlinePayment'),
-		'info'         => array('m' => 'deliveryInfo')
+		'info'         => array('m' => 'deliveryInfo'),
+		'wishlist'     => array('m' => 'wishlist')
 	);
     var $_iCart     = null;
 	var $_ats       = null;
@@ -71,7 +72,7 @@ class elServiceICart extends elService
 		} elseif ($this->_iCart->isEmpty()) {
 			return elMsgBox::put(m('Your shopping cart is empty'));
 		}
-		
+
 		elAppendToPagePath(array('url' => '__icart__', 'name' => 'icart'), true);
 		// $this->_user->removePrefrence('icartData');
 		$this->_userData = $this->_user->prefrence('icartData');
@@ -313,6 +314,32 @@ class elServiceICart extends elService
 		if (!$this->_steps['payment']['enable'] || !$this->_steps['payment']['allow']) {
 			elLocation($this->_url.'__icart__/');
 		}
+	}
+
+	/**
+	 * Wishlist
+	 *
+	 * @return void
+	 **/
+	function wishlist()
+	{
+		if (isset($_POST['action']) && ($_POST['action'] == 'delete'))
+		{
+			if (!empty($_POST['id'])) {
+				$this->_iCart->deleteItem($_POST['id']);
+				elLocation($this->_url.'__icart__/wishlist/');
+			}
+		}
+
+		$wishlist = array();
+		foreach ($this->_iCart->getItems() as $i)
+		{
+			if ($i['wishlist'] == 1)
+			{
+				array_push($wishlist, $i);
+			}
+		}
+		$this->_rnd->rndWishlist($wishlist);
 	}
 
     /**************************************************************/

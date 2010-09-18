@@ -36,41 +36,48 @@ class elICartRnd {
 	 **/
 	function rndICart($icart) {
 		$this->_rndCommon('cart');
-		$this->_te->setFile('ICART_CONTENT', 'services/ICart/icart.html');
-		
-		$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
-		$this->_te->assignVars('amount', $icart->amountFormated);
-		$items = $icart->getItems();
+		if ($icart->qnt)
+		{
+			$this->_te->setFile('ICART_CONTENT', 'services/ICart/icart.html');
 
-		$wishlist = array();
-		foreach ($items as $item) {
-			if ($item['wishlist'] == 1)
-			{
-				array_push($wishlist, $item);
-				continue;
-			}
-			$data = array(
-				'id'    => $item['id'],
-				'code'  => $item['code'],
-				'name'  => $item['name'],
-				'qnt'   => $item['qnt'],
-				'price' => $item['priceFormated'],
-				'sum'   => $item['sum'],
-				'props' => ''
-				);
-			if (!empty($item['props'])) {
-				foreach ($item['props'] as $p) {
-					$data['props'] .= "$p[0]: $p[1]<br/>";
+			$this->_te->assignVars('currencySign', $icart->getCurrencySymbol());
+			$this->_te->assignVars('amount', $icart->amountFormated);
+
+			foreach ($icart->getItems() as $item) {
+				if ($item['wishlist'] == 1)
+				{
+					continue;
 				}
+				$data = array(
+					'id'    => $item['id'],
+					'code'  => $item['code'],
+					'name'  => $item['name'],
+					'qnt'   => $item['qnt'],
+					'price' => $item['priceFormated'],
+					'sum'   => $item['sum'],
+					'props' => ''
+					);
+				if (!empty($item['props'])) {
+					foreach ($item['props'] as $p) {
+						$data['props'] .= "$p[0]: $p[1]<br/>";
+					}
+				}
+				$this->_te->assignBlockVars('ICART_ITEM', $data);
 			}
-			$this->_te->assignBlockVars('ICART_ITEM', $data);
+			$this->_te->parse('ICART_CONTENT');
 		}
-		$this->_te->parse('ICART_CONTENT');
+	}
 
+	/**
+	 * Render wishlist
+	 *
+	 * @return void
+	 **/
+	function rndWishlist($wishlist = array())
+	{
+		$this->_te->setFile('PAGE', 'services/ICart/wishlist.html');
 		if (!empty($wishlist))
 		{
-			$this->_te->setFile('ICART_WISHLIST', 'services/ICart/wishlist.html');
-			//echo 'wow';
 			$nav = & elSingleton::getObj('elNavigator');
 			foreach ($wishlist as $d)
 			{
@@ -89,11 +96,10 @@ class elICartRnd {
 				}
 				$this->_te->assignBlockVars('WISHLIST_ITEM', $data);
 			}
-			// and so on
-			$this->_te->parse('ICART_WISHLIST');
 		}
 	}
-	
+
+
 	/**
 	 * render delivery/payment selection
 	 *

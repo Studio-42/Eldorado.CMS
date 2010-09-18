@@ -1024,7 +1024,8 @@ class elSiteRenderer
         }
 
         $ICart = & elSingleton::getObj('elICart');
-		if ( !$ICart->qnt && !$this->_conf->get('iCartDisplayEmpty', 'layout') )
+
+		if ( !$ICart->qnt && !$ICart->wishlist && !$this->_conf->get('iCartDisplayEmpty', 'layout') )
 		{
 			return;
 		}
@@ -1043,7 +1044,13 @@ class elSiteRenderer
 			);
 			$this->_te->assignBlockVars('ICART_SUMMARY',  $data);
 		}
-		
+
+		// whislist
+		if ($ICart->wishlist)
+		{
+			$this->_te->assignBlockVars('WISHLIST', array('qnt' => $ICart->wishlist));
+		}
+
 		$this->_te->parse($tpl[0]);
 	}
 

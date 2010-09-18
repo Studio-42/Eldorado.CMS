@@ -14,6 +14,7 @@ $elMsg['Features']             = 'Властивості';
 $elMsg['not selected']         = 'Не обрано';
 $elMsg['from %s till %s']      = 'от %s до %s';
 $elMsg['Buy now']              = 'Купить';
+$elMsg['Add to wishlist']      = 'Отложить товар';
 $elMsg['Details']              = 'Подробнее';
 $elMsg['No such category']     = 'Нет такой категории';
 $elMsg['No such page']         = 'Нет такой страницы';

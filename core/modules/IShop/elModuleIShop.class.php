@@ -466,6 +466,9 @@ class elModuleIShop extends elModule {
 		$url = $this->_url.'item/'.$this->_parentID.'/'.$item->ID;
 		if ($this->_addToICart($item, $props, 1, $wishlist)) {
 			$msg = sprintf(m('Item %s was added to Your shopping cart. To proceed order right now go to <a href="%s">this link</a>'), ($this->_conf('displayCode') ? $item->code : '').' '.$item->name, EL_URL.'__icart__/' );
+			if ($wishlist) {
+				$msg = sprintf(m('Item %s was added to Your wishlist. To see your wishlist <a href="%s">follow this link</a>'), ($this->_conf('displayCode') ? $item->code : '').' '.$item->name, EL_URL.'__icart__/wishlist/' );
+			}
 			elMsgBox::put($msg);
 			elLocation($url);
 		} else {

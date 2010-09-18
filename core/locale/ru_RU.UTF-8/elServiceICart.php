@@ -37,5 +37,6 @@ $elMsg['Error! Could not send order! Please, contact site administrator.']
     = 'Ошибка! Не удалось отправить заказ! <br />Свяжитесь с администратором сайта.';
 $elMsg['Dear customer! We get your order and contact You as soon as posible. This is confirmation message and You dont need to answer on it.']
     = 'Уважаемый покупатель! Мы получили Ваш заказ и в самое ближайшее время свяжемся с Вами. Это письмо подтверждает получение заказа и не нуждается в ответе.';
-
+$elMsg['Item %s was added to Your wishlist. To see your wishlist <a href="%s">follow this link</a>']
+    = 'Товар %s был отложен. Вы можете посмотреть список отложенных товаров, <a href="%s">перейдя по этой ссылке</a>';
 ?>

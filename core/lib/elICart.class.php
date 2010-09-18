@@ -40,9 +40,9 @@ class elICart
 		return $this->_currency->getSymbol();
 	}
 
-    function isEmpty()
-    {
-        return !($this->qnt);
+	function isEmpty()
+	{
+		return !($this->qnt);
     }
     
     function deleteItem($ID)

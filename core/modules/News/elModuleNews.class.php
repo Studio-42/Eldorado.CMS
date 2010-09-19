@@ -54,6 +54,30 @@ class elModuleNews extends elModule
     $this->_rnd->renderNewsDetails( $this->_curNews );
   }
 
+	function ifModifiedSince()
+	{
+		// news detail
+		if ($this->_mh == 'read')
+		{
+			$n = & $this->_getNews();
+			if ($n->fetch())
+			{
+				return array(true, $n->publishTs);
+			}
+		}
+
+		// list updates when news added, than take last news as Last-Modified
+		if ($this->_mh == '')
+		{
+			$n = & $this->_getNews();
+			$coll = $n->collection(true, false, null, 'published DESC', 0, 1);
+			$n = array_shift($coll);
+			return array(true, $n->publishTs);
+		}
+
+		// default answer
+		return parent::ifModifiedSince();
+	}
 
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //

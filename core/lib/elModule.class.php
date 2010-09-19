@@ -424,7 +424,15 @@ class elModule {
 	 **/
 	function onUninstall() {}
 
-
+	/**
+	 * "If-Modified-Since"
+	 *
+	 * @return  array(bool, int)  bool - modified yes/no, int - "Last-Modified" in timestamp, 0 for unknown or now
+	 **/
+	function ifModifiedSince()
+	{
+		return array(true, 0);
+	}
 
 	//**************************************************************************************//
 	// =============================== PRIVATE METHODS ==================================== //

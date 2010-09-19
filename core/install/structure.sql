@@ -223,6 +223,7 @@ DROP TABLE IF EXISTS `el_page`;
 CREATE TABLE IF NOT EXISTS `el_page` (
   `id`      int(3) NOT NULL DEFAULT '0',
   `content` text COLLATE utf8_bin NOT NULL,
+  `mtime`   int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

@@ -237,6 +237,7 @@ class elCore
 
 		if ( $this->_loadModule() )
 		{
+			$this->_ifModifiedSince();
 			$this->rnd->prepare( implode('/', $this->args) );
 			$this->module->run();
 			$this->module->stop();
@@ -324,14 +325,33 @@ class elCore
 				}
 				else
 				{
-				  if (!headers_sent())
-				  {
-					 header('Content-type: text/xml; charset=utf-8');
-				  }
+					if (!headers_sent())
+					{
+						header('Content-type: text/xml; charset=utf-8');
+					}
 					echo $srv->toXML();
 				}
 		}
 	}
 
+	/**
+	 * Check for "If-Modified-Since" header from crawlers and bots
+	 * and sent correct reply if module support's it
+	 *
+	 * @return void
+	 **/
+	function _ifModifiedSince()
+	{
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+		{
+			list($flag, $ts) = $this->module->ifModifiedSince();
+			$ims = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+			if (($flag == true) && ($ts > 0) && ($ims > 0) && ($ims > $ts))
+			{
+				header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
+				exit;
+			}
+		}
+		return true;
+	}
 }
-

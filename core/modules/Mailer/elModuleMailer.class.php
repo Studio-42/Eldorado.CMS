@@ -44,6 +44,11 @@ class elModuleMailer extends elModule
       $this->_rnd->addToContent( $this->form->toHtml() );
     }
 
+	function ifModifiedSince()
+	{
+		// this page becomes old in 7 days
+		return array(true, (time() - (86400 * 7)));
+	}
 
   // ============================================================ //
   //  ================  PRIVATE METHODS  ======================   //

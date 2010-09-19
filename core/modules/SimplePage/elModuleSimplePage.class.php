@@ -44,10 +44,14 @@ class elModuleSimplePage extends elModule
 	{
 		$this->_page     = & elSingleton::getObj('elPage');
 		$this->_page->ID = $this->pageID;
-		if ( !$this->_page->fetch() )
+		if (!$this->_page->fetch())
 		{
 			$db = & elSingleton::getObj('elDb');
-			$db->query('INSERT INTO el_page (id) VALUES (\''.$this->pageID.'\')' );
+			$db->query('INSERT INTO el_page (id) VALUES (\''.$this->pageID.'\')');
+		}
+		elseif ($this->_page->mtime == 0)
+		{
+			$this->_page->save();	// this will set mtime to time()
 		}
 	}
 }

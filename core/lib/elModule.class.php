@@ -431,7 +431,7 @@ class elModule {
 	 **/
 	function ifModifiedSince()
 	{
-		return array(true, 0);
+		return array(false, 0);
 	}
 
 	//**************************************************************************************//

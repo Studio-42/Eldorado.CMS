@@ -719,6 +719,20 @@ EOL;
 		exit(elJSON::encode($_GET));
 	}
 
+	function ifModifiedSince()
+	{
+		if ($this->_arg(1) > 0)
+		{
+			$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
+			if ($item->ID)
+			{
+				return array(true, $item->mtime);
+			}
+		}
+		// default answer
+		return parent::ifModifiedSince();
+	}
+
  //**************************************************************************************//
  // =============================== PRIVATE METHODS ==================================== //
  //**************************************************************************************//

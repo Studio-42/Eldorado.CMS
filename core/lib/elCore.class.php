@@ -349,6 +349,8 @@ class elCore
 			if (($flag == true) && ($ts > 0) && ($ims > 0) && ($ims > $ts))
 			{
 				header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
+				// header('X-Last-Modified: '.$ts .', '.date('r', $ts ));
+				// header('X-If-Modified-Since: '.$ims.', '.date('r', $ims));
 				exit;
 			}
 		}

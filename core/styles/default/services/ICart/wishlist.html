@@ -1,0 +1,40 @@
+<div id="wishlist" class="rounded-left-5">
+	<h3>{m('Wishlist')}</h3>
+	<form action="{URL}__icart__/wishlist/" method="POST">
+		<input type="hidden" name="action" value="next" />
+		<input type="hidden" name="id" />
+
+		<table class="full" cellspacing="0">
+			<thead>
+				<tr>
+			        <th>{m('Product name')}</th>
+			        <th class="text-right">{m('Price')}, {currencySign}</th>
+					<th></th>
+			    </tr>
+			</thead>
+			<tbody>
+			    <!-- BEGIN WISHLIST_ITEM -->
+			    <tr>
+			        <td>
+			            <div><a href="{link}">{code} {name}</a></div>
+			            <div class="mute">{props}</div>
+			        </td>
+			        <td class="text-right">{price}</td>
+			        <td><a href="{URL}__icart__/" class="icons delete" title="{m('Remove product')}" rel="{id}"></a></td>
+			    </tr>    
+			    <!-- END WISHLIST_ITEM -->
+			</tbody>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+	$().ready(function() {
+		$('#wishlist .delete').click(function(e) {
+			e.preventDefault();
+			if (confirm("{m('Remove product')}?")) {
+				$(this).parents('form').eq(0).find(':hidden[name="action"]').val('delete').end().find(':hidden[name="id"]').val($(this).attr('rel')).end().submit();
+			}
+		});
+	});
+</script>

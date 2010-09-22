@@ -62,7 +62,12 @@ class elPluginCatsNav extends elPlugin {
 		'TechShop'       => 'el_techshop_%d_cat',
 		'VacancyCatalog' => 'el_vaccat_%d_cat'
 		);
-		
+	/**
+	 * Current module args from elNavigator
+	 *
+	 * @var array
+	 **/
+	var $_args = array();
 	/**
 	 * constructor
 	 *
@@ -70,7 +75,8 @@ class elPluginCatsNav extends elPlugin {
 	 **/
 	function elPluginCatsNav($name, $pageID, $params) {
 		parent::elPlugin($name, $pageID, $params);
-		$this->_nav   = & elSingleton::getObj('elNavigator');
+		$this->_nav  = & elSingleton::getObj('elNavigator');
+		$this->_args = $this->_nav->getRequestArgs();
 		foreach ($this->_modules as $m) {
 			foreach($this->_nav->findByModule($m) as $id) {
 				$this->_src[$id] = $this->_nav->getPageName($id);
@@ -92,7 +98,7 @@ class elPluginCatsNav extends elPlugin {
 		}
 
 		$rnd = & elSingleton::getObj('elSiteRenderer');
-		
+
 		foreach ($src as $id => $s) {
 			if (!isset($this->_src[$s['src']])) {
 				$this->_rm($id);
@@ -104,7 +110,7 @@ class elPluginCatsNav extends elPlugin {
 			$url     = $this->_nav->getPageURL($s['src']);
 			$p       = $this->_nav->getPage($s['src']);
 			$module  = $p['module'];
-			
+
 			switch ($module) {
 				case 'IShop':
 					switch ($s['type']) {
@@ -199,12 +205,25 @@ class elPluginCatsNav extends elPlugin {
 		$menu = array();
 		$cat  = & new elCatalogCategory(0, sprintf($this->_tbs[$module], $s['src']));
 		foreach ($cat->getTreeToArray($s['pos'] == EL_POS_TOP ? 1 : $s['deep']) as $c) {
-			$c['url'] = $url.'cats/'.$c['id'].'/';
+			$c['url'] = $url.($module == 'IShop' ? 'cats/' : '').$c['id'].'/';
 			$menu[$c['id']] = $c;
 		}
 		
 		if ($s['src'] == $this->pageID && isset($menu[$GLOBALS['categoryID']])) {
-			$menu[$GLOBALS['categoryID']]['selected'] = true;
+			if ($module == 'IShop')
+			{
+				$c       = &elSingleton::getObj('elXmlConf');
+				$conf    = $c->getGroup($s['src']);
+				// check that we actually looking category and not mnf or type
+				if ((isset($this->_args[0]) && ($this->_args[0] == 'cats')) || ($conf['default_view'] == 1))
+				{
+					$menu[$GLOBALS['categoryID']]['selected'] = true;
+				}
+			}
+			else
+			{
+				$menu[$GLOBALS['categoryID']]['selected'] = true;
+			}
 		}
 		// elPrintr($menu);
 		return $menu;
@@ -247,13 +266,15 @@ class elPluginCatsNav extends elPlugin {
 						);
 				}
 			}
-			if ($s['src'] == $this->pageID) {
+			if (($s['src'] == $this->pageID)
+				&& (isset($this->_args[0]) && ($this->_args[0] == 'mnfs')))
+			{
 				if (isset($GLOBALS['ishopTmID']) && isset($menu[$GLOBALS['ishopParentID'].'-'.$GLOBALS['ishopTmID']])) {
 					$menu[$GLOBALS['ishopParentID'].'-'.$GLOBALS['ishopTmID']]['selected'] = true;
 				} elseif (isset($menu[$GLOBALS['ishopParentID'].'-0'])) {
 					$menu[$GLOBALS['ishopParentID'].'-0']['selected'] = 1;
 				}
-				echo $GLOBALS['ishopParentID'].' '.$GLOBALS['ishopTmID'];
+				// echo $GLOBALS['ishopParentID'].' '.$GLOBALS['ishopTmID'];
 			}
 		}
 		return $menu;
@@ -281,7 +302,14 @@ class elPluginCatsNav extends elPlugin {
 					);
 			}
 		}
-		if ($s['src'] == $this->pageID && isset($menu[$GLOBALS['ishopParentID']])) {
+		if (
+			(($s['src'] == $this->pageID) && isset($menu[$GLOBALS['ishopParentID']]))
+			&& (
+				(isset($this->_args[0]) && ($this->_args[0] == 'types'))
+				|| ($conf['default_view'] == 3)
+			)
+		)
+		{
 			$menu[$GLOBALS['ishopParentID']]['selected'] = 1;
 		}
 		return $menu;

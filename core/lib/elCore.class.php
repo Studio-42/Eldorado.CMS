@@ -157,8 +157,8 @@ class elCore
 			else
 			{
 				// authed but has no permissions
-				header('HTTP/1.0 403 Acces denied');
-				elThrow(E_USER_WARNING, 'Error 403: Acces to page "%s" denied.', EL_URL, EL_BASE_URL);
+				header($_SERVER['SERVER_PROTOCOL'].' 403 Access denied');
+				elThrow(E_USER_WARNING, 'Error 403: Access to page "%s" denied.', EL_URL, EL_BASE_URL);
 			}
 		}
 		if ($this->ats->allow(EL_WRITE))
@@ -344,9 +344,18 @@ class elCore
 	{
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 		{
-			list($flag, $ts) = $this->module->ifModifiedSince();
 			$ims = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
-			if (($flag == true) && ($ts > 0) && ($ims > 0) && ($ims > $ts))
+			if ($ims > time()) // we do not work with future
+			{
+				return true;
+			}
+			list($flag, $ts) = $this->module->ifModifiedSince();
+			if (
+				($flag == true)
+				&& ($ts > 0)
+				&& ($ims > 0)
+				&& ($ims > $ts)
+			)
 			{
 				header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
 				// header('X-Last-Modified: '.$ts .', '.date('r', $ts ));

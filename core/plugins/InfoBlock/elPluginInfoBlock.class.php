@@ -58,6 +58,11 @@ class elPluginInfoBlock extends elPlugin
 
 	function call($args)
 	{
+		if (!allowPluginsCtlPage())
+		{
+			header($_SERVER['SERVER_PROTOCOL'].' 403 Access denied');
+			elThrow(E_USER_WARNING, 'Error 403: Access to page "%s" denied.', EL_URL, EL_BASE_URL);
+		}
 		$act = $args[0];
 		$ID  = !empty($args[1]) ? (int)$args[1] : 0;
 

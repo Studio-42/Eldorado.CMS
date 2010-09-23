@@ -721,13 +721,28 @@ EOL;
 
 	function ifModifiedSince()
 	{
-		if ($this->_arg(1) > 0)
+		// item requested
+		// echo '_mh:'.$this->_mh.'|';
+		if (($this->_mh == 'item') && ($this->_arg(1) > 0))
 		{
+			// echo 'lol';
 			$item = $this->_factory->create(EL_IS_ITEM, $this->_arg(1));
 			if ($item->ID)
 			{
 				return array(true, $item->mtime);
 			}
+		}
+		elseif ($this->_mh != 'item')
+		{
+			/*
+			 * ...somewhere in catalog
+			 * Probably the last catalog modification time is when last item was modified
+			 * This is not 100% perfect but should be okay for most cases
+			 */
+			$item = $this->_factory->create(EL_IS_ITEM);
+			$coll = $item->collection(true, false, null, 'mtime DESC', 0, 1);
+			$item = array_shift($coll);
+			return array(true, $item->mtime);
 		}
 		// default answer
 		return parent::ifModifiedSince();

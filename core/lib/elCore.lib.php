@@ -241,7 +241,6 @@ function elLoadJQueryUI()
 		if (!$theme || !is_dir('./style/css/ui-themes/'.$theme))
 		{
 			$theme = 'smoothness';
-			//$theme = 'Cupertino';
 		}
 		$GLOBALS['_css_']['ui-theme'] = 'ui-themes/'.$theme.'/jquery-ui.css';
 		if (sizeof($GLOBALS['_js_'][EL_JS_CSS_FILE]) > 2)

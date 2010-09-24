@@ -1,3 +1,8 @@
+/*
+ * Russian translation
+ * @author Dmitry Levashov <dio@std42.ru>
+ * @version 2010-09-20
+ */
 (function($) {
 elRTE.prototype.i18Messages.ru = {
 	'Editor' : 'Редактор',
@@ -18,6 +23,7 @@ elRTE.prototype.i18Messages.ru = {
 	'Tables'         : 'Таблицы',
 	'File manager (elFinder)' : 'Файловый менеджер (elFinder)',
 	// названия кнопок
+	'About this software'     : 'О программе',
 	'Save'                    : 'Сохранить',
 	'Copy'                    : 'Копировать',
 	'Cut'                     : 'Вырезать',
@@ -169,7 +175,36 @@ elRTE.prototype.i18Messages.ru = {
 	'Current cell' : 'Выбранная ячейка',
 	'All cells in row' : 'Все ячейки в ряду',
 	'All cells in column' : 'Все ячейки в столбце',
-	'All cells in table' : 'Все ячейки таблицы'
+	'All cells in table' : 'Все ячейки таблицы',
+	// about
+	'About elRTE' : 'О редакторе elRTE',
+	'Version' : 'Версия',
+	'Licence' : 'Лицензия',
+	'elRTE is an open-source JavaScript based WYSIWYG HTML-editor.' : 'elRTE - это свободный WYSIWYG редактор для сайтов и систем управления контентом (CMS), написанный на JavaScript.',
+	'Main goal of the editor - simplify work with text and formating (HTML) on sites, blogs, forums and other online services.' : 'Основная цель редактора - максимально упростить работу с текстом и разметкой (HTML) на сайтах, блогах, форумах и прочих online сервисах.',
+	'You can use it in any commercial or non-commercial projects.' : 'Вы можете использовать его в любых коммерческих и некоммерческих проектах.',
+	'Authors' : 'Авторы',
+	'Chief developer' : 'Ведущий разработчик',
+	'Developer, tech support' : 'Разработчик, техническая поддержка',
+	'Developer' : 'Разработчик',
+	'Interface designer' : 'Дизайнер интерфейса',
+	'Spanish localization' : 'Испанская локализация',
+	'Czech localization' : 'Чешская локализация',
+	'Japanese localization' : 'Японская локализация',
+	'Latvian localization' : 'Латышская локализация',
+	'German localization' : 'Немецкая локализация',
+	'Ukranian localization' : 'Украинская локализация',
+	'Persian (farsi) localization' : 'Персидская (фарси) локализация',
+	'Arabic localization' : 'Арабская локализация',
+	'RTL support' : 'Поддержка RTL',
+	'French localization' : 'Французская локализация',
+	'Dutch localization' : 'Голландская локализация',
+	'Hungarian localization' : 'Венгерская локализация',
+	'Polish localization' : 'Польская локализация',
+	'Italian localization' : 'Итальянская локализация',
+	'Traditional Chinese localization' : 'Китайская (традиционная) локализация',
+	'For more information about this software visit the' : 'Подробная информация и форум тех. поддержки',
+	'elRTE website' : 'на сайте elRTE' 
 	
 	
 }

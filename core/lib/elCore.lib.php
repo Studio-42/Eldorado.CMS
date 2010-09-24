@@ -240,9 +240,10 @@ function elLoadJQueryUI()
 		$theme = $conf->get('jQUITheme', 'layout');
 		if (!$theme || !is_dir('./style/css/ui-themes/'.$theme))
 		{
-			$theme = 'Cupertino';
+			$theme = 'smoothness';
+			//$theme = 'Cupertino';
 		}
-		$GLOBALS['_css_']['ui-theme'] = 'ui-themes/'.$theme.'/ui.all.css';
+		$GLOBALS['_css_']['ui-theme'] = 'ui-themes/'.$theme.'/jquery-ui.css';
 		if (sizeof($GLOBALS['_js_'][EL_JS_CSS_FILE]) > 2)
 		{
 			array_shift($GLOBALS['_js_'][EL_JS_CSS_FILE]);

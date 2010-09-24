@@ -282,12 +282,12 @@ class elIShopFinder {
 
 		if ($name == 'type') {
 			if ($mnf) {
-				$ids = $value ? $this->_db->query(sprintf('SELECT mnf_id FROM %s WHERE type_id=%d GROUP BY mnf_id', $this->_tb['item'], $value), 'mnf_id', 'mnf_if') : $mnf['opts'];
+				$ids = $value ? $this->_db->queryToArray(sprintf('SELECT mnf_id FROM %s WHERE type_id=%d GROUP BY mnf_id', $this->_tb['item'], $value), 'mnf_id', 'mnf_if') : $mnf['opts'];
 				$ret['mnf'] = $this->_pack($mnf['opts'], $ids, $mnf['noselect_label']);
 			}
 			
 			if ($tm) {
-				$ids = $value ? $this->_db->query(sprintf('SELECT tm_id FROM %s WHERE type_id=%d GROUP BY tm_id', $this->_tb['item'],   $value), 'tm_id', 'tm_id') : $tm['opts'];
+				$ids = $value ? $this->_db->queryToArray(sprintf('SELECT tm_id FROM %s WHERE type_id=%d GROUP BY tm_id', $this->_tb['item'],   $value), 'tm_id', 'tm_id') : $tm['opts'];
 				$ret['tm'] = $this->_pack($tm['opts'], $ids, $tm['noselect_label']);
 			}
 			
